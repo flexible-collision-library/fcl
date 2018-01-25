@@ -3,6 +3,10 @@
 
 version: "{build}"
 
+image: Visual Studio 2017
+
+platform: x64
+
 clone_folder: C:\projects\fcl
 shallow_clone: true
 
@@ -10,26 +14,11 @@ environment:
   CTEST_OUTPUT_ON_FAILURE: 1
   CMAKE_TOOLCHAIN_FILE: -DCMAKE_TOOLCHAIN_FILE="C:\tools\vcpkg\scripts\buildsystems\vcpkg.cmake"
   matrix:  
-    - image: Visual Studio 2017
-      platform: x64
-      CMAKE_GENERATOR: -G"Visual Studio 15 2017 Win64"
-      CMAKE_TOOLCHAIN: -T"v140"
-    - image: Visual Studio 2017
-      platform: Win32
-      CMAKE_GENERATOR: -G"Visual Studio 15 2017"
-      CMAKE_TOOLCHAIN: -T"v140"
-    - image: Visual Studio 2015
-      platform: x64
-      CMAKE_GENERATOR: -G"Visual Studio 14 2015 Win64"
-      CMAKE_TOOLCHAIN: -T"v140"
-    - image: Visual Studio 2015
-      platform: Win32
-      CMAKE_GENERATOR: -G"Visual Studio 14 2015"
+    - CMAKE_GENERATOR: -G"Visual Studio 15 2017 Win64"
       CMAKE_TOOLCHAIN: -T"v140"
 
 cache:
   - C:\tools\vcpkg\installed -> .appveyor.yml
-  - C:\tools\vcpkg\packages -> .appveyor.yml
 
 configuration:
   - Debug
@@ -40,7 +29,7 @@ before_build:
   - cmd: if "%platform%"=="x64"   set VCPKG_ARCH=x64-windows
   - cmd: vcpkg install eigen3:%VCPKG_ARCH%
   - cmd: vcpkg install ccd:%VCPKG_ARCH%
-  #- cmd: vcpkg install octomap:%VCPKG_ARCH%
+  - cmd: vcpkg install octomap:%VCPKG_ARCH%
   - cmd: set
   - cmd: mkdir build
   - cmd: cd build
