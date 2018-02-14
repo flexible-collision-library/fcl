@@ -48,7 +48,7 @@ template <typename S>
 void test_collision_cylinder_half_space(fcl::GJKSolverType solver_type)
 {
   // Numerical precision expected in the results.
-  const double kTolerance = 5 * std::numeric_limits<double>::epsilon();
+  const double kTolerance = 20 * std::numeric_limits<double>::epsilon();
 
   const S radius = 0.05;
   const S length = 4 * radius;
