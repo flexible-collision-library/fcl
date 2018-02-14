@@ -371,7 +371,7 @@ bool cylinderHalfspaceIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
   Vector3<S> dir_z = R.col(2);
   S cosa = dir_z.dot(new_s2.n);
 
-  if(cosa < halfspaceIntersectTolerance<S>())
+  if(std::abs(cosa) < halfspaceIntersectTolerance<S>())
   {
     S signed_dist = new_s2.signedDistance(T);
     S depth = s1.radius - signed_dist;
