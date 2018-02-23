@@ -1,5 +1,3 @@
-brew tap homebrew/science
-
 brew update > /dev/null
 
 brew install git
