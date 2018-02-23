@@ -35,16 +35,19 @@
 /** @author Sean Curtis */
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
 
 #include <gtest/gtest.h>
+#include <Eigen/Dense>
 
 #include "fcl/math/constants.h"
 #include "fcl/narrowphase/collision.h"
 #include "fcl/narrowphase/collision_object.h"
 
+using std::map;
 using std::pair;
 using std::string;
 using std::vector;
@@ -54,6 +57,7 @@ using std::vector;
 // of the notation X_FB, see:
 // http://drake.mit.edu/doxygen_cxx/group__multibody__spatial__pose.html
 template <typename S> struct BoxSpecification {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   fcl::Vector3<S> size;
   fcl::Transform3<S> X_FB;
 };
@@ -85,17 +89,17 @@ class BoxBoxTest {
      const S pi = fcl::constants<S>::pi();
 
      // Initialize isomorphic rotations of box 2.
-     iso_poses_.emplace_back("top", Transform3<S>::Identity());
-     iso_poses_.emplace_back(
-         "bottom", Transform3<S>{AngleAxis<S>(pi, Vector3<S>::UnitX())});
-     iso_poses_.emplace_back(
-         "back", Transform3<S>{AngleAxis<S>(pi / 2, Vector3<S>::UnitX())});
-     iso_poses_.emplace_back(
-         "front", Transform3<S>{AngleAxis<S>(3 * pi / 2, Vector3<S>::UnitX())});
-     iso_poses_.emplace_back(
-         "left", Transform3<S>{AngleAxis<S>(pi / 2, Vector3<S>::UnitY())});
-     iso_poses_.emplace_back(
-         "right", Transform3<S>{AngleAxis<S>(3 * pi / 2, Vector3<S>::UnitY())});
+     iso_poses_["top"] = Transform3<S>::Identity();
+     iso_poses_["bottom"] =
+         Transform3<S>{AngleAxis<S>(pi, Vector3<S>::UnitX())};
+     iso_poses_["back"] =
+         Transform3<S>{AngleAxis<S>(pi / 2, Vector3<S>::UnitX())};
+     iso_poses_["front"] =
+         Transform3<S>{AngleAxis<S>(3 * pi / 2, Vector3<S>::UnitX())};
+     iso_poses_["left"] =
+         Transform3<S>{AngleAxis<S>(pi / 2, Vector3<S>::UnitY())};
+     iso_poses_["right"] =
+         Transform3<S>{AngleAxis<S>(3 * pi / 2, Vector3<S>::UnitY())};
   }
 
   // Runs the 12 tests for the two specified boxes.
@@ -211,8 +215,9 @@ private:
 
   const BoxSpecification<S> box_spec_1_;
   const BoxSpecification<S> box_spec_2_;
-  vector<pair<string, fcl::Transform3<S>>> iso_poses_;
-
+  map<string, fcl::Transform3<S>, std::less<string>,
+      Eigen::aligned_allocator<std::pair<const string, fcl::Transform3<S>>>>
+      iso_poses_;
 };
 
 // This test exercises the case of face-something contact. In the language of
