@@ -2,49 +2,38 @@
 # http://www.appveyor.com/docs/appveyor-yml
 
 version: "{build}"
-
+image: Visual Studio 2017
 clone_folder: C:\projects\fcl
 shallow_clone: true
+
+# build platform, i.e. Win32 (instead of x86), x64, Any CPU. This setting is optional.
+platform:
+  - Win32
+  - x64
 
 environment:
   CTEST_OUTPUT_ON_FAILURE: 1
   CMAKE_TOOLCHAIN_FILE: -DCMAKE_TOOLCHAIN_FILE="C:\tools\vcpkg\scripts\buildsystems\vcpkg.cmake"
-  matrix:  
-    - image: Visual Studio 2017
-      platform: x64
-      CMAKE_GENERATOR: -G"Visual Studio 15 2017 Win64"
-      CMAKE_TOOLCHAIN: -T"v140"
-    - image: Visual Studio 2017
-      platform: Win32
-      CMAKE_GENERATOR: -G"Visual Studio 15 2017"
-      CMAKE_TOOLCHAIN: -T"v140"
-    - image: Visual Studio 2015
-      platform: x64
-      CMAKE_GENERATOR: -G"Visual Studio 14 2015 Win64"
-      CMAKE_TOOLCHAIN: -T"v140"
-    - image: Visual Studio 2015
-      platform: Win32
-      CMAKE_GENERATOR: -G"Visual Studio 14 2015"
-      CMAKE_TOOLCHAIN: -T"v140"
+  CMAKE_TOOLCHAIN: -T"v141"
 
 cache:
   - C:\tools\vcpkg\installed -> .appveyor.yml
-  - C:\tools\vcpkg\packages -> .appveyor.yml
 
 configuration:
   - Debug
   - Release
 
 before_build:
+  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 14 2015
+  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 14 2015 Win64
   - cmd: if "%platform%"=="Win32" set VCPKG_ARCH=x86-windows
   - cmd: if "%platform%"=="x64"   set VCPKG_ARCH=x64-windows
-  - cmd: vcpkg install eigen3:%VCPKG_ARCH%
-  - cmd: vcpkg install ccd:%VCPKG_ARCH%
-  #- cmd: vcpkg install octomap:%VCPKG_ARCH%
+  - cmd: vcpkg remove --outdated --recurse
+  - cmd: vcpkg install --recurse --triplet %VCPKG_ARCH% ccd eigen3 octomap
   - cmd: set
   - cmd: mkdir build
   - cmd: cd build
-  - cmd: cmake %CMAKE_GENERATOR% -DCMAKE_BUILD_TYPE=%configuration% %CMAKE_TOOLCHAIN_FILE% %CMAKE_TOOLCHAIN% ..
+  - cmd: cmake -G %CMAKE_GENERATOR_NAME% -DCMAKE_BUILD_TYPE=%configuration% %CMAKE_TOOLCHAIN_FILE% %CMAKE_TOOLCHAIN% ..
 
 build:
   project: C:\projects\fcl\build\fcl.sln
