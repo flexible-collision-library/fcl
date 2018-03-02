@@ -37,7 +37,7 @@ before_build:
   - cmd: vcpkg remove --outdated --recurse
   - cmd: vcpkg install --recurse --triplet %VCPKG_ARCH% ccd eigen3 octomap
   - cmd: set
-  - cmd: C:\projects\fcl
+  - cmd: cd C:\projects\fcl
   - cmd: mkdir build
   - cmd: cd build
   - cmd: cmake -G %CMAKE_GENERATOR_NAME% -DCMAKE_BUILD_TYPE=%configuration% %CMAKE_TOOLCHAIN_FILE% %CMAKE_TOOLCHAIN% ..
