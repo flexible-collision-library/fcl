@@ -28,9 +28,16 @@ before_build:
   - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 14 2015 Win64
   - cmd: if "%platform%"=="Win32" set VCPKG_ARCH=x86-windows
   - cmd: if "%platform%"=="x64"   set VCPKG_ARCH=x64-windows
+  
+  # update vcpkg
+  - cmd: cd C:\tools\vcpkg
+  - cmd: git pull
+  - cmd: .\bootstrap-vcpkg.bat
+  
   - cmd: vcpkg remove --outdated --recurse
   - cmd: vcpkg install --recurse --triplet %VCPKG_ARCH% ccd eigen3 octomap
   - cmd: set
+  - cmd: C:\projects\fcl
   - cmd: mkdir build
   - cmd: cd build
   - cmd: cmake -G %CMAKE_GENERATOR_NAME% -DCMAKE_BUILD_TYPE=%configuration% %CMAKE_TOOLCHAIN_FILE% %CMAKE_TOOLCHAIN% ..
