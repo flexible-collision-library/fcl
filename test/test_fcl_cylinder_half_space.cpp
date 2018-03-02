@@ -1,9 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2013-2014, Willow Garage, Inc.
- *  Copyright (c) 2014-2016, Open Source Robotics Foundation
- *  All rights reserved.
+ *  Copyright (c) 2018, Toyota Research Institute
  *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
@@ -62,7 +60,7 @@ void test_collision_cylinder_half_space(fcl::GJKSolverType solver_type)
   // Pose of half space frame H in the world frame W.
   Transform3<S> X_WH = Transform3<S>::Identity();
 
-  CollisionObject<S> half_sapce_co(half_space, X_WH);
+  CollisionObject<S> half_space_co(half_space, X_WH);
   CollisionObject<S> cylinder_co(cylinder, X_WC);
 
   fcl::CollisionResult<S> result;
@@ -71,7 +69,7 @@ void test_collision_cylinder_half_space(fcl::GJKSolverType solver_type)
   fcl::CollisionRequest<S> request(num_max_contacts, enable_contact);
   request.gjk_solver_type = solver_type;
 
-  fcl::collide(&half_sapce_co, &cylinder_co, request, result);
+  fcl::collide(&half_space_co, &cylinder_co, request, result);
   vector<Contact<S>> contacts;
   result.getContacts(contacts);
 
@@ -79,14 +77,14 @@ void test_collision_cylinder_half_space(fcl::GJKSolverType solver_type)
   EXPECT_NEAR(contacts[0].penetration_depth, 0.051, kTolerance);
 
   // Now perform the same test but with the cylinder's z axis Cz pointing down.
-  X_WC.linear() = AngleAxisd(M_PI, Vector3d::UnitX()).matrix();
-  X_WC.translation() = Vector3d(0, 0, 0.049);
+  X_WC.linear() = AngleAxis<S>(M_PI, Vector3d::UnitX()).matrix();
+  X_WC.translation() = Vector3<S>(0, 0, 0.049);
   cylinder_co.setTransform(X_WC);
 
   result.clear();
   contacts.clear();
 
-  fcl::collide(&half_sapce_co, &cylinder_co, request, result);
+  fcl::collide(&half_space_co, &cylinder_co, request, result);
   result.getContacts(contacts);
 
   EXPECT_EQ(static_cast<int>(contacts.size()), 1);
