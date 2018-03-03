@@ -24,8 +24,8 @@ configuration:
   - Release
 
 before_build:
-  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 14 2015
-  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 14 2015 Win64
+  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
+  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
   - cmd: if "%platform%"=="Win32" set VCPKG_ARCH=x86-windows
   - cmd: if "%platform%"=="x64"   set VCPKG_ARCH=x64-windows
   
@@ -40,7 +40,7 @@ before_build:
   - cmd: cd C:\projects\fcl
   - cmd: mkdir build
   - cmd: cd build
-  - cmd: cmake -G %CMAKE_GENERATOR_NAME% -DCMAKE_BUILD_TYPE=%configuration% %CMAKE_TOOLCHAIN_FILE% %CMAKE_TOOLCHAIN% ..
+  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% %CMAKE_TOOLCHAIN_FILE% %CMAKE_TOOLCHAIN% ..
 
 build:
   project: C:\projects\fcl\build\fcl.sln
