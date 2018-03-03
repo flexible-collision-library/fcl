@@ -35,7 +35,7 @@ before_build:
   - cmd: .\bootstrap-vcpkg.bat
   
   - cmd: vcpkg remove --outdated --recurse
-  - cmd: vcpkg install --recurse --triplet %VCPKG_ARCH% ccd eigen3 octomap
+  - cmd: vcpkg install --recurse --triplet %VCPKG_ARCH% ccd eigen3
   - cmd: set
   - cmd: cd C:\projects\fcl
   - cmd: mkdir build
