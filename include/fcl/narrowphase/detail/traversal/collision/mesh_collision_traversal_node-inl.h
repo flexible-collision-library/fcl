@@ -161,7 +161,7 @@ void MeshCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
       S penetration;
       Vector3<S> normal;
       unsigned int n_contacts;
-      Vector3<S> contacts[2];
+      Vector3<S> contacts[6]; // Coplanar triangles can intersect at up to 6 points
 
       if(Intersect<S>::intersect_Triangle(p1, p2, p3, q1, q2, q3,
                                        contacts,
@@ -580,7 +580,7 @@ void meshCollisionOrientedNodeLeafTesting(
       S penetration;
       Vector3<S> normal;
       unsigned int n_contacts;
-      Vector3<S> contacts[2];
+      Vector3<S> contacts[6];
 
       if(Intersect<S>::intersect_Triangle(p1, p2, p3, q1, q2, q3,
                                        R, T,
@@ -677,7 +677,7 @@ void meshCollisionOrientedNodeLeafTesting(
       S penetration;
       Vector3<S> normal;
       unsigned int n_contacts;
-      Vector3<S> contacts[2];
+      Vector3<S> contacts[6];
 
       if(Intersect<S>::intersect_Triangle(
            p1, p2, p3, q1, q2, q3, tf, contacts, &n_contacts, &penetration, &normal))

@@ -30,7 +30,7 @@ add_definitions(-DGTEST_DONT_DEFINE_ASSERT_GT=1)
 
 execute_process(COMMAND cmake -E remove_directory ${CMAKE_BINARY_DIR}/test_results)
 execute_process(COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/test_results)
-include_directories(${GTEST_INCLUDE_DIRS})
+include_directories(SYSTEM ${GTEST_INCLUDE_DIRS})
 
 add_library(test_fcl_utility test_fcl_utility.cpp)
 target_link_libraries(test_fcl_utility fcl)
@@ -38,6 +38,7 @@ target_link_libraries(test_fcl_utility fcl)
 # test file list
 set(tests
     test_fcl_auto_diff.cpp
+    test_fcl_boxmesh_boxmesh.cpp
     test_fcl_broadphase_collision_1.cpp
     test_fcl_broadphase_collision_2.cpp
     test_fcl_broadphase_distance.cpp
@@ -47,6 +48,7 @@ set(tests
     test_fcl_capsule_capsule.cpp
     test_fcl_cylinder_half_space.cpp
     test_fcl_collision.cpp
+    test_fcl_coplanar_triangles.cpp
     test_fcl_distance.cpp
     test_fcl_frontlist.cpp
     test_fcl_general.cpp
@@ -57,6 +59,7 @@ set(tests
     test_fcl_signed_distance.cpp
     test_fcl_simple.cpp
     test_fcl_sphere_capsule.cpp
+    test_fcl_tetrahedrons.cpp
 )
 
 if (FCL_HAVE_OCTOMAP)

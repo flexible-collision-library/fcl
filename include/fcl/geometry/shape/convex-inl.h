@@ -50,14 +50,14 @@ class FCL_EXPORT Convex<double>;
 //==============================================================================
 template <typename S>
 Convex<S>::Convex(
-    Vector3<S>* plane_normals, S* plane_dis, int num_planes_,
-    Vector3<S>* points, int num_points_, int* polygons_)
+    Vector3<S>* plane_normals_, S* plane_dis_, int num_planes_,
+    Vector3<S>* points_, int num_points_, int* polygons_)
   : ShapeBase<S>()
 {
-  plane_normals = plane_normals;
-  plane_dis = plane_dis;
+  plane_normals = plane_normals_;
+  plane_dis = plane_dis_;
   num_planes = num_planes_;
-  points = points;
+  points = points_;
   num_points = num_points_;
   polygons = polygons_;
   edges = nullptr;
