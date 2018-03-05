@@ -258,6 +258,9 @@ int boxBox2(
     int maxc,
     std::vector<ContactPoint<S>>& contacts)
 {
+  // NOTE: This fudge factor is used to prefer face-feature contact over
+  // edge-edge. It is unclear why edge-edge contact receives this 5% penalty.
+  // Someone should document this.
   const S fudge_factor = S(1.05);
   Vector3<S> normalC;
   S s, s2, l;
@@ -273,7 +276,6 @@ int boxBox2(
   // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
   Matrix3<S> R = R1.transpose() * R2;
   Matrix3<S> Q = R.cwiseAbs();
-
 
   // for all 15 possible separating axes:
   //   * see if the axis separates the boxes. if so, return 0.
@@ -368,11 +370,34 @@ int boxBox2(
   }
 
 
-  S fudge2(1.0e-6);
-  Q.array() += fudge2;
+  // This is used to detect zero-length axes which arise from taking the cross
+  // product of parallel edges.
+  S eps = std::numeric_limits<S>::epsilon();
+
+  // We are performing the mathematical test: 0 > 0 (which should always be
+  // false). However, zero can sometimes be 1e-16 or 1.5e-16. Thus,
+  // mathematically we would interpret a scenario as 0 > 0 but end up with
+  // 1.5e-16 > 1e-16. The former evaluates to false, the latter evaluates to
+  // true; a clear falsehood.
+  // (See http://gamma.cs.unc.edu/users/gottschalk/main.pdf, page 83).
+  //
+  // Gottschalk simply offers the value 1e-6 without any justification.
+  // For double-precision values, that is quite a large epsilon; we can do
+  // better. The idea is that this fictional zero can be scaled by the boxes'
+  // dimensions and summed up four times. To account for that zero, we need to
+  // make sure our epsilon is large enough to account for the *maximum* scale
+  // factor and the sum. We pad Q by that amount so that the error will *not*
+  // be the largest term.
+  {
+    using std::max;
+    // For small boxes (dimensions all less than 1), limit the scale factor to
+    // be no smaller than 10 * eps. This assumes all dimensions are strictly
+    // non-negative.
+    S scale_factor = max(max(A.maxCoeff(), B.maxCoeff()), 1.0) * 10 * eps;
+    Q.array() += scale_factor;
+  }
 
   Vector3<S> n;
-  S eps = std::numeric_limits<S>::epsilon();
 
   // separating axis = u1 x (v1,v2,v3)
   tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
@@ -539,8 +564,6 @@ int boxBox2(
     }
   }
 
-
-
   if (!code) { *return_code = code; return 0; }
 
   // if we get to this point, the boxes interpenetrate. compute the normal
@@ -587,10 +610,8 @@ int boxBox2(
     pa += ua * alpha;
     pb += ub * beta;
 
-
-    // Vector3<S> pointInWorld((pa + pb) * 0.5);
-    // contacts.push_back(ContactPoint<S>(-normal, pointInWorld, -*depth));
-    contacts.emplace_back(normal, pb, -*depth);
+    Vector3<S> pointInWorld((pa + pb) * 0.5);
+    contacts.emplace_back(normal, pointInWorld, *depth);
     *return_code = code;
 
     return 1;
@@ -768,31 +789,17 @@ int boxBox2(
   if(maxc > cnum) maxc = cnum;
   if(maxc < 1) maxc = 1;
 
-  if(cnum <= maxc)
-  {
-    if(code<4)
-    {
-      // we have less contacts than we need, so we use them all
-      for(int j = 0; j < cnum; ++j)
-      {
-        Vector3<S> pointInWorld = points[j] + (*pa);
-        contacts.emplace_back(normal, pointInWorld, -dep[j]);
-      }
-    }
-    else
-    {
-      // we have less contacts than we need, so we use them all
-      for(int j = 0; j < cnum; ++j)
-      {
-        Vector3<S> pointInWorld = points[j] + (*pa) - normal * dep[j];
-        contacts.emplace_back(normal, pointInWorld, -dep[j]);
-      }
-    }
-  }
-  else
-  {
-    // we have more contacts than are wanted, some of them must be culled.
-    // find the deepest point, it is always the first contact.
+  // The determination of these contact computations are tested in:
+  // test_fcl_box_box.cpp.
+  //  The case where cnum <= maxc is tested by the test:
+  //    test_collision_box_box_all_contacts
+  //  The case where cnum > maxc is tested by the test:
+  //    test_collision_box_box_cull_contacts
+  //
+  // Each of those tests is exercised twice: once when code < 4 and once when
+  // 4 <= code < 7.
+  int iret[] = {0, 1, 2, 3, 4, 5, 6, 7};
+  if (cnum > maxc) {
     int i1 = 0;
     S maxdepth = dep[0];
     for(int i = 1; i < cnum; ++i)
@@ -804,18 +811,24 @@ int boxBox2(
       }
     }
 
-    int iret[8];
     cullPoints2(cnum, ret, maxc, i1, iret);
-
-    for(int j = 0; j < maxc; ++j)
-    {
-      Vector3<S> posInWorld = points[iret[j]] + (*pa);
-      if(code < 4)
-        contacts.emplace_back(normal, posInWorld, -dep[iret[j]]);
-      else
-        contacts.emplace_back(normal, posInWorld - normal * dep[iret[j]], -dep[iret[j]]);
-    }
     cnum = maxc;
+  }
+
+  if (code < 4) {
+    for(int j = 0; j < cnum; ++j)
+    {
+      int i = iret[j];
+      Vector3<S> pointInWorld = points[i] + (*pa) + normal * (dep[i] / 2);
+      contacts.emplace_back(normal, pointInWorld, dep[i]);
+    }
+  } else {
+    for(int j = 0; j < cnum; ++j)
+    {
+      int i = iret[j];
+      Vector3<S> pointInWorld = points[i] + (*pa) - normal * (dep[i] / 2);
+      contacts.emplace_back(normal, pointInWorld, dep[i]);
+    }
   }
 
   *return_code = code;
@@ -835,559 +848,8 @@ int boxBox2(
     int maxc,
     std::vector<ContactPoint<S>>& contacts)
 {
-  const S fudge_factor = S(1.05);
-  Vector3<S> normalC;
-
-  const Vector3<S> p = tf2.translation() - tf1.translation(); // get vector from centers of box 1 to box 2, relative to box 1
-  const Vector3<S> pp = tf1.linear().transpose() * p; // get pp = p relative to body 1
-
-  // get side lengths / 2
-  const Vector3<S> A = side1 * 0.5;
-  const Vector3<S> B = side2 * 0.5;
-
-  // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
-  const Matrix3<S> R = tf1.linear().transpose() * tf2.linear();
-  Matrix3<S> Q = R.cwiseAbs();
-
-  // for all 15 possible separating axes:
-  //   * see if the axis separates the boxes. if so, return 0.
-  //   * find the depth of the penetration along the separating axis (s2)
-  //   * if this is the largest depth so far, record it.
-  // the normal vector will be set to the separating axis with the smallest
-  // depth. note: normalR is set to point to a column of R1 or R2 if that is
-  // the smallest depth normal so far. otherwise normalR is 0 and normalC is
-  // set to a vector relative to body 1. invert_normal is 1 if the sign of
-  // the normal should be flipped.
-
-  int best_col_id = -1;
-  const Transform3<S>* normalT = nullptr;
-
-  S s = - std::numeric_limits<S>::max();
-  int invert_normal = 0;
-  int code = 0;
-
-  // separating axis = u1, u2, u3
-  S tmp = pp[0];
-  S s2 = std::abs(tmp) - (Q.row(0).dot(B) + A[0]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    s = s2;
-    best_col_id = 0;
-    normalT = &tf1;
-    invert_normal = (tmp < 0);
-    code = 1;
-  }
-
-  tmp = pp[1];
-  s2 = std::abs(tmp) - (Q.row(1).dot(B) + A[1]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    s = s2;
-    best_col_id = 1;
-    normalT = &tf1;
-    invert_normal = (tmp < 0);
-    code = 2;
-  }
-
-  tmp = pp[2];
-  s2 = std::abs(tmp) - (Q.row(2).dot(B) + A[2]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    s = s2;
-    best_col_id = 2;
-    normalT = &tf1;
-    invert_normal = (tmp < 0);
-    code = 3;
-  }
-
-  // separating axis = v1, v2, v3
-  tmp = tf2.linear().col(0).dot(p);
-  s2 = std::abs(tmp) - (Q.col(0).dot(A) + B[0]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    s = s2;
-    best_col_id = 0;
-    normalT = &tf2;
-    invert_normal = (tmp < 0);
-    code = 4;
-  }
-
-  tmp = tf2.linear().col(1).dot(p);
-  s2 = std::abs(tmp) - (Q.col(1).dot(A) + B[1]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    s = s2;
-    best_col_id = 1;
-    normalT = &tf2;
-    invert_normal = (tmp < 0);
-    code = 5;
-  }
-
-  tmp = tf2.linear().col(2).dot(p);
-  s2 =  std::abs(tmp) - (Q.col(2).dot(A) + B[2]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    s = s2;
-    best_col_id = 2;
-    normalT = &tf2;
-    invert_normal = (tmp < 0);
-    code = 6;
-  }
-
-
-  S fudge2(1.0e-6);
-  Q.array() += fudge2;
-
-  Vector3<S> n;
-  S eps = std::numeric_limits<S>::epsilon();
-
-  // separating axis = u1 x (v1,v2,v3)
-  tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
-  s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
-  if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(0, -R(2, 0), R(1, 0));
-  S l = n.norm();
-  if(l > eps)
-  {
-    s2 /= l;
-    if(s2 * fudge_factor > s)
-    {
-      s = s2;
-      best_col_id = -1;
-      normalC = n / l;
-      invert_normal = (tmp < 0);
-      code = 7;
-    }
-  }
-
-  tmp = pp[2] * R(1, 1) - pp[1] * R(2, 1);
-  s2 = std::abs(tmp) - (A[1] * Q(2, 1) + A[2] * Q(1, 1) + B[0] * Q(0, 2) + B[2] * Q(0, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(0, -R(2, 1), R(1, 1));
-  l = n.norm();
-  if(l > eps)
-  {
-    s2 /= l;
-    if(s2 * fudge_factor > s)
-    {
-      s = s2;
-      best_col_id = -1;
-      normalC = n / l;
-      invert_normal = (tmp < 0);
-      code = 8;
-    }
-  }
-
-  tmp = pp[2] * R(1, 2) - pp[1] * R(2, 2);
-  s2 = std::abs(tmp) - (A[1] * Q(2, 2) + A[2] * Q(1, 2) + B[0] * Q(0, 1) + B[1] * Q(0, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(0, -R(2, 2), R(1, 2));
-  l = n.norm();
-  if(l > eps)
-  {
-    s2 /= l;
-    if(s2 * fudge_factor > s)
-    {
-      s = s2;
-      best_col_id = -1;
-      normalC = n / l;
-      invert_normal = (tmp < 0);
-      code = 9;
-    }
-  }
-
-  // separating axis = u2 x (v1,v2,v3)
-  tmp = pp[0] * R(2, 0) - pp[2] * R(0, 0);
-  s2 = std::abs(tmp) - (A[0] * Q(2, 0) + A[2] * Q(0, 0) + B[1] * Q(1, 2) + B[2] * Q(1, 1));
-  if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(R(2, 0), 0, -R(0, 0));
-  l = n.norm();
-  if(l > eps)
-  {
-    s2 /= l;
-    if(s2 * fudge_factor > s)
-    {
-      s = s2;
-      best_col_id = -1;
-      normalC = n / l;
-      invert_normal = (tmp < 0);
-      code = 10;
-    }
-  }
-
-  tmp = pp[0] * R(2, 1) - pp[2] * R(0, 1);
-  s2 = std::abs(tmp) - (A[0] * Q(2, 1) + A[2] * Q(0, 1) + B[0] * Q(1, 2) + B[2] * Q(1, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(R(2, 1), 0, -R(0, 1));
-  l = n.norm();
-  if(l > eps)
-  {
-    s2 /= l;
-    if(s2 * fudge_factor > s)
-    {
-      s = s2;
-      best_col_id = -1;
-      normalC = n / l;
-      invert_normal = (tmp < 0);
-      code = 11;
-    }
-  }
-
-  tmp = pp[0] * R(2, 2) - pp[2] * R(0, 2);
-  s2 = std::abs(tmp) - (A[0] * Q(2, 2) + A[2] * Q(0, 2) + B[0] * Q(1, 1) + B[1] * Q(1, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(R(2, 2), 0, -R(0, 2));
-  l = n.norm();
-  if(l > eps)
-  {
-    s2 /= l;
-    if(s2 * fudge_factor > s)
-    {
-      s = s2;
-      best_col_id = -1;
-      normalC = n / l;
-      invert_normal = (tmp < 0);
-      code = 12;
-    }
-  }
-
-  // separating axis = u3 x (v1,v2,v3)
-  tmp = pp[1] * R(0, 0) - pp[0] * R(1, 0);
-  s2 = std::abs(tmp) - (A[0] * Q(1, 0) + A[1] * Q(0, 0) + B[1] * Q(2, 2) + B[2] * Q(2, 1));
-  if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(-R(1, 0), R(0, 0), 0);
-  l = n.norm();
-  if(l > eps)
-  {
-    s2 /= l;
-    if(s2 * fudge_factor > s)
-    {
-      s = s2;
-      best_col_id = -1;
-      normalC = n / l;
-      invert_normal = (tmp < 0);
-      code = 13;
-    }
-  }
-
-  tmp = pp[1] * R(0, 1) - pp[0] * R(1, 1);
-  s2 = std::abs(tmp) - (A[0] * Q(1, 1) + A[1] * Q(0, 1) + B[0] * Q(2, 2) + B[2] * Q(2, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(-R(1, 1), R(0, 1), 0);
-  l = n.norm();
-  if(l > eps)
-  {
-    s2 /= l;
-    if(s2 * fudge_factor > s)
-    {
-      s = s2;
-      best_col_id = -1;
-      normalC = n / l;
-      invert_normal = (tmp < 0);
-      code = 14;
-    }
-  }
-
-  tmp = pp[1] * R(0, 2) - pp[0] * R(1, 2);
-  s2 = std::abs(tmp) - (A[0] * Q(1, 2) + A[1] * Q(0, 2) + B[0] * Q(2, 1) + B[1] * Q(2, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(-R(1, 2), R(0, 2), 0);
-  l = n.norm();
-  if(l > eps)
-  {
-    s2 /= l;
-    if(s2 * fudge_factor > s)
-    {
-      s = s2;
-      best_col_id = -1;
-      normalC = n / l;
-      invert_normal = (tmp < 0);
-      code = 15;
-    }
-  }
-
-
-
-  if (!code) { *return_code = code; return 0; }
-
-  // if we get to this point, the boxes interpenetrate. compute the normal
-  // in global coordinates.
-  if(best_col_id != -1)
-    normal = normalT->linear().col(best_col_id);
-  else
-    normal = tf1.linear() * normalC;
-
-  if(invert_normal)
-    normal = -normal;
-
-  *depth = -s; // s is negative when the boxes are in collision
-
-  // compute contact point(s)
-
-  if(code > 6)
-  {
-    // an edge from box 1 touches an edge from box 2.
-    // find a point pa on the intersecting edge of box 1
-    Vector3<S> pa(tf1.translation());
-    S sign;
-
-    for(int j = 0; j < 3; ++j)
-    {
-      sign = (tf1.linear().col(j).dot(normal) > 0) ? 1 : -1;
-      pa += tf1.linear().col(j) * (A[j] * sign);
-    }
-
-    // find a point pb on the intersecting edge of box 2
-    Vector3<S> pb(tf2.translation());
-
-    for(int j = 0; j < 3; ++j)
-    {
-      sign = (tf2.linear().col(j).dot(normal) > 0) ? -1 : 1;
-      pb += tf2.linear().col(j) * (B[j] * sign);
-    }
-
-    S alpha, beta;
-    Vector3<S> ua(tf1.linear().col((code-7)/3));
-    Vector3<S> ub(tf2.linear().col((code-7)%3));
-
-    lineClosestApproach(pa, ua, pb, ub, &alpha, &beta);
-    pa += ua * alpha;
-    pb += ub * beta;
-
-
-    // Vector3<S> pointInWorld((pa + pb) * 0.5);
-    // contacts.push_back(ContactPoint<S>(-normal, pointInWorld, -*depth));
-    contacts.emplace_back(normal, pb, -*depth);
-    *return_code = code;
-
-    return 1;
-  }
-
-  // okay, we have a face-something intersection (because the separating
-  // axis is perpendicular to a face). define face 'a' to be the reference
-  // face (i.e. the normal vector is perpendicular to this) and face 'b' to be
-  // the incident face (the closest face of the other box).
-
-  const Transform3<S> *Ta, *Tb;
-  const Vector3<S> *Sa, *Sb;
-
-  if(code <= 3)
-  {
-    Ta = &tf1;
-    Tb = &tf2;
-    Sa = &A;
-    Sb = &B;
-  }
-  else
-  {
-    Ta = &tf2;
-    Tb = &tf1;
-    Sa = &B;
-    Sb = &A;
-  }
-
-  // nr = normal vector of reference face dotted with axes of incident box.
-  // anr = absolute values of nr.
-  Vector3<S> normal2, nr, anr;
-  if(code <= 3)
-    normal2 = normal;
-  else
-    normal2 = -normal;
-
-  nr = Tb->linear().transpose() * normal2;
-  anr = nr.cwiseAbs();
-
-  // find the largest compontent of anr: this corresponds to the normal
-  // for the indident face. the other axis numbers of the indicent face
-  // are stored in a1,a2.
-  int lanr, a1, a2;
-  if(anr[1] > anr[0])
-  {
-    if(anr[1] > anr[2])
-    {
-      a1 = 0;
-      lanr = 1;
-      a2 = 2;
-    }
-    else
-    {
-      a1 = 0;
-      a2 = 1;
-      lanr = 2;
-    }
-  }
-  else
-  {
-    if(anr[0] > anr[2])
-    {
-      lanr = 0;
-      a1 = 1;
-      a2 = 2;
-    }
-    else
-    {
-      a1 = 0;
-      a2 = 1;
-      lanr = 2;
-    }
-  }
-
-  // compute center point of incident face, in reference-face coordinates
-  Vector3<S> center;
-  if(nr[lanr] < 0)
-    center = Tb->translation() - Ta->translation() + Tb->linear().col(lanr) * ((*Sb)[lanr]);
-  else
-    center = Tb->translation() - Ta->translation() - Tb->linear().col(lanr) * ((*Sb)[lanr]);
-
-  // find the normal and non-normal axis numbers of the reference box
-  int codeN, code1, code2;
-  if(code <= 3)
-    codeN = code-1;
-  else codeN = code-4;
-
-  if(codeN == 0)
-  {
-    code1 = 1;
-    code2 = 2;
-  }
-  else if(codeN == 1)
-  {
-    code1 = 0;
-    code2 = 2;
-  }
-  else
-  {
-    code1 = 0;
-    code2 = 1;
-  }
-
-  // find the four corners of the incident face, in reference-face coordinates
-  S quad[8]; // 2D coordinate of incident face (x,y pairs)
-  S c1, c2, m11, m12, m21, m22;
-  c1 = Ta->linear().col(code1).dot(center);
-  c2 = Ta->linear().col(code2).dot(center);
-  // optimize this? - we have already computed this data above, but it is not
-  // stored in an easy-to-index format. for now it's quicker just to recompute
-  // the four dot products.
-  Vector3<S> tempRac = Ta->linear().col(code1);
-  m11 = Tb->linear().col(a1).dot(tempRac);
-  m12 = Tb->linear().col(a2).dot(tempRac);
-  tempRac = Ta->linear().col(code2);
-  m21 = Tb->linear().col(a1).dot(tempRac);
-  m22 = Tb->linear().col(a2).dot(tempRac);
-
-  S k1 = m11 * (*Sb)[a1];
-  S k2 = m21 * (*Sb)[a1];
-  S k3 = m12 * (*Sb)[a2];
-  S k4 = m22 * (*Sb)[a2];
-  quad[0] = c1 - k1 - k3;
-  quad[1] = c2 - k2 - k4;
-  quad[2] = c1 - k1 + k3;
-  quad[3] = c2 - k2 + k4;
-  quad[4] = c1 + k1 + k3;
-  quad[5] = c2 + k2 + k4;
-  quad[6] = c1 + k1 - k3;
-  quad[7] = c2 + k2 - k4;
-
-  // find the size of the reference face
-  S rect[2];
-  rect[0] = (*Sa)[code1];
-  rect[1] = (*Sa)[code2];
-
-  // intersect the incident and reference faces
-  S ret[16];
-  int n_intersect = intersectRectQuad2(rect, quad, ret);
-  if(n_intersect < 1) { *return_code = code; return 0; } // this should never happen
-
-  // convert the intersection points into reference-face coordinates,
-  // and compute the contact position and depth for each point. only keep
-  // those points that have a positive (penetrating) depth. delete points in
-  // the 'ret' array as necessary so that 'point' and 'ret' correspond.
-  Vector3<S> points[8]; // penetrating contact points
-  S dep[8]; // depths for those points
-  S det1 = 1.f/(m11*m22 - m12*m21);
-  m11 *= det1;
-  m12 *= det1;
-  m21 *= det1;
-  m22 *= det1;
-  int cnum = 0;	// number of penetrating contact points found
-  for(int j = 0; j < n_intersect; ++j)
-  {
-    S k1 =  m22*(ret[j*2]-c1) - m12*(ret[j*2+1]-c2);
-    S k2 = -m21*(ret[j*2]-c1) + m11*(ret[j*2+1]-c2);
-    points[cnum] = center + Tb->linear().col(a1) * k1 + Tb->linear().col(a2) * k2;
-    dep[cnum] = (*Sa)[codeN] - normal2.dot(points[cnum]);
-    if(dep[cnum] >= 0)
-    {
-      ret[cnum*2] = ret[j*2];
-      ret[cnum*2+1] = ret[j*2+1];
-      cnum++;
-    }
-  }
-  if(cnum < 1) { *return_code = code; return 0; } // this should never happen
-
-  // we can't generate more contacts than we actually have
-  if(maxc > cnum) maxc = cnum;
-  if(maxc < 1) maxc = 1;
-
-  if(cnum <= maxc)
-  {
-    if(code<4)
-    {
-      // we have less contacts than we need, so we use them all
-      for(int j = 0; j < cnum; ++j)
-      {
-        Vector3<S> pointInWorld = points[j] + Ta->translation();
-        contacts.emplace_back(normal, pointInWorld, -dep[j]);
-      }
-    }
-    else
-    {
-      // we have less contacts than we need, so we use them all
-      for(int j = 0; j < cnum; ++j)
-      {
-        Vector3<S> pointInWorld = points[j] + Ta->translation() - normal * dep[j];
-        contacts.emplace_back(normal, pointInWorld, -dep[j]);
-      }
-    }
-  }
-  else
-  {
-    // we have more contacts than are wanted, some of them must be culled.
-    // find the deepest point, it is always the first contact.
-    int i1 = 0;
-    S maxdepth = dep[0];
-    for(int i = 1; i < cnum; ++i)
-    {
-      if(dep[i] > maxdepth)
-      {
-        maxdepth = dep[i];
-        i1 = i;
-      }
-    }
-
-    int iret[8];
-    cullPoints2(cnum, ret, maxc, i1, iret);
-
-    for(int j = 0; j < maxc; ++j)
-    {
-      Vector3<S> posInWorld = points[iret[j]] + Ta->translation();
-      if(code < 4)
-        contacts.emplace_back(normal, posInWorld, -dep[iret[j]]);
-      else
-        contacts.emplace_back(normal, posInWorld - normal * dep[iret[j]], -dep[iret[j]]);
-    }
-    cnum = maxc;
-  }
-
-  *return_code = code;
-  return cnum;
+  return boxBox2(side1, tf1.linear(), tf1.translation(), side2, tf2.linear(),
+                 tf2.translation(), normal, depth, return_code, maxc, contacts);
 }
 
 //==============================================================================

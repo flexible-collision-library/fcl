@@ -661,6 +661,30 @@ bool compareContactPointds2(const ContactPoint<S>& cp1,const ContactPoint<S>& cp
   return cp1.pos[2] < cp2.pos[2];
 } // Ascending order
 
+// Simple aligned boxes intersecting each other
+//
+//        s2  ┌───┐
+//            │   │
+//  ┏━━━━━━━━━┿━━━┿━━━━━━━━━┓┄┄┄┄┄ z = 0
+//  ┃         │┄┄┄│┄┄┄┄┄┄┄┄┄┃┄┄┄ Reported contact depth
+//  ┃         └───┘         ┃
+//  ┃                       ┃
+//  ┃                       ┃
+//  ┃    s1                 ┃
+//  ┃                       ┃
+//  ┃                       ┃
+//  ┃                       ┃
+//  ┗━━━━━━━━━━━━━━━━━━━━━━━┛
+//
+//  s1 is a cube, 100 units to a side. Shifted downward 50 units so that it's
+//     top face is at z = 0.
+//  s2 is a box with dimensions 10, 20, 30 in the x-, y-, and z-directions,
+//     respectively. It is centered on the origin and oriented according to the
+//     provided rotation matrix `R`.
+//  The total penetration depth is the |z_max| where z_max is the z-position of
+//  the most deeply penetrating vertex on s2. The contact position will be
+//  located at -z_max / 2 (with the assumption that all penetration happens
+//  *below* the z = 0 axis.
 template <typename Derived>
 void testBoxBoxContactPointds(const Eigen::MatrixBase<Derived>& R)
 {
@@ -711,7 +735,13 @@ void testBoxBoxContactPointds(const Eigen::MatrixBase<Derived>& R)
   // We just check the deepest one as workaround.
   for (size_t i = 0; i < numContacts; ++i)
   {
-    EXPECT_TRUE(vertices[i].isApprox(contacts[i].pos));
+    // The reported contact position will lie mid-way between the deepest
+    // penetrating vertex on s2 and the z = 0 plane.
+    Vector3<S> contact_pos(vertices[i]);
+    contact_pos(2) /= 2;
+    EXPECT_TRUE(contact_pos.isApprox(contacts[i].pos))
+              << "\n\tExpected: " << contact_pos
+              << "\n\tFound:    " << contacts[i].pos;
     EXPECT_TRUE(Vector3<S>(0, 0, 1).isApprox(contacts[i].normal));
   }
 }
