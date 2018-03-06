@@ -393,7 +393,7 @@ int boxBox2(
     // For small boxes (dimensions all less than 1), limit the scale factor to
     // be no smaller than 10 * eps. This assumes all dimensions are strictly
     // non-negative.
-    S scale_factor = max(max(A.maxCoeff(), B.maxCoeff()), 1.0) * 10 * eps;
+    S scale_factor = max<S>(max<S>(A.maxCoeff(), B.maxCoeff()), 1.0) * 10 * eps;
     Q.array() += scale_factor;
   }
 
