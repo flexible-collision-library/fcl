@@ -8,7 +8,7 @@ brew install libccd
 # Octomap
 git clone https://github.com/OctoMap/octomap
 cd octomap
-git checkout tags/v1.8.0
+git checkout tags/v1.9.0
 mkdir build
 cd build
 cmake ..
