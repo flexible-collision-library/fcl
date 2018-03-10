@@ -35,9 +35,9 @@
 
 #include <iostream>
 
-#include "fcl/fcl.h"
+#include <gtest/gtest.h>
 
-#include "gtest/gtest.h"
+#include "fcl/fcl.h"
 
 using namespace std;
 using namespace fcl;
@@ -77,7 +77,8 @@ void test_collision_cylinder_half_space(fcl::GJKSolverType solver_type)
   EXPECT_NEAR(contacts[0].penetration_depth, 0.051, kTolerance);
 
   // Now perform the same test but with the cylinder's z axis Cz pointing down.
-  X_WC.linear() = AngleAxis<S>(M_PI, Vector3d::UnitX()).matrix();
+  X_WC.linear() = AngleAxis<S>(fcl::constants<S>::pi(), 
+                               Vector3d::UnitX()).matrix();
   X_WC.translation() = Vector3<S>(0, 0, 0.049);
   cylinder_co.setTransform(X_WC);
 
