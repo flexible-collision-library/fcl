@@ -391,7 +391,7 @@ bool cylinderHalfspaceIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
   else
   {
     Vector3<S> C = dir_z * cosa - new_s2.n;
-    if(std::abs(cosa) - 1 < halfspaceIntersectTolerance<S>())
+    if(std::abs(cosa + 1) < halfspaceIntersectTolerance<S>() || std::abs(cosa - 1) < halfspaceIntersectTolerance<S>())
       C = Vector3<S>(0, 0, 0);
     else
     {
