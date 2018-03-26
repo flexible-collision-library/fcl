@@ -166,7 +166,8 @@ struct TriangleMotionBoundVisitorVisitImpl<S, InterpMotion<S>>
     const Vector3<S>& reference_p = motion.getReferencePoint();
     const Vector3<S>& angular_axis = motion.getAngularAxis();
     S angular_vel = motion.getAngularVelocity();
-    const Vector3<S>& linear_vel = motion.getLinearVelocity();
+    const Vector3<S>& linear_axis = motion.getLinearAxis();
+    const S& linear_vel = motion.getLinearVelocity();
 
     S proj_max = ((tf.linear() * (visitor.a - reference_p)).cross(angular_axis)).squaredNorm();
     S tmp;
@@ -177,7 +178,7 @@ struct TriangleMotionBoundVisitorVisitImpl<S, InterpMotion<S>>
 
     proj_max = std::sqrt(proj_max);
 
-    S v_dot_n = linear_vel.dot(visitor.n);
+    S v_dot_n = linear_axis.dot(visitor.n) * linear_vel;
     S w_cross_n = (angular_axis.cross(visitor.n)).norm() * angular_vel;
     S mu = v_dot_n + w_cross_n * proj_max;
 
