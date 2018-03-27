@@ -52,12 +52,16 @@ template <typename S>
 InterpMotion<S>::InterpMotion()
   : MotionBase<S>(), angular_axis(Vector3<S>::UnitX())
 {
+  // Default linear velocity is zero
+  linear_vel = 0;
+  linear_axis.setZero();
+
   // Default angular velocity is zero
   angular_vel = 0;
+  angular_axis.setZero();
 
   // Default reference point is local zero point
-
-  // Default linear velocity is zero
+  reference_p.setZero();
 }
 
 //==============================================================================
@@ -87,6 +91,8 @@ InterpMotion<S>::InterpMotion(
     const Transform3<S>& tf1_, const Transform3<S>& tf2_)
   : MotionBase<S>(), tf1(tf1_), tf2(tf2_), tf(tf1)
 {
+  reference_p = tf1_.translation();
+
   // Compute the velocities for the motion
   computeVelocity();
 }
@@ -132,7 +138,11 @@ bool InterpMotion<S>::integrate(double dt) const
   if(dt > 1) dt = 1;
 
   tf.linear() = absoluteRotation(dt).toRotationMatrix();
-  tf.translation() = linear_vel * dt + tf1 * reference_p - tf.linear() * reference_p;
+  tf.translation() = linear_vel * linear_axis * dt + tf1 * reference_p - tf.linear() * reference_p;
+
+  if (tf.translation().norm() < std::numeric_limits<S>::epsilon()) {
+    tf.translation().setZero();
+  };
 
   return true;
 }
@@ -175,9 +185,9 @@ void InterpMotion<S>::getTaylorModel(TMatrix3<S>& tm, TVector3<S>& tv) const
       + Matrix3<S>::Identity();
 
   TaylorModel<S> a(this->getTimeInterval()), b(this->getTimeInterval()), c(this->getTimeInterval());
-  generateTaylorModelForLinearFunc(a, (S)0, linear_vel[0]);
-  generateTaylorModelForLinearFunc(b, (S)0, linear_vel[1]);
-  generateTaylorModelForLinearFunc(c, (S)0, linear_vel[2]);
+  generateTaylorModelForLinearFunc(a, (S)0, linear_vel * linear_axis[0]);
+  generateTaylorModelForLinearFunc(b, (S)0, linear_vel * linear_axis[1]);
+  generateTaylorModelForLinearFunc(c, (S)0, linear_vel * linear_axis[2]);
   TVector3<S> delta_T(a, b, c);
 
   tm = delta_R * tf1.linear().eval();
@@ -190,7 +200,15 @@ void InterpMotion<S>::getTaylorModel(TMatrix3<S>& tm, TVector3<S>& tv) const
 template <typename S>
 void InterpMotion<S>::computeVelocity()
 {
-  linear_vel = tf2 * reference_p - tf1 * reference_p;
+  linear_axis = tf2 * reference_p - tf1 * reference_p;
+
+  if (linear_axis.norm() < std::numeric_limits<S>::epsilon()) {
+    linear_vel = 0;
+    linear_axis.setZero();
+  } else {
+    linear_vel = linear_axis.norm();
+    linear_axis.normalize();
+  }
 
   const AngleAxis<S> aa(tf2.linear() * tf1.linear().transpose());
   angular_axis = aa.axis();
@@ -241,9 +259,16 @@ S InterpMotion<S>::getAngularVelocity() const
 
 //==============================================================================
 template <typename S>
-const Vector3<S>&InterpMotion<S>::getLinearVelocity() const
+const S& InterpMotion<S>::getLinearVelocity() const
 {
   return linear_vel;
+}
+
+//==============================================================================
+template <typename S>
+const Vector3<S>&InterpMotion<S>::getLinearAxis() const
+{
+  return linear_axis;
 }
 
 } // namespace fcl

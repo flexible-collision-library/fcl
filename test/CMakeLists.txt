@@ -58,6 +58,7 @@ set(tests
     test_fcl_signed_distance.cpp
     test_fcl_simple.cpp
     test_fcl_sphere_capsule.cpp
+    test_fcl_interp_motion.cpp
 )
 
 if (FCL_HAVE_OCTOMAP)

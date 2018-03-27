@@ -107,7 +107,10 @@ protected:
   mutable Transform3<S> tf;
 
   /// @brief Linear velocity
-  Vector3<S> linear_vel;
+  S linear_vel;
+
+  /// @brief Linear axis
+  Vector3<S> linear_axis;
 
   /// @brief Angular speed
   S angular_vel;
@@ -125,7 +128,9 @@ public:
 
   S getAngularVelocity() const;
 
-  const Vector3<S>& getLinearVelocity() const;
+  const S& getLinearVelocity() const;
+
+  const Vector3<S>& getLinearAxis() const;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
