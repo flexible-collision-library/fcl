@@ -70,29 +70,29 @@ void test_interp_motion_empty()
 
   interp_motion.integrate(0);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(itf.translation() == ctf.translation());
-  EXPECT_TRUE(itf.rotation() == ctf.rotation());
+  EXPECT_TRUE(itf.translation().isApprox(ctf.translation()));
+  EXPECT_TRUE(itf.rotation().isApprox(ctf.rotation()));
 
   interp_motion.integrate(0.4);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(itf.translation() == ctf.translation());
-  EXPECT_TRUE(itf.rotation() == ctf.rotation());
+  EXPECT_TRUE(itf.translation().isApprox(ctf.translation()));
+  EXPECT_TRUE(itf.rotation().isApprox(ctf.rotation()));
 
   interp_motion.integrate(1);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(itf.translation() == ctf.translation());
-  EXPECT_TRUE(itf.rotation() == ctf.rotation());
+  EXPECT_TRUE(itf.translation().isApprox(ctf.translation()));
+  EXPECT_TRUE(itf.rotation().isApprox(ctf.rotation()));
 
   // NOTE: There is a limit for dt > 1, but not for dt < 0
   // interp_motion.integrate(-.5);
   // interp_motion.getCurrentTransform(ctf);
-  // EXPECT_TRUE(itf.translation() == ctf.translation());
-  // EXPECT_TRUE(itf.rotation() == ctf.rotation());
+  // EXPECT_TRUE(itf.translation().isApprox(ctf.translation()));
+  // EXPECT_TRUE(itf.rotation().isApprox(ctf.rotation()));
 
   interp_motion.integrate(2.25);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(itf.translation() == ctf.translation());
-  EXPECT_TRUE(itf.rotation() == ctf.rotation());
+  EXPECT_TRUE(itf.translation().isApprox(ctf.translation()));
+  EXPECT_TRUE(itf.rotation().isApprox(ctf.rotation()));
 
   // TODO computeMotionBound
   // TODO getTaylorModel
