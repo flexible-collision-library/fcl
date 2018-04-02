@@ -53,17 +53,17 @@ void test_interp_motion_empty()
   InterpMotion<S> interp_motion;
 
   Vector3<S> linear_axis = interp_motion.getLinearAxis();
-  EXPECT_TRUE(linear_axis == Vector3<S>(0.0, 0.0, 0.0));
+  EXPECT_TRUE(linear_axis.isApprox(Vector3<S>(0.0, 0.0, 0.0)));
   S linear_vel = interp_motion.getLinearVelocity();
   EXPECT_TRUE(linear_vel == 0);
 
   Vector3<S> angular_axis = interp_motion.getAngularAxis();
-  EXPECT_TRUE(angular_axis == Vector3<S>(0.0, 0.0, 0.0));
+  EXPECT_TRUE(angular_axis.isApprox(Vector3<S>(0.0, 0.0, 0.0)));
   S angular_vel = interp_motion.getAngularVelocity();
   EXPECT_TRUE(angular_vel == 0);
 
   Vector3<S> ref_p = interp_motion.getReferencePoint();
-  EXPECT_TRUE(ref_p == Vector3<S>(0.0, 0.0, 0.0));
+  EXPECT_TRUE(ref_p.isApprox(Vector3<S>(0.0, 0.0, 0.0)));
 
   Transform3<S> itf; itf.setIdentity();
   Transform3<S> ctf;
@@ -114,44 +114,44 @@ void test_interp_motion_only_translation()
 
   Vector3<S> linear_axis = interp_motion.getLinearAxis();
   S linear_vel = interp_motion.getLinearVelocity();
-  EXPECT_TRUE(linear_axis == Vector3<S>(0.6, 0.8, 0.0));
+  EXPECT_TRUE(linear_axis.isApprox(Vector3<S>(0.6, 0.8, 0.0)));
   EXPECT_TRUE(linear_vel == 5);
 
   Vector3<S> angular_axis = interp_motion.getAngularAxis();
   S angular_vel = interp_motion.getAngularVelocity();
-  EXPECT_TRUE(angular_axis == Vector3<S>(1.0, 0.0, 0.0));
+  EXPECT_TRUE(angular_axis.isApprox(Vector3<S>(1.0, 0.0, 0.0)));
   EXPECT_TRUE(angular_vel == 0);
 
   Vector3<S> ref_p = interp_motion.getReferencePoint();
-  EXPECT_TRUE(ref_p == Vector3<S>(0.0, 0.0, 0.0));
+  EXPECT_TRUE(ref_p.isApprox(Vector3<S>(0.0, 0.0, 0.0)));
 
   Transform3<S> ctf;
 
   interp_motion.integrate(0);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == from.translation());
-  EXPECT_TRUE(ctf.rotation() == from.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(from.translation()));
+  EXPECT_TRUE(ctf.rotation().isApprox(from.rotation()));
 
   interp_motion.integrate(0.25);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == Vector3<S>(0.75,1,0.0));
-  EXPECT_TRUE(ctf.rotation() == from.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(Vector3<S>(0.75,1,0.0)));
+  EXPECT_TRUE(ctf.rotation().isApprox(from.rotation()));
 
   interp_motion.integrate(1);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == to.translation());
-  EXPECT_TRUE(ctf.rotation() == from.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(to.translation()));
+  EXPECT_TRUE(ctf.rotation().isApprox(from.rotation()));
 
   // NOTE: There is a limit for dt > 1, but not for dt < 0
   // interp_motion.integrate(-.5);
   // interp_motion.getCurrentTransform(ctf);
-  // EXPECT_TRUE(ctf.translation() == from.translation());
-  // EXPECT_TRUE(ctf.rotation() == from.rotation());
+  // EXPECT_TRUE(ctf.translation().isApprox(from.translation()));
+  // EXPECT_TRUE(ctf.rotation().isApprox(from.rotation()));
 
   interp_motion.integrate(2.25);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == to.translation());
-  EXPECT_TRUE(ctf.rotation() == to.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(to.translation()));
+  EXPECT_TRUE(ctf.rotation().isApprox(to.rotation()));
 
   // TODO computeMotionBound
   // TODO getTaylorModel
@@ -171,46 +171,46 @@ void test_interp_motion_only_rotation()
 
   Vector3<S> linear_axis = interp_motion.getLinearAxis();
   S linear_vel = interp_motion.getLinearVelocity();
-  EXPECT_TRUE(linear_axis == Vector3<S>(0.0, 0.0, 0.0));
+  EXPECT_TRUE(linear_axis.isApprox(Vector3<S>(0.0, 0.0, 0.0)));
   EXPECT_TRUE(linear_vel == 0);
 
   Vector3<S> angular_axis = interp_motion.getAngularAxis();
   S angular_vel = interp_motion.getAngularVelocity();
-  EXPECT_TRUE(angular_axis == up);
+  EXPECT_TRUE(angular_axis.isApprox(up));
   EXPECT_TRUE(angular_vel == M_PI);
 
   Vector3<S> ref_p = interp_motion.getReferencePoint();
-  EXPECT_TRUE(ref_p == Vector3<S>(0.0, 0.0, 0.0));
+  EXPECT_TRUE(ref_p.isApprox(Vector3<S>(0.0, 0.0, 0.0)));
 
   Transform3<S> ctf;
 
   interp_motion.integrate(0);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == from.translation());
-  EXPECT_TRUE(ctf.rotation() == from.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(from.translation()));
+  EXPECT_TRUE(ctf.rotation().isApprox(from.rotation()));
 
   interp_motion.integrate(0.5);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == from.translation());
+  EXPECT_TRUE(ctf.translation().isApprox(from.translation()));
   Quaternion<S> ctfq; ctfq = ctf.rotation(); ctfq.normalize();
   Quaternion<S> mpihq; mpihq = aapih; mpihq.normalize();
   EXPECT_TRUE(ctfq.isApprox(mpihq));
 
   interp_motion.integrate(1);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == to.translation());
-  EXPECT_TRUE(ctf.rotation() == to.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(to.translation()));
+  EXPECT_TRUE(ctf.rotation().isApprox(to.rotation()));
 
   // NOTE: There is a limit for dt > 1, but not for dt < 0
   // interp_motion.integrate(-.5);
   // interp_motion.getCurrentTransform(ctf);
-  // EXPECT_TRUE(ctf.translation() == from.translation());
-  // EXPECT_TRUE(ctf.rotation() == from.rotation());
+  // EXPECT_TRUE(ctf.translation().isApprox(from.translation()));
+  // EXPECT_TRUE(ctf.rotation().isApprox(from.rotation()));
 
   interp_motion.integrate(2.25);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == to.translation());
-  EXPECT_TRUE(ctf.rotation() == to.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(to.translation()));
+  EXPECT_TRUE(ctf.rotation().isApprox(to.rotation()));
 
   // TODO computeMotionBound
   // TODO getTaylorModel
@@ -233,46 +233,46 @@ void test_interp_motion_both()
 
   Vector3<S> linear_axis = interp_motion.getLinearAxis();
   S linear_vel = interp_motion.getLinearVelocity();
-  EXPECT_TRUE(linear_axis == Vector3<S>(0.6, 0.8, 0.0));
+  EXPECT_TRUE(linear_axis.isApprox(Vector3<S>(0.6, 0.8, 0.0)));
   EXPECT_TRUE(linear_vel == 5);
 
   Vector3<S> angular_axis = interp_motion.getAngularAxis();
   S angular_vel = interp_motion.getAngularVelocity();
-  EXPECT_TRUE(angular_axis == up);
+  EXPECT_TRUE(angular_axis.isApprox(up));
   EXPECT_TRUE(angular_vel == M_PI);
 
   Vector3<S> ref_p = interp_motion.getReferencePoint();
-  EXPECT_TRUE(ref_p == Vector3<S>(0.0, 0.0, 0.0));
+  EXPECT_TRUE(ref_p.isApprox(Vector3<S>(0.0, 0.0, 0.0)));
 
   Transform3<S> ctf;
 
   interp_motion.integrate(0);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == from.translation());
-  EXPECT_TRUE(ctf.rotation() == from.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(from.translation()));
+  EXPECT_TRUE(ctf.rotation().isApprox(from.rotation()));
 
   interp_motion.integrate(0.5);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == Vector3<S>(1.5,2.0,0.0));
+  EXPECT_TRUE(ctf.translation().isApprox(Vector3<S>(1.5,2.0,0.0)));
   Quaternion<S> ctfq; ctfq = ctf.rotation(); ctfq.normalize();
   Quaternion<S> mpihq; mpihq = aapih; mpihq.normalize();
   EXPECT_TRUE(ctfq.isApprox(mpihq));
 
   interp_motion.integrate(1);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == to.translation());
-  EXPECT_TRUE(ctf.rotation() == to.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(to.translation()));
+  EXPECT_TRUE(ctf.rotation().isApprox(to.rotation()));
 
   // NOTE: There is a limit for dt > 1, but not for dt < 0
   // interp_motion.integrate(-.5);
   // interp_motion.getCurrentTransform(ctf);
-  // EXPECT_TRUE(ctf.translation() == from.translation());
-  // EXPECT_TRUE(ctf.rotation() == from.rotation());
+  // EXPECT_TRUE(ctf.translation().isApprox(from.translation()));
+  // EXPECT_TRUE(ctf.rotation().isApprox(from.rotation()));
 
   interp_motion.integrate(2.25);
   interp_motion.getCurrentTransform(ctf);
-  EXPECT_TRUE(ctf.translation() == to.translation());
-  EXPECT_TRUE(ctf.rotation() == to.rotation());
+  EXPECT_TRUE(ctf.translation().isApprox(to.translation()));
+  EXPECT_TRUE(ctf.rotation().isApprox(to.rotation()));
 
   // TODO computeMotionBound
   // TODO getTaylorModel
