@@ -746,7 +746,7 @@ typename BV::S ShapeBVHConservativeAdvancement(const CollisionGeometry<typename 
   CollisionResult<S> c_result;
   S toc;
 
-  bool is_collide = conservativeAdvancement(*obj1, motion1, *obj2, motion2, nsolver, c_request, c_result, toc);
+  bool is_collide = conservativeAdvancement<Shape, BV, NarrowPhaseSolver>(*obj1, motion1, *obj2, motion2, nsolver, c_request, c_result, toc);
 
   result.is_collide = is_collide;
   result.time_of_contact = toc;
@@ -768,7 +768,7 @@ typename BV::S BVHShapeConservativeAdvancement(const CollisionGeometry<typename 
   CollisionResult<S> c_result;
   S toc;
 
-  bool is_collide = conservativeAdvancement(*obj1, motion1, *obj2, motion2, nsolver, c_request, c_result, toc);
+  bool is_collide = conservativeAdvancement<BV, Shape, NarrowPhaseSolver>(*obj1, motion1, *obj2, motion2, nsolver, c_request, c_result, toc);
 
   result.is_collide = is_collide;
   result.time_of_contact = toc;
