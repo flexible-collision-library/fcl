@@ -948,11 +948,11 @@ template <typename S>
 GJKSolver_indep<S>::GJKSolver_indep()
 {
   gjk_max_iterations = 128;
-  gjk_tolerance = 1e-6;
+  gjk_tolerance = constants<S>::gjk_default_tolerance();
   epa_max_face_num = 128;
   epa_max_vertex_num = 64;
   epa_max_iterations = 255;
-  epa_tolerance = 1e-6;
+  epa_tolerance = constants<S>::gjk_default_tolerance();
   enable_cached_guess = false;
   cached_guess = Vector3<S>(1, 0, 0);
 }
