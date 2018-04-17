@@ -48,6 +48,7 @@ set(tests
     test_fcl_capsule_capsule.cpp
     test_fcl_cylinder_half_space.cpp
     test_fcl_collision.cpp
+    test_fcl_constant_eps.cpp
     test_fcl_distance.cpp
     test_fcl_frontlist.cpp
     test_fcl_general.cpp
