@@ -164,7 +164,7 @@ if(NOT ccd_FOUND)
 endif()
 
 if(NOT ccd_FOUND)
-  message(FATAL_ERROR "CCD (>= 3.0.5) is required by FCL")
+  message(FATAL_ERROR "CCD is required by FCL")
 endif()
 
 set(PKG_EXTERNAL_DEPS "ccd eigen3")
