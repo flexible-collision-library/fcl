@@ -235,9 +235,13 @@ struct TBVMotionBoundVisitorVisitImpl<S, RSS<S>, InterpMotion<S>>
     motion.getCurrentTransform(tf);
 
     const Vector3<S>& reference_p = motion.getReferencePoint();
+    const Vector3<S>& linear_axis = motion.getLinearAxis();
+    const S& linear_vel = motion.getLinearVelocity();
     const Vector3<S>& angular_axis = motion.getAngularAxis();
     S angular_vel = motion.getAngularVelocity();
-    const Vector3<S>& linear_vel = motion.getLinearVelocity();
+
+    // mu (motion bound) is zero if no movement on angular or linear axis
+    if ((angular_vel + linear_vel) == 0) return 0;
 
     S c_proj_max = ((tf.linear() * (visitor.bv.To - reference_p)).cross(angular_axis)).squaredNorm();
     S tmp;
@@ -250,7 +254,7 @@ struct TBVMotionBoundVisitorVisitImpl<S, RSS<S>, InterpMotion<S>>
 
     c_proj_max = std::sqrt(c_proj_max);
 
-    S v_dot_n = linear_vel.dot(visitor.n);
+    S v_dot_n = linear_axis.dot(visitor.n) * linear_vel;
     S w_cross_n = (angular_axis.cross(visitor.n)).norm() * angular_vel;
     S mu = v_dot_n + w_cross_n * (visitor.bv.r + c_proj_max);
 
