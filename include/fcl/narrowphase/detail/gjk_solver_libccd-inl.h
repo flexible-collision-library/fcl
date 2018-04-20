@@ -902,7 +902,7 @@ GJKSolver_libccd<S>::GJKSolver_libccd()
 {
   max_collision_iterations = 500;
   max_distance_iterations = 1000;
-  collision_tolerance = 1e-6;
+  collision_tolerance = constants<S>::gjk_default_tolerance();
   distance_tolerance = 1e-6;
 }
 
