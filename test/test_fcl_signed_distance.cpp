@@ -58,6 +58,7 @@ void test_distance_spheresphere(GJKSolverType solver_type)
   request.enable_signed_distance = true;
   request.enable_nearest_points = true;
   request.gjk_solver_type = solver_type;
+  request.distance_tolerance = 1e-14;
 
   DistanceResult<S> result;
 
@@ -68,9 +69,13 @@ void test_distance_spheresphere(GJKSolverType solver_type)
   tf2.translation() = Vector3<S>(40, 0, 0);
   res = distance(&s1, tf1, &s2, tf2, request, result);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(std::abs(result.min_distance - 10) < 1e-6);
-  EXPECT_TRUE(result.nearest_points[0].isApprox(Vector3<S>(20, 0, 0)));
-  EXPECT_TRUE(result.nearest_points[1].isApprox(Vector3<S>(30, 0, 0)));
+  EXPECT_NEAR(result.min_distance, 10, 1e-6);
+  EXPECT_NEAR(result.nearest_points[0](0), 20, 1e-6);
+  EXPECT_NEAR(result.nearest_points[0](1),  0, 1e-6);
+  EXPECT_NEAR(result.nearest_points[0](2),  0, 1e-6);
+  EXPECT_NEAR(result.nearest_points[1](0), 30, 1e-6);
+  EXPECT_NEAR(result.nearest_points[1](1),  0, 1e-6);
+  EXPECT_NEAR(result.nearest_points[1](2),  0, 1e-6);
 
   // Expecting distance to be -5
   result.clear();
@@ -78,7 +83,7 @@ void test_distance_spheresphere(GJKSolverType solver_type)
   res = distance(&s1, tf1, &s2, tf2, request, result);
 
   EXPECT_TRUE(res);
-  EXPECT_TRUE(std::abs(result.min_distance - (-5)) < 1e-2);
+  EXPECT_NEAR(result.min_distance, -5, 1e-2);
   // TODO(JS): The negative distance computation using libccd requires
   // unnecessarily high error tolerance.
 
@@ -86,8 +91,12 @@ void test_distance_spheresphere(GJKSolverType solver_type)
   // surface of the spheres.
   if (solver_type == GST_LIBCCD)
   {
-    EXPECT_TRUE(result.nearest_points[0].isApprox(Vector3<S>(20, 0, 0)));
-    EXPECT_TRUE(result.nearest_points[1].isApprox(Vector3<S>(15, 0, 0)));
+    EXPECT_NEAR(result.nearest_points[0](0), 20, 1e-6);
+    EXPECT_NEAR(result.nearest_points[0](1),  0, 1e-6);
+    EXPECT_NEAR(result.nearest_points[0](2),  0, 1e-6);
+    EXPECT_NEAR(result.nearest_points[1](0), 15, 1e-6);
+    EXPECT_NEAR(result.nearest_points[1](1),  0, 1e-6);
+    EXPECT_NEAR(result.nearest_points[1](2),  0, 1e-6);
   }
 
   // Expecting distance to be -1.715728753
@@ -96,7 +105,8 @@ void test_distance_spheresphere(GJKSolverType solver_type)
   res = distance(&s1, tf1, &s2, tf2, request, result);
 
   EXPECT_TRUE(res);
-  EXPECT_TRUE(std::abs(result.min_distance - (-1.715728753)) < 1e-2);
+  const S expected_distance = tf2.translation().norm() - 30;
+  EXPECT_NEAR(result.min_distance, expected_distance, 1e-6);
   // TODO(JS): The negative distance computation using libccd requires
   // unnecessarily high error tolerance.
 
@@ -104,8 +114,14 @@ void test_distance_spheresphere(GJKSolverType solver_type)
   // surface of the spheres.
   if (solver_type == GST_LIBCCD)
   {
-    EXPECT_TRUE(result.nearest_points[0].isApprox(Vector3<S>(20, 0, 0)));
-    EXPECT_TRUE(result.nearest_points[1].isApprox(Vector3<S>(15, 0, 0)));
+    const S xz0 = std::sqrt((20 * 20) / 2);
+    const S xz1 = 20 - std::sqrt((10 * 10) / 2);
+    EXPECT_NEAR(result.nearest_points[0](0), xz0, 1e-3);
+    EXPECT_NEAR(result.nearest_points[0](1),   0, 1e-3);
+    EXPECT_NEAR(result.nearest_points[0](2), xz0, 1e-3);
+    EXPECT_NEAR(result.nearest_points[1](0), xz1, 1e-3);
+    EXPECT_NEAR(result.nearest_points[1](1),   0, 1e-3);
+    EXPECT_NEAR(result.nearest_points[1](2), xz1, 1e-3);
   }
 }
 
@@ -132,9 +148,13 @@ void test_distance_spherecapsule(GJKSolverType solver_type)
   tf2.translation() = Vector3<S>(40, 0, 0);
   res = distance(&s1, tf1, &s2, tf2, request, result);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(std::abs(result.min_distance - 10) < 1e-6);
-  EXPECT_TRUE(result.nearest_points[0].isApprox(Vector3<S>(20, 0, 0), 1e-3));
-  EXPECT_TRUE(result.nearest_points[1].isApprox(Vector3<S>(30, 0, 0), 1e-3));
+  EXPECT_NEAR(result.min_distance, 10, 1e-6);
+  EXPECT_NEAR(result.nearest_points[0](0), 20, 1e-3);
+  EXPECT_NEAR(result.nearest_points[0](1),  0, 1e-3);
+  EXPECT_NEAR(result.nearest_points[0](2),  0, 1e-3);
+  EXPECT_NEAR(result.nearest_points[1](0), 30, 1e-3);
+  EXPECT_NEAR(result.nearest_points[1](1),  0, 1e-3);
+  EXPECT_NEAR(result.nearest_points[1](2),  0, 1e-3);
 
   // Expecting distance to be -5
   result.clear();
@@ -142,7 +162,7 @@ void test_distance_spherecapsule(GJKSolverType solver_type)
   res = distance(&s1, tf1, &s2, tf2, request, result);
 
   EXPECT_TRUE(res);
-  EXPECT_TRUE(std::abs(result.min_distance - (-5)) < 1e-2);
+  EXPECT_NEAR(result.min_distance, -5, 1e-2);
   // TODO(JS): The negative distance computation using libccd requires
   // unnecessarily high error tolerance.
 
@@ -150,8 +170,12 @@ void test_distance_spherecapsule(GJKSolverType solver_type)
   // surface of the spheres.
   if (solver_type == GST_LIBCCD)
   {
-    EXPECT_TRUE(result.nearest_points[0].isApprox(Vector3<S>(20, 0, 0)));
-    EXPECT_TRUE(result.nearest_points[1].isApprox(Vector3<S>(15, 0, 0)));
+    EXPECT_NEAR(result.nearest_points[0](0), 20, 1e-6);
+    EXPECT_NEAR(result.nearest_points[0](1),  0, 1e-6);
+    EXPECT_NEAR(result.nearest_points[0](2),  0, 1e-6);
+    EXPECT_NEAR(result.nearest_points[1](0), 15, 1e-6);
+    EXPECT_NEAR(result.nearest_points[1](1),  0, 1e-6);
+    EXPECT_NEAR(result.nearest_points[1](2),  0, 1e-6);
   }
 }
 

@@ -488,6 +488,7 @@ static int simplexToPolytope2(const void *obj1, const void *obj2,
     // get second support point in opposite direction than supp[0]
     ccdVec3Copy(&dir, &supp[0].v);
     ccdVec3Scale(&dir, -CCD_ONE);
+    ccdVec3Normalize(&dir);
     __ccdSupport(obj1, obj2, &dir, ccd, &supp[1]);
     if (ccdVec3Eq(&a->v, &supp[1].v) || ccdVec3Eq(&b->v, &supp[1].v))
         goto simplexToPolytope2_touching_contact;
@@ -496,6 +497,7 @@ static int simplexToPolytope2(const void *obj1, const void *obj2,
     ccdVec3Sub2(&ab, &supp[0].v, &a->v);
     ccdVec3Sub2(&ac, &supp[1].v, &a->v);
     ccdVec3Cross(&dir, &ab, &ac);
+    ccdVec3Normalize(&dir);
     __ccdSupport(obj1, obj2, &dir, ccd, &supp[2]);
     if (ccdVec3Eq(&a->v, &supp[2].v) || ccdVec3Eq(&b->v, &supp[2].v))
         goto simplexToPolytope2_touching_contact;
@@ -583,6 +585,7 @@ static int simplexToPolytope3(const void *obj1, const void *obj2,
     ccdVec3Sub2(&ab, &b->v, &a->v);
     ccdVec3Sub2(&ac, &c->v, &a->v);
     ccdVec3Cross(&dir, &ab, &ac);
+    ccdVec3Normalize(&dir);
     __ccdSupport(obj1, obj2, &dir, ccd, &d);
     dist = ccdVec3PointTriDist2(&d.v, &a->v, &b->v, &c->v, NULL);
 
@@ -864,6 +867,7 @@ static int nextSupport(const void *obj1, const void *obj2, const ccd_t *ccd,
 {
     ccd_vec3_t *a, *b, *c;
     ccd_real_t dist;
+    ccd_vec3_t dir;
 
     if (el->type == CCD_PT_VERTEX)
         return -1;
@@ -872,14 +876,17 @@ static int nextSupport(const void *obj1, const void *obj2, const ccd_t *ccd,
     if (ccdIsZero(el->dist))
         return -1;
 
-    __ccdSupport(obj1, obj2, &el->witness, ccd, out);
+    ccdVec3Copy(&dir, &el->witness);
+    ccdVec3Normalize(&dir);
+
+    __ccdSupport(obj1, obj2, &dir, ccd, out);
 
     // Compute dist of support point along element witness point direction
     // so we can determine whether we expanded a polytope surrounding the
     // origin a bit.
-    dist = ccdVec3Dot(&out->v, &el->witness);
+    dist = ccdVec3Dot(&out->v, &dir);
 
-    if (dist - el->dist < ccd->epa_tolerance)
+    if ((dist * dist) - el->dist < ccd->epa_tolerance)
         return -1;
 
     if (el->type == CCD_PT_EDGE){
@@ -927,6 +934,7 @@ static int __ccdGJK(const void *obj1, const void *obj2,
 
   // start iterations
   for (iterations = 0UL; iterations < ccd->max_iterations; ++iterations) {
+    ccdVec3Normalize(&dir);
     // obtain support point
     __ccdSupport(obj1, obj2, &dir, ccd, &last);
 
@@ -1200,6 +1208,7 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     // check whether we improved for at least a minimum tolerance
     if ((last_dist - dist) < ccd->dist_tolerance)
     {
+      ccdVec3Normalize(&dir);
       extractClosestPoints(simplex, p1, p2, &dir);
       return dist;
     }
@@ -1211,6 +1220,9 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     // find out support point
     __ccdSupport(obj1, obj2, &dir, ccd, &last);
 
+    // Reset dir back
+    ccdVec3Scale(&dir, -dist);
+
     // record last distance
     last_dist = dist;
 
@@ -1221,6 +1233,7 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     dist = CCD_SQRT(dist);
     if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance)
     {
+      ccdVec3Normalize(&dir);
       extractClosestPoints(simplex, p1, p2, &dir);
       return last_dist;
     }
@@ -1372,6 +1385,7 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
     // check whether we improved for at least a minimum tolerance
     if ((last_dist - dist) < ccd->dist_tolerance)
     {
+      ccdVec3Normalize(&dir);
       extractClosestPoints(&simplex, p1, p2, &dir);
       return dist;
     }
@@ -1383,6 +1397,9 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
     // find out support point
     __ccdSupport(obj1, obj2, &dir, ccd, &last);
 
+    // Reset dir back
+    ccdVec3Scale(&dir, -dist);
+
     // record last distance
     last_dist = dist;
 
@@ -1393,6 +1410,7 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
     dist = CCD_SQRT(dist);
     if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance)
     {
+      ccdVec3Normalize(&dir);
       extractClosestPoints(&simplex, p1, p2, &dir);
       return last_dist;
     }
@@ -1784,6 +1802,8 @@ bool GJKSignedDistance(void* obj1, ccd_support_fn supp1,
   CCD_INIT(&ccd);
   ccd.support1 = supp1;
   ccd.support2 = supp2;
+  ccd.epa_tolerance = 1e-14;
+  ccd.mpr_tolerance = 1e-14;
 
   ccd.max_iterations = max_iterations;
   ccd.dist_tolerance = tolerance;
