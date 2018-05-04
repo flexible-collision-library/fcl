@@ -1208,7 +1208,6 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     // check whether we improved for at least a minimum tolerance
     if ((last_dist - dist) < ccd->dist_tolerance)
     {
-      ccdVec3Normalize(&dir);
       extractClosestPoints(simplex, p1, p2, &dir);
       return dist;
     }
@@ -1233,7 +1232,6 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     dist = CCD_SQRT(dist);
     if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance)
     {
-      ccdVec3Normalize(&dir);
       extractClosestPoints(simplex, p1, p2, &dir);
       return last_dist;
     }
@@ -1385,7 +1383,6 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
     // check whether we improved for at least a minimum tolerance
     if ((last_dist - dist) < ccd->dist_tolerance)
     {
-      ccdVec3Normalize(&dir);
       extractClosestPoints(&simplex, p1, p2, &dir);
       return dist;
     }
@@ -1410,7 +1407,6 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
     dist = CCD_SQRT(dist);
     if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance)
     {
-      ccdVec3Normalize(&dir);
       extractClosestPoints(&simplex, p1, p2, &dir);
       return last_dist;
     }
