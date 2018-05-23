@@ -59,6 +59,7 @@ set(tests
     test_fcl_signed_distance.cpp
     test_fcl_simple.cpp
     test_fcl_sphere_capsule.cpp
+    test_fcl_sphere_sphere.cpp
 )
 
 if (FCL_HAVE_OCTOMAP)
@@ -92,3 +93,5 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 foreach(test ${tests})
   add_fcl_test(${test})
 endforeach(test)
+
+add_subdirectory(narrowphase)

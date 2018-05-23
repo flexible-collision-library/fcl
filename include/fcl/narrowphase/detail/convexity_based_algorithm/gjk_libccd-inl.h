@@ -1010,7 +1010,7 @@ static int __ccdEPA(const void *obj1, const void *obj2,
 static void extractClosestPoints(ccd_simplex_t* simplex,
                                  ccd_vec3_t* p1, ccd_vec3_t* p2, ccd_vec3_t* p)
 {
-  int simplex_size = ccdSimplexSize(simplex);
+  const int simplex_size = ccdSimplexSize(simplex);
   assert(simplex_size <= 3);
   if (simplex_size == 1)
   {
@@ -1159,6 +1159,8 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
 {
   unsigned long iterations;
   ccd_support_t last; // last support point
+  ccd_vec3_t closest_p; // The point on the simplex that is closest to the
+                        // origin.
   ccd_vec3_t dir; // direction vector
   ccd_real_t dist, last_dist = CCD_REAL_MAX;
 
@@ -1171,7 +1173,7 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     // the origin
     if (ccdSimplexSize(simplex) == 1)
     {
-      ccdVec3Copy(&dir, &ccdSimplexPoint(simplex, 0)->v);
+      ccdVec3Copy(&closest_p, &ccdSimplexPoint(simplex, 0)->v);
       dist = ccdVec3Len2(&ccdSimplexPoint(simplex, 0)->v);
       dist = CCD_SQRT(dist);
     }
@@ -1180,7 +1182,7 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
       dist = ccdVec3PointSegmentDist2(ccd_vec3_origin,
                                       &ccdSimplexPoint(simplex, 0)->v,
                                       &ccdSimplexPoint(simplex, 1)->v,
-                                      &dir);
+                                      &closest_p);
       dist = CCD_SQRT(dist);
     }
     else if(ccdSimplexSize(simplex) == 3)
@@ -1189,22 +1191,23 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
                                   &ccdSimplexPoint(simplex, 0)->v,
                                   &ccdSimplexPoint(simplex, 1)->v,
                                   &ccdSimplexPoint(simplex, 2)->v,
-                                  &dir);
+                                  &closest_p);
       dist = CCD_SQRT(dist);
     }
     else
     { // ccdSimplexSize(&simplex) == 4
-      dist = simplexReduceToTriangle(simplex, last_dist, &dir);
+      dist = simplexReduceToTriangle(simplex, last_dist, &closest_p);
     }
 
     // check whether we improved for at least a minimum tolerance
     if ((last_dist - dist) < ccd->dist_tolerance)
     {
-      extractClosestPoints(simplex, p1, p2, &dir);
+      extractClosestPoints(simplex, p1, p2, &closest_p);
       return dist;
     }
 
     // point direction towards the origin
+    ccdVec3Copy(&dir, &closest_p);
     ccdVec3Scale(&dir, -CCD_ONE);
     ccdVec3Normalize(&dir);
 
@@ -1221,7 +1224,7 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     dist = CCD_SQRT(dist);
     if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance)
     {
-      extractClosestPoints(simplex, p1, p2, &dir);
+      extractClosestPoints(simplex, p1, p2, &closest_p);
       return last_dist;
     }
 
@@ -1330,78 +1333,12 @@ static inline ccd_real_t ccdGJKSignedDist(const void* obj1, const void* obj2, co
 /// change the libccd distance to add two closest points
 static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)
 {
-  unsigned long iterations;
   ccd_simplex_t simplex;
-  ccd_support_t last; // last support point
-  ccd_vec3_t dir; // direction vector
-  ccd_real_t dist, last_dist;
-
   // first find an intersection
   if (__ccdGJK(obj1, obj2, ccd, &simplex) == 0)
     return -CCD_ONE;
 
-  last_dist = CCD_REAL_MAX;
-
-  for (iterations = 0UL; iterations < ccd->max_iterations; ++iterations) {
-    // get a next direction vector
-    // we are trying to find out a point on the minkowski difference
-    // that is nearest to the origin, so we obtain a point on the
-    // simplex that is nearest and try to exapand the simplex towards
-    // the origin
-    if (ccdSimplexSize(&simplex) == 1){
-      ccdVec3Copy(&dir, &ccdSimplexPoint(&simplex, 0)->v);
-      dist = ccdVec3Len2(&ccdSimplexPoint(&simplex, 0)->v);
-      dist = CCD_SQRT(dist);
-    }else if (ccdSimplexSize(&simplex) == 2){
-      dist = ccdVec3PointSegmentDist2(ccd_vec3_origin,
-                                      &ccdSimplexPoint(&simplex, 0)->v,
-                                      &ccdSimplexPoint(&simplex, 1)->v,
-                                      &dir);
-      dist = CCD_SQRT(dist);
-    }else if(ccdSimplexSize(&simplex) == 3){
-      dist = ccdVec3PointTriDist2(ccd_vec3_origin,
-                                  &ccdSimplexPoint(&simplex, 0)->v,
-                                  &ccdSimplexPoint(&simplex, 1)->v,
-                                  &ccdSimplexPoint(&simplex, 2)->v,
-                                  &dir);
-      dist = CCD_SQRT(dist);
-    }else{ // ccdSimplexSize(&simplex) == 4
-      dist = simplexReduceToTriangle(&simplex, last_dist, &dir);
-    }
-
-    // check whether we improved for at least a minimum tolerance
-    if ((last_dist - dist) < ccd->dist_tolerance)
-    {
-      extractClosestPoints(&simplex, p1, p2, &dir);
-      return dist;
-    }
-
-    // point direction towards the origin
-    ccdVec3Scale(&dir, -CCD_ONE);
-    ccdVec3Normalize(&dir);
-
-    // find out support point
-    __ccdSupport(obj1, obj2, &dir, ccd, &last);
-
-    // record last distance
-    last_dist = dist;
-
-    // check whether we improved for at least a minimum tolerance
-    // this is here probably only for a degenerate cases when we got a
-    // point that is already in the simplex
-    dist = ccdVec3Len2(&last.v);
-    dist = CCD_SQRT(dist);
-    if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance)
-    {
-      extractClosestPoints(&simplex, p1, p2, &dir);
-      return last_dist;
-    }
-
-    // add a point to simplex
-    ccdSimplexAdd(&simplex, &last);
-  }
-
-  return -CCD_REAL(1.);
+  return _ccdDist(obj1, obj2, ccd, &simplex, p1, p2);
 }
 
 } // namespace libccd_extension
