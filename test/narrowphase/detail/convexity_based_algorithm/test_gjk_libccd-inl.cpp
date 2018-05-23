@@ -85,9 +85,9 @@ void TestSphereToSphereGJKSignedDistance(S radius1, S radius2,
     // Denote the vector AB as v_F
     const Vector3<S> v_F = center2 - center1;
     if (v_F.norm() < 1E-3) {
-      throw std::logic_error(
-          "The two sphere centers almost coincides. This testdoes not cover "
-          "such case.");
+      GTEST_FAIL() << "Sphere centers are functionally coincident:"
+                   << "\n\tcenter1: " << center1.transpose()
+                   << "\n\tcenter2: " << center2.transpose();
     }
     const S v_F_norm = v_F.norm();
     const Vector3<S> p1_expected = center1 + radius1 * v_F / v_F_norm;
@@ -95,6 +95,9 @@ void TestSphereToSphereGJKSignedDistance(S radius1, S radius2,
     EXPECT_NEAR(dist, dist_expected, tol);
     EXPECT_TRUE(p1.isApprox(p1_expected, tol));
     EXPECT_TRUE(p2.isApprox(p2_expected, tol));
+
+    GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o1);
+    GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o2);
   };
 
   CheckSignedDistance(radius1, radius2, center1, center2, tol);
@@ -103,16 +106,36 @@ void TestSphereToSphereGJKSignedDistance(S radius1, S radius2,
 }
 
 template <typename S>
+struct SphereSpecification {
+  SphereSpecification<S>(S radius_, const Vector3<S>& center_)
+      : radius{radius_}, center{center_} {}
+  S radius;
+  Vector3<S> center;
+};
+
+template <typename S>
 void TestNonCollidingSphereGJKSignedDistance(S tol) {
-  TestSphereToSphereGJKSignedDistance<S>(0.5, 0.5, Vector3<S>(0, 0, 0),
-                                         Vector3<S>(1.25, 0, 0), tol);
-  TestSphereToSphereGJKSignedDistance<S>(0.5, 0.6, Vector3<S>(0, 0, 0),
-                                         Vector3<S>(1.25, 0, 0), tol);
+  std::vector<SphereSpecification<S>> spheres;
+  spheres.emplace_back(0.5, Vector3<S>(0, 0, 0));
+  spheres.emplace_back(0.5, Vector3<S>(1.25, 0, 0));
+  spheres.emplace_back(0.3, Vector3<S>(-0.2, 0, 0));
+  spheres.emplace_back(0.4, Vector3<S>(-0.2, 0, 1.1));
+  for (int i = 0; i < static_cast<int>(spheres.size()); ++i) {
+    for (int j = i + 1; j < static_cast<int>(spheres.size()); ++j) {
+      if ((spheres[i].center - spheres[j].center).norm() >
+          spheres[i].radius + spheres[j].radius) {
+        // Not in collision.
+        TestSphereToSphereGJKSignedDistance<S>(
+            spheres[i].radius, spheres[j].radius, spheres[i].center,
+            spheres[j].center, tol);
+      }
+    }
+  }
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, sphere_sphere) {
-  TestNonCollidingSphereGJKSignedDistance<double>(1E-14);
-  TestNonCollidingSphereGJKSignedDistance<float>(1E-7);
+  TestNonCollidingSphereGJKSignedDistance<double>(1E-3);
+  TestNonCollidingSphereGJKSignedDistance<float>(1E-3);
 }
 }  // namespace detail
 }  // namespace fcl

@@ -1152,6 +1152,12 @@ static void extractClosestPoints(ccd_simplex_t* simplex,
 }
 
 
+// When two objects @p obj1 and @p obj2 are not colliding, computes the distance
+// between these two objects, together with the nearest points @p p1 on obj1,
+// and @p p2 on obj2. @p simplex is the simplex used in GJK algorithm to compute
+// the distance. For more info about GJK algorithm, the readers can refer to 
+// section 2.3 of Real-time Collision Detection with Implicit Objects by Leif
+// Olvang, 2010
 static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
                                   const ccd_t *ccd,
                                   ccd_simplex_t* simplex,
@@ -1330,7 +1336,10 @@ static inline ccd_real_t ccdGJKSignedDist(const void* obj1, const void* obj2, co
 }
 
 
-/// change the libccd distance to add two closest points
+// Computes the (unsigned) distance between two geometric objects @p obj1 and @p
+// obj2, and returns the closest point @p p1 on obj1, @p p2 on obj2.
+// When the two objects are colliding, the function terminates without computing
+// the closest points p1 and p2, and returns -1 as the distance.
 static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)
 {
   ccd_simplex_t simplex;
