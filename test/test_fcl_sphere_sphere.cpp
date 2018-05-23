@@ -32,10 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Hongkai Dai*/
+/** @author Hongkai Dai <hongkai.dai@tri.global>*/
 
-#include <functional>
-#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -43,79 +41,85 @@
 #include <gtest/gtest.h>
 #include <Eigen/Dense>
 
-#include "fcl/math/constants.h"
 #include "fcl/narrowphase/collision_object.h"
 #include "fcl/narrowphase/distance.h"
 #include "fcl/narrowphase/distance_request.h"
 #include "fcl/narrowphase/distance_result.h"
 
-using std::map;
-using std::pair;
-using std::string;
-using std::vector;
-
-// Simple specification for defining a sphere collision object. Specifies the
-// radius and center of the sphere
+// For two spheres 1, 2, sphere 1 has radius1, and is centered at point A, with
+// coordinate p_FA in some frame F; sphere 2 has radius2, and is centered at
+// point B, with coordinate p_FB in the same frame F. Compute the (signed)
+// distance between the two spheres.
 template <typename S>
-struct SphereSpecification {
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  S radius;
-  fcl::Vector3<S> center;
-};
+S ComputeSphereSphereDistance(S radius1, S radius2, const fcl::Vector3<S>& p_FA,
+                              const fcl::Vector3<S>& p_FB,
+                              fcl::GJKSolverType solver_type,
+                              bool enable_nearest_points,
+                              bool enable_signed_distance,
+                              fcl::DistanceResult<S>* result) {
+  fcl::Transform3<S> X_FA, X_FB;
+  X_FA.setIdentity();
+  X_FB.setIdentity();
+  X_FA.translation() = p_FA;
+  X_FB.translation() = p_FB;
 
-// Class for executing and evaluating various box-box tests.
-// The class is initialized with two box specifications (size and pose).
-// The test performs a collision test between the two boxes in 12 permutations:
-// One axis is the order (box 1 vs box 2 and box 2 vs box 1).
-// The other axis is the orientation box 2. Given that box 2 must be a cube, it
-// can be oriented in six different configurations and still produced the same
-// answer.
-// The 12 permutations are the two orderings crossed with the six orientations.
+  fcl::DistanceRequest<S> request;
+  request.enable_nearest_points = enable_nearest_points;
+  request.enable_signed_distance = enable_signed_distance;
+  request.gjk_solver_type = solver_type;
+
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
+  CollisionGeometryPtr_t sphere_geometry_1(new fcl::Sphere<S>(radius1));
+  CollisionGeometryPtr_t sphere_geometry_2(new fcl::Sphere<S>(radius2));
+
+  fcl::CollisionObject<S> sphere_1(sphere_geometry_1, X_FA);
+  fcl::CollisionObject<S> sphere_2(sphere_geometry_2, X_FB);
+  const S min_distance = fcl::distance(&sphere_1, &sphere_2, request, *result);
+  return min_distance;
+}
+
 template <typename S>
-class SphereSphereTest {
- public:
-  // Construct the test scenario with the given sphere specifications.
-  SphereSphereTest(const SphereSpecification<S>& sphere_spec_A,
-                   const SphereSpecification<S>& sphere_spec_B)
-      : sphere_spec_A_(sphere_spec_A), sphere_spec_B_(sphere_spec_B) {}
+void CheckSphereToSphereDistance(
+    S radius1, S radius2, const fcl::Vector3<S>& p_FA,
+    const fcl::Vector3<S>& p_FB, fcl::GJKSolverType solver_type,
+    bool enable_nearest_points, bool enable_signed_distance,
+    S min_distance_expected, const fcl::Vector3<S>& p1_expected,
+    const fcl::Vector3<S>& p2_expected, S tol) {
+  fcl::DistanceResult<S> result;
+  const S min_distance = ComputeSphereSphereDistance<S>(
+      radius1, radius2, p_FA, p_FB, solver_type, enable_nearest_points,
+      enable_signed_distance, &result);
+  EXPECT_NEAR(min_distance, min_distance_expected, tol);
+  EXPECT_NEAR(result.min_distance, min_distance_expected, tol);
+  EXPECT_TRUE(result.nearest_points[0].isApprox(p1_expected, tol));
+  EXPECT_TRUE(result.nearest_points[1].isApprox(p2_expected, tol));
+}
 
-  void RunTests(fcl::GJKSolverType solver_type) {
-    fcl::DistanceRequestd request;
-    request.enable_nearest_points = true;
-    request.enable_signed_distance = true;
-    request.gjk_solver_type = solver_type;
-    fcl::DistanceResultd result;
+template <typename S>
+void TestSeparatingSpheres(S tol) {
+  const S radius1 = 0.5;
+  const S radius2 = 0.6;
+  const fcl::Vector3<S> p_FA(0, 0, 0);
+  const fcl::Vector3<S> p_FB(1.2, 0, 0);
 
-    fcl::Transform3<S> X_FA, X_FB;
-    X_FA.setIdentity();
-    X_FB.setIdentity();
-    X_FA.translation() = sphere_spec_A_.center;
-    X_FB.translation() = sphere_spec_B_.center;
+  const fcl::Vector3<S> p1_expected(0.5, 0, 0);
+  const fcl::Vector3<S> p2_expected(-0.6, 0, 0);
+  for (const fcl::GJKSolverType solver_type :
+       {fcl::GJKSolverType::GST_LIBCCD, fcl::GJKSolverType::GST_INDEP}) {
+    CheckSphereToSphereDistance<S>(radius1, radius2, p_FA, p_FB, solver_type,
+                                   true, true, 0.1, p1_expected, p2_expected,
+                                   tol);
 
-    using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
-    CollisionGeometryPtr_t sphere_geometry_A(
-        new fcl::Sphere<S>(sphere_spec_A_.radius));
-    CollisionGeometryPtr_t sphere_geometry_B(
-        new fcl::Sphere<S>(sphere_spec_B_.radius));
-
-    fcl::CollisionObject<S> sphere_A(sphere_geometry_A, X_FA);
-    fcl::CollisionObject<S> sphere_B(sphere_geometry_B, X_FB);
-    const S min_distance = fcl::distance(&sphere_A, &sphere_B, request, result);
+    // Now switch the order of sphere 1 with sphere 2 in calling fcl::distance
+    // function, and test again.
+    CheckSphereToSphereDistance<S>(radius2, radius1, p_FB, p_FA, solver_type,
+                                   true, true, 0.1, p2_expected, p1_expected,
+                                   tol);
   }
+}
 
-  SphereSpecification<S> sphere_spec_A_;
-  SphereSpecification<S> sphere_spec_B_;
-};
-
-GTEST_TEST(FCL_SPHERE_SPHERE, distance_ccd) {
-  SphereSpecification<double> A_spec, B_spec;
-  A_spec.radius = 0.5;
-  A_spec.center = fcl::Vector3<double>(1.25, 0, 0);
-  B_spec.radius = 0.5;
-  B_spec.center = fcl::Vector3<double>(-0.5, 0, 0);
-
-  SphereSphereTest<double> test(A_spec, B_spec);
-  test.RunTests(fcl::GJKSolverType::GST_LIBCCD);
+GTEST_TEST(FCL_SPHERE_SPHERE, Separating_Spheres) {
+  TestSeparatingSpheres<double>(1E-14);
 }
 
 //==============================================================================
