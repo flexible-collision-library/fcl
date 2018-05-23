@@ -6,9 +6,6 @@ else()
   cmake_minimum_required(VERSION 2.8.12)
 endif()
 
-# Used for YouCompleteMe
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 # Set the CMAKE_CXX_COMPILER_ID variable to AppleClang instead of Clang.
 # AppleClang and Clang have different version number. This was introduced in
 # CMake 3.0.
