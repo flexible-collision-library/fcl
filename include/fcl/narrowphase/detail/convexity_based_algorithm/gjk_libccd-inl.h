@@ -1702,70 +1702,68 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
   return false;
 }
 
+namespace internal {
+template <typename S>
+struct SignedDistanceFn {
+  typedef S (*type)(const void*, const void*, const ccd_t*, ccd_vec3_t*,
+                    ccd_vec3_t*);
+};
+
+template <typename S>
+bool GJKDistanceImp(
+    void* obj1, ccd_support_fn supp1, void* obj2, ccd_support_fn supp2,
+    unsigned int max_iterations, S tolerance,
+    typename SignedDistanceFn<S>::type signed_distance_func,
+    S* res, Vector3<S>* p1, Vector3<S>* p2) {
+  ccd_t ccd;
+  ccd_real_t dist;
+  CCD_INIT(&ccd);
+  ccd.support1 = supp1;
+  ccd.support2 = supp2;
+
+  ccd.max_iterations = max_iterations;
+  ccd.dist_tolerance = tolerance;
+
+  ccd_vec3_t p1_, p2_;
+  // NOTE(JS): p1_ and p2_ are set to zeros in order to suppress uninitialized
+  // warning. It seems the warnings occur since libccd_extension::ccdGJKDist2
+  // conditionally set p1_ and p2_. If this wasn't intentional then please
+  // remove the initialization of p1_ and p2_, and change the function
+  // libccd_extension::ccdGJKDist2(...) to always set p1_ and p2_.
+  ccdVec3Set(&p1_, 0.0, 0.0, 0.0);
+  ccdVec3Set(&p2_, 0.0, 0.0, 0.0);
+  dist = signed_distance_func(obj1, obj2, &ccd, &p1_, &p2_);
+  if (p1) *p1 << ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_);
+  if (p2) *p2 << ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_);
+  if (res) *res = dist;
+  if (dist < 0)
+    return false;
+  else
+    return true;
+}
+}  // namespace internal
 
 /// p1 and p2 are in global coordinate, so needs transform in the narrowphase.h functions
 template <typename S>
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
                  unsigned int max_iterations, S tolerance,
-                 S* res, Vector3<S>* p1, Vector3<S>* p2)
-{
-  ccd_t ccd;
-  ccd_real_t dist;
-  CCD_INIT(&ccd);
-  ccd.support1 = supp1;
-  ccd.support2 = supp2;
-
-  ccd.max_iterations = max_iterations;
-  ccd.dist_tolerance = tolerance;
-
-  ccd_vec3_t p1_, p2_;
-  // NOTE(JS): p1_ and p2_ are set to zeros in order to suppress uninitialized
-  // warning. It seems the warnings occur since libccd_extension::ccdGJKDist2
-  // conditionally set p1_ and p2_. If this wasn't intentional then please
-  // remove the initialization of p1_ and p2_, and change the function
-  // libccd_extension::ccdGJKDist2(...) to always set p1_ and p2_.
-  ccdVec3Set(&p1_, 0.0, 0.0, 0.0);
-  ccdVec3Set(&p2_, 0.0, 0.0, 0.0);
-  dist = libccd_extension::ccdGJKDist2(obj1, obj2, &ccd, &p1_, &p2_);
-  if(p1) *p1 << ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_);
-  if(p2) *p2 << ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_);
-  if(res) *res = dist;
-  if(dist < 0) return false;
-  else return true;
+                 S* res, Vector3<S>* p1, Vector3<S>* p2) {
+  return internal::GJKDistanceImp(obj1, supp1, obj2, supp2, max_iterations,
+                                  tolerance, libccd_extension::ccdGJKDist2,
+                                  res, p1, p2);
 }
 
-
-/// p1 and p2 are in global coordinate, so needs transform in the narrowphase.h functions
+/// p1 and p2 are in global coordinate, so needs transform in the narrowphase.h
+/// functions
 template <typename S>
 bool GJKSignedDistance(void* obj1, ccd_support_fn supp1,
                        void* obj2, ccd_support_fn supp2,
-                       unsigned int max_iterations, S tolerance,
-                       S* res, Vector3<S>* p1, Vector3<S>* p2)
-{
-  ccd_t ccd;
-  ccd_real_t dist;
-  CCD_INIT(&ccd);
-  ccd.support1 = supp1;
-  ccd.support2 = supp2;
-
-  ccd.max_iterations = max_iterations;
-  ccd.dist_tolerance = tolerance;
-
-  ccd_vec3_t p1_, p2_;
-  // NOTE(JS): p1_ and p2_ are set to zeros in order to suppress uninitialized
-  // warning. It seems the warnings occur since libccd_extension::ccdGJKDist2
-  // conditionally set p1_ and p2_. If this wasn't intentional then please
-  // remove the initialization of p1_ and p2_, and change the function
-  // libccd_extension::ccdGJKDist2(...) to always set p1_ and p2_.
-  ccdVec3Set(&p1_, 0.0, 0.0, 0.0);
-  ccdVec3Set(&p2_, 0.0, 0.0, 0.0);
-  dist = libccd_extension::ccdGJKSignedDist(obj1, obj2, &ccd, &p1_, &p2_);
-  if(p1) *p1 << ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_);
-  if(p2) *p2 << ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_);
-  if(res) *res = dist;
-  if(dist < 0) return false;
-  else return true;
+                       unsigned int max_iterations,
+                       S tolerance, S* res, Vector3<S>* p1, Vector3<S>* p2) {
+  return internal::GJKDistanceImp(
+      obj1, supp1, obj2, supp2, max_iterations, tolerance,
+      libccd_extension::ccdGJKSignedDist, res, p1, p2);
 }
 
 template <typename S>
