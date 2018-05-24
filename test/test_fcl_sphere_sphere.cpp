@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Hongkai Dai <hongkai.dai@tri.global>*/
+/** @author Hongkai Dai <hongkai.dai@tri.global> */
 
 #include <memory>
 #include <utility>
@@ -57,6 +57,10 @@ S ComputeSphereSphereDistance(S radius1, S radius2, const fcl::Vector3<S>& p_FA,
                               bool enable_nearest_points,
                               bool enable_signed_distance,
                               fcl::DistanceResult<S>* result) {
+  // Pose of the sphere expressed in the frame F. X_FA is the pose of sphere 1
+  // in frame F, while X_FB is the pose of sphere 2 in frame F.
+  // We use monogram notation as in Drake, explained in
+  // http://drake.mit.edu/doxygen_cxx/group__multibody__spatial__pose.html
   fcl::Transform3<S> X_FA, X_FB;
   X_FA.setIdentity();
   X_FB.setIdentity();
@@ -111,16 +115,15 @@ struct SphereSphereDistance {
   SphereSphereDistance(const SphereSpecification<S>& m_sphere1,
                        const SphereSpecification<S>& m_sphere2)
       : sphere1(m_sphere1), sphere2(m_sphere2) {
-    min_distance = (sphere1.p_FC - sphere2.p_FC).norm() - sphere1.radius -
-                   sphere2.radius;
-    const fcl::Vector3<S> AB = (sphere1.p_FC- sphere2.p_FC).normalized();
+    min_distance =
+        (sphere1.p_FC - sphere2.p_FC).norm() - sphere1.radius - sphere2.radius;
+    const fcl::Vector3<S> AB = (sphere1.p_FC - sphere2.p_FC).normalized();
     p_S1P1 = -AB * sphere1.radius;
     p_S2P2 = AB * sphere2.radius;
   }
   SphereSpecification<S> sphere1;
   SphereSpecification<S> sphere2;
   S min_distance;
-  // The closest points are expressed in the sphere body frame.
   // The closest point P1 on sphere 1 is expressed in the sphere 1 body frame
   // S1.
   // The closest point P2 on sphere 2 is expressed in the sphere 2 body frame
@@ -132,42 +135,40 @@ struct SphereSphereDistance {
 template <typename S>
 void TestSeparatingSpheres(S tol, fcl::GJKSolverType solver_type) {
   std::vector<SphereSpecification<S>> spheres;
-  spheres.emplace_back(0.5, fcl::Vector3<S>(0, 0, 0));
-  spheres.emplace_back(0.6, fcl::Vector3<S>(1.2, 0, 0));
-  spheres.emplace_back(0.4, fcl::Vector3<S>(-0.3, 0, 0));
-  spheres.emplace_back(0.3, fcl::Vector3<S>(0, 0, 1));
+  spheres.emplace_back(0.5, fcl::Vector3<S>(0, 0, -1));   // sphere 1
+  spheres.emplace_back(0.6, fcl::Vector3<S>(1.2, 0, 0));  // sphere 2
+  spheres.emplace_back(0.4, fcl::Vector3<S>(-0.3, 0, 0)); // sphere 3
+  spheres.emplace_back(0.3, fcl::Vector3<S>(0, 0, 1));    // sphere 4
 
   for (int i = 0; i < static_cast<int>(spheres.size()); ++i) {
     for (int j = i + 1; j < static_cast<int>(spheres.size()); ++j) {
       SphereSphereDistance<S> sphere_sphere_distance(spheres[i], spheres[j]);
-      if (sphere_sphere_distance.min_distance > 0) {
-        bool enable_signed_distance = true;
-        CheckSphereToSphereDistance<S>(
-            spheres[i], spheres[j], solver_type, true, enable_signed_distance,
-            sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S1P1,
-            sphere_sphere_distance.p_S2P2, tol);
+      bool enable_signed_distance = true;
+      CheckSphereToSphereDistance<S>(
+          spheres[i], spheres[j], solver_type, true, enable_signed_distance,
+          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S1P1,
+          sphere_sphere_distance.p_S2P2, tol);
 
-        // Now switch the order of sphere 1 with sphere 2 in calling
-        // fcl::distance function, and test again.
-        CheckSphereToSphereDistance<S>(
-            spheres[j], spheres[i], solver_type, true, enable_signed_distance,
-            sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S2P2,
-            sphere_sphere_distance.p_S1P1, tol);
-        
-        enable_signed_distance = false;
-        CheckSphereToSphereDistance<S>(
-            spheres[i], spheres[j], solver_type, true, enable_signed_distance,
-            sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S1P1,
-            sphere_sphere_distance.p_S2P2, tol);
-        // Now switch the order of sphere 1 with sphere 2 in calling
-        // fcl::distance function, and test again.
-        CheckSphereToSphereDistance<S>(
-            spheres[j], spheres[i], solver_type, true, enable_signed_distance,
-            sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S2P2,
-            sphere_sphere_distance.p_S1P1, tol);
+      // Now switch the order of sphere 1 with sphere 2 in calling
+      // fcl::distance function, and test again.
+      CheckSphereToSphereDistance<S>(
+          spheres[j], spheres[i], solver_type, true, enable_signed_distance,
+          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S2P2,
+          sphere_sphere_distance.p_S1P1, tol);
 
-        // TODO (hongkai.dai@tri.global): Test enable_nearest_points=false.
-      }
+      enable_signed_distance = false;
+      CheckSphereToSphereDistance<S>(
+          spheres[i], spheres[j], solver_type, true, enable_signed_distance,
+          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S1P1,
+          sphere_sphere_distance.p_S2P2, tol);
+      // Now switch the order of sphere 1 with sphere 2 in calling
+      // fcl::distance function, and test again.
+      CheckSphereToSphereDistance<S>(
+          spheres[j], spheres[i], solver_type, true, enable_signed_distance,
+          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S2P2,
+          sphere_sphere_distance.p_S1P1, tol);
+
+      // TODO (hongkai.dai@tri.global): Test enable_nearest_points=false.
     }
   }
 }
@@ -177,6 +178,13 @@ GTEST_TEST(FCL_SPHERE_SPHERE, Separating_Spheres_INDEP) {
 }
 
 GTEST_TEST(FCL_SPHERE_SPHERE, Separating_Spheres_LIBCCD) {
+  // TODO(hongkai.dai@tri.global): The accuracy of the closest point is only up
+  // to 1E-3, although gjkSolver::distance_tolerance is 1E-6. We should
+  // investigate the accuracy issue.
+  // Specifically, when setting `enable_signed_distance = true`, then except for
+  // the the pair of spheres (2, 3), the closest point between all other pairs
+  // fail to achieve tolerance 1E-6. When `enable_signed_distance = false`, then
+  // all pairs achieve tolerance 1E-6.
   TestSeparatingSpheres<double>(1E-3, fcl::GJKSolverType::GST_LIBCCD);
 }
 //==============================================================================

@@ -43,66 +43,67 @@
 namespace fcl {
 namespace detail {
 
+// Given two spheres, sphere 1 has radius1, and centered at point A, whose
+// position is p_FA measured and expressed in frame A; sphere 2 has radius2,
+// and centered at point B, whose position is p_FB measured and expressed in
+// frame B. Computes the signed distance between the two spheres, together with
+// the two closest points Na on sphere 1 and Nb on sphere 2, returns the
+// position of Na and Nb expressed in frame F.
+// We use the monogram notation on spatial vectors. The monogram notation is
+// explained in
+// http://drake.mit.edu/doxygen_cxx/group__multibody__spatial__pose.html
+template <typename S>
+S ComputeSphereSphereDistance(S radius1, S radius2, const Vector3<S>& p_FA,
+                              const Vector3<S>& p_FB, Vector3<S>* p_FNa,
+                              Vector3<S>* p_FNb) {
+  S min_distance = (p_FA - p_FB).norm() - radius1 - radius2;
+  const Vector3<S> p_AB_F =
+      p_FB - p_FA;  // The vector AB measured and expressed
+                    // in frame F.
+  *p_FNa = p_FA + p_AB_F.normalized() * radius1;
+  *p_FNb = p_FB - p_AB_F.normalized() * radius2;
+  return min_distance;
+}
+
 template <typename S>
 void TestSphereToSphereGJKSignedDistance(S radius1, S radius2,
-                                         const Vector3<S>& center1,
-                                         const Vector3<S>& center2, S tol) {
+                                         const Vector3<S>& p_FA,
+                                         const Vector3<S>& p_FB, S tol,
+                                         S min_distance_expected,
+                                         const Vector3<S>& p_FNa_expected,
+                                         const Vector3<S>& p_FNb_expected) {
   // Test if GJKSignedDistance computes the right distance. Here we used sphere
   // to sphere as the geometries. The distance between sphere and sphere should
   // be computed using distance between primitives, instead of the GJK
   // algorithm. But here we choose spheres for simplicity.
-  //
-  // Two non-colliding spheres, both with radius 0.5. One sphere is centered
-  // at (0, 0, 0), and the other is centered at (1.25, 0, 0).
 
-  auto CheckSignedDistance = [](S radius1, S radius2, const Vector3<S>& center1,
-                                const Vector3<S>& center2, S tol) {
-    fcl::Sphere<S> s1(radius1);
-    fcl::Sphere<S> s2(radius2);
-    fcl::Transform3<S> tf1, tf2;
-    tf1.setIdentity();
-    tf2.setIdentity();
-    tf1.translation() = center1;
-    tf2.translation() = center2;
-    void* o1 = GJKInitializer<S, fcl::Sphere<S>>::createGJKObject(s1, tf1);
-    void* o2 = GJKInitializer<S, fcl::Sphere<S>>::createGJKObject(s2, tf2);
+  fcl::Sphere<S> s1(radius1);
+  fcl::Sphere<S> s2(radius2);
+  fcl::Transform3<S> tf1, tf2;
+  tf1.setIdentity();
+  tf2.setIdentity();
+  tf1.translation() = p_FA;
+  tf2.translation() = p_FB;
+  void* o1 = GJKInitializer<S, fcl::Sphere<S>>::createGJKObject(s1, tf1);
+  void* o2 = GJKInitializer<S, fcl::Sphere<S>>::createGJKObject(s2, tf2);
 
-    S dist;
-    Vector3<S> p1, p2;
-    GJKSolver_libccd<S> gjkSolver;
-    bool res = GJKSignedDistance(
-        o1, detail::GJKInitializer<S, Sphere<S>>::getSupportFunction(), o2,
-        detail::GJKInitializer<S, Sphere<S>>::getSupportFunction(),
-        gjkSolver.max_distance_iterations, gjkSolver.distance_tolerance, &dist,
-        &p1, &p2);
+  S dist;
+  Vector3<S> p1, p2;
+  GJKSolver_libccd<S> gjkSolver;
+  bool res = GJKSignedDistance(
+      o1, detail::GJKInitializer<S, Sphere<S>>::getSupportFunction(), o2,
+      detail::GJKInitializer<S, Sphere<S>>::getSupportFunction(),
+      gjkSolver.max_distance_iterations, gjkSolver.distance_tolerance, &dist,
+      &p1, &p2);
 
-    const S dist_expected = (center1 - center2).norm() - radius1 - radius2;
-    EXPECT_EQ(res, dist_expected >= 0);
+  EXPECT_EQ(res, min_distance_expected >= 0);
 
-    // Suppose the sphere 1 is centered at point A, sphere 2 is centered at
-    // point B. The position of A in the frame F is p_FA = center1, the position
-    // of B in the frame F is p_FB = center2.
-    // Denote the vector AB as v_F
-    const Vector3<S> v_F = center2 - center1;
-    if (v_F.norm() < 1E-3) {
-      GTEST_FAIL() << "Sphere centers are functionally coincident:"
-                   << "\n\tcenter1: " << center1.transpose()
-                   << "\n\tcenter2: " << center2.transpose();
-    }
-    const S v_F_norm = v_F.norm();
-    const Vector3<S> p1_expected = center1 + radius1 * v_F / v_F_norm;
-    const Vector3<S> p2_expected = center2 - radius2 * v_F / v_F_norm;
-    EXPECT_NEAR(dist, dist_expected, tol);
-    EXPECT_TRUE(p1.isApprox(p1_expected, tol));
-    EXPECT_TRUE(p2.isApprox(p2_expected, tol));
+  EXPECT_NEAR(dist, min_distance_expected, tol);
+  EXPECT_TRUE(p1.isApprox(p_FNa_expected, tol));
+  EXPECT_TRUE(p2.isApprox(p_FNb_expected, tol));
 
-    GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o1);
-    GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o2);
-  };
-
-  CheckSignedDistance(radius1, radius2, center1, center2, tol);
-  // Now switch the position of sphere 1 and sphere 2 and test again.
-  CheckSignedDistance(radius2, radius1, center2, center1, tol);
+  GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o1);
+  GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o2);
 }
 
 template <typename S>
@@ -125,15 +126,22 @@ void TestNonCollidingSphereGJKSignedDistance(S tol) {
       if ((spheres[i].center - spheres[j].center).norm() >
           spheres[i].radius + spheres[j].radius) {
         // Not in collision.
+        Vector3<S> p_FNa, p_FNb;
+        const S min_distance_expected = ComputeSphereSphereDistance(
+            spheres[i].radius, spheres[j].radius, spheres[i].center,
+            spheres[j].center, &p_FNa, &p_FNb);
         TestSphereToSphereGJKSignedDistance<S>(
             spheres[i].radius, spheres[j].radius, spheres[i].center,
-            spheres[j].center, tol);
+            spheres[j].center, tol, min_distance_expected, p_FNa, p_FNb);
       }
     }
   }
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, sphere_sphere) {
+  // TODO(hongkai.dai@tri.global): By setting gjkSolver.distance_tolerance to
+  // the default value (1E-6), the tolerance we get on the closest points are
+  // only up to 1E-3. Should investigate why there is such a big difference.
   TestNonCollidingSphereGJKSignedDistance<double>(1E-3);
   TestNonCollidingSphereGJKSignedDistance<float>(1E-3);
 }
