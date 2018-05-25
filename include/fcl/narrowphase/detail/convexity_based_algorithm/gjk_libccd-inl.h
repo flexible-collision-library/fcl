@@ -1711,23 +1711,26 @@ using DistanceFn = std::function<ccd_real_t(
     const void*, const void*, const ccd_t*, ccd_vec3_t*, ccd_vec3_t*)>;
 
 /** Compute the distance between two objects using GJK algorithm.
- * @param obj1 A convex geometric object.
- * @param supp1 A function to compute the support of obj1 along some direction.
- * @param obj2 A convex geometric object.
- * @param supp2 A function to compute the support of obj2 along some direction.
+ * @param[in] obj1 A convex geometric object.
+ * @param[in] supp1 A function to compute the support of obj1 along some
+ * direction.
+ * @param[in] obj2 A convex geometric object.
+ * @param[in] supp2 A function to compute the support of obj2 along some
+ * direction.
  * @param max_iterations The maximal iterations before the GJK algorithm
  * terminates.
- * @param tolerance The tolerance used in GJK. When the change of distance is
- * smaller than this tolerance, the algorithm terminates.
- * @param distance_func The actual function that computes the distance.
+ * @param[in] tolerance The tolerance used in GJK. When the change of distance
+ * is smaller than this tolerance, the algorithm terminates.
+ * @param[in] distance_func The actual function that computes the distance.
  * Different functions should be passed in, depending on whether the user wants
- * to compute a signed distance (with penetration depth) of not.
+ * to compute a signed distance (with penetration depth) or not.
  * @param[out] res The distance between the objects. When the two objects are
  * not colliding, this is the actual distance, a positive number. When the two
  * objects are colliding, it is a negative value. The actual meaning of the
  * negative distance depends on the implementation.
  * @param[out] p1 The closest point on object 1 in the world frame.
  * @param[out] p2 The closest point on object 2 in the world frame.
+ * @retval is_separated True if the objects are separated, false otherwise.
  */
 template <typename S>
 bool GJKDistanceImpl(void* obj1, ccd_support_fn supp1, void* obj2,

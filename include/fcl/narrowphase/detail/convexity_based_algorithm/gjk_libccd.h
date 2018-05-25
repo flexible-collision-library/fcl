@@ -204,19 +204,22 @@ bool GJKCollide(
     Vector3<S>* normal);
 
 /** Compute the distance between two objects using GJK algorithm.
- * @param obj1 A convex geometric object.
- * @param supp1 A function to compute the support of obj1 along some direction.
- * @param obj2 A convex geometric object.
- * @param supp2 A function to compute the support of obj2 along some direction.
+ * @param[in] obj1 A convex geometric object.
+ * @param[in] supp1 A function to compute the support of obj1 along some
+ * direction.
+ * @param[in] obj2 A convex geometric object.
+ * @param[in] supp2 A function to compute the support of obj2 along some
+ * direction.
  * @param max_iterations The maximal iterations before the GJK algorithm
  * terminates.
- * @param tolerance The tolerance used in GJK. When the change of distance is
- * smaller than this tolerance, the algorithm terminates.
- * @param[out] res The distance between the objects. When the two objects are
+ * @param[in] tolerance The tolerance used in GJK. When the change of distance
+ * is smaller than this tolerance, the algorithm terminates.
+ * @param[out] dist The distance between the objects. When the two objects are
  * not colliding, this is the actual distance, a positive number. When the two
- * objects are colliding, it is -1. 
+ * objects are colliding, it is -1.
  * @param[out] p1 The closest point on object 1 in the world frame.
  * @param[out] p2 The closest point on object 2 in the world frame.
+ * @retval is_separated True if the objects are separated, false otherwise.
  */
 template <typename S>
 FCL_EXPORT
@@ -225,22 +228,24 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  unsigned int max_iterations, S tolerance,
                  S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
-
 /** Compute the signed distance between two objects using GJK and EPA algorithm.
- * @param obj1 A convex geometric object.
- * @param supp1 A function to compute the support of obj1 along some direction.
- * @param obj2 A convex geometric object.
- * @param supp2 A function to compute the support of obj2 along some direction.
- * @param max_iterations The maximal iterations before the GJK algorithm
+ * @param[in] obj1 A convex geometric object.
+ * @param[in] supp1 A function to compute the support of obj1 along some
+ * direction.
+ * @param[in] obj2 A convex geometric object.
+ * @param[in] supp2 A function to compute the support of obj2 along some
+ * direction.
+ * @param[in] max_iterations The maximal iterations before the GJK algorithm
  * terminates.
- * @param tolerance The tolerance used in GJK. When the change of distance is
- * smaller than this tolerance, the algorithm terminates.
- * @param[out] res The distance between the objects. When the two objects are
+ * @param[in] tolerance The tolerance used in GJK. When the change of distance
+ * is smaller than this tolerance, the algorithm terminates.
+ * @param[out] dist The distance between the objects. When the two objects are
  * not colliding, this is the actual distance, a positive number. When the two
  * objects are colliding, it is the nagation of the penetration depth, a
- * negative value. 
+ * negative value.
  * @param[out] p1 The closest point on object 1 in the world frame.
  * @param[out] p2 The closest point on object 2 in the world frame.
+ * @retval is_separated True if the objects are separated, false otherwise.
  */
 template <typename S>
 FCL_EXPORT
