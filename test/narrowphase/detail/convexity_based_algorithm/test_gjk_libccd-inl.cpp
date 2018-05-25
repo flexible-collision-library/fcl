@@ -44,9 +44,9 @@ namespace fcl {
 namespace detail {
 
 // Given two spheres, sphere 1 has radius1, and centered at point A, whose
-// position is p_FA measured and expressed in frame A; sphere 2 has radius2,
+// position is p_FA measured and expressed in frame F; sphere 2 has radius2,
 // and centered at point B, whose position is p_FB measured and expressed in
-// frame B. Computes the signed distance between the two spheres, together with
+// frame F. Computes the signed distance between the two spheres, together with
 // the two closest points Na on sphere 1 and Nb on sphere 2, returns the
 // position of Na and Nb expressed in frame F.
 // We use the monogram notation on spatial vectors. The monogram notation is
@@ -117,7 +117,7 @@ struct SphereSpecification {
 template <typename S>
 void TestNonCollidingSphereGJKSignedDistance(S tol) {
   std::vector<SphereSpecification<S>> spheres;
-  spheres.emplace_back(0.5, Vector3<S>(0, 0, 0));
+  spheres.emplace_back(0.5, Vector3<S>(0, 0, -1.2));
   spheres.emplace_back(0.5, Vector3<S>(1.25, 0, 0));
   spheres.emplace_back(0.3, Vector3<S>(-0.2, 0, 0));
   spheres.emplace_back(0.4, Vector3<S>(-0.2, 0, 1.1));
@@ -133,6 +133,14 @@ void TestNonCollidingSphereGJKSignedDistance(S tol) {
         TestSphereToSphereGJKSignedDistance<S>(
             spheres[i].radius, spheres[j].radius, spheres[i].center,
             spheres[j].center, tol, min_distance_expected, p_FNa, p_FNb);
+      } else {
+        GTEST_FAIL() << "The two spheres collide."
+                     << "\nSpheres[" << i << "] with radius "
+                     << spheres[i].radius << ", centered at "
+                     << spheres[i].center.transpose() << "\nSpheres[" << j
+                     << "] with radius " << spheres[j].radius
+                     << ", centered at " << spheres[j].center.transpose()
+                     << "\n";
       }
     }
   }

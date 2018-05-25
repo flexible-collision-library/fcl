@@ -118,7 +118,7 @@ struct SphereSphereDistance {
     min_distance =
         (sphere1.p_FC - sphere2.p_FC).norm() - sphere1.radius - sphere2.radius;
     const fcl::Vector3<S> AB = (sphere1.p_FC - sphere2.p_FC).normalized();
-    p_S1P1 = -AB * sphere1.radius;
+    p_S1P1 = AB * -sphere1.radius;
     p_S2P2 = AB * sphere2.radius;
   }
   SphereSpecification<S> sphere1;
