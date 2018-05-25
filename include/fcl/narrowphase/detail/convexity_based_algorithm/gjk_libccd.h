@@ -241,7 +241,7 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
  * is smaller than this tolerance, the algorithm terminates.
  * @param[out] dist The distance between the objects. When the two objects are
  * not colliding, this is the actual distance, a positive number. When the two
- * objects are colliding, it is the nagation of the penetration depth, a
+ * objects are colliding, it is the negation of the penetration depth, a
  * negative value.
  * @param[out] p1 The closest point on object 1 in the world frame.
  * @param[out] p2 The closest point on object 2 in the world frame.

@@ -1707,7 +1707,7 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
 // objects are not colliding, thus a non-negative number; it is a negative
 // number when the object is colliding, though the meaning of that negative
 // number depends on the implementation.
-using DistanceFn = std::function<ccd_real_t(
+using DistanceFn = std::function<ccd_real_t (
     const void*, const void*, const ccd_t*, ccd_vec3_t*, ccd_vec3_t*)>;
 
 /** Compute the distance between two objects using GJK algorithm.
@@ -1727,7 +1727,7 @@ using DistanceFn = std::function<ccd_real_t(
  * @param[out] res The distance between the objects. When the two objects are
  * not colliding, this is the actual distance, a positive number. When the two
  * objects are colliding, it is a negative value. The actual meaning of the
- * negative distance depends on the implementation.
+ * negative distance is defined by `distance_func`.
  * @param[out] p1 The closest point on object 1 in the world frame.
  * @param[out] p2 The closest point on object 2 in the world frame.
  * @retval is_separated True if the objects are separated, false otherwise.
@@ -1770,8 +1770,8 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  unsigned int max_iterations, S tolerance,
                  S* res, Vector3<S>* p1, Vector3<S>* p2) {
   return detail::GJKDistanceImpl(obj1, supp1, obj2, supp2, max_iterations,
-                                  tolerance, libccd_extension::ccdGJKDist2,
-                                  res, p1, p2);
+                                 tolerance, libccd_extension::ccdGJKDist2, res,
+                                 p1, p2);
 }
 
 template <typename S>
