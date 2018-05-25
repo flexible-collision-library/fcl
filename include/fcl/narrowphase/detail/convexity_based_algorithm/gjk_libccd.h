@@ -203,6 +203,21 @@ bool GJKCollide(
     S* penetration_depth,
     Vector3<S>* normal);
 
+/** Compute the distance between two objects using GJK algorithm.
+ * @param obj1 A convex geometric object.
+ * @param supp1 A function to compute the support of obj1 along some direction.
+ * @param obj2 A convex geometric object.
+ * @param supp2 A function to compute the support of obj2 along some direction.
+ * @param max_iterations The maximal iterations before the GJK algorithm
+ * terminates.
+ * @param tolerance The tolerance used in GJK. When the change of distance is
+ * smaller than this tolerance, the algorithm terminates.
+ * @param[out] res The distance between the objects. When the two objects are
+ * not colliding, this is the actual distance, a positive number. When the two
+ * objects are colliding, it is -1. 
+ * @param[out] p1 The closest point on object 1 in the world frame.
+ * @param[out] p2 The closest point on object 2 in the world frame.
+ */
 template <typename S>
 FCL_EXPORT
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
@@ -211,6 +226,22 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
 
+/** Compute the signed distance between two objects using GJK and EPA algorithm.
+ * @param obj1 A convex geometric object.
+ * @param supp1 A function to compute the support of obj1 along some direction.
+ * @param obj2 A convex geometric object.
+ * @param supp2 A function to compute the support of obj2 along some direction.
+ * @param max_iterations The maximal iterations before the GJK algorithm
+ * terminates.
+ * @param tolerance The tolerance used in GJK. When the change of distance is
+ * smaller than this tolerance, the algorithm terminates.
+ * @param[out] res The distance between the objects. When the two objects are
+ * not colliding, this is the actual distance, a positive number. When the two
+ * objects are colliding, it is the nagation of the penetration depth, a
+ * negative value. 
+ * @param[out] p1 The closest point on object 1 in the world frame.
+ * @param[out] p2 The closest point on object 2 in the world frame.
+ */
 template <typename S>
 FCL_EXPORT
 bool GJKSignedDistance(void* obj1, ccd_support_fn supp1,
