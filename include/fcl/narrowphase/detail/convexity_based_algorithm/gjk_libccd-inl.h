@@ -1703,18 +1703,38 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
 }
 
 namespace internal {
-template <typename S>
-struct SignedDistanceFn {
-  typedef S (*type)(const void*, const void*, const ccd_t*, ccd_vec3_t*,
-                    ccd_vec3_t*);
-};
+// For two geometric objects, computes the distance between the two objects and
+// returns the closest points. The return argument is the distance when the two
+// objects are not colliding, thus a non-negative number; it is a negative
+// number when the object is colliding, though the meaning of that negative
+// number depends on the implementation.
+using DistanceFn = std::function<ccd_real_t(
+    const void*, const void*, const ccd_t*, ccd_vec3_t*, ccd_vec3_t*)>;
 
+/** Compute the distance between two objects using GJK algorithm.
+ * @param obj1 A convex geometric object.
+ * @param supp1 A function to compute the support of obj1 along some direction.
+ * @param obj2 A convex geometric object.
+ * @param supp2 A function to compute the support of obj2 along some direction.
+ * @param max_iterations The maximal iterations before the GJK algorithm
+ * terminates.
+ * @param tolerance The tolerance used in GJK. When the change of distance is
+ * smaller than this tolerance, the algorithm terminates.
+ * @param distance_func The actual function that computes the distance.
+ * Different functions should be passed in, depending on whether the user wants
+ * to compute a signed distance (with penetration depth) of not.
+ * @param[out] res The distance between the objects. When the two objects are
+ * not colliding, this is the actual distance, a positive number. When the two
+ * objects are colliding, it is a negative value. The actual meaning of the
+ * negative distance depends on the implementation.
+ * @param[out] p1 The closest point on object 1 in the world frame.
+ * @param[out] p2 The closest point on object 2 in the world frame.
+ */
 template <typename S>
-bool GJKDistanceImp(
-    void* obj1, ccd_support_fn supp1, void* obj2, ccd_support_fn supp2,
-    unsigned int max_iterations, S tolerance,
-    typename SignedDistanceFn<S>::type signed_distance_func,
-    S* res, Vector3<S>* p1, Vector3<S>* p2) {
+bool GJKDistanceImpl(void* obj1, ccd_support_fn supp1, void* obj2,
+                     ccd_support_fn supp2, unsigned int max_iterations,
+                     S tolerance, internal::DistanceFn distance_func, S* res,
+                     Vector3<S>* p1, Vector3<S>* p2) {
   ccd_t ccd;
   ccd_real_t dist;
   CCD_INIT(&ccd);
@@ -1732,7 +1752,7 @@ bool GJKDistanceImp(
   // libccd_extension::ccdGJKDist2(...) to always set p1_ and p2_.
   ccdVec3Set(&p1_, 0.0, 0.0, 0.0);
   ccdVec3Set(&p2_, 0.0, 0.0, 0.0);
-  dist = signed_distance_func(obj1, obj2, &ccd, &p1_, &p2_);
+  dist = distance_func(obj1, obj2, &ccd, &p1_, &p2_);
   if (p1) *p1 << ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_);
   if (p2) *p2 << ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_);
   if (res) *res = dist;
@@ -1741,27 +1761,24 @@ bool GJKDistanceImp(
   else
     return true;
 }
-}  // namespace internal
+}  // namespace internal 
 
-/// p1 and p2 are in global coordinate, so needs transform in the narrowphase.h functions
 template <typename S>
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
                  unsigned int max_iterations, S tolerance,
                  S* res, Vector3<S>* p1, Vector3<S>* p2) {
-  return internal::GJKDistanceImp(obj1, supp1, obj2, supp2, max_iterations,
+  return internal::GJKDistanceImpl(obj1, supp1, obj2, supp2, max_iterations,
                                   tolerance, libccd_extension::ccdGJKDist2,
                                   res, p1, p2);
 }
 
-/// p1 and p2 are in global coordinate, so needs transform in the narrowphase.h
-/// functions
 template <typename S>
 bool GJKSignedDistance(void* obj1, ccd_support_fn supp1,
                        void* obj2, ccd_support_fn supp2,
                        unsigned int max_iterations,
                        S tolerance, S* res, Vector3<S>* p1, Vector3<S>* p2) {
-  return internal::GJKDistanceImp(
+  return internal::GJKDistanceImpl(
       obj1, supp1, obj2, supp2, max_iterations, tolerance,
       libccd_extension::ccdGJKSignedDist, res, p1, p2);
 }
