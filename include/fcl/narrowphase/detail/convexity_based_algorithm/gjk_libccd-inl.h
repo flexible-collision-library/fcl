@@ -1702,7 +1702,6 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
   return false;
 }
 
-namespace internal {
 // For two geometric objects, computes the distance between the two objects and
 // returns the closest points. The return argument is the distance when the two
 // objects are not colliding, thus a non-negative number; it is a negative
@@ -1733,7 +1732,7 @@ using DistanceFn = std::function<ccd_real_t(
 template <typename S>
 bool GJKDistanceImpl(void* obj1, ccd_support_fn supp1, void* obj2,
                      ccd_support_fn supp2, unsigned int max_iterations,
-                     S tolerance, internal::DistanceFn distance_func, S* res,
+                     S tolerance, detail::DistanceFn distance_func, S* res,
                      Vector3<S>* p1, Vector3<S>* p2) {
   ccd_t ccd;
   ccd_real_t dist;
@@ -1761,14 +1760,13 @@ bool GJKDistanceImpl(void* obj1, ccd_support_fn supp1, void* obj2,
   else
     return true;
 }
-}  // namespace internal 
 
 template <typename S>
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
                  unsigned int max_iterations, S tolerance,
                  S* res, Vector3<S>* p1, Vector3<S>* p2) {
-  return internal::GJKDistanceImpl(obj1, supp1, obj2, supp2, max_iterations,
+  return detail::GJKDistanceImpl(obj1, supp1, obj2, supp2, max_iterations,
                                   tolerance, libccd_extension::ccdGJKDist2,
                                   res, p1, p2);
 }
@@ -1778,7 +1776,7 @@ bool GJKSignedDistance(void* obj1, ccd_support_fn supp1,
                        void* obj2, ccd_support_fn supp2,
                        unsigned int max_iterations,
                        S tolerance, S* res, Vector3<S>* p1, Vector3<S>* p2) {
-  return internal::GJKDistanceImpl(
+  return detail::GJKDistanceImpl(
       obj1, supp1, obj2, supp2, max_iterations, tolerance,
       libccd_extension::ccdGJKSignedDist, res, p1, p2);
 }
