@@ -1093,61 +1093,153 @@ static void extractClosestPoints(ccd_simplex_t* simplex,
     ccdVec3Sub2(&AC, &(simplex->ps[2].v), &(simplex->ps[0].v));
     ccdVec3Cross(&n, &AB, &AC);
 
-    // Since p lies in ABC, it can be expressed as
-    //
-    // p = A + p'
-    // p' = s*AB + t*AC
-    //
-    // where 0 <= s, t, s+t <= 1.
-    ccdVec3Sub2(&v_prime, p, &(simplex->ps[0].v));
+    /* debug */
+    std::cout << "n: [" << n.v[0] << ", "<< n.v[1] << ", " << n.v[2] << "]" << std::endl;
+    std::cout << "AB: [" << AB.v[0] << ", "<< AB.v[1] << ", " << AB.v[2] << "]" << std::endl;
+    std::cout << "AC: [" << AC.v[0] << ", "<< AC.v[1] << ", " << AC.v[2] << "]" << std::endl;
+    std::cout << "norm_squared_n" << ccdVec3Len2(&n) << std::endl;
 
-    // To find the corresponding v1 and v2, we need
-    // values for s and t. Taking cross products with AB and AC gives the
-    // following system:
-    //
-    // AB × p' =  t*(AB × AC) =  t*n
-    // AC × p' = -s*(AB × AC) = -s*n
-    ccdVec3Cross(&AB_cross_v_prime, &AB, &v_prime);
-    ccdVec3Cross(&AC_cross_v_prime, &AC, &v_prime);
+    /* triangle */
+    if(ccdVec3Len2(&n) > 0)
+      {
+        // Since p lies in ABC, it can be expressed as
+        //
+        // p = A + p'
+        // p' = s*AB + t*AC
+        //
+        // where 0 <= s, t, s+t <= 1.
+        ccdVec3Sub2(&v_prime, p, &(simplex->ps[0].v));
 
-    // To convert this to a system of scalar equations, we take the dot product
-    // with n:
-    //
-    // n ⋅ (AB × p') =  t * ‖n‖²
-    // n ⋅ (AC × p') = -s * ‖n‖²
-    ccd_real_t norm_squared_n{ccdVec3Len2(&n)};
+        // To find the corresponding v1 and v2, we need
+        // values for s and t. Taking cross products with AB and AC gives the
+        // following system:
+        //
+        // AB × p' =  t*(AB × AC) =  t*n
+        // AC × p' = -s*(AB × AC) = -s*n
+        ccdVec3Cross(&AB_cross_v_prime, &AB, &v_prime);
+        ccdVec3Cross(&AC_cross_v_prime, &AC, &v_prime);
 
-    // Therefore, s and t are given by
-    //
-    // s = -n ⋅ (AC × p') / ‖n‖²
-    // t =  n ⋅ (AB × p') / ‖n‖²
-    ccd_real_t s{-ccdVec3Dot(&n, &AC_cross_v_prime) / norm_squared_n};
-    ccd_real_t t{ccdVec3Dot(&n, &AB_cross_v_prime) / norm_squared_n};
+        // To convert this to a system of scalar equations, we take the dot product
+        // with n:
+        //
+        // n ⋅ (AB × p') =  t * ‖n‖²
+        // n ⋅ (AC × p') = -s * ‖n‖²
+        ccd_real_t norm_squared_n{ccdVec3Len2(&n)};
 
-    if (p1)
-    {
-      // p1 = A1 + s*A1B1 + t*A1C1
-      ccd_vec3_t sAB, tAC;
-      ccdVec3Sub2(&sAB, &(simplex->ps[1].v1), &(simplex->ps[0].v1));
-      ccdVec3Scale(&sAB, s);
-      ccdVec3Sub2(&tAC, &(simplex->ps[2].v1), &(simplex->ps[0].v1));
-      ccdVec3Scale(&tAC, t);
-      ccdVec3Copy(p1, &(simplex->ps[0].v1));
-      ccdVec3Add(p1, &sAB);
-      ccdVec3Add(p1, &tAC);
-    }
-    if (p2)
-    {
-      // p2 = A2 + s*A2B2 + t*A2C2
-      ccd_vec3_t sAB, tAC;
-      ccdVec3Sub2(&sAB, &(simplex->ps[1].v2), &(simplex->ps[0].v2));
-      ccdVec3Scale(&sAB, s);
-      ccdVec3Sub2(&tAC, &(simplex->ps[2].v2), &(simplex->ps[0].v2));
-      ccdVec3Scale(&tAC, t);
-      ccdVec3Copy(p2, &(simplex->ps[0].v2));
-      ccdVec3Add(p2, &sAB);
-      ccdVec3Add(p2, &tAC);
-    }
+        // Therefore, s and t are given by
+        //
+        // s = -n ⋅ (AC × p') / ‖n‖²
+        // t =  n ⋅ (AB × p') / ‖n‖²
+        ccd_real_t s{-ccdVec3Dot(&n, &AC_cross_v_prime) / norm_squared_n};
+        ccd_real_t t{ccdVec3Dot(&n, &AB_cross_v_prime) / norm_squared_n};
+
+
+        if (p1)
+          {
+            // p1 = A1 + s*A1B1 + t*A1C1
+            ccd_vec3_t sAB, tAC;
+            ccdVec3Sub2(&sAB, &(simplex->ps[1].v1), &(simplex->ps[0].v1));
+            ccdVec3Scale(&sAB, s);
+            ccdVec3Sub2(&tAC, &(simplex->ps[2].v1), &(simplex->ps[0].v1));
+            ccdVec3Scale(&tAC, t);
+            ccdVec3Copy(p1, &(simplex->ps[0].v1));
+            ccdVec3Add(p1, &sAB);
+            ccdVec3Add(p1, &tAC);
+          }
+        if (p2)
+          {
+            // p2 = A2 + s*A2B2 + t*A2C2
+            ccd_vec3_t sAB, tAC;
+            ccdVec3Sub2(&sAB, &(simplex->ps[1].v2), &(simplex->ps[0].v2));
+            ccdVec3Scale(&sAB, s);
+            ccdVec3Sub2(&tAC, &(simplex->ps[2].v2), &(simplex->ps[0].v2));
+            ccdVec3Scale(&tAC, t);
+            ccdVec3Copy(p2, &(simplex->ps[0].v2));
+            ccdVec3Add(p2, &sAB);
+            ccdVec3Add(p2, &tAC);
+          }
+      }
+    /* line segment */
+    else
+      {
+        // Closest points lie on the segment defined by the points in the simplex
+        // Let the segment be defined by points A and B. We can write p as
+        //
+        // p = A + s*AB, 0 <= s <= 1
+        // p - A = s*AB
+        ccd_vec3_t BC;
+        ccd_support_t sA, sB;
+        ccdVec3Sub2(&BC, &(simplex->ps[2].v), &(simplex->ps[1].v));
+        if(ccdVec3Len2(&AB) > ccdVec3Len2(&AC) && ccdVec3Len2(&BC))
+          {
+            sA = simplex->ps[0];
+            sB = simplex->ps[1];
+          }
+        if(ccdVec3Len2(&AC) > ccdVec3Len2(&AB) && ccdVec3Len2(&BC))
+          {
+            AB = AC;
+            sA = simplex->ps[0];
+            sB = simplex->ps[2];
+          }
+        if(ccdVec3Len2(&BC) > ccdVec3Len2(&AB) && ccdVec3Len2(&AC))
+          {
+            AB = BC;
+            sA = simplex->ps[1];
+            sB = simplex->ps[2];
+          }
+
+        // This defines three equations, but we only need one. Taking the i-th
+        // component gives
+        //
+        // p_i - A_i = s*AB_i.
+        //
+        // Thus, s is given by
+        //
+        // s = (p_i - A_i)/AB_i.
+        //
+        // To avoid dividing by an AB_i ≪ 1, we choose i such that |AB_i| is
+        // maximized
+        ccd_real_t abs_AB_x{std::abs(ccdVec3X(&AB))};
+        ccd_real_t abs_AB_y{std::abs(ccdVec3Y(&AB))};
+        ccd_real_t abs_AB_z{std::abs(ccdVec3Z(&AB))};
+        ccd_real_t s{0};
+
+        if (abs_AB_x >= abs_AB_y && abs_AB_x >= abs_AB_z) {
+          ccd_real_t A_x{ccdVec3X(&(sA.v))};
+          ccd_real_t AB_x{ccdVec3X(&AB)};
+          ccd_real_t p_x{ccdVec3X(p)};
+          s = (p_x - A_x) / AB_x;
+        } else if (abs_AB_y >= abs_AB_z) {
+          ccd_real_t A_y{ccdVec3Y(&(sA.v))};
+          ccd_real_t AB_y{ccdVec3Y(&AB)};
+          ccd_real_t p_y{ccdVec3Y(p)};
+          s = (p_y - A_y) / AB_y;
+        } else {
+          ccd_real_t A_z{ccdVec3Z(&(sA.v))};
+          ccd_real_t AB_z{ccdVec3Z(&AB)};
+          ccd_real_t p_z{ccdVec3Z(p)};
+          s = (p_z - A_z) / AB_z;
+        }
+
+        if (p1)
+          {
+            // p1 = A1 + s*A1B1
+            ccd_vec3_t sAB;
+            ccdVec3Sub2(&sAB, &(sB.v1), &(sA.v1));
+            ccdVec3Scale(&sAB, s);
+            ccdVec3Copy(p1, &(sA.v1));
+            ccdVec3Add(p1, &sAB);
+          }
+        if (p2)
+          {
+            // p2 = A2 + s*A2B2
+            ccd_vec3_t sAB;
+            ccdVec3Sub2(&sAB, &(sB.v2), &(sA.v2));
+            ccdVec3Scale(&sAB, s);
+            ccdVec3Copy(p2, &(sA.v2));
+            ccdVec3Add(p2, &sAB);
+          }
+      }
   }
 }
 
