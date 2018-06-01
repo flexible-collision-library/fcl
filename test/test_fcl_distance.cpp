@@ -41,6 +41,9 @@
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
+// TODO(SeanCurtis-TRI): A file called `test_fcl_distance.cpp` should *not* have
+// collision tests.
+
 using namespace fcl;
 
 bool verbose = false;
@@ -303,6 +306,46 @@ GTEST_TEST(FCL_DISTANCE, mesh_distance)
 {
 //  test_mesh_distance<float>();
   test_mesh_distance<double>();
+}
+
+template <typename S>
+void NearestPointFromDegenerateSimplex() {
+  // Tests an historical bug. In certain configurations, the distance query
+  // would terminate with a degenerate 3-simplex; the triangle was actually a
+  // line segment. As a result, nearest points were populated with NaN values.
+  // See https://github.com/flexible-collision-library/fcl/issues/293 for
+  // more discussion.
+  DistanceResult<S> result;
+  DistanceRequest<S> request;
+  request.enable_nearest_points = true;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+
+  // These values were extracted from a real-world scenario that produced NaNs.
+  std::shared_ptr<CollisionGeometry<S>> box_geometry_1(
+      new Box<S>(2.750000, 6.000000, 0.050000));
+  std::shared_ptr<CollisionGeometry<S>> box_geometry_2(
+      new Box<S>(0.424000, 0.150000, 0.168600));
+  CollisionObject<S> box_object_1(
+      box_geometry_1, Eigen::Quaterniond(1, 0, 0, 0).matrix(),
+      Eigen::Vector3d(1.625000, 0.000000, 0.500000));
+  CollisionObject<S> box_object_2(
+      box_geometry_2,
+      Eigen::Quaterniond(0.672811, 0.340674, 0.155066, 0.638138).matrix(),
+      Eigen::Vector3d(0.192074, -0.277870, 0.273546));
+
+  EXPECT_NO_THROW(fcl::distance(&box_object_1, &box_object_2, request, result));
+
+  auto is_nan = [](const Vector3<S>& test_vector) {
+    using std::isnan;
+    return isnan(test_vector(0)) && isnan(test_vector(1)) &&
+        isnan(test_vector(2));
+  };
+  EXPECT_TRUE(is_nan(result.nearest_points[0]));
+  EXPECT_TRUE(is_nan(result.nearest_points[1]));
+}
+
+GTEST_TEST(FCL_DISTANCE, NearestPointFromDegenerateSimplex) {
+  NearestPointFromDegenerateSimplex<double>();
 }
 
 template<typename BV, typename TraversalNode>
