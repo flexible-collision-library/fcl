@@ -1379,52 +1379,78 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
   return -CCD_REAL(1.);
 }
 
-static int penEPAPosCmp(const void *a, const void *b)
-{
-    ccd_pt_vertex_t *v1, *v2;
-    v1 = *(ccd_pt_vertex_t **)a;
-    v2 = *(ccd_pt_vertex_t **)b;
-
-    if (ccdEq(v1->dist, v2->dist)){
-        return 0;
-    }else if (v1->dist < v2->dist){
-        return -1;
-    }else{
-        return 1;
-    }
-}
-
 static int penEPAPosClosest(const ccd_pt_t *pt, const ccd_pt_el_t *nearest,
                             ccd_vec3_t *p1, ccd_vec3_t* p2)
 {
-    FCL_UNUSED(nearest);
-
-    ccd_pt_vertex_t *v;
-    ccd_pt_vertex_t **vs;
-    size_t i, len;
-    // compute median
-    len = 0;
-    ccdListForEachEntry(&pt->vertices, v, ccd_pt_vertex_t, list){
-        len++;
+  // We reconstruct the simplex on which the nearest point lives, and then
+  // compute the deepest penetration point on each geometric objects.
+  if (nearest->type == CCD_PT_VERTEX) {
+    ccd_pt_vertex_t* v = ccdListEntry(&nearest->list, ccd_pt_vertex_t, list);
+    if(v == NULL) {
+      return -1;
     }
-
-    vs = CCD_ALLOC_ARR(ccd_pt_vertex_t*, len);
-    if (vs == NULL)
-        return -1;
-
-    i = 0;
-    ccdListForEachEntry(&pt->vertices, v, ccd_pt_vertex_t, list){
-        vs[i++] = v;
-    }
-
-    qsort(vs, len, sizeof(ccd_pt_vertex_t*), penEPAPosCmp);
-
-    ccdVec3Copy(p1, &vs[0]->v.v1);
-    ccdVec3Copy(p2, &vs[0]->v.v2);
-
-    free(vs);
-
+    ccdVec3Copy(p1, &v->v.v1);
+    ccdVec3Copy(p2, &v->v.v2);
     return 0;
+  } else {
+    ccd_simplex_t s;
+    ccdSimplexInit(&s);
+    if (nearest->type == CCD_PT_EDGE) {
+      ccd_pt_edge_t* e = ccdListEntry(&nearest->list, ccd_pt_edge_t, list);
+      if (e == NULL) {
+        return -1;
+      }
+      //std::cout << "edge vertex1:\n" << supportToString(e->vertex[0]->v) << "\n";
+      //std::cout << "edge vertex2:\n" << supportToString(e->vertex[1]->v) << "\n";
+      ccdSimplexAdd(&s, &(e->vertex[0]->v));
+      ccdSimplexAdd(&s, &(e->vertex[1]->v));
+    } else if (nearest->type == CCD_PT_FACE) {
+      ccd_pt_face_t* f = ccdListEntry(&nearest->list, ccd_pt_face_t, list);
+      if (f == NULL) {
+        return -1;
+      }
+      ccdSimplexAdd(&s, &(f->edge[0]->vertex[0]->v));
+      ccdSimplexAdd(&s, &(f->edge[1]->vertex[0]->v));
+      ccdSimplexAdd(&s, &(f->edge[2]->vertex[0]->v));
+    } else {
+      throw std::logic_error(
+          "Unsupported point type. The closest point should be either a "
+          "vertex, on an edge, or an a face.\n");
+    }
+    // Now compute the closest point in the simplex.
+    // TODO(hongkai.dai@tri.global): we do not need to compute the closest point
+    // on the simplex, as that is already given in @p nearest. We only need to
+    // extract the deepest penetration points on each geometric object.
+    // Sean.Curtis@tri.global and I will refactor this code in the future, to
+    // avoid calling extractClosestPoints.
+    ccd_vec3_t p;
+    ccdVec3Copy(&p, &(nearest->witness));
+    extractClosestPoints(&s, p1, p2, &p);
+    return 0;
+  }
+  FCL_UNUSED(pt);
+/*
+  ccd_pt_vertex_t* v;
+  ccd_pt_vertex_t** vs;
+  size_t i, len;
+  // compute median
+  len = 0;
+  ccdListForEachEntry(&pt->vertices, v, ccd_pt_vertex_t, list) { len++; }
+
+  vs = CCD_ALLOC_ARR(ccd_pt_vertex_t*, len);
+  if (vs == NULL) return -1;
+
+  i = 0;
+  ccdListForEachEntry(&pt->vertices, v, ccd_pt_vertex_t, list) { vs[i++] = v; }
+
+  qsort(vs, len, sizeof(ccd_pt_vertex_t*), penEPAPosCmp);
+
+  ccdVec3Copy(p1, &vs[0]->v.v1);
+  ccdVec3Copy(p2, &vs[0]->v.v2);
+
+  free(vs);
+
+  return 0;*/
 }
 
 static inline ccd_real_t ccdGJKSignedDist(const void* obj1, const void* obj2, const ccd_t* ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)

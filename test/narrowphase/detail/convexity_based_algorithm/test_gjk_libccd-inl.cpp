@@ -227,9 +227,25 @@ void TestBoxes(S tol) {
     GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o2);
   };
 
+  //---------------------------------------------------------------
+  //                      Touching contact
   // An edge of box 2 is touching a face of box 1
   X_WB2.translation() << -1, 0, 0.5;
   CheckDistance(X_WB2, 0, Vector2<S>(-0.5, 0), Vector2<S>(-0.5, 0), tol);
+
+  // Shift box 2 on y axis by 0.1m. 
+  X_WB2.translation() << -1, 0.1, 0.5;
+  CheckDistance(X_WB2, 0, Vector2<S>(-0.5, 0.1), Vector2<S>(-0.5, 0.1), tol);
+
+  //--------------------------------------------------------------
+  //                      Penetrating contact
+  // An edge of box 2 penetrates into a face of box 1
+  X_WB2.translation() << -0.9, 0, 0.5;
+  CheckDistance(X_WB2, -0.1, Vector2<S>(-0.5, 0), Vector2<S>(-0.4, 0), tol);
+
+  // Shift box 2 on y axis by 0.1m. 
+  X_WB2.translation() << -0.9, 0.1, 0.5;
+  CheckDistance(X_WB2, -0.1, Vector2<S>(-0.5, 0.1), Vector2<S>(-0.4, 0.1), tol);
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, box_box) {
