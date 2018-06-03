@@ -70,17 +70,16 @@ namespace fcl
 namespace detail
 {
 
-//==============================================================================
-template<typename BV>
-bool conservativeAdvancement(const BVHModel<BV>& o1,
-                             const MotionBase<typename BV::S>* motion1,
-                             const BVHModel<BV>& o2,
-                             const MotionBase<typename BV::S>* motion2,
-                             const CollisionRequest<typename BV::S>& request,
-                             CollisionResult<typename BV::S>& result,
-                             typename BV::S& toc)
-{
-  using S = typename BV::S;
+
+template<typename S, typename TraversalNode>
+bool conservativeAdvancementExec(TraversalNode& node,
+                                 const BVHModel<typename TraversalNode::BV>& o1,
+                                 const MotionBase<S>* motion1,
+                                 const BVHModel<typename TraversalNode::BV>& o2,
+                                 const MotionBase<S>* motion2,
+                                 const CollisionRequest<S>& request,
+                                 CollisionResult<S>& result,
+                                 S& toc) {
 
   Transform3<S> tf1;
   Transform3<S> tf2;
@@ -94,12 +93,10 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
     return true;
   }
 
+  typedef typename TraversalNode::BV BV;
 
   BVHModel<BV>* o1_tmp = new BVHModel<BV>(o1);
   BVHModel<BV>* o2_tmp = new BVHModel<BV>(o2);
-
-
-  MeshConservativeAdvancementTraversalNode<BV> node;
 
   node.motion1 = motion1;
   node.motion2 = motion2;
@@ -144,6 +141,56 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
     return true;
 
   return false;
+}
+
+
+
+//==============================================================================
+template<typename BV>
+bool conservativeAdvancement(const BVHModel<BV>& o1,
+                             const MotionBase<typename BV::S>* motion1,
+                             const BVHModel<BV>& o2,
+                             const MotionBase<typename BV::S>* motion2,
+                             const CollisionRequest<typename BV::S>& request,
+                             CollisionResult<typename BV::S>& result,
+                             typename BV::S& toc)
+{
+
+  MeshConservativeAdvancementTraversalNode<BV> node;
+
+  return conservativeAdvancementExec(node, o1, motion1, o2, motion2, request, result, toc);
+
+}
+
+
+template<typename S>
+bool conservativeAdvancement(const BVHModel<RSS<S>>& o1,
+                             const MotionBase<S>* motion1,
+                             const BVHModel<RSS<S>>& o2,
+                             const MotionBase<S>* motion2,
+                             const CollisionRequest<S>& request,
+                             CollisionResult<S>& result,
+                             S& toc)
+{
+
+  MeshConservativeAdvancementTraversalNodeRSS<S> node;
+
+  return conservativeAdvancementExec(node, o1, motion1, o2, motion2, request, result, toc);
+}
+
+template<typename S>
+bool conservativeAdvancement(const BVHModel<OBBRSS<S>>& o1,
+                             const MotionBase<S>* motion1,
+                             const BVHModel<OBBRSS<S>>& o2,
+                             const MotionBase<S>* motion2,
+                             const CollisionRequest<S>& request,
+                             CollisionResult<S>& result,
+                             S& toc)
+{
+
+  MeshConservativeAdvancementTraversalNodeOBBRSS<S> node;
+
+  return conservativeAdvancementExec(node, o1, motion1, o2, motion2, request, result, toc);
 }
 
 template<typename BV, typename ConservativeAdvancementOrientedNode>
