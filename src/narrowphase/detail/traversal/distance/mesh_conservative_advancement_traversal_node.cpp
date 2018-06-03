@@ -51,9 +51,9 @@ class MeshConservativeAdvancementTraversalNodeRSS<double>;
 template
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<double>& node,
-    const BVHModel<RSS<double>>& model1,
+    BVHModel<RSS<double>>& model1,
     const Transform3<double>& tf1,
-    const BVHModel<RSS<double>>& model2,
+    BVHModel<RSS<double>>& model2,
     const Transform3<double>& tf2,
     double w);
 
@@ -65,9 +65,9 @@ class MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 template
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<double>& node,
-    const BVHModel<OBBRSS<double>>& model1,
+    BVHModel<OBBRSS<double>>& model1,
     const Transform3<double>& tf1,
-    const BVHModel<OBBRSS<double>>& model2,
+    BVHModel<OBBRSS<double>>& model2,
     const Transform3<double>& tf2,
     double w);
 
