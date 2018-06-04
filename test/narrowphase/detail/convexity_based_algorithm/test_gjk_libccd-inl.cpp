@@ -42,7 +42,6 @@
 
 namespace fcl {
 namespace detail {
-/*
 // Given two spheres, sphere 1 has radius1, and centered at point A, whose
 // position is p_FA measured and expressed in frame F; sphere 2 has radius2,
 // and centered at point B, whose position is p_FB measured and expressed in
@@ -152,7 +151,7 @@ GTEST_TEST(FCL_GJKSignedDistance, sphere_sphere) {
   // only up to 1E-3. Should investigate why there is such a big difference.
   TestNonCollidingSphereGJKSignedDistance<double>(1E-3);
   TestNonCollidingSphereGJKSignedDistance<float>(1E-3);
-}*/
+}
 
 //----------------------------------------------------------------------------
 //                 Box test
@@ -212,8 +211,6 @@ void TestBoxes(S tol) {
     }
 
     EXPECT_NEAR(dist, distance_expected, tol);
-    std::cout << "p1: " << p1.transpose() << "\n";
-    std::cout << "p2: " << p2.transpose() << "\n";
     EXPECT_TRUE(p1.template head<2>().isApprox(p_xy_WNa_expected, tol));
     EXPECT_TRUE(p2.template head<2>().isApprox(p_xy_WNb_expected, tol));
     // The z height of the closest points should be the same.
@@ -227,25 +224,45 @@ void TestBoxes(S tol) {
     GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o2);
   };
 
+  auto CheckBoxEdgeBoxFaceDistance = [&CheckDistance](const Transform3<S>& X_WB2, S tol) {
+    const double expected_distance = -X_WB2.translation()(0) - 1;
+    CheckDistance(X_WB2, expected_distance, Vector2<S>(-0.5, X_WB2.translation()(1)), Vector2<S>(X_WB2.translation()(0) + 0.5, X_WB2.translation()(1)), tol);
+  };
   //---------------------------------------------------------------
   //                      Touching contact
   // An edge of box 2 is touching a face of box 1
   X_WB2.translation() << -1, 0, 0.5;
-  CheckDistance(X_WB2, 0, Vector2<S>(-0.5, 0), Vector2<S>(-0.5, 0), tol);
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
   // Shift box 2 on y axis by 0.1m. 
   X_WB2.translation() << -1, 0.1, 0.5;
-  CheckDistance(X_WB2, 0, Vector2<S>(-0.5, 0.1), Vector2<S>(-0.5, 0.1), tol);
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+
+  // Shift box 2 on y axis by -0.1m. 
+  X_WB2.translation() << -1, -0.1, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
   //--------------------------------------------------------------
   //                      Penetrating contact
   // An edge of box 2 penetrates into a face of box 1
   X_WB2.translation() << -0.9, 0, 0.5;
-  CheckDistance(X_WB2, -0.1, Vector2<S>(-0.5, 0), Vector2<S>(-0.4, 0), tol);
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
   // Shift box 2 on y axis by 0.1m. 
   X_WB2.translation() << -0.9, 0.1, 0.5;
-  CheckDistance(X_WB2, -0.1, Vector2<S>(-0.5, 0.1), Vector2<S>(-0.4, 0.1), tol);
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+
+  // Shift box 2 on y axis by -0.05m. 
+  X_WB2.translation() << -0.9, -0.05, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+
+  /*
+   * TODO(hongkai.dai@tri.global): enable this test. This test case exposes a
+   * bug in FCL's code, as summarized in issue #301. I will enable this test
+   * once #301 is fixed.
+  // Shift box 2 on y axis by -0.1m. 
+  X_WB2.translation() << -0.9, -0.1 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);*/
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, box_box) {
