@@ -1249,52 +1249,100 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
   return -CCD_REAL(1.);
 }
 
-static int penEPAPosCmp(const void *a, const void *b)
-{
-    ccd_pt_vertex_t *v1, *v2;
-    v1 = *(ccd_pt_vertex_t **)a;
-    v2 = *(ccd_pt_vertex_t **)b;
-
-    if (ccdEq(v1->dist, v2->dist)){
-        return 0;
-    }else if (v1->dist < v2->dist){
-        return -1;
-    }else{
-        return 1;
-    }
-}
-
+/**
+ * Given the nearest point on the polytope inside the Minkowski sum A⊖B, returns
+ * the point p1 on geometric object A and p2 on geometric object B, such that
+ * p1 is the deepest penetration point on A, and p2 is the deepest penetration
+ * point on B.
+ * @param[in] pt The polytope inside Minkowski sum A⊖B. Unused in this function.
+ * @param[in] nearest The point that is nearest to the origin on the boundary of
+ * the polytope.
+ * @param[out] p1 the deepest penetration point on A.
+ * @param[out] p2 the deepest penetration point on B.
+ */
 static int penEPAPosClosest(const ccd_pt_t *pt, const ccd_pt_el_t *nearest,
                             ccd_vec3_t *p1, ccd_vec3_t* p2)
 {
-    FCL_UNUSED(nearest);
-
-    ccd_pt_vertex_t *v;
-    ccd_pt_vertex_t **vs;
-    size_t i, len;
-    // compute median
-    len = 0;
-    ccdListForEachEntry(&pt->vertices, v, ccd_pt_vertex_t, list){
-        len++;
+  // We reconstruct the simplex on which the nearest point lives, and then
+  // compute the deepest penetration point on each geometric objects.
+  if (nearest->type == CCD_PT_VERTEX) {
+    ccd_pt_vertex_t* v = ccdListEntry(&nearest->list, ccd_pt_vertex_t, list);
+    if(v == NULL) {
+      return -1;
     }
-
-    vs = CCD_ALLOC_ARR(ccd_pt_vertex_t*, len);
-    if (vs == NULL)
-        return -1;
-
-    i = 0;
-    ccdListForEachEntry(&pt->vertices, v, ccd_pt_vertex_t, list){
-        vs[i++] = v;
-    }
-
-    qsort(vs, len, sizeof(ccd_pt_vertex_t*), penEPAPosCmp);
-
-    ccdVec3Copy(p1, &vs[0]->v.v1);
-    ccdVec3Copy(p2, &vs[0]->v.v2);
-
-    free(vs);
-
+    ccdVec3Copy(p1, &v->v.v1);
+    ccdVec3Copy(p2, &v->v.v2);
     return 0;
+  } else {
+    ccd_simplex_t s;
+    ccdSimplexInit(&s);
+    if (nearest->type == CCD_PT_EDGE) {
+      ccd_pt_edge_t* e = ccdListEntry(&nearest->list, ccd_pt_edge_t, list);
+      if (e == NULL) {
+        return -1;
+      }
+      ccdSimplexAdd(&s, &(e->vertex[0]->v));
+      ccdSimplexAdd(&s, &(e->vertex[1]->v));
+    } else if (nearest->type == CCD_PT_FACE) {
+      // TODO(hongkai.dai): this case is not properly tested in the unit test,
+      // as the test on this code exposes another bug in FCL, as summarized in
+      // the issue #301. I will properly test this branch once #301 if fixed.
+      ccd_pt_face_t* f = ccdListEntry(&nearest->list, ccd_pt_face_t, list);
+      if (f == NULL) {
+        return -1;
+      }
+      // The face triangle has three edges, each edge consists of two end
+      // points, so there are 6 end points in total, each vertex of the triangle
+      // appears twice among the 6 end points. We need to choose the three
+      // distinctive vertices out of these 6 end points.
+      // First we pick edge0, the two end points of edge0 are distinct.
+      ccdSimplexAdd(&s, &(f->edge[0]->vertex[0]->v));
+      ccdSimplexAdd(&s, &(f->edge[0]->vertex[1]->v));
+      // Next we pick edge1, one of the two end points on edge1 is distinct from
+      // the end points in edge0. To find out the distinctive vertex, we compute
+      // d0 = min(|e1.v0 - e0.v0|, |e1.v0 - e0.v1|)
+      // d1 = min(|e1.v1 - e0.v0|, |e1.v1 - e0.v1|)
+      // namely d0 is the smallest distance from e1.v0 on edge1 to the two end 
+      // ponits on edge0, d1 is the smallest distance from e1.v1 on edge1 to the
+      // two end points on edge0. If d0 < d1, then we choose e1.v1 as the
+      // distinct vertex; otherwise we choose e1.v0.
+      // We denote
+      // d00 = | e1.v0 - e0.v0 | 
+      // d01 = | e1.v0 - e0.v1 |
+      // d10 = | e1.v1 - e0.v0 |
+      // d11 = | e1.v1 - e0.v1 |
+      const ccd_real_t d00 = ccdVec3Dist2(&f->edge[1]->vertex[0]->v.v,
+                                          &f->edge[0]->vertex[0]->v.v);
+      const ccd_real_t d01 = ccdVec3Dist2(&f->edge[1]->vertex[0]->v.v,
+                                          &f->edge[0]->vertex[1]->v.v);
+      const ccd_real_t d10 = ccdVec3Dist2(&f->edge[1]->vertex[1]->v.v,
+                                          &f->edge[0]->vertex[0]->v.v);
+      const ccd_real_t d11 = ccdVec3Dist2(&f->edge[1]->vertex[1]->v.v,
+                                          &f->edge[0]->vertex[1]->v.v);
+      ccd_real_t d0 = d00 < d01 ? d00 : d01;
+      ccd_real_t d1 = d10 < d11 ? d10 : d11;
+      if (d0 < d1) {
+        ccdSimplexAdd(&s, &(f->edge[1]->vertex[1]->v));
+      } else {
+        ccdSimplexAdd(&s, &(f->edge[1]->vertex[0]->v));
+      }
+    } else {
+      throw std::logic_error(
+          "Unsupported point type. The closest point should be either a "
+          "vertex, on an edge, or an a face.\n");
+    }
+    // Now compute the closest point in the simplex.
+    // TODO(hongkai.dai@tri.global): we do not need to compute the closest point
+    // on the simplex, as that is already given in @p nearest. We only need to
+    // extract the deepest penetration points on each geometric object.
+    // Sean.Curtis@tri.global and I will refactor this code in the future, to
+    // avoid calling extractClosestPoints.
+    ccd_vec3_t p;
+    ccdVec3Copy(&p, &(nearest->witness));
+    extractClosestPoints(&s, p1, p2, &p);
+    return 0;
+  }
+  FCL_UNUSED(pt);
 }
 
 static inline ccd_real_t ccdGJKSignedDist(const void* obj1, const void* obj2, const ccd_t* ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)
