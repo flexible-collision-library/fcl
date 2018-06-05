@@ -856,50 +856,141 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
     return 0;
 }
 
-/** Finds next support point (and stores it in out argument).
- *  Returns 0 on success, -1 otherwise */
-static int nextSupport(const void *obj1, const void *obj2, const ccd_t *ccd,
-                       const ccd_pt_el_t *el,
-                       ccd_support_t *out)
-{
-    ccd_vec3_t *a, *b, *c;
-    ccd_real_t dist;
+/**
+ * Computes the unit length normal vector of a face on a polytope, and the
+ * normal vector points outward from the polytope.
+ * @param[in] polytope The polytope on which the face lives.
+ * @param[in] face The face for which the unit length normal vector is computed.
+ * @retval dir The unit length vector normal to the face, and points outward
+ * from the polytope.
+ */
+static ccd_vec3_t faceUnitNormalPointingOutward(const ccd_pt_t* polytope,
+                                                const ccd_pt_face_t* face) {
+  // We find two edges of the triangle as e1 and e2, and the normal vector
+  // of the face is e1.cross(e2).
+  ccd_vec3_t e1, e2;
+  ccdVec3Sub2(&e1, &(face->edge[0]->vertex[0]->v.v),
+              &(face->edge[0]->vertex[1]->v.v));
+  ccdVec3Sub2(&e2, &(face->edge[1]->vertex[0]->v.v),
+              &(face->edge[1]->vertex[1]->v.v));
+  ccd_vec3_t dir;
+  ccdVec3Cross(&dir, &e1, &e2);
+  // Normalize dir
+  ccdVec3Normalize(&dir);
+  // Now we want to make sure dir points outward from the polytope.
+  // Conceptually, if dir points outward, then all vertices v of polytope should
+  // satisfy dir.dot(v) <= dir.dot(u), where u is a vertex on the face.
+  // To make this numerically robust, I compute a = mean(dir.dot(v)).
+  // If a <= dir.dot(u), then dir is unchanged, otherwise the sign of dir is
+  // flipped.
+  ccd_pt_vertex_t* v;
+  int num_vertices = 0;
+  ccd_real_t a;
+  ccdListForEachEntry(&(polytope->vertices), v, ccd_pt_vertex_t, list) {
+    a += ccdVec3Dot(&(v->v.v), &dir);
+    num_vertices++;
+  }
+  if (a / num_vertices > ccdVec3Dot(&dir, &(face->edge[0]->vertex[0]->v.v))) {
+    ccdVec3Scale(&dir, CCD_REAL(-1));
+  }
+  return dir;
+}
 
-    if (el->type == CCD_PT_VERTEX)
-        return -1;
-
-    // touch contact
-    if (ccdIsZero(el->dist))
-        return -1;
-
-    __ccdSupport(obj1, obj2, &el->witness, ccd, out);
-
-    // Compute dist of support point along element witness point direction
-    // so we can determine whether we expanded a polytope surrounding the
-    // origin a bit.
-    dist = ccdVec3Dot(&out->v, &el->witness);
-
-    if (dist - el->dist < ccd->epa_tolerance)
-        return -1;
-
-    if (el->type == CCD_PT_EDGE){
-        // fetch end points of edge
-        ccdPtEdgeVec3((ccd_pt_edge_t *)el, &a, &b);
-
-        // get distance from segment
-        dist = ccdVec3PointSegmentDist2(&out->v, a, b, NULL);
-    }else{ // el->type == CCD_PT_FACE
-        // fetch vertices of triangle face
-        ccdPtFaceVec3((ccd_pt_face_t *)el, &a, &b, &c);
-
-        // check if new point can significantly expand polytope
-        dist = ccdVec3PointTriDist2(&out->v, a, b, c, NULL);
+/** In each iteration of EPA algorithm, given the nearest point on the polytope
+ * boundary to the origin, a sampled direction will be computed, to find the
+ * support of the Minkowski sum A⊖B along that direction, so as to expand the
+ * polytope.
+ * If we denote the nearest point as v, when the v is not the origin, then the
+ * sampled direction is v. If v is the origin, then v should be an interior
+ * point on a face, then the sampled direction is the normal of that face,
+ * pointing outward from the polytope.
+ * @param polytope The polytoped contained in A⊖B.
+ * @param nearest_pt The nearest point on the boundary of the polytope to the
+ * origin.
+ * @retval dir The sampled direction along which to expand the polytope. Notice
+ * that dir is a normalized vector.
+ */
+static ccd_vec3_t sampledEPADirection(const ccd_pt_t* polytope,
+                                      const ccd_pt_el_t* nearest_pt) {
+  ccd_vec3_t dir;
+  if (ccdIsZero(nearest_pt->dist)) {
+    // nearest_pt is the origin.
+    // This should only happen at the beginning of EPA algorithm, namely there
+    // are only a few vertices, typically less than 5 vertices, as returned from
+    // simplexToPolytope3.
+    switch (nearest_pt->type) {
+      case CCD_PT_VERTEX: {
+        throw std::logic_error(
+            "The nearest point should not be a vertex of the polytope.");
+      }
+      case CCD_PT_EDGE: {
+        ccd_pt_edge_t* edge = ccdListEntry(&nearest_pt->list, ccd_pt_edge_t, list);
+        dir = faceUnitNormalPointingOutward(polytope, edge->faces[0]);
+        break;
+      }
+      case CCD_PT_FACE: {
+        // If origin is an interior point of a face, then choose the normal of
+        // that face as the sample direction.
+        ccd_pt_face_t* face =
+            ccdListEntry(&nearest_pt->list, ccd_pt_face_t, list);
+        dir = faceUnitNormalPointingOutward(polytope, face);
+        break;
+      }
     }
+  } else {
+    ccdVec3Copy(&dir, &(nearest_pt->witness));
+    ccdVec3Scale(&dir, CCD_REAL(1) / std::sqrt(nearest_pt->dist));
+  }
+  return dir;
+}
 
-    if (dist < ccd->epa_tolerance)
-        return -1;
+/** Finds next support point (and stores it in out argument).
+ * Returns 0 on success, -1 otherwise
+ * @param[in] polytope The current polytope contained inside the Minkowski sum
+ * A⊖B.
+ * @param[in] obj1 Geometric object A.
+ * @param[in] obj2 Geometric object B.
+ * @param[in] ccd The libccd solver.
+ * @param[in] el The current nearest point on the boundary of the polytope to
+ * the origin. 
+ * @param[out] out The next support point.
+ */
+static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
+                       const void* obj2, const ccd_t* ccd,
+                       const ccd_pt_el_t* el, ccd_support_t* out) {
+  ccd_vec3_t *a, *b, *c;
+  ccd_real_t dist;
 
-    return 0;
+  if (el->type == CCD_PT_VERTEX) return -1;
+
+  const ccd_vec3_t dir = sampledEPADirection(polytope, el);
+
+  __ccdSupport(obj1, obj2, &dir, ccd, out);
+
+  // Compute dist of support point along element witness point direction
+  // so we can determine whether we expanded a polytope surrounding the
+  // origin a bit.
+  dist = ccdVec3Dot(&out->v, &dir);
+
+  if (dist - std::sqrt(el->dist) < ccd->epa_tolerance) return -1;
+
+  if (el->type == CCD_PT_EDGE) {
+    // fetch end points of edge
+    ccdPtEdgeVec3((ccd_pt_edge_t*)el, &a, &b);
+
+    // get distance from segment
+    dist = ccdVec3PointSegmentDist2(&out->v, a, b, NULL);
+  } else {  // el->type == CCD_PT_FACE
+    // fetch vertices of triangle face
+    ccdPtFaceVec3((ccd_pt_face_t*)el, &a, &b, &c);
+
+    // check if new point can significantly expand polytope
+    dist = ccdVec3PointTriDist2(&out->v, a, b, c, NULL);
+  }
+
+  if (std::sqrt(dist) < ccd->epa_tolerance) return -1;
+
+  return 0;
 }
 
 
@@ -994,7 +1085,7 @@ static int __ccdEPA(const void *obj1, const void *obj2,
         *nearest = ccdPtNearest(polytope);
 
         // get next support point
-        if (nextSupport(obj1, obj2, ccd, *nearest, &supp) != 0)
+        if (nextSupport(polytope, obj1, obj2, ccd, *nearest, &supp) != 0)
             break;
 
         // expand nearest triangle using new point - supp
