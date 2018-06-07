@@ -40,6 +40,9 @@
 
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 
+#include <queue>
+#include <unordered_set>
+
 #include "fcl/common/unused.h"
 #include "fcl/common/warning.h"
 
@@ -716,107 +719,292 @@ static int simplexToPolytope4(const void *obj1, const void *obj2,
     return 0;
 }
 
+/**
+ * Computes the normal vector of a face on a polytope, and the normal vector
+ * points outward from the polytope. Notice we assume that the origin lives
+ * within the polytope.
+ * @param[in] polytope The polytope on which the face lives. We assume that the
+ * origin also lives inside the polytope.
+ * @param[in] face The face for which the unit length normal vector is computed.
+ * @retval dir The unit length vector normal to the face, and points outward
+ * from the polytope.
+ */
+static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
+                                            const ccd_pt_face_t* face) {
+  // We find two edges of the triangle as e1 and e2, and the normal vector
+  // of the face is e1.cross(e2).
+  ccd_vec3_t e1, e2;
+  ccdVec3Sub2(&e1, &(face->edge[0]->vertex[1]->v.v),
+              &(face->edge[0]->vertex[0]->v.v));
+  ccdVec3Sub2(&e2, &(face->edge[1]->vertex[1]->v.v),
+              &(face->edge[1]->vertex[0]->v.v));
+  ccd_vec3_t dir;
+  ccdVec3Cross(&dir, &e1, &e2);
+  ccd_real_t projection = ccdVec3Dot(&dir, &(face->edge[0]->vertex[0]->v.v));
+  if (projection > 0) {
+    // The origin is on the outward direction along `dir`. Since origin is
+    // within the polytope, this means `dir` points into the polytope, so we
+    // should flip the direction.
+    ccdVec3Scale(&dir, ccd_real_t(-1));
+  } else if (ccdIsZero(projection)) {
+    // The origin is on the face. Pick another vertex to test the normal
+    // direction. 
+    ccd_real_t max_projection = -CCD_REAL_MAX;
+    ccd_real_t min_projection = CCD_REAL_MAX;
+    ccd_pt_vertex_t* v;
+    // If the magnitude of the projection is larger than tolerance, then it
+    // means one of the vertex is at least 1cm away from the plane coinciding
+    // with the face.
+    ccd_real_t tol = 1E-2 / std::sqrt(ccdVec3Len2(&dir));
+    ccdListForEachEntry(&polytope->vertices, v, ccd_pt_vertex_t, list) {
+      projection = ccdVec3Dot(&dir, &(v->v.v)); 
+      if (projection > tol) {
+        // The vertex is at least 1cm away from the face plane, on the same
+        // direction of `dir`. So we flip dir to point it outward from the
+        // polytope.
+        ccdVec3Scale(&dir, ccd_real_t(-1));
+        break;
+      } else if (projection < -tol) {
+        // The vertex is at least 1cm away from the face plane, on the opposite
+        // direction of `dir`. So `dir` points outward already.
+        break;
+      } else {
+        max_projection = std::max(max_projection, projection);
+        min_projection = std::min(min_projection, projection);
+      }
+    }
+    // If max_projection > |min_projection|, then flip dir.
+    if (max_projection > std::abs(min_projection)) {
+      ccdVec3Scale(&dir, ccd_real_t(-1));
+    }
+  }
+  return dir;
+}
+
+/**
+ * Computes the unit length normal vector of a face on a polytope, and the
+ * normal vector points outward from the polytope.
+ * @param[in] polytope The polytope on which the face lives.
+ * @param[in] face The face for which the unit length normal vector is computed.
+ * @retval dir The unit length vector normal to the face, and points outward
+ * from the polytope.
+ */
+static ccd_vec3_t faceUnitNormalPointingOutward(const ccd_pt_t* polytope,
+                                                const ccd_pt_face_t* face) {
+  // We find two edges of the triangle as e1 and e2, and the normal vector
+  // of the face is e1.cross(e2).
+  ccd_vec3_t e1, e2;
+  ccdVec3Sub2(&e1, &(face->edge[0]->vertex[1]->v.v),
+              &(face->edge[0]->vertex[0]->v.v));
+  ccdVec3Sub2(&e2, &(face->edge[1]->vertex[1]->v.v),
+              &(face->edge[1]->vertex[0]->v.v));
+  ccd_vec3_t dir;
+  ccdVec3Cross(&dir, &e1, &e2);
+  // Normalize dir
+  ccdVec3Normalize(&dir);
+  // Now we want to make sure dir points outward from the polytope.
+  // Conceptually, if dir points outward, then all vertices v of polytope should
+  // satisfy dir.dot(v) <= dir.dot(u), where u is a vertex on the face.
+  // To make this numerically robust, I compute a = mean(dir.dot(v)).
+  // If a <= dir.dot(u), then dir is unchanged, otherwise the sign of dir is
+  // flipped.
+  ccd_pt_vertex_t* v;
+  int num_vertices = 0;
+  ccd_real_t a;
+  ccdListForEachEntry(&(polytope->vertices), v, ccd_pt_vertex_t, list) {
+    a += ccdVec3Dot(&(v->v.v), &dir);
+    num_vertices++;
+  }
+  if (a / num_vertices > ccdVec3Dot(&dir, &(face->edge[0]->vertex[0]->v.v))) {
+    ccdVec3Scale(&dir, CCD_REAL(-1));
+  }
+  return dir;
+}
+
+// Return true if the point @p pt is on the outward side of the half-plane, on
+// which the triangle @p f lives.
+// @param f A triangle on a polytope.
+// @param pt A point.
+bool outsidePolytopeFace(const ccd_pt_face_t* f, const ccd_vec3_t* pt) {
+  ccd_vec3_t n = faceNormalPointingOutward(f);
+  return ccdVec3Dot(&n, pt) > ccdVec3Dot(&n, &(f->edge[0]->vertex[0]->v.v));
+}
 
 
-
-/** Expands polytope's tri by new vertex v. Triangle tri is replaced by
- *  three triangles each with one vertex in v. */
+/**
+ * Test if the face neighbouring triangle f, and sharing the common edge
+ * f->edge[edge_index] can be seen from the new vertex or not. If the face
+ * cannot be seen, then we add the common edge to silhouette_edges; otherwise
+ * we remove the common edge from the polytope.
+ * We will call this function recursively to traverse all faces that can be seen
+ * from the new vertex.
+ * @param[in] f A face that can be seen from the new vertex. This face will be
+ * deleted at the end of the function.
+ * @param[in] edge_index We will check if the face neighbouring f with this
+ * common edge f->edge[edge_index] can be seen from the new vertex.
+ * @param[in] new_vertex The new vertex to be added to the polytope.
+ * @param[in/out] silhouette_edges If the neighouring face cannot be seen from
+ * the new vertex, then the common edge will be preserved, after adding the new
+ * vertex, and this common edge will be added to silhouette_edges.
+ * @param[in/out] visited_vertices Append all the vertices visited during face
+ * traversal to this vector. These are the candidate vertices, that might be
+ * removed.
+ * @retval neighbour_face_obsolete If the neighbouring face
+ */
+bool floodFillSilhouette(ccd_pt_face_t* f, int edge_index, const ccd_vec3_t* new_vertex, std::vector<ccd_pt_edge_t*>* silhouette_edges, std::vector<ccd_pt_vertex_t*>& visited_vertices) {
+  ccd_pt_face_t* f_neighbour = f->edge[edge_index]->faces[0] == f ? f->edge[edge_index]->faces[1] : f->edge[edge_index]->faces[0];
+  if (outsidePolytopeFace(f_neighbour, new_vertex)) {
+    return false;
+  } else {
+    floodFillSilhouette(
+    return true;
+  }
+}
+/** Expands the polytope by adding a new vertex @p newv to the polytope. The
+ * new polytope is the convex hull of the new vertex together with the old
+ * polytope. This new polytope includes new edges (by connecting the new vertex
+ * with existing vertices) and new faces (by connecting the new vertex with
+ * existing edges). We only keep the edges and faces that are on the boundary
+ * of the new polytope. The edges/faces that are interior to the polytope are
+ * discarded.
+ * @param[in/out] pt The polytope.
+ * @param[in] el The point on the boundary of the old polytope that is nearest
+ * to the origin.
+ * @param[in] newv The new vertex add to the polytope.
+ */
 static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
                           const ccd_support_t *newv)
 {
-    ccd_pt_vertex_t *v[5];
-    ccd_pt_edge_t *e[8];
-    ccd_pt_face_t *f[2];
+  // The outline of the algorithm is as follows:
+  // 1. Remove all the faces that can be seen from the new vertex, namely the
+  //    new vertex is outside of that face. Algebraiclly, a face can be seen
+  //    from the new vertex if
+  //    face.normal.dot(new_vertex) > face.normal.dot(face.vertex[0])
+  // 2. For each edge, if both neighbouring faces of the edge is removed, then
+  //    remove that edge.
+  // 3. For each vertex, if all edges connecting that vertex is removed, then
+  //    remove that vertex.
+  // 4. If an edge has one of its neighbouring face being removed, and one of
+  //    its neighbouring face is preserved, we call this edge "silhouette edge".
+  //    We connect the new vertex to each boundary edge, to form new faces and
+  //    new edges.
+  
+  // To remove all faces that can be seen from the new vertex, we start with the
+  // face on which the closest point lives, and then do a depth-first search on
+  // its neighbouring triangles, until the triangle cannot be seen from the new
+  // vertex.
+  std::unordered_set<ccd_pt_face_t*> visited_faces;
+  ccd_pt_face_t* obsolete_face = (ccd_pt_face_t*)el;
+  // Start with the face on which the closest point lives
+  if (el->type == CCD_PT_FACE) {
+    visited_faces.insert((ccd_pt_face_t*)el);
+  } else if (el->type == CCD_PT_EDGE) {
+    // Check the two neighbouring faces of the edge.
+  }
+  std::vector<ccd_pt_face_t*> obsolete_faces;
+  // old_faces contain all the faces in the old polytope. The faces that can be
+  // seen from the new vertex will be obsolete.
+  std::vector<epa_face_t> old_faces;
+  ccd_pt_face_t* f;
+  ccdListForEachEntry(&pt->faces, f, ccd_pt_face_t, list) {
+    // Determine if newv is outside of the face f.
+    const ccd_vec3_t f_normal = faceNormalPointingOutward(f);
+    if (ccdVec3Dot(&f_normal, &newv->v) >
+        ccdVec3Dot(&f_normal, &(f->edge[0]->vertex[0]->v.v))) {
+      old_faces.emplace_back(f, true);
+      obsolete_faces.push_back(f);
+    } else {
+      old_faces.emplace_back(f, false);
+    }
+  }
+  
+   
+  
 
+  ccd_pt_vertex_t* v[5];
+  ccd_pt_edge_t* e[8];
+  ccd_pt_face_t* f[2];
 
-    // element can be either segment or triangle
-    if (el->type == CCD_PT_EDGE){
-        // In this case, segment should be replaced by new point.
-        // Simpliest case is when segment stands alone and in this case
-        // this segment is replaced by two other segments both connected to
-        // newv.
-        // Segment can be also connected to max two faces and in that case
-        // each face must be replaced by two other faces. To do this
-        // correctly it is necessary to have correctly ordered edges and
-        // vertices which is exactly what is done in following code.
-        //
+  // element can be either segment or triangle
+  if (el->type == CCD_PT_EDGE) {
+    // In this case, segment should be replaced by new point.
+    // Simpliest case is when segment stands alone and in this case
+    // this segment is replaced by two other segments both connected to
+    // newv.
+    // Segment can be also connected to max two faces and in that case
+    // each face must be replaced by two other faces. To do this
+    // correctly it is necessary to have correctly ordered edges and
+    // vertices which is exactly what is done in following code.
+    //
 
-        ccdPtEdgeVertices((const ccd_pt_edge_t *)el, &v[0], &v[2]);
+    ccdPtEdgeVertices((const ccd_pt_edge_t*)el, &v[0], &v[2]);
 
-        ccdPtEdgeFaces((ccd_pt_edge_t *)el, &f[0], &f[1]);
+    ccdPtEdgeFaces((ccd_pt_edge_t*)el, &f[0], &f[1]);
 
-        if (f[0]){
-            ccdPtFaceEdges(f[0], &e[0], &e[1], &e[2]);
-            if (e[0] == (ccd_pt_edge_t *)el){
-                e[0] = e[2];
-            }else if (e[1] == (ccd_pt_edge_t *)el){
-                e[1] = e[2];
-            }
-            ccdPtEdgeVertices(e[0], &v[1], &v[3]);
-            if (v[1] != v[0] && v[3] != v[0]){
-                e[2] = e[0];
-                e[0] = e[1];
-                e[1] = e[2];
-                if (v[1] == v[2])
-                    v[1] = v[3];
-            }else{
-                if (v[1] == v[0])
-                    v[1] = v[3];
-            }
+    if (f[0]) {
+      ccdPtFaceEdges(f[0], &e[0], &e[1], &e[2]);
+      if (e[0] == (ccd_pt_edge_t*)el) {
+        e[0] = e[2];
+      } else if (e[1] == (ccd_pt_edge_t*)el) {
+        e[1] = e[2];
+      }
+      ccdPtEdgeVertices(e[0], &v[1], &v[3]);
+      if (v[1] != v[0] && v[3] != v[0]) {
+        e[2] = e[0];
+        e[0] = e[1];
+        e[1] = e[2];
+        if (v[1] == v[2]) v[1] = v[3];
+      } else {
+        if (v[1] == v[0]) v[1] = v[3];
+      }
 
-            if (f[1]){
-                ccdPtFaceEdges(f[1], &e[2], &e[3], &e[4]);
-                if (e[2] == (ccd_pt_edge_t *)el){
-                    e[2] = e[4];
-                }else if (e[3] == (ccd_pt_edge_t *)el){
-                    e[3] = e[4];
-                }
-                ccdPtEdgeVertices(e[2], &v[3], &v[4]);
-                if (v[3] != v[2] && v[4] != v[2]){
-                    e[4] = e[2];
-                    e[2] = e[3];
-                    e[3] = e[4];
-                    if (v[3] == v[0])
-                        v[3] = v[4];
-                }else{
-                    if (v[3] == v[2])
-                        v[3] = v[4];
-                }
-            }
-
-
-            v[4] = ccdPtAddVertex(pt, newv);
-
-            ccdPtDelFace(pt, f[0]);
-            if (f[1]){
-                ccdPtDelFace(pt, f[1]);
-                ccdPtDelEdge(pt, (ccd_pt_edge_t *)el);
-            }
-
-            e[4] = ccdPtAddEdge(pt, v[4], v[2]);
-            e[5] = ccdPtAddEdge(pt, v[4], v[0]);
-            e[6] = ccdPtAddEdge(pt, v[4], v[1]);
-            if (f[1])
-                e[7] = ccdPtAddEdge(pt, v[4], v[3]);
-
-
-            if (ccdPtAddFace(pt, e[1], e[4], e[6]) == NULL
-                    || ccdPtAddFace(pt, e[0], e[6], e[5]) == NULL){
-                return -2;
-            }
-
-            if (f[1]){
-                FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
-                if (ccdPtAddFace(pt, e[3], e[5], e[7]) == NULL
-                        || ccdPtAddFace(pt, e[4], e[7], e[2]) == NULL){
-                    return -2;
-                }
-                FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
-            }else{
-                if (ccdPtAddFace(pt, e[4], e[5], (ccd_pt_edge_t *)el) == NULL)
-                    return -2;
-            }
+      if (f[1]) {
+        ccdPtFaceEdges(f[1], &e[2], &e[3], &e[4]);
+        if (e[2] == (ccd_pt_edge_t*)el) {
+          e[2] = e[4];
+        } else if (e[3] == (ccd_pt_edge_t*)el) {
+          e[3] = e[4];
         }
+        ccdPtEdgeVertices(e[2], &v[3], &v[4]);
+        if (v[3] != v[2] && v[4] != v[2]) {
+          e[4] = e[2];
+          e[2] = e[3];
+          e[3] = e[4];
+          if (v[3] == v[0]) v[3] = v[4];
+        } else {
+          if (v[3] == v[2]) v[3] = v[4];
+        }
+      }
+
+      v[4] = ccdPtAddVertex(pt, newv);
+
+      ccdPtDelFace(pt, f[0]);
+      if (f[1]) {
+        ccdPtDelFace(pt, f[1]);
+        ccdPtDelEdge(pt, (ccd_pt_edge_t*)el);
+      }
+
+      e[4] = ccdPtAddEdge(pt, v[4], v[2]);
+      e[5] = ccdPtAddEdge(pt, v[4], v[0]);
+      e[6] = ccdPtAddEdge(pt, v[4], v[1]);
+      if (f[1]) e[7] = ccdPtAddEdge(pt, v[4], v[3]);
+
+      if (ccdPtAddFace(pt, e[1], e[4], e[6]) == NULL ||
+          ccdPtAddFace(pt, e[0], e[6], e[5]) == NULL) {
+        return -2;
+      }
+
+      if (f[1]) {
+        FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
+        if (ccdPtAddFace(pt, e[3], e[5], e[7]) == NULL ||
+            ccdPtAddFace(pt, e[4], e[7], e[2]) == NULL) {
+          return -2;
+        }
+        FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
+      } else {
+        if (ccdPtAddFace(pt, e[4], e[5], (ccd_pt_edge_t*)el) == NULL) return -2;
+      }
+    }
     }else{ // el->type == CCD_PT_FACE
         // replace triangle by tetrahedron without base (base would be the
         // triangle that will be removed)
@@ -856,45 +1044,6 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
     return 0;
 }
 
-/**
- * Computes the unit length normal vector of a face on a polytope, and the
- * normal vector points outward from the polytope.
- * @param[in] polytope The polytope on which the face lives.
- * @param[in] face The face for which the unit length normal vector is computed.
- * @retval dir The unit length vector normal to the face, and points outward
- * from the polytope.
- */
-static ccd_vec3_t faceUnitNormalPointingOutward(const ccd_pt_t* polytope,
-                                                const ccd_pt_face_t* face) {
-  // We find two edges of the triangle as e1 and e2, and the normal vector
-  // of the face is e1.cross(e2).
-  ccd_vec3_t e1, e2;
-  ccdVec3Sub2(&e1, &(face->edge[0]->vertex[0]->v.v),
-              &(face->edge[0]->vertex[1]->v.v));
-  ccdVec3Sub2(&e2, &(face->edge[1]->vertex[0]->v.v),
-              &(face->edge[1]->vertex[1]->v.v));
-  ccd_vec3_t dir;
-  ccdVec3Cross(&dir, &e1, &e2);
-  // Normalize dir
-  ccdVec3Normalize(&dir);
-  // Now we want to make sure dir points outward from the polytope.
-  // Conceptually, if dir points outward, then all vertices v of polytope should
-  // satisfy dir.dot(v) <= dir.dot(u), where u is a vertex on the face.
-  // To make this numerically robust, I compute a = mean(dir.dot(v)).
-  // If a <= dir.dot(u), then dir is unchanged, otherwise the sign of dir is
-  // flipped.
-  ccd_pt_vertex_t* v;
-  int num_vertices = 0;
-  ccd_real_t a;
-  ccdListForEachEntry(&(polytope->vertices), v, ccd_pt_vertex_t, list) {
-    a += ccdVec3Dot(&(v->v.v), &dir);
-    num_vertices++;
-  }
-  if (a / num_vertices > ccdVec3Dot(&dir, &(face->edge[0]->vertex[0]->v.v))) {
-    ccdVec3Scale(&dir, CCD_REAL(-1));
-  }
-  return dir;
-}
 
 /** In each iteration of EPA algorithm, given the nearest point on the polytope
  * boundary to the origin, a sampled direction will be computed, to find the

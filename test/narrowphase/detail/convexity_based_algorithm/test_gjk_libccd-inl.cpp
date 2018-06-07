@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Hongkai Dai*/
+/** @author Hongkai Dai */
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd-inl.h"
 
 #include <gtest/gtest.h>
