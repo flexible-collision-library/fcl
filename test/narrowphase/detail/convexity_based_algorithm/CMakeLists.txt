@@ -1,6 +1,7 @@
 set(tests
     test_gjk_libccd-inl.cpp
     test_gjk_libccd-inl_extractClosestPoints.cpp
+    test_epa.cpp
 )
 
 # Build all the tests
