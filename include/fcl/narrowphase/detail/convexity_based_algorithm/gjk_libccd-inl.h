@@ -822,20 +822,22 @@ static ccd_vec3_t faceUnitNormalPointingOutward(const ccd_pt_t* polytope,
 }
 
 // Return true if the point @p pt is on the outward side of the half-plane, on
-// which the triangle @p f lives.
+// which the triangle @p f lives. Notice if the point @p pt is exactly on the
+// half-plane, the return if false.
 // @param f A triangle on a polytope.
 // @param pt A point.
-bool outsidePolytopeFace(const ccd_pt_face_t* f, const ccd_vec3_t* pt) {
-  ccd_vec3_t n = faceNormalPointingOutward(f);
+bool outsidePolytopeFace(const ccd_pt_t* polytope, const ccd_pt_face_t* f,
+                         const ccd_vec3_t* pt) {
+  ccd_vec3_t n = faceNormalPointingOutward(polytope, f);
   return ccdVec3Dot(&n, pt) > ccdVec3Dot(&n, &(f->edge[0]->vertex[0]->v.v));
 }
-
 
 /**
  * Test if the face neighbouring triangle f, and sharing the common edge
  * f->edge[edge_index] can be seen from the new vertex or not. If the face
  * cannot be seen, then we add the common edge to silhouette_edges; otherwise
- * we remove the common edge from the polytope.
+ * we add the common edge to obsolete_edges. The face f will be added to 
+ * obsolete_faces.
  * We will call this function recursively to traverse all faces that can be seen
  * from the new vertex.
  * @param[in] f A face that can be seen from the new vertex. This face will be
@@ -843,23 +845,47 @@ bool outsidePolytopeFace(const ccd_pt_face_t* f, const ccd_vec3_t* pt) {
  * @param[in] edge_index We will check if the face neighbouring f with this
  * common edge f->edge[edge_index] can be seen from the new vertex.
  * @param[in] new_vertex The new vertex to be added to the polytope.
- * @param[in/out] silhouette_edges If the neighouring face cannot be seen from
+ * @param[in/out] visited_faces If the neighbouring face hasn't been visited,
+ * then add it to visited_faces.
+ * @param[in/out] silhouette_edges If the neighbouring face cannot be seen from
  * the new vertex, then the common edge will be preserved, after adding the new
  * vertex, and this common edge will be added to silhouette_edges.
- * @param[in/out] visited_vertices Append all the vertices visited during face
- * traversal to this vector. These are the candidate vertices, that might be
- * removed.
- * @retval neighbour_face_obsolete If the neighbouring face
+ * @param[in/out] obsolete_faces If the neighbouring face can be seen from
+ * the new vertex, then add it to obsolete_faces.
+ * @param[in/out] obsolete_edges If the neighbouring face can be seen from
+ * the new vertex, then add this common edge to obsolete_edges.
  */
-bool floodFillSilhouette(ccd_pt_face_t* f, int edge_index, const ccd_vec3_t* new_vertex, std::vector<ccd_pt_edge_t*>* silhouette_edges, std::vector<ccd_pt_vertex_t*>& visited_vertices) {
-  ccd_pt_face_t* f_neighbour = f->edge[edge_index]->faces[0] == f ? f->edge[edge_index]->faces[1] : f->edge[edge_index]->faces[0];
-  if (outsidePolytopeFace(f_neighbour, new_vertex)) {
-    return false;
-  } else {
-    floodFillSilhouette(
-    return true;
+void floodFillSilhouette(const ccd_pt_t* polytope, ccd_pt_face_t* f, int edge_index,
+                         const ccd_vec3_t* new_vertex,
+                         std::unordered_set<ccd_pt_face_t*>* visited_faces,
+                         std::unordered_set<ccd_pt_edge_t*>* silhouette_edges,
+                         std::unordered_set<ccd_pt_face_t*>* obsolete_faces,
+                         std::unordered_set<ccd_pt_edge_t*>* obsolete_edges) {
+  ccd_pt_face_t* f_neighbour = f->edge[edge_index]->faces[0] == f
+                                   ? f->edge[edge_index]->faces[1]
+                                   : f->edge[edge_index]->faces[0];
+  if (visited_faces->find(f_neighbour) != visited_faces->end()) {
+    // f_neighbour has not been tranversed before.
+    visited_faces->insert(f_neighbour);
+    if (!outsidePolytopeFace(polytope, f_neighbour, new_vertex)) {
+      // Cannot see the neighbouring face from the new vertex.
+      silhouette_edges->insert(f->edge[edge_index]);
+      return;
+    } else {
+      obsolete_faces->insert(f_neighbour);
+      obsolete_edges->insert(f->edge[edge_index]);
+      for (int i = 0; i < 3; ++i) {
+        if (f_neighbour->edge[i] != f->edge[edge_index]) {
+          // One of the neighbouring face is `f`, so do not need to visit again.
+          floodFillSilhouette(f_neighbour, i, new_vertex, visited_faces,
+                              silhouette_edges, obsolete_faces, obsolete_edges,
+                              visited_vertices);
+        }
+      }
+    }
   }
 }
+
 /** Expands the polytope by adding a new vertex @p newv to the polytope. The
  * new polytope is the convex hull of the new vertex together with the old
  * polytope. This new polytope includes new edges (by connecting the new vertex
@@ -894,32 +920,85 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
   // its neighbouring triangles, until the triangle cannot be seen from the new
   // vertex.
   std::unordered_set<ccd_pt_face_t*> visited_faces;
-  ccd_pt_face_t* obsolete_face = (ccd_pt_face_t*)el;
+  std::unordered_set<ccd_pt_face_t*> obsolete_faces;
+  std::unordered_set<ccd_pt_edge_t*> obsolete_edges;
+  std::unordered_set<ccd_pt_edge_t*> silhouette_edges;
+
   // Start with the face on which the closest point lives
   if (el->type == CCD_PT_FACE) {
     visited_faces.insert((ccd_pt_face_t*)el);
+    obsolete_faces.insert((ccd_pt_face_t*)el);
   } else if (el->type == CCD_PT_EDGE) {
     // Check the two neighbouring faces of the edge.
-  }
-  std::vector<ccd_pt_face_t*> obsolete_faces;
-  // old_faces contain all the faces in the old polytope. The faces that can be
-  // seen from the new vertex will be obsolete.
-  std::vector<epa_face_t> old_faces;
-  ccd_pt_face_t* f;
-  ccdListForEachEntry(&pt->faces, f, ccd_pt_face_t, list) {
-    // Determine if newv is outside of the face f.
-    const ccd_vec3_t f_normal = faceNormalPointingOutward(f);
-    if (ccdVec3Dot(&f_normal, &newv->v) >
-        ccdVec3Dot(&f_normal, &(f->edge[0]->vertex[0]->v.v))) {
-      old_faces.emplace_back(f, true);
-      obsolete_faces.push_back(f);
+    ccd_pt_face_t* f[2];
+    ccdPtEdgeFaces((*ccd_pt_edge_t)el, &f[0], &f[1]);
+    if (outsidePolytopeFace(pt, f[0], newv)) {
+      visited_faces.insert(f[0]);
+      obsolete_faces.insert(f[0]);
+    } else if (outsidePolytopeFace(pt, f[1], newv)) {
+      visited_faces.insert(f[1]);
+      obsolete_faces.insert(f[1]);
     } else {
-      old_faces.emplace_back(f, false);
+      throw std::logic_error(
+          "This should not happen. Both the nearest point and the new vertex "
+          "are on an edge, thus the nearest distance should be 0. This is "
+          "touching contact, and we should not expand the polytope for "
+          "touching contact.");
+    }
+  }
+  floodFillSilhouette(pt, *(visited_faces.begin()), 0, newv, &visited_faces,
+                      &silhouette_edges, &obsolete_faces, &obsolete_edges);
+
+  // Now remove all the obsolete faces.
+  for (const auto& f : obsolete_faces) {
+    ccdPtDelFace(pt, f);
+  }
+  // Get all the candidate vertices to be removed. We will remove a vertex if
+  // all the edges connecting to that vertex are removed.
+  std::unordered_set<ccd_pt_vertex_t*> candidate_removable_vertices;
+  candidate_removable_vertices.reserve(obsolete_edges.size() * 2);
+  // Now remove all the obsolete edges.
+  for (const auto& e : obsolete_edges) {
+    candidate_removable_vertices.insert(e->vertex[0]);
+    candidate_removable_vertices.insert(e->vertex[1]);
+    ccdPtDelEdge(pt, e);
+  }
+  // Now remove all obsolete edges.
+  for (const auto& v : candidate_removable_vertices) {
+    bool obsolete_v = true;
+    ccd_pt_edge_t* e;
+    ccdListForEachEntry(&v->edges, e, ccd_pt_edge_t, list) {
+      if (e != NULL) {
+        obsolete_v = false;
+        break;
+      }
+    }
+    if (obsolete_v) {
+      ccdPtDelVertex(pt, v);
     }
   }
   
-   
-  
+  // Now add the new vertex.
+  ccd_pt_vertex_t* new_vertex = ccdPtAddVertex(pt, newv);
+
+  // Now add the new edges and faces, by connecting the new vertex with vertices
+  // on silhouette_edges.
+  std::unordered_map<ccd_pt_vertex_t*, cce_pt_edge_t*> new_edge_vertices;
+  for (const auto& silhouette_edge : silhouette_edges) {
+    ccd_pt_edge_t* e[2];  // The two new edges added by connecting new_vertex
+                          // to the two vertices on silhouette_edge.
+    for (int i = 0; i < 2; ++i) {
+      auto it = new_edge_vertices.find(silhouette_edge->vertex[i]);
+      if (it == new_edge_vertices.end()) {
+        e[i] = ccdPtAddEdge(pt, new_vertex, silhouette_edge->vertex[i]);
+        new_edge_vertices.emplace_hint(it, silhouette_edge->vertex[i], e[i]);
+      } else {
+        e[i] = it->second;
+      }
+    }
+    // Now add the face.
+    ccdPtAddFace(pt, silhouette_edge, e[0], e[1]);
+  }
 
   ccd_pt_vertex_t* v[5];
   ccd_pt_edge_t* e[8];
