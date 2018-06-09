@@ -820,16 +820,15 @@ static bool outsidePolytopeFace(const ccd_pt_t* polytope,
 static void floodFillSilhouette(
     const ccd_pt_t* polytope, ccd_pt_face_t* f, int edge_index,
     const ccd_vec3_t* new_vertex,
-    std::unordered_set<ccd_pt_face_t*>* visited_faces,
     std::unordered_set<ccd_pt_edge_t*>* silhouette_edges,
     std::unordered_set<ccd_pt_face_t*>* obsolete_faces,
     std::unordered_set<ccd_pt_edge_t*>* obsolete_edges) {
   ccd_pt_face_t* f_neighbour = f->edge[edge_index]->faces[0] == f
                                    ? f->edge[edge_index]->faces[1]
                                    : f->edge[edge_index]->faces[0];
-  if (visited_faces->find(f_neighbour) != visited_faces->end()) {
-    // f_neighbour has not been tranversed before.
-    visited_faces->insert(f_neighbour);
+  const auto it = obsolete_faces->find(f_neighbour);
+  if (it == obsolete_faces->end()) {
+    // f_neighbour is not an obsolete face
     if (!outsidePolytopeFace(polytope, f_neighbour, new_vertex)) {
       // Cannot see the neighbouring face from the new vertex.
       silhouette_edges->insert(f->edge[edge_index]);
@@ -841,8 +840,7 @@ static void floodFillSilhouette(
         if (f_neighbour->edge[i] != f->edge[edge_index]) {
           // One of the neighbouring face is `f`, so do not need to visit again.
           floodFillSilhouette(polytope, f_neighbour, i, new_vertex,
-                              visited_faces, silhouette_edges, obsolete_faces,
-                              obsolete_edges);
+                              silhouette_edges, obsolete_faces, obsolete_edges);
         }
       }
     }
@@ -882,24 +880,20 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
   // face on which the closest point lives, and then do a depth-first search on
   // its neighbouring triangles, until the triangle cannot be seen from the new
   // vertex.
-  std::unordered_set<ccd_pt_face_t*> visited_faces;
   std::unordered_set<ccd_pt_face_t*> obsolete_faces;
   std::unordered_set<ccd_pt_edge_t*> obsolete_edges;
   std::unordered_set<ccd_pt_edge_t*> silhouette_edges;
 
   // Start with the face on which the closest point lives
   if (el->type == CCD_PT_FACE) {
-    visited_faces.insert((ccd_pt_face_t*)el);
     obsolete_faces.insert((ccd_pt_face_t*)el);
   } else if (el->type == CCD_PT_EDGE) {
     // Check the two neighbouring faces of the edge.
     ccd_pt_face_t* f[2];
     ccdPtEdgeFaces((ccd_pt_edge_t*)el, &f[0], &f[1]);
     if (outsidePolytopeFace(pt, f[0], &newv->v)) {
-      visited_faces.insert(f[0]);
       obsolete_faces.insert(f[0]);
     } else if (outsidePolytopeFace(pt, f[1], &newv->v)) {
-      visited_faces.insert(f[1]);
       obsolete_faces.insert(f[1]);
     } else {
       throw std::logic_error(
@@ -909,8 +903,10 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
           "touching contact.");
     }
   }
-  floodFillSilhouette(pt, *(visited_faces.begin()), 0, &newv->v, &visited_faces,
-                      &silhouette_edges, &obsolete_faces, &obsolete_edges);
+  for (int i = 0; i < 3; ++i) {
+    floodFillSilhouette(pt, *(obsolete_faces.begin()), i, &newv->v,
+                        &silhouette_edges, &obsolete_faces, &obsolete_edges);
+  }
 
   // Now remove all the obsolete faces.
   for (const auto& f : obsolete_faces) {
@@ -926,7 +922,7 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
     candidate_removable_vertices.insert(e->vertex[1]);
     ccdPtDelEdge(pt, e);
   }
-  // Now remove all obsolete edges.
+  // Now remove all obsolete vertices.
   for (const auto& v : candidate_removable_vertices) {
     bool obsolete_v = true;
     ccd_pt_edge_t* e;
@@ -953,6 +949,7 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
     for (int i = 0; i < 2; ++i) {
       auto it = new_edge_vertices.find(silhouette_edge->vertex[i]);
       if (it == new_edge_vertices.end()) {
+        // This edge has not been added yet.
         e[i] = ccdPtAddEdge(pt, new_vertex, silhouette_edge->vertex[i]);
         new_edge_vertices.emplace_hint(it, silhouette_edge->vertex[i], e[i]);
       } else {
@@ -1115,7 +1112,7 @@ static ccd_vec3_t sampledEPADirection(const ccd_pt_t* polytope,
             "function.");
       }
       case CCD_PT_EDGE: {
-        ccd_pt_edge_t* edge = ccdListEntry(&nearest_pt->list, ccd_pt_edge_t, list);
+        ccd_pt_edge_t* edge = (ccd_pt_edge_t*)nearest_pt;
         dir = faceNormalPointingOutward(polytope, edge->faces[0]);
         ccdVec3Normalize(&dir);
         break;
@@ -1123,8 +1120,7 @@ static ccd_vec3_t sampledEPADirection(const ccd_pt_t* polytope,
       case CCD_PT_FACE: {
         // If origin is an interior point of a face, then choose the normal of
         // that face as the sample direction.
-        ccd_pt_face_t* face =
-            ccdListEntry(&nearest_pt->list, ccd_pt_face_t, list);
+        ccd_pt_face_t* face = (ccd_pt_face_t*)nearest_pt;
         dir = faceNormalPointingOutward(polytope, face);
         ccdVec3Normalize(&dir);
         break;
