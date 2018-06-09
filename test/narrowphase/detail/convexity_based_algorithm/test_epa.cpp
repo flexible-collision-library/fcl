@@ -480,6 +480,9 @@ void ComparePolytope(const ccd_pt_t* polytope1, const ccd_pt_t* polytope2,
       },
       &f1_set, &f2_set, &map_f1_to_f2);
 
+  /* TODO(hongkai.dai@tri.global): enable the following check, when issue
+   https://github.com/danfis/libccd/issues/46 has been fixed. Currently 
+   ccd_pt_vertex_t.edges are garbage. 
   // Now make sure that the edges connected to a vertex in polytope 1, are the
   // same edges connected to the corresponding vertex in polytope 2.
   for (const auto& v1 : v1_set) {
@@ -506,7 +509,7 @@ void ComparePolytope(const ccd_pt_t* polytope1, const ccd_pt_t* polytope2,
       }
       EXPECT_NE(v2_edges.find(v2_e), v2_edges.end());
     }
-  }
+  }*/
 
   // Make sure that the faces connected to each edge in polytope 1, are the same
   // face connected to the corresponding face in polytope 2.
