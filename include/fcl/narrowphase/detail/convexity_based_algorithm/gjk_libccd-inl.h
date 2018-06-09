@@ -884,17 +884,18 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
   std::unordered_set<ccd_pt_edge_t*> obsolete_edges;
   std::unordered_set<ccd_pt_edge_t*> silhouette_edges;
 
+  ccd_pt_face_t* start_face = NULL;
   // Start with the face on which the closest point lives
   if (el->type == CCD_PT_FACE) {
-    obsolete_faces.insert((ccd_pt_face_t*)el);
+    start_face = (ccd_pt_face_t*)el;
   } else if (el->type == CCD_PT_EDGE) {
     // Check the two neighbouring faces of the edge.
     ccd_pt_face_t* f[2];
     ccdPtEdgeFaces((ccd_pt_edge_t*)el, &f[0], &f[1]);
     if (outsidePolytopeFace(pt, f[0], &newv->v)) {
-      obsolete_faces.insert(f[0]);
+      start_face = f[0];
     } else if (outsidePolytopeFace(pt, f[1], &newv->v)) {
-      obsolete_faces.insert(f[1]);
+      start_face = f[1];
     } else {
       throw std::logic_error(
           "This should not happen. Both the nearest point and the new vertex "
@@ -903,78 +904,10 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
           "touching contact.");
     }
   }
+  obsolete_faces.insert(start_face);
   for (int i = 0; i < 3; ++i) {
-    floodFillSilhouette(pt, *(obsolete_faces.begin()), i, &newv->v,
-                        &silhouette_edges, &obsolete_faces, &obsolete_edges);
-  }
-  // ccd_pt_vertex_t.edges contain garbage value, so we cannot access the edges
-  // connected to a vertex directly, see
-  // https://github.com/danfis/libccd/issues/46
-  // As a result, we loop through each obsolete edges, if all the neighbouring
-  // faces of a vertex are obsolete, then the vertex is obsolete also.
-  // checked_vertices contains all the vertices, which has been checked whether
-  // it is obsolete or not.
-  std::unordered_set<ccd_pt_vertex_t*> checked_vertices;
-  std::vector<ccd_pt_vertex_t*> obsolete_vertices;
-  // We will rotate about a vertex by each neighbouring faces, to check if all
-  // the faces connected to that vertex are obsolete.
-  // To do so, given a face and an edge on the face connecting to the vertex,
-  // we will find the adjacent face, and another edge on that adjacent face,
-  // that also connects to the vertex.
-  // @param[in] cur_edge is an edge connecting to the vertex v.
-  // @param[in] cur_edge is on the face cur_face. 
-  // @param[out] next_face shares the common edge with cur_face.
-  // @retval next_edge is on next_face, also connects to the vertex v.
-  auto FindNextEdge= [](const ccd_pt_vertex_t* v,
-                         const ccd_pt_face_t* cur_face,
-                         const ccd_pt_edge_t* cur_edge,
-                         ccd_pt_face_t* next_face) {
-    if (cur_edge->faces[0] == cur_face) {
-      next_face = cur_edge->faces[1];
-    } else if (cur_edge->faces[1] == cur_face) {
-      next_face = cur_edge->faces[0];
-    } else {
-      throw std::runtime_error(
-          "cur_face is not a neighbouring face of cur_edge.");
-    }
-    // Now find next_edge.
-    for (int i = 0; i < 3; ++i) {
-      if (next_face->edge[i] == cur_edge) {
-        // next_edge is either next_face->edge[j[0]] or next_face->edge[j[1]];
-        int j[2] = {(i + 1) % 3, (i + 2) % 3};
-        for (int k = 0; k < 2; ++k) {
-          if (next_face->edge[j[k]]->vertex[0] == v ||
-              next_face->edge[j[k]]->vertex[1] == v) {
-            // next_face->edge[j[k]] connects to v.
-            ccd_pt_edge_t* next_edge = next_face->edge[j[k]];
-            return next_edge;
-          }
-        }
-      }
-    }
-    throw std::runtime_error("Cannot find the next edge.\n");
-  };
-
-  for (const auto& e : obsolete_edges) {
-    for (int i = 0; i < 2; ++i) {
-      ccd_pt_vertex_t* v = e->vertex[i];
-      if (checked_vertices.find(v) == checked_vertices.end()) {
-        ccd_pt_face_t* start_face = e->faces[0];
-        ccd_pt_face_t* cur_face = e->faces[1];
-        ccd_pt_edge_t* cur_edge = e;
-        ccd_pt_face_t* next_face = NULL;
-        while (cur_face != start_face &&
-               obsolete_faces.find(cur_face) != obsolete_faces.end()) {
-          // next_face is obsolete, and it is not the start_face.
-          cur_edge = FindNextEdge(v, cur_face, cur_edge, next_face);
-          cur_face = next_face;
-        }
-        if (cur_face == start_face) {
-          obsolete_vertices.push_back(v);
-        }
-        checked_vertices.insert(v);
-      }
-    }
+    floodFillSilhouette(pt, start_face, i, &newv->v, &silhouette_edges,
+                        &obsolete_faces, &obsolete_edges);
   }
 
   // Now remove all the obsolete faces.
@@ -986,10 +919,8 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
   for (const auto& e : obsolete_edges) {
     ccdPtDelEdge(pt, e);
   }
-  // Now remove all obsolete vertices.
-  for (const auto& v : obsolete_vertices) {
-    ccdPtDelVertex(pt, v);
-  }
+  // A vertex cannot be obsolete, since a vertex is always on the boundary of
+  // the Minkowski difference A⊖B.
   
   // Now add the new vertex.
   ccd_pt_vertex_t* new_vertex = ccdPtAddVertex(pt, newv);
