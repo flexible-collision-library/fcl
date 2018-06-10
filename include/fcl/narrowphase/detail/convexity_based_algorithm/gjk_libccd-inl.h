@@ -40,7 +40,6 @@
 
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 
-#include <queue>
 #include <unordered_set>
 #include <unordered_map>
 
@@ -858,6 +857,7 @@ static void floodFillSilhouette(
  * @param[in] el The point on the boundary of the old polytope that is nearest
  * to the origin.
  * @param[in] newv The new vertex add to the polytope.
+ * @retval status Returns 0 on success. Returns -2 otherwise. 
  */
 static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
                           const ccd_support_t *newv)
@@ -945,128 +945,7 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
     ccdPtAddFace(pt, silhouette_edge, e[0], e[1]);
   }
 
-  /*
-  ccd_pt_vertex_t* v[5];
-  ccd_pt_edge_t* e[8];
-  ccd_pt_face_t* f[2];
-
-  // element can be either segment or triangle
-  if (el->type == CCD_PT_EDGE) {
-    // In this case, segment should be replaced by new point.
-    // Simpliest case is when segment stands alone and in this case
-    // this segment is replaced by two other segments both connected to
-    // newv.
-    // Segment can be also connected to max two faces and in that case
-    // each face must be replaced by two other faces. To do this
-    // correctly it is necessary to have correctly ordered edges and
-    // vertices which is exactly what is done in following code.
-    //
-
-    ccdPtEdgeVertices((const ccd_pt_edge_t*)el, &v[0], &v[2]);
-
-    ccdPtEdgeFaces((ccd_pt_edge_t*)el, &f[0], &f[1]);
-
-    if (f[0]) {
-      ccdPtFaceEdges(f[0], &e[0], &e[1], &e[2]);
-      if (e[0] == (ccd_pt_edge_t*)el) {
-        e[0] = e[2];
-      } else if (e[1] == (ccd_pt_edge_t*)el) {
-        e[1] = e[2];
-      }
-      ccdPtEdgeVertices(e[0], &v[1], &v[3]);
-      if (v[1] != v[0] && v[3] != v[0]) {
-        e[2] = e[0];
-        e[0] = e[1];
-        e[1] = e[2];
-        if (v[1] == v[2]) v[1] = v[3];
-      } else {
-        if (v[1] == v[0]) v[1] = v[3];
-      }
-
-      if (f[1]) {
-        ccdPtFaceEdges(f[1], &e[2], &e[3], &e[4]);
-        if (e[2] == (ccd_pt_edge_t*)el) {
-          e[2] = e[4];
-        } else if (e[3] == (ccd_pt_edge_t*)el) {
-          e[3] = e[4];
-        }
-        ccdPtEdgeVertices(e[2], &v[3], &v[4]);
-        if (v[3] != v[2] && v[4] != v[2]) {
-          e[4] = e[2];
-          e[2] = e[3];
-          e[3] = e[4];
-          if (v[3] == v[0]) v[3] = v[4];
-        } else {
-          if (v[3] == v[2]) v[3] = v[4];
-        }
-      }
-
-      v[4] = ccdPtAddVertex(pt, newv);
-
-      ccdPtDelFace(pt, f[0]);
-      if (f[1]) {
-        ccdPtDelFace(pt, f[1]);
-        ccdPtDelEdge(pt, (ccd_pt_edge_t*)el);
-      }
-
-      e[4] = ccdPtAddEdge(pt, v[4], v[2]);
-      e[5] = ccdPtAddEdge(pt, v[4], v[0]);
-      e[6] = ccdPtAddEdge(pt, v[4], v[1]);
-      if (f[1]) e[7] = ccdPtAddEdge(pt, v[4], v[3]);
-
-      if (ccdPtAddFace(pt, e[1], e[4], e[6]) == NULL ||
-          ccdPtAddFace(pt, e[0], e[6], e[5]) == NULL) {
-        return -2;
-      }
-
-      if (f[1]) {
-        FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
-        if (ccdPtAddFace(pt, e[3], e[5], e[7]) == NULL ||
-            ccdPtAddFace(pt, e[4], e[7], e[2]) == NULL) {
-          return -2;
-        }
-        FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
-      } else {
-        if (ccdPtAddFace(pt, e[4], e[5], (ccd_pt_edge_t*)el) == NULL) return -2;
-      }
-    }
-    }else{ // el->type == CCD_PT_FACE
-        // replace triangle by tetrahedron without base (base would be the
-        // triangle that will be removed)
-
-        // get triplet of surrounding edges and vertices of triangle face
-        ccdPtFaceEdges((const ccd_pt_face_t *)el, &e[0], &e[1], &e[2]);
-        ccdPtEdgeVertices(e[0], &v[0], &v[1]);
-        ccdPtEdgeVertices(e[1], &v[2], &v[3]);
-
-        // following code sorts edges to have e[0] between vertices 0-1,
-        // e[1] between 1-2 and e[2] between 2-0
-        if (v[2] != v[1] && v[3] != v[1]){
-            // swap e[1] and e[2]
-            e[3] = e[1];
-            e[1] = e[2];
-            e[2] = e[3];
-        }
-        if (v[3] != v[0] && v[3] != v[1])
-            v[2] = v[3];
-
-        // remove triangle face
-        ccdPtDelFace(pt, (ccd_pt_face_t *)el);
-
-        // expand triangle to tetrahedron
-        v[3] = ccdPtAddVertex(pt, newv);
-        e[3] = ccdPtAddEdge(pt, v[3], v[0]);
-        e[4] = ccdPtAddEdge(pt, v[3], v[1]);
-        e[5] = ccdPtAddEdge(pt, v[3], v[2]);
-
-        if (ccdPtAddFace(pt, e[3], e[4], e[0]) == NULL
-                || ccdPtAddFace(pt, e[4], e[5], e[1]) == NULL
-                || ccdPtAddFace(pt, e[5], e[3], e[2]) == NULL){
-            return -2;
-        }
-    }*/
-
-    return 0;
+  return 0;
 }
 
 
@@ -1701,32 +1580,14 @@ static int penEPAPosClosest(const ccd_pt_t *pt, const ccd_pt_el_t *nearest,
       ccdSimplexAdd(&s, &(f->edge[0]->vertex[0]->v));
       ccdSimplexAdd(&s, &(f->edge[0]->vertex[1]->v));
       // Next we pick edge1, one of the two end points on edge1 is distinct from
-      // the end points in edge0. To find out the distinctive vertex, we compute
-      // d0 = min(|e1.v0 - e0.v0|, |e1.v0 - e0.v1|)
-      // d1 = min(|e1.v1 - e0.v0|, |e1.v1 - e0.v1|)
-      // namely d0 is the smallest distance from e1.v0 on edge1 to the two end 
-      // ponits on edge0, d1 is the smallest distance from e1.v1 on edge1 to the
-      // two end points on edge0. If d0 < d1, then we choose e1.v1 as the
-      // distinct vertex; otherwise we choose e1.v0.
-      // We denote
-      // d00 = | e1.v0 - e0.v0 | 
-      // d01 = | e1.v0 - e0.v1 |
-      // d10 = | e1.v1 - e0.v0 |
-      // d11 = | e1.v1 - e0.v1 |
-      const ccd_real_t d00 = ccdVec3Dist2(&f->edge[1]->vertex[0]->v.v,
-                                          &f->edge[0]->vertex[0]->v.v);
-      const ccd_real_t d01 = ccdVec3Dist2(&f->edge[1]->vertex[0]->v.v,
-                                          &f->edge[0]->vertex[1]->v.v);
-      const ccd_real_t d10 = ccdVec3Dist2(&f->edge[1]->vertex[1]->v.v,
-                                          &f->edge[0]->vertex[0]->v.v);
-      const ccd_real_t d11 = ccdVec3Dist2(&f->edge[1]->vertex[1]->v.v,
-                                          &f->edge[0]->vertex[1]->v.v);
-      ccd_real_t d0 = d00 < d01 ? d00 : d01;
-      ccd_real_t d1 = d10 < d11 ? d10 : d11;
-      if (d0 < d1) {
-        ccdSimplexAdd(&s, &(f->edge[1]->vertex[1]->v));
-      } else {
-        ccdSimplexAdd(&s, &(f->edge[1]->vertex[0]->v));
+      // the end points in edge0, we will add this distinct vertex to the
+      // simplex.
+      for (int i = 0; i < 2; ++i) {
+        ccd_pt_vertex_t* third_vertex = f->edge[1]->vertex[i];
+        if (third_vertex != f->edge[0]->vertex[0] &&
+            f->edge[1]->vertex[0] != f->edge[0]->vertex[0]) {
+          ccdSimplexAdd(&s, &(third_vertex->v));
+        }
       }
     } else {
       throw std::logic_error(
