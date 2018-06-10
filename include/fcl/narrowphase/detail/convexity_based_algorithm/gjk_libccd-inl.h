@@ -1113,7 +1113,7 @@ static ccd_vec3_t sampledEPADirection(const ccd_pt_t* polytope,
     }
   } else {
     ccdVec3Copy(&dir, &(nearest_pt->witness));
-    ccdVec3Scale(&dir, CCD_REAL(1) / std::sqrt(nearest_pt->dist));
+    ccdVec3Scale(&dir, ccd_real_t(1) / std::sqrt(nearest_pt->dist));
   }
   return dir;
 }
