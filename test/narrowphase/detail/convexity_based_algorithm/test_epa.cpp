@@ -105,9 +105,41 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
         libccd_extension::faceNormalPointingOutward(p.polytope(), p.f(i));
     for (int j = 0; j < 4; ++j) {
       EXPECT_LE(ccdVec3Dot(&n, &p.v(j)->v.v),
-                ccdVec3Dot(&n, &p.f(i)->edge[0]->vertex[0]->v.v) + 1E-8);
+                ccdVec3Dot(&n, &p.f(i)->edge[0]->vertex[0]->v.v) + 1E-6);
     }
   }
+}
+
+GTEST_TEST(FCL_GJK_EPA, sampledEPADirection) {
+  auto CheckSampledEPADirection = [](
+      const ccd_pt_t* polytope, const ccd_pt_el_t* nearest_pt, ccd_real_t dir_x,
+      ccd_real_t dir_y, ccd_real_t dir_z, ccd_real_t tol) {
+    const ccd_vec3_t dir =
+        libccd_extension::sampledEPADirection(polytope, nearest_pt);
+    EXPECT_NEAR(dir.v[0], dir_x, tol);
+    EXPECT_NEAR(dir.v[1], dir_y, tol);
+    EXPECT_NEAR(dir.v[2], dir_z, tol);
+  };
+
+  // Nearest point is on the bottom triangle.
+  // The sampled direction should be -z unit vector.
+  EquilateralTetrahedron p1(0, 0, -0.1);
+  CheckSampledEPADirection(p1.polytope(), (const ccd_pt_el_t*)p1.f(0), 0, 0, -1,
+                           1E-8);
+  // Nearest point is on an edge, as the origin is on an edge.
+  EquilateralTetrahedron p2(0, 0.5 / std::sqrt(3), 0);
+  if (p2.e(0)->faces[0] == p2.f(0)) {
+    CheckSampledEPADirection(p2.polytope(), (const ccd_pt_el_t*)p2.e(0), 0, 0,
+                             -1, 1E-8);
+  } else {
+    CheckSampledEPADirection(p2.polytope(), (const ccd_pt_el_t*)p2.e(0), 0,
+                             -std::sqrt(6) / 3, std::sqrt(3) / 3, 1E-8);
+  }
+  // Nearest point is on a vertex, should throw an error.
+  EquilateralTetrahedron p3(-0.5, 0.5 / std::sqrt(3), 0);
+  EXPECT_THROW(libccd_extension::sampledEPADirection(
+                   p3.polytope(), (const ccd_pt_el_t*)p3.v(0)),
+               std::runtime_error);
 }
 
 GTEST_TEST(FCL_GJK_EPA, outsidePolytopeFace) {
