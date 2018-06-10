@@ -231,15 +231,15 @@ void TestBoxes(S tol) {
   //---------------------------------------------------------------
   //                      Touching contact
   // An edge of box 2 is touching a face of box 1
-  //X_WB2.translation() << -1, 0, 0.5;
-  //CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+  X_WB2.translation() << -1, 0, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
   // Shift box 2 on y axis by 0.1m. 
   X_WB2.translation() << -1, 0.1, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
   // Shift box 2 on y axis by -0.1m. 
-  /*X_WB2.translation() << -1, -0.1, 0.5;
+  X_WB2.translation() << -1, -0.1, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
   //--------------------------------------------------------------
@@ -254,15 +254,11 @@ void TestBoxes(S tol) {
 
   // Shift box 2 on y axis by -0.05m. 
   X_WB2.translation() << -0.9, -0.05, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);*/
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
-  /*
-   * TODO(hongkai.dai@tri.global): enable this test. This test case exposes a
-   * bug in FCL's code, as summarized in issue #301. I will enable this test
-   * once #301 is fixed.
   // Shift box 2 on y axis by -0.1m. 
-  X_WB2.translation() << -0.9, -0.1 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);*/
+  X_WB2.translation() << -0.9, -0.1, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, box_box) {
@@ -270,7 +266,7 @@ GTEST_TEST(FCL_GJKSignedDistance, box_box) {
   // the default value (1E-6), the tolerance we get on the closest points are
   // only up to 1E-3. Should investigate why there is such a big difference.
   TestBoxes<double>(1E-3);
-  //TestBoxes<float>(1E-3);
+  TestBoxes<float>(1E-3);
 }
 }  // namespace detail
 }  // namespace fcl
