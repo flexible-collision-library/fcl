@@ -1091,7 +1091,7 @@ static ccd_vec3_t sampledEPADirection(const ccd_pt_t* polytope,
     // nearest_pt is the origin.
     switch (nearest_pt->type) {
       case CCD_PT_VERTEX: {
-        throw std::logic_error(
+        throw std::runtime_error(
             "The nearest point to the origin is a vertex of the polytope. This "
             "should be identified as a touching contact, before calling this "
             "function.");
@@ -1119,7 +1119,6 @@ static ccd_vec3_t sampledEPADirection(const ccd_pt_t* polytope,
 }
 
 /** Finds next support point (and stores it in out argument).
- * Returns 0 on success, -1 otherwise
  * @param[in] polytope The current polytope contained inside the Minkowski sum
  * A⊖B.
  * @param[in] obj1 Geometric object A.
@@ -1128,6 +1127,14 @@ static ccd_vec3_t sampledEPADirection(const ccd_pt_t* polytope,
  * @param[in] el The current nearest point on the boundary of the polytope to
  * the origin. 
  * @param[out] out The next support point.
+ * @retval status If the program converges, then return -1. Otherwise return 0.
+ * There are several cases that the program could converge.
+ * 1. If the nearest point on the boundary of the polytope to the origin is a
+ * vertex of the polytope. Then we know the two objects A and B are in touching
+ * contact.
+ * 2. If the difference between the upper bound and lower bound of the distance
+ * is below sqrt(ccd->epa_tolerance), then we converge to a distance whose
+ * difference from the real distance is less than sqrt(ccd->epa_tolerance).
  */
 static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
                        const void* obj2, const ccd_t* ccd,
