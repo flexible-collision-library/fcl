@@ -105,7 +105,7 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
         libccd_extension::faceNormalPointingOutward(p.polytope(), p.f(i));
     for (int j = 0; j < 4; ++j) {
       EXPECT_LE(ccdVec3Dot(&n, &p.v(j)->v.v),
-                ccdVec3Dot(&n, &p.f(i)->edge[0]->vertex[0]->v.v) + 1E-10);
+                ccdVec3Dot(&n, &p.f(i)->edge[0]->vertex[0]->v.v) + 1E-8);
     }
   }
 }
