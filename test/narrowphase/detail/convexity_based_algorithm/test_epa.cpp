@@ -155,20 +155,27 @@ GTEST_TEST(FCL_GJK_EPA, outsidePolytopeFace) {
 //         ╲╱
 class Hexagram {
  public:
-  Hexagram() : polytope_(new ccd_pt_t) {
+  Hexagram(ccd_real_t bottom_center_x = 0, ccd_real_t bottom_center_y = 0,
+           ccd_real_t bottom_center_z = 0)
+      : polytope_(new ccd_pt_t) {
     ccdPtInit(polytope_);
+    auto AddHexagramVertex = [bottom_center_x, bottom_center_y, bottom_center_z,
+                              this](ccd_real_t x, ccd_real_t y, ccd_real_t z) {
+      return ccdPtAddVertexCoords(this->polytope_, x + bottom_center_x,
+                                  y + bottom_center_y, z + bottom_center_z);
+    };
     // right corner of upper triangle
-    v_[0] = ccdPtAddVertexCoords(polytope_, 0.5, -1 / std::sqrt(3), 1);
+    v_[0] = AddHexagramVertex(0.5, -1 / std::sqrt(3), 1);
     // bottom corner of lower triangle
-    v_[1] = ccdPtAddVertexCoords(polytope_, 0, -2 / std::sqrt(3), 0);
+    v_[1] = AddHexagramVertex(0, -2 / std::sqrt(3), 0);
     // left corner of upper triangle
-    v_[2] = ccdPtAddVertexCoords(polytope_, -0.5, -1 / std::sqrt(3), 1);
+    v_[2] = AddHexagramVertex(-0.5, -1 / std::sqrt(3), 1);
     // left corner of lower triangle
-    v_[3] = ccdPtAddVertexCoords(polytope_, -0.5, 1 / std::sqrt(3), 0);
+    v_[3] = AddHexagramVertex(-0.5, 1 / std::sqrt(3), 0);
     // top corner of upper triangle
-    v_[4] = ccdPtAddVertexCoords(polytope_, 0, 2 / std::sqrt(3), 1);
+    v_[4] = AddHexagramVertex(0, 2 / std::sqrt(3), 1);
     // right corner of lower triangle
-    v_[5] = ccdPtAddVertexCoords(polytope_, 0.5, 1 / std::sqrt(3), 0);
+    v_[5] = AddHexagramVertex(0.5, 1 / std::sqrt(3), 0);
 
     // edges on the upper triangle
     e_[0] = ccdPtAddEdge(polytope_, v_[0], v_[2]);
@@ -320,23 +327,6 @@ GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette4) {
                            {1, 2, 3, 4}, {0, 1}, {0});
 }
 
-template <typename T>
-void ComparePolytopeFeature(const ccd_list_t* features_list1,
-                            const ccd_list_t* features_list2) {
-  std::unordered_set<T *> features1, features2;
-  T* feature;
-  ccdListForEachEntry(features_list1, feature, T, list) {
-    features1.insert(feature);
-  }
-  ccdListForEachEntry(features_list2, feature, T, list) {
-    features2.insert(feature);
-  }
-  EXPECT_EQ(features1.size(), features2.size());
-  for (const auto& f : features1) {
-    EXPECT_TRUE(IsElementInSet(features2, f));
-  }
-}
-
 // Returns true if the the position difference between the two vertices are
 // below tol.
 bool VertexPositionCoincide(const ccd_pt_vertex_t* v1,
@@ -385,6 +375,9 @@ bool TriangleMatch(
   return true;
 }
 
+// Construct the mapping from feature1_list to feature2_list. There should be a
+// one-to-one correspondence between feature1_list and feature2_list.
+// @param feature1_list[in]
 template <typename T>
 void MapFeature1ToFeature2(
     const ccd_list_t* feature1_list, const ccd_list_t* feature2_list,
@@ -410,7 +403,8 @@ void MapFeature1ToFeature2(
     }
     EXPECT_TRUE(found_match);
   }
-  // Every feature in feature1_list should be matched to a feature in feature2_list.
+  // Every feature in feature1_list should be matched to a feature in
+  // feature2_list.
   EXPECT_EQ(map_feature1_to_feature2->size(), feature1->size());
 }
 
@@ -491,7 +485,7 @@ void ComparePolytope(const ccd_pt_t* polytope1, const ccd_pt_t* polytope2,
         (f2_expected[0] == e2->faces[1] && f2_expected[1] == e2->faces[0]));
   }
 }
-/*
+
 GTEST_TEST(FCL_GJK_EPA, expandPolytope1) {
   // Expand the equilateral tetrahedron by adding a point just outside one of
   // the triangle face. That nearest triangle face will be deleted, and the
@@ -523,16 +517,12 @@ GTEST_TEST(FCL_GJK_EPA, expandPolytope1) {
         ccdPtAddEdge(polytope_expected, new_vertex, tetrahedron.v(i));
   }
   // Add new faces.
-  ccd_pt_face_t* new_faces[3];
-  new_faces[0] = ccdPtAddFace(polytope_expected, tetrahedron.e(0), new_edges[0],
-                              new_edges[1]);
-  new_faces[1] = ccdPtAddFace(polytope_expected, tetrahedron.e(1), new_edges[1],
-                              new_edges[2]);
-  new_faces[2] = ccdPtAddFace(polytope_expected, tetrahedron.e(2), new_edges[2],
-                              new_edges[0]);
+  ccdPtAddFace(polytope_expected, tetrahedron.e(0), new_edges[0], new_edges[1]);
+  ccdPtAddFace(polytope_expected, tetrahedron.e(1), new_edges[1], new_edges[2]);
+  ccdPtAddFace(polytope_expected, tetrahedron.e(2), new_edges[2], new_edges[0]);
 
   ComparePolytope(polytope.polytope(), polytope_expected, 1E-3);
-}*/
+}
 
 GTEST_TEST(FCL_GJK_EPA, expandPolytope2) {
   // Expand the equilateral tetrahedron by adding a point just outside one edge.
@@ -569,17 +559,104 @@ GTEST_TEST(FCL_GJK_EPA, expandPolytope2) {
   new_edges[2] = ccdPtAddEdge(polytope_expected, new_vertex, tetrahedron.v(2));
   new_edges[3] = ccdPtAddEdge(polytope_expected, new_vertex, tetrahedron.v(3));
   // Add new faces.
-  ccd_pt_face_t* new_faces[4];
-  new_faces[0] = ccdPtAddFace(polytope_expected, tetrahedron.e(3), new_edges[0],
-                              new_edges[3]);
-  new_faces[1] = ccdPtAddFace(polytope_expected, tetrahedron.e(2), new_edges[0],
-                              new_edges[2]);
-  new_faces[2] = ccdPtAddFace(polytope_expected, tetrahedron.e(4), new_edges[1],
-                              new_edges[3]);
-  new_faces[3] = ccdPtAddFace(polytope_expected, tetrahedron.e(1), new_edges[1],
-                              new_edges[2]);
+  ccdPtAddFace(polytope_expected, tetrahedron.e(3), new_edges[0], new_edges[3]);
+  ccdPtAddFace(polytope_expected, tetrahedron.e(2), new_edges[0], new_edges[2]);
+  ccdPtAddFace(polytope_expected, tetrahedron.e(4), new_edges[1], new_edges[3]);
+  ccdPtAddFace(polytope_expected, tetrahedron.e(1), new_edges[1], new_edges[2]);
 
   ComparePolytope(polytope.polytope(), polytope_expected, 1E-3);
+}
+
+GTEST_TEST(FCL_GJK_EPA, expandPolytope3) {
+  // Expand the Hexagram by adding a point just above the upper triangle.
+  // The upper triangle will be deleted. Three new faces will be added, by
+  // connecting the new vertex with the three vertices of the removed triangle.
+  Hexagram hex(0, 0, -0.9);
+  // nearest point is on the top triangle
+  ccd_support_t newv;
+  newv.v.v[0] = 0;
+  newv.v.v[1] = 0;
+  newv.v.v[2] = 0.2;
+
+  const int result = libccd_extension::expandPolytope(
+      hex.polytope(), (ccd_pt_el_t*)hex.f(0), &newv);
+  EXPECT_EQ(result, 0);
+
+  // Construct the expanded polytope manually.
+  Hexagram hex_duplicate(0, 0, -0.9);
+  ccd_pt_t* polytope_expected = hex_duplicate.polytope();
+  // Remove the upper triangle.
+  ccdPtDelFace(polytope_expected, hex_duplicate.f(0));
+
+  // Add the new vertex.
+  ccd_pt_vertex_t* new_vertex = ccdPtAddVertexCoords(
+      polytope_expected, newv.v.v[0], newv.v.v[1], newv.v.v[2]);
+  // Add the new edges.
+  ccd_pt_edge_t* new_edges[3];
+  new_edges[0] =
+      ccdPtAddEdge(polytope_expected, new_vertex, hex_duplicate.v(0));
+  new_edges[1] =
+      ccdPtAddEdge(polytope_expected, new_vertex, hex_duplicate.v(2));
+  new_edges[2] =
+      ccdPtAddEdge(polytope_expected, new_vertex, hex_duplicate.v(4));
+  // Add the new faces.
+  ccdPtAddFace(polytope_expected, new_edges[0], new_edges[1],
+               hex_duplicate.e(0));
+  ccdPtAddFace(polytope_expected, new_edges[1], new_edges[2],
+               hex_duplicate.e(1));
+  ccdPtAddFace(polytope_expected, new_edges[2], new_edges[0],
+               hex_duplicate.e(2));
+
+  ComparePolytope(hex.polytope(), polytope_expected, 1E-3);
+}
+
+GTEST_TEST(FCL_GJK_EPA, expandPolytope4) {
+  // Expand the Hexagram by adding a point above the upper triangle by a certain
+  // height, such that the new vertex can see the upper triangle, together with
+  // the three triangles on the side of the hexagram. All these four triangles
+  // will be removed. 6 new faces will be added by connecting the new vertex,
+  // with eah vertex in the old hexagram.
+  Hexagram hex(0, 0, -0.9);
+  // nearest point is on the top triangle
+  ccd_support_t newv;
+  newv.v.v[0] = 0;
+  newv.v.v[1] = 0;
+  newv.v.v[2] = 1.2;
+
+  const int result = libccd_extension::expandPolytope(
+      hex.polytope(), (ccd_pt_el_t*)hex.f(0), &newv);
+  EXPECT_EQ(result, 0);
+
+  // Construct the expanded polytope manually.
+  Hexagram hex_duplicate(0, 0, -0.9);
+  ccd_pt_t* polytope_expected = hex_duplicate.polytope();
+  // Remove the upper triangle.
+  ccdPtDelFace(polytope_expected, hex_duplicate.f(0));
+  // Remove the triangles on the side, which consists of two vertices on the
+  // upper triangle, and one vertex on the lower triangle.
+  ccdPtDelFace(polytope_expected, hex_duplicate.f(2));
+  ccdPtDelFace(polytope_expected, hex_duplicate.f(4));
+  ccdPtDelFace(polytope_expected, hex_duplicate.f(6));
+  // Remove the edges of the upper triangle.
+  ccdPtDelEdge(polytope_expected, hex_duplicate.e(0));
+  ccdPtDelEdge(polytope_expected, hex_duplicate.e(1));
+  ccdPtDelEdge(polytope_expected, hex_duplicate.e(2));
+
+  // Add the new vertex.
+  ccd_pt_vertex_t* new_vertex = ccdPtAddVertexCoords(
+      polytope_expected, newv.v.v[0], newv.v.v[1], newv.v.v[2]);
+  // Add the new edges.
+  ccd_pt_edge_t* new_edges[6];
+  for (int i = 0; i < 6; ++i) {
+    new_edges[i] =
+        ccdPtAddEdge(polytope_expected, new_vertex, hex_duplicate.v(i));
+  }
+  // Add the new faces.
+  for (int i = 0; i < 6; ++i) {
+    ccdPtAddFace(polytope_expected, new_edges[i % 6], new_edges[(i + 1) % 6],
+                 hex_duplicate.e(i + 6));
+  }
+  ComparePolytope(hex.polytope(), polytope_expected, 1E-3);
 }
 }  // namespace detail
 }  // namespace fcl
