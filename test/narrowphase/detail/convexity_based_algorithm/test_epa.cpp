@@ -270,10 +270,12 @@ GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette1) {
   p.v[0] = 0;
   p.v[1] = 0;
   p.v[2] = 1.1;
-  CheckFloodFillSilhouette(hex, hex.f(0), {0}, p, {0}, {0}, {});
+  const std::unordered_set<int> empty_set;
+  CheckFloodFillSilhouette(hex, hex.f(0), {0}, p, {0}, {0}, empty_set);
 
   // Run silhouette algorithm for the other edges
-  CheckFloodFillSilhouette(hex, hex.f(0), {0, 1, 2}, p, {0, 1, 2}, {0}, {});
+  CheckFloodFillSilhouette(hex, hex.f(0), {0, 1, 2}, p, {0, 1, 2}, {0},
+                           empty_set);
 }
 
 GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette2) {
@@ -377,7 +379,14 @@ bool TriangleMatch(
 
 // Construct the mapping from feature1_list to feature2_list. There should be a
 // one-to-one correspondence between feature1_list and feature2_list.
-// @param feature1_list[in]
+// @param feature1_list[in] A list of features to be mapped from.
+// @param feature2_list[in] A list of features to be mapped to.
+// @param cmp_feature[in] Returns true if two features are identical, otherwise
+// returns false.
+// @param feature1[out] The set of features in feature1_list.
+// @param feature2[out] The set of features in feature2_list.
+// @param map_feature1_to_feature2[out] Maps a feature in feature1_list to
+// a feature in feature2_list.
 template <typename T>
 void MapFeature1ToFeature2(
     const ccd_list_t* feature1_list, const ccd_list_t* feature2_list,
