@@ -124,16 +124,17 @@ GTEST_TEST(FCL_GJK_EPA, sampledEPADirection) {
   // Nearest point is on the bottom triangle.
   // The sampled direction should be -z unit vector.
   EquilateralTetrahedron p1(0, 0, -0.1);
+  const ccd_real_t tol = 1E-6;
   CheckSampledEPADirection(p1.polytope(), (const ccd_pt_el_t*)p1.f(0), 0, 0, -1,
-                           1E-8);
+                           tol);
   // Nearest point is on an edge, as the origin is on an edge.
   EquilateralTetrahedron p2(0, 0.5 / std::sqrt(3), 0);
   if (p2.e(0)->faces[0] == p2.f(0)) {
     CheckSampledEPADirection(p2.polytope(), (const ccd_pt_el_t*)p2.e(0), 0, 0,
-                             -1, 1E-8);
+                             -1, tol);
   } else {
     CheckSampledEPADirection(p2.polytope(), (const ccd_pt_el_t*)p2.e(0), 0,
-                             -std::sqrt(6) / 3, std::sqrt(3) / 3, 1E-8);
+                             -std::sqrt(6) / 3, std::sqrt(3) / 3, tol);
   }
   // Nearest point is on a vertex, should throw an error.
   EquilateralTetrahedron p3(-0.5, 0.5 / std::sqrt(3), 0);
