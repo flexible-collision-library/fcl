@@ -867,6 +867,7 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
   //    new vertex is outside of that face. Algebraiclly, a face can be seen
   //    from the new vertex if
   //    face.normal.dot(new_vertex) > face.normal.dot(face.vertex[0])
+  //    where face.normal points outward from the polytope.
   // 2. For each edge, if both neighbouring faces of the edge is removed, then
   //    remove that edge.
   // 3. For each vertex, if all edges connecting that vertex is removed, then
@@ -880,6 +881,15 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
   // face on which the closest point lives, and then do a depth-first search on
   // its neighbouring triangles, until the triangle cannot be seen from the new
   // vertex.
+  // TODO(hongkai.dai@tri.global): it is inefficient to store obsolete
+  // faces/edges. A better implementation should remove obsolete faces/edges
+  // inside silhouetteFloodFill function, when travering the faces on the
+  // polytope. We focus on the correctness in the first place. Later
+  // when we make sure that the whole EPA implementation is bug free, we will
+  // improve the performance.
+  //
+  // Traverse the polytope faces to determine which face/edge shall be obsolete,
+  // together with the silhouette edges.
   std::unordered_set<ccd_pt_face_t*> obsolete_faces;
   std::unordered_set<ccd_pt_edge_t*> obsolete_edges;
   std::unordered_set<ccd_pt_edge_t*> silhouette_edges;
@@ -1540,6 +1550,7 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
  * the polytope.
  * @param[out] p1 the deepest penetration point on A.
  * @param[out] p2 the deepest penetration point on B.
+ * @retval status Return 0 on success, and -1 on failure.
  */
 static int penEPAPosClosest(const ccd_pt_t *pt, const ccd_pt_el_t *nearest,
                             ccd_vec3_t *p1, ccd_vec3_t* p2)
@@ -1547,7 +1558,7 @@ static int penEPAPosClosest(const ccd_pt_t *pt, const ccd_pt_el_t *nearest,
   // We reconstruct the simplex on which the nearest point lives, and then
   // compute the deepest penetration point on each geometric objects.
   if (nearest->type == CCD_PT_VERTEX) {
-    ccd_pt_vertex_t* v = ccdListEntry(&nearest->list, ccd_pt_vertex_t, list);
+    ccd_pt_vertex_t* v = (ccd_pt_vertex_t*)nearest;
     if(v == NULL) {
       return -1;
     }
@@ -1555,20 +1566,23 @@ static int penEPAPosClosest(const ccd_pt_t *pt, const ccd_pt_el_t *nearest,
     ccdVec3Copy(p2, &v->v.v2);
     return 0;
   } else {
+    // (hongkai.dai@tri.global): I highly suspect this case should only
+    // happen very rarely. Theoretically if the origin is strictly within the
+    // interior of the polytope, then the nearest point should be an interior
+    // point of a face. The only case that the nearest point is on an edge, is
+    // when the two objects are in touching contact (namely the distance is 0),
+    // and the origin is exactly on an edge of the polytope. 
     ccd_simplex_t s;
     ccdSimplexInit(&s);
     if (nearest->type == CCD_PT_EDGE) {
-      ccd_pt_edge_t* e = ccdListEntry(&nearest->list, ccd_pt_edge_t, list);
+      ccd_pt_edge_t* e = (ccd_pt_edge_t*)nearest;
       if (e == NULL) {
         return -1;
       }
       ccdSimplexAdd(&s, &(e->vertex[0]->v));
       ccdSimplexAdd(&s, &(e->vertex[1]->v));
     } else if (nearest->type == CCD_PT_FACE) {
-      // TODO(hongkai.dai): this case is not properly tested in the unit test,
-      // as the test on this code exposes another bug in FCL, as summarized in
-      // the issue #301. I will properly test this branch once #301 if fixed.
-      ccd_pt_face_t* f = ccdListEntry(&nearest->list, ccd_pt_face_t, list);
+      ccd_pt_face_t* f = (ccd_pt_face_t*)nearest;
       if (f == NULL) {
         return -1;
       }
@@ -1585,8 +1599,9 @@ static int penEPAPosClosest(const ccd_pt_t *pt, const ccd_pt_el_t *nearest,
       for (int i = 0; i < 2; ++i) {
         ccd_pt_vertex_t* third_vertex = f->edge[1]->vertex[i];
         if (third_vertex != f->edge[0]->vertex[0] &&
-            f->edge[1]->vertex[0] != f->edge[0]->vertex[0]) {
+            third_vertex != f->edge[0]->vertex[1]) {
           ccdSimplexAdd(&s, &(third_vertex->v));
+          //break;
         }
       }
     } else {

@@ -700,6 +700,116 @@ GTEST_TEST(FCL_GJK_EPA, expandPolytope4) {
   }
   ComparePolytope(hex.polytope(), polytope_expected, 1E-3);
 }
+
+void CompareCcdVec3(const ccd_vec3_t& v, const ccd_vec3_t& v_expected,
+                    ccd_real_t tol) {
+  for (int i = 0; i < 3; ++i) {
+    EXPECT_NEAR(v.v[i], v_expected.v[i], tol);
+  }
+}
+
+GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest1) {
+  // The nearest point is a vertex on the polytope.
+  // tetrahedron.v(0) is the origin.
+  EquilateralTetrahedron tetrahedron(-0.5, 0.5 / std::sqrt(3), 0);
+  // Make sure that v1 - v2 = v.
+  tetrahedron.v(0)->v.v1.v[0] = 1;
+  tetrahedron.v(0)->v.v1.v[1] = 2;
+  tetrahedron.v(0)->v.v1.v[2] = 3;
+  for (int i = 0; i < 3; ++i) {
+    tetrahedron.v(0)->v.v2.v[i] = tetrahedron.v(0)->v.v1.v[i];
+  }
+  ccd_vec3_t p1, p2;
+  EXPECT_EQ(libccd_extension::penEPAPosClosest(
+                tetrahedron.polytope(), (const ccd_pt_el_t*)tetrahedron.v(0),
+                &p1, &p2),
+            0);
+  CompareCcdVec3(p1, tetrahedron.v(0)->v.v1, 1E-14);
+  CompareCcdVec3(p2, tetrahedron.v(0)->v.v2, 1E-14);
+}
+
+GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest2) {
+  // The nearest point is on an edge of the polytope.
+  // tetrahedron.e(0) contains the origin.
+  EquilateralTetrahedron tetrahedron(0, 0.5 / std::sqrt(3), 0);
+  // e(0) connects two vertices v(0) and v(1), make sure that v(0).v1 - v(0).v2
+  // = v(0).v, also v(1).v1 - v(1).v2 = v(1).v
+  tetrahedron.v(0)->v.v1.v[0] = 1;
+  tetrahedron.v(0)->v.v1.v[1] = 2;
+  tetrahedron.v(0)->v.v1.v[2] = 3;
+  tetrahedron.v(1)->v.v1.v[0] = 4;
+  tetrahedron.v(1)->v.v1.v[1] = 5;
+  tetrahedron.v(1)->v.v1.v[2] = 6;
+  for (int i = 0; i < 2; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      tetrahedron.v(i)->v.v2.v[j] =
+          tetrahedron.v(i)->v.v1.v[j] - tetrahedron.v(i)->v.v.v[j];
+    }
+  }
+  // Notice that origin = 0.5*v(0).v + 0.5*v(1).v
+  // So p1 = 0.5*v(0).v1 + 0.5*v(1).v1
+  //    p2 = 0.5*v(0).v2 + 0.5*v(1).v2
+  ccd_vec3_t p1, p2;
+  EXPECT_EQ(libccd_extension::penEPAPosClosest(
+                tetrahedron.polytope(), (const ccd_pt_el_t*)tetrahedron.e(0),
+                &p1, &p2),
+            0);
+  ccd_vec3_t p1_expected, p2_expected;
+  ccdVec3Copy(&p1_expected, &tetrahedron.v(0)->v.v1);
+  ccdVec3Add(&p1_expected, &tetrahedron.v(1)->v.v1);
+  ccdVec3Scale(&p1_expected, ccd_real_t(0.5));
+  ccdVec3Copy(&p2_expected, &tetrahedron.v(0)->v.v2);
+  ccdVec3Add(&p2_expected, &tetrahedron.v(1)->v.v2);
+  ccdVec3Scale(&p2_expected, ccd_real_t(0.5));
+
+  CompareCcdVec3(p1, p1_expected, 1E-6);
+  CompareCcdVec3(p2, p2_expected, 1E-6);
+}
+
+GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest3) {
+  // The nearest point is on a face of the polytope, It is the center of
+  // tetrahedron.f(0).
+  EquilateralTetrahedron tetrahedron(0, 0, -0.1);
+  // Assign v(i).v1 and v(i).v2 for i = 0, 1, 2, such that
+  // v(i).v = v(i).v1 - v(i).v2
+  tetrahedron.v(0)->v.v1.v[0] = 1;
+  tetrahedron.v(0)->v.v1.v[1] = 2;
+  tetrahedron.v(0)->v.v1.v[2] = 3;
+  tetrahedron.v(1)->v.v1.v[0] = 4;
+  tetrahedron.v(1)->v.v1.v[1] = 5;
+  tetrahedron.v(1)->v.v1.v[2] = 6;
+  tetrahedron.v(2)->v.v1.v[0] = 7;
+  tetrahedron.v(2)->v.v1.v[1] = 8;
+  tetrahedron.v(2)->v.v1.v[2] = 9;
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      tetrahedron.v(i)->v.v2.v[j] =
+          tetrahedron.v(i)->v.v1.v[j] - tetrahedron.v(i)->v.v.v[j];
+    }
+  }
+
+  ccd_vec3_t p1, p2;
+  EXPECT_EQ(libccd_extension::penEPAPosClosest(
+                tetrahedron.polytope(), (const ccd_pt_el_t*)tetrahedron.f(0),
+                &p1, &p2),
+            0);
+
+  // Notice that the nearest point = 1/3 * v(0).v + 1/3 * v(1).v + 1/3 * v(2).v
+  // So p1 = 1/3 * (v(0).v1 + v(1).v1 + v(2).v1)
+  //    p2 = 1/3 * (v(0).v2 + v(1).v2 + v(2).v2)
+  ccd_vec3_t p1_expected, p2_expected;
+  ccdVec3Copy(&p1_expected, &tetrahedron.v(0)->v.v1);
+  ccdVec3Add(&p1_expected, &tetrahedron.v(1)->v.v1);
+  ccdVec3Add(&p1_expected, &tetrahedron.v(2)->v.v1);
+  ccdVec3Scale(&p1_expected, ccd_real_t(1.0 / 3));
+  ccdVec3Copy(&p2_expected, &tetrahedron.v(0)->v.v2);
+  ccdVec3Add(&p2_expected, &tetrahedron.v(1)->v.v2);
+  ccdVec3Add(&p2_expected, &tetrahedron.v(2)->v.v2);
+  ccdVec3Scale(&p2_expected, ccd_real_t(1.0 / 3));
+
+  CompareCcdVec3(p1, p1_expected, 1E-6);
+  CompareCcdVec3(p2, p2_expected, 1E-6);
+}
 }  // namespace detail
 }  // namespace fcl
 
