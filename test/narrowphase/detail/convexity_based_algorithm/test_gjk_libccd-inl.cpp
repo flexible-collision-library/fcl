@@ -224,9 +224,12 @@ void TestBoxes(S tol) {
     GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o2);
   };
 
-  auto CheckBoxEdgeBoxFaceDistance = [&CheckDistance](const Transform3<S>& X_WB2, S tol) {
+  auto CheckBoxEdgeBoxFaceDistance = [&CheckDistance](
+      const Transform3<S>& X_WB2, S tol) {
     const double expected_distance = -X_WB2.translation()(0) - 1;
-    CheckDistance(X_WB2, expected_distance, Vector2<S>(-0.5, X_WB2.translation()(1)), Vector2<S>(X_WB2.translation()(0) + 0.5, X_WB2.translation()(1)), tol);
+    CheckDistance(
+        X_WB2, expected_distance, Vector2<S>(-0.5, X_WB2.translation()(1)),
+        Vector2<S>(X_WB2.translation()(0) + 0.5, X_WB2.translation()(1)), tol);
   };
   //---------------------------------------------------------------
   //                      Touching contact
@@ -234,11 +237,11 @@ void TestBoxes(S tol) {
   X_WB2.translation() << -1, 0, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
-  // Shift box 2 on y axis by 0.1m. 
+  // Shift box 2 on y axis by 0.1m.
   X_WB2.translation() << -1, 0.1, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
-  // Shift box 2 on y axis by -0.1m. 
+  // Shift box 2 on y axis by -0.1m.
   X_WB2.translation() << -1, -0.1, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
@@ -248,23 +251,22 @@ void TestBoxes(S tol) {
   X_WB2.translation() << -0.9, 0, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
-  // Shift box 2 on y axis by 0.1m. 
+  // Shift box 2 on y axis by 0.1m.
   X_WB2.translation() << -0.9, 0.1, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
-  // Shift box 2 on y axis by -0.05m. 
+  // Shift box 2 on y axis by -0.05m.
   X_WB2.translation() << -0.9, -0.05, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 
-  // Shift box 2 on y axis by -0.1m. 
+  // Shift box 2 on y axis by -0.1m.
   X_WB2.translation() << -0.9, -0.1, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, box_box) {
-  // TODO(hongkai.dai@tri.global): By setting gjkSolver.distance_tolerance to
-  // the default value (1E-6), the tolerance we get on the closest points are
-  // only up to 1E-3. Should investigate why there is such a big difference.
+  // By setting gjkSolver.distance_tolerance to the default value (1E-6), the
+  // tolerance we get on the closest points are only up to 1E-3
   TestBoxes<double>(1E-3);
   TestBoxes<float>(1E-3);
 }
