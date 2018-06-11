@@ -110,12 +110,12 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
   }
 }
 
-GTEST_TEST(FCL_GJK_EPA, sampledEPADirection) {
+GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
   auto CheckSampledEPADirection = [](
       const ccd_pt_t* polytope, const ccd_pt_el_t* nearest_pt, ccd_real_t dir_x,
       ccd_real_t dir_y, ccd_real_t dir_z, ccd_real_t tol) {
     const ccd_vec3_t dir =
-        libccd_extension::sampledEPADirection(polytope, nearest_pt);
+        libccd_extension::supportEPADirection(polytope, nearest_pt);
     EXPECT_NEAR(dir.v[0], dir_x, tol);
     EXPECT_NEAR(dir.v[1], dir_y, tol);
     EXPECT_NEAR(dir.v[2], dir_z, tol);
@@ -138,12 +138,12 @@ GTEST_TEST(FCL_GJK_EPA, sampledEPADirection) {
   }
   // Nearest point is on a vertex, should throw an error.
   EquilateralTetrahedron p3(-0.5, 0.5 / std::sqrt(3), 0);
-  EXPECT_THROW(libccd_extension::sampledEPADirection(
+  EXPECT_THROW(libccd_extension::supportEPADirection(
                    p3.polytope(), (const ccd_pt_el_t*)p3.v(0)),
                std::runtime_error);
 }
 
-GTEST_TEST(FCL_GJK_EPA, outsidePolytopeFace) {
+GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace) {
   EquilateralTetrahedron p;
 
   auto CheckPointOutsidePolytopeFace = [&p](ccd_real_t x, ccd_real_t y,
@@ -153,8 +153,8 @@ GTEST_TEST(FCL_GJK_EPA, outsidePolytopeFace) {
     pt.v[0] = x;
     pt.v[1] = y;
     pt.v[2] = z;
-    EXPECT_EQ(libccd_extension::outsidePolytopeFace(p.polytope(),
-                                                    p.f(face_index), &pt),
+    EXPECT_EQ(libccd_extension::isOutsidePolytopeFace(p.polytope(),
+                                                      p.f(face_index), &pt),
               is_outside_expected);
   };
 
@@ -262,7 +262,7 @@ bool IsElementInSet(const std::unordered_set<T>& S, const T& element) {
 }
 
 template <typename T>
-void CheckFloodFillSilhouette(
+void CheckFloodFillSilhouetteRecursive(
     const T& polytope, ccd_pt_face_t* face,
     const std::vector<int>& edge_indices, const ccd_vec3_t& new_vertex,
     const std::unordered_set<int>& silhouette_edge_indices_expected,
@@ -273,10 +273,40 @@ void CheckFloodFillSilhouette(
   obsolete_faces.insert(face);
   std::unordered_set<ccd_pt_edge_t*> obsolete_edges;
   for (const int edge_index : edge_indices) {
-    libccd_extension::floodFillSilhouette(polytope.polytope(), face, edge_index,
-                                          &new_vertex, &silhouette_edges,
-                                          &obsolete_faces, &obsolete_edges);
+    libccd_extension::floodFillSilhouetteRecursive(
+        polytope.polytope(), face, edge_index, &new_vertex, &silhouette_edges,
+        &obsolete_faces, &obsolete_edges);
   }
+
+  // Check silhouette_edges
+  EXPECT_EQ(silhouette_edges.size(), silhouette_edge_indices_expected.size());
+  for (const int edge_index : silhouette_edge_indices_expected) {
+    EXPECT_TRUE(IsElementInSet(silhouette_edges, polytope.e(edge_index)));
+  }
+  // Check obsolete_faces
+  EXPECT_EQ(obsolete_faces.size(), obsolete_face_indices_expected.size());
+  for (const int face_index : obsolete_face_indices_expected) {
+    EXPECT_TRUE(IsElementInSet(obsolete_faces, polytope.f(face_index)));
+  }
+  // Check obsolete_edges
+  EXPECT_EQ(obsolete_edges.size(), obsolete_edge_indices_expected.size());
+  for (const auto edge_index : obsolete_edge_indices_expected) {
+    EXPECT_TRUE(IsElementInSet(obsolete_edges, polytope.e(edge_index)));
+  }
+}
+
+template <typename T>
+void CheckFloodFillSilhouette(
+    const T& polytope, ccd_pt_face_t* face, const ccd_vec3_t& new_vertex,
+    const std::unordered_set<int>& silhouette_edge_indices_expected,
+    const std::unordered_set<int>& obsolete_face_indices_expected,
+    const std::unordered_set<int>& obsolete_edge_indices_expected) {
+  std::unordered_set<ccd_pt_edge_t*> silhouette_edges;
+  std::unordered_set<ccd_pt_face_t*> obsolete_faces;
+  std::unordered_set<ccd_pt_edge_t*> obsolete_edges;
+  libccd_extension::floodFillSilhouette(polytope.polytope(), face, &new_vertex,
+                                        &silhouette_edges, &obsolete_faces,
+                                        &obsolete_edges);
 
   // Check silhouette_edges
   EXPECT_EQ(silhouette_edges.size(), silhouette_edge_indices_expected.size());
@@ -304,11 +334,9 @@ GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette1) {
   p.v[1] = 0;
   p.v[2] = 1.1;
   const std::unordered_set<int> empty_set;
-  CheckFloodFillSilhouette(hex, hex.f(0), {0}, p, {0}, {0}, empty_set);
+  CheckFloodFillSilhouetteRecursive(hex, hex.f(0), {0}, p, {0}, {0}, empty_set);
 
-  // Run silhouette algorithm for the other edges
-  CheckFloodFillSilhouette(hex, hex.f(0), {0, 1, 2}, p, {0, 1, 2}, {0},
-                           empty_set);
+  CheckFloodFillSilhouette(hex, hex.f(0), p, {0, 1, 2}, {0}, empty_set);
 }
 
 GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette2) {
@@ -320,11 +348,10 @@ GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette2) {
   p.v[0] = 0;
   p.v[1] = 0;
   p.v[2] = 2.1;
-  CheckFloodFillSilhouette(hex, hex.f(0), {0}, p, {6, 7}, {0, 2}, {0});
+  CheckFloodFillSilhouetteRecursive(hex, hex.f(0), {0}, p, {6, 7}, {0, 2}, {0});
 
-  // Run silhouette algorithm for the other edges
-  CheckFloodFillSilhouette(hex, hex.f(0), {0, 1, 2}, p, {6, 7, 8, 9, 10, 11},
-                           {0, 2, 4, 6}, {0, 1, 2});
+  CheckFloodFillSilhouette(hex, hex.f(0), p, {6, 7, 8, 9, 10, 11}, {0, 2, 4, 6},
+                           {0, 1, 2});
 }
 
 GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette3) {
@@ -335,11 +362,9 @@ GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette3) {
   p.v[0] = 0;
   p.v[1] = -1 / std::sqrt(3) - 0.1;
   p.v[2] = 1.1;
-  CheckFloodFillSilhouette(hex, hex.f(0), {0}, p, {6, 7}, {0, 2}, {0});
+  CheckFloodFillSilhouetteRecursive(hex, hex.f(0), {0}, p, {6, 7}, {0, 2}, {0});
 
-  // Run silhouette algorithm for the other edges
-  CheckFloodFillSilhouette(hex, hex.f(0), {0, 1, 2}, p, {1, 2, 6, 7}, {0, 2},
-                           {0});
+  CheckFloodFillSilhouette(hex, hex.f(0), p, {1, 2, 6, 7}, {0, 2}, {0});
 }
 
 GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette4) {
@@ -354,12 +379,12 @@ GTEST_TEST(FCL_GJK_EPA, floodFillSilhouette4) {
   p.v[2] = -0.2;
 
   // Start with from face 0.
-  CheckFloodFillSilhouette(tetrahedron, tetrahedron.f(0), {0, 1, 2}, p,
-                           {1, 2, 3, 4}, {0, 1}, {0});
+  CheckFloodFillSilhouette(tetrahedron, tetrahedron.f(0), p, {1, 2, 3, 4},
+                           {0, 1}, {0});
 
   // Start with from face 1.
-  CheckFloodFillSilhouette(tetrahedron, tetrahedron.f(1), {0, 1, 2}, p,
-                           {1, 2, 3, 4}, {0, 1}, {0});
+  CheckFloodFillSilhouette(tetrahedron, tetrahedron.f(1), p, {1, 2, 3, 4},
+                           {0, 1}, {0});
 }
 
 // Returns true if the the position difference between the two vertices are
@@ -721,8 +746,7 @@ GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest1) {
   }
   ccd_vec3_t p1, p2;
   EXPECT_EQ(libccd_extension::penEPAPosClosest(
-                tetrahedron.polytope(), (const ccd_pt_el_t*)tetrahedron.v(0),
-                &p1, &p2),
+                (const ccd_pt_el_t*)tetrahedron.v(0), &p1, &p2),
             0);
   CompareCcdVec3(p1, tetrahedron.v(0)->v.v1, 1E-14);
   CompareCcdVec3(p2, tetrahedron.v(0)->v.v2, 1E-14);
@@ -751,8 +775,7 @@ GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest2) {
   //    p2 = 0.5*v(0).v2 + 0.5*v(1).v2
   ccd_vec3_t p1, p2;
   EXPECT_EQ(libccd_extension::penEPAPosClosest(
-                tetrahedron.polytope(), (const ccd_pt_el_t*)tetrahedron.e(0),
-                &p1, &p2),
+                (const ccd_pt_el_t*)tetrahedron.e(0), &p1, &p2),
             0);
   ccd_vec3_t p1_expected, p2_expected;
   ccdVec3Copy(&p1_expected, &tetrahedron.v(0)->v.v1);
@@ -790,8 +813,7 @@ GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest3) {
 
   ccd_vec3_t p1, p2;
   EXPECT_EQ(libccd_extension::penEPAPosClosest(
-                tetrahedron.polytope(), (const ccd_pt_el_t*)tetrahedron.f(0),
-                &p1, &p2),
+                (const ccd_pt_el_t*)tetrahedron.f(0), &p1, &p2),
             0);
 
   // Notice that the nearest point = 1/3 * v(0).v + 1/3 * v(1).v + 1/3 * v(2).v

@@ -78,10 +78,12 @@ void test_distance_spheresphere(GJKSolverType solver_type)
   res = distance(&s1, tf1, &s2, tf2, request, result);
 
   EXPECT_TRUE(res);
+  // request.distance_tolerance is actually the square of the distance
+  // tolerance, namely the difference between distance returned from FCL's EPA
+  // implementation and the actual distance, is less than
+  // sqrt(request.distance_tolerance).
   const S distance_tolerance = std::sqrt(request.distance_tolerance);
-  EXPECT_TRUE(std::abs(result.min_distance - (-5)) < distance_tolerance);
-  // TODO(JS): The negative distance computation using libccd requires
-  // unnecessarily high error tolerance.
+  EXPECT_NEAR(result.min_distance, -5, distance_tolerance);
 
   // TODO(JS): Only GST_LIBCCD can compute the pair of nearest points on the
   // surface of the spheres.
