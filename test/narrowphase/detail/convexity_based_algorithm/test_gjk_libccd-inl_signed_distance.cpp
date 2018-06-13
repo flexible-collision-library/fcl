@@ -33,6 +33,10 @@
  */
 
 /** @author Hongkai Dai */
+/**
+ * Test the signed distance query between two convex objects, whcn calling with 
+ * solver = GST_LIBCCD.
+ */
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd-inl.h"
 
 #include <gtest/gtest.h>
@@ -148,15 +152,15 @@ void TestNonCollidingSphereGJKSignedDistance(S tol) {
 GTEST_TEST(FCL_GJKSignedDistance, sphere_sphere) {
   // TODO(hongkai.dai@tri.global): By setting gjkSolver.distance_tolerance to
   // the default value (1E-6), the tolerance we get on the closest points are
-  // only up to 1E-3. Should investigate why there is such a big difference.
+  // only up to the square root of 1E-6, namely 1E-3. 
   TestNonCollidingSphereGJKSignedDistance<double>(1E-3);
   TestNonCollidingSphereGJKSignedDistance<float>(1E-3);
 }
 
 //----------------------------------------------------------------------------
 //                 Box test
-// Given two boxes, by changing the pose of one orientation, the boxes can
-// either penetrate, touching or separating.
+// Given two boxes, we can perturb the pose of one box so the boxes are
+// penetrating, touching or separated.
 template <typename S>
 struct BoxSpecification {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -168,41 +172,43 @@ struct BoxSpecification {
 };
 
 template <typename S>
-void TestBoxes(S tol) {
+void TestBoxes(S tol, const Eigen::Isometry3<S>& X_WF) {
   const fcl::Vector3<S> box1_size(1, 1, 1);
   const fcl::Vector3<S> box2_size(0.6, 0.8, 1);
-  // Put the two boxes on the xy plane.
+  // Put the two boxes on the xy plane of frame F.
   // B1 is the frame rigidly attached to box 1, B2 is the frame rigidly attached
-  // to box 2. W is the world frame. X_WB1 is the pose of box 1 expressed and
-  // measured in the world frame, X_WB2 is the pose of box 2 expressed and
-  // measured in the world frame.
-  fcl::Transform3<S> X_WB1, X_WB2;
+  // to box 2. W is the world frame. F is a frame fixed to the world. X_FB1 is
+  // the pose of box 1 expressed and measured in frame F, X_FB2 is the pose of
+  // box 2 expressed and measured in frame F.
+  fcl::Transform3<S> X_FB1, X_FB2;
   // Box 1 is fixed.
-  X_WB1.setIdentity();
-  X_WB1.translation() << 0, 0, 0.5;
+  X_FB1.setIdentity();
+  X_FB1.translation() << 0, 0, 0.5;
 
   // First fix the orientation of box 2, such that one of its diagonal (the one
   // connecting the vertex (0.3, -0.4, 1) and (-0.3, 0.4, 1) is horizontal. If
   // we move the position of box 2, we get different signed distance.
-  X_WB2.setIdentity();
-  X_WB2.linear() << 0.6, -0.8, 0, 0.8, 0.6, 0, 0, 0, 1;
+  X_FB2.setIdentity();
+  X_FB2.linear() << 0.6, -0.8, 0, 0.8, 0.6, 0, 0, 0, 1;
 
-  auto CheckDistance = [&box1_size, &box2_size, &X_WB1](
-      const Transform3<S>& X_WB2, S distance_expected,
-      const Vector2<S>& p_xy_WNa_expected, const Vector2<S>& p_xy_WNb_expected,
+  auto CheckDistance = [&box1_size, &box2_size, &X_FB1, &X_WF](
+      const Transform3<S>& X_FB2, S distance_expected,
+      const Vector2<S>& p_xy_FNa_expected, const Vector2<S>& p_xy_FNb_expected,
       S tol) {
+    const fcl::Transform3<S> X_WB1 = W_WF * WFB1;
+    const fcl::Transform3<S> X_WB2 = W_WF * WFB2;
     fcl::Box<S> box1(box1_size);
     fcl::Box<S> box2(box2_size);
     void* o1 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box1, X_WB1);
     void* o2 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box2, X_WB2);
     S dist;
-    Vector3<S> p1, p2;
+    Vector3<S> p_WNa, p_WNb;
     GJKSolver_libccd<S> gjkSolver;
     bool res = GJKSignedDistance(
         o1, detail::GJKInitializer<S, Box<S>>::getSupportFunction(), o2,
         detail::GJKInitializer<S, Box<S>>::getSupportFunction(),
         gjkSolver.max_distance_iterations, gjkSolver.distance_tolerance, &dist,
-        &p1, &p2);
+        &p_WNa, &p_WNb);
 
     if (distance_expected < 0) {
       EXPECT_FALSE(res);
@@ -211,57 +217,62 @@ void TestBoxes(S tol) {
     }
 
     EXPECT_NEAR(dist, distance_expected, tol);
-    EXPECT_TRUE(p1.template head<2>().isApprox(p_xy_WNa_expected, tol));
-    EXPECT_TRUE(p2.template head<2>().isApprox(p_xy_WNb_expected, tol));
+    const Vector3<S> p_FNa = X_WF.linear().transpose() * (p_WNa - X_WF.translation());
+    const Vector3<S> p_FNb = X_WF.linear().transpose() * (p_WNb - X_WF.translation());
+
+    EXPECT_TRUE(p_FNa.template head<2>().isApprox(p_xy_FNa_expected, tol));
+    EXPECT_TRUE(p_FNb.template head<2>().isApprox(p_xy_FNb_expected, tol));
     // The z height of the closest points should be the same.
-    EXPECT_NEAR(p1(2), p2(2), tol);
-    EXPECT_GE(p1(2), 0);
-    EXPECT_GE(p2(2), 0);
-    EXPECT_LE(p1(2), 1);
-    EXPECT_LE(p2(2), 1);
+    EXPECT_NEAR(p_FNa(2), p_FNb(2), tol);
+    // The closest point is within object A/B, so the z height should be within 
+    // [0, 1]
+    EXPECT_GE(p_FNa(2), 0);
+    EXPECT_GE(p_FNb(2), 0);
+    EXPECT_LE(p_FNa(2), 1);
+    EXPECT_LE(p_FNb(2), 1);
 
     GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o1);
     GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o2);
   };
 
   auto CheckBoxEdgeBoxFaceDistance = [&CheckDistance](
-      const Transform3<S>& X_WB2, S tol) {
-    const double expected_distance = -X_WB2.translation()(0) - 1;
+      const Transform3<S>& X_FB2, S tol) {
+    const double expected_distance = -X_FB2.translation()(0) - 1;
     CheckDistance(
-        X_WB2, expected_distance, Vector2<S>(-0.5, X_WB2.translation()(1)),
-        Vector2<S>(X_WB2.translation()(0) + 0.5, X_WB2.translation()(1)), tol);
+        X_FB2, expected_distance, Vector2<S>(-0.5, X_FB2.translation()(1)),
+        Vector2<S>(X_FB2.translation()(0) + 0.5, X_FB2.translation()(1)), tol);
   };
   //---------------------------------------------------------------
   //                      Touching contact
   // An edge of box 2 is touching a face of box 1
-  X_WB2.translation() << -1, 0, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+  X_FB2.translation() << -1, 0, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   // Shift box 2 on y axis by 0.1m.
-  X_WB2.translation() << -1, 0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+  X_FB2.translation() << -1, 0.1, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   // Shift box 2 on y axis by -0.1m.
-  X_WB2.translation() << -1, -0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+  X_FB2.translation() << -1, -0.1, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   //--------------------------------------------------------------
   //                      Penetrating contact
   // An edge of box 2 penetrates into a face of box 1
-  X_WB2.translation() << -0.9, 0, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+  X_FB2.translation() << -0.9, 0, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   // Shift box 2 on y axis by 0.1m.
-  X_WB2.translation() << -0.9, 0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+  X_FB2.translation() << -0.9, 0.1, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   // Shift box 2 on y axis by -0.05m.
-  X_WB2.translation() << -0.9, -0.05, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+  X_FB2.translation() << -0.9, -0.05, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   // Shift box 2 on y axis by -0.1m.
-  X_WB2.translation() << -0.9, -0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_WB2, tol);
+  X_FB2.translation() << -0.9, -0.1, 0.5;
+  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, box_box) {

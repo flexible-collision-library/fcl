@@ -150,7 +150,8 @@ GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
   // Nearest point is on the bottom triangle.
   // The sampled direction should be -z unit vector.
   EquilateralTetrahedron p1(0, 0, -0.1);
-  const ccd_real_t tol = 1E-6;
+  // The computation on Mac is very imprecise, thus the tolerance is big.
+  const ccd_real_t tol = 3E-5;
   CheckSupportEPADirection(p1.polytope(),
                            reinterpret_cast<const ccd_pt_el_t*>(p1.f(0)),
                            Vector3<ccd_real_t>(0, 0, -1), tol);
@@ -523,12 +524,12 @@ void MapFeature1ToFeature2(
   ccdListForEachEntry(feature1_list, f, T, list) {
     auto it = feature1->find(f);
     assert(it == feature1->end());
-    feature1->insert(f);
+    feature1->emplace_hint(it, f);
   }
   ccdListForEachEntry(feature2_list, f, T, list) {
     auto it = feature2->find(f);
     assert(it == feature2->end());
-    feature2->insert(f);
+    feature2->emplace_hint(it, f);
   }
   EXPECT_EQ(feature1->size(), feature2->size());
   for (const auto& f1 : *feature1) {
