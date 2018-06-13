@@ -726,8 +726,8 @@ static int simplexToPolytope4(const void *obj1, const void *obj2,
  * @param[in] polytope The polytope on which the face lives. We assume that the
  * origin also lives inside the polytope.
  * @param[in] face The face for which the unit length normal vector is computed.
- * @retval dir The unit length vector normal to the face, and points outward
- * from the polytope.
+ * @retval dir The vector normal to the face, and points outward from the
+ * polytope.
  */
 static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
                                             const ccd_pt_face_t* face) {
@@ -740,7 +740,8 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
               &(face->edge[1]->vertex[0]->v.v));
   ccd_vec3_t dir;
   // TODO(hongkai.dai): we ignore the degeneracy here, namely we assume e1 and
-  // e2 are not colinear.
+  // e2 are not colinear. We should check if e1 and e2 are colinear, and handle
+  // this corner case.
   ccdVec3Cross(&dir, &e1, &e2);
   ccd_real_t projection = ccdVec3Dot(&dir, &(face->edge[0]->vertex[0]->v.v));
   if (projection < 0) {
@@ -803,90 +804,97 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
 static bool isOutsidePolytopeFace(const ccd_pt_t* polytope,
                                 const ccd_pt_face_t* f, const ccd_vec3_t* pt) {
   ccd_vec3_t n = faceNormalPointingOutward(polytope, f);
-  ccd_vec3_t p_minus_v;
-  ccdVec3Sub2(&p_minus_v, pt, &(f->edge[0]->vertex[0]->v.v));
-  return ccdVec3Dot(&n, &p_minus_v) > 0;
+  // r_VP is the vector from a vertex V on the face `f`, to the point P `pt`.
+  ccd_vec3_t r_VP;
+  ccdVec3Sub2(&r_VP, pt, &(f->edge[0]->vertex[0]->v.v));
+  return ccdVec3Dot(&n, &r_VP) > 0;
 }
 
 /**
- * This function contains the implementation detail of floodFillSilhouette
- * function. This function will be called recursively. It first checks if
- * the face neighouring face `f` along the common edge `f->edge[edge_index]` can
- * be seen from the point `new_vertex`. We denote this face as "g", If this face
- * "g" cannot be seen, then stop. Otherwise, we continue to check the
- * neighbouring faces of "g", by calling this function recursively.
- * This function should not be called by any function other than
- * floodFillSilhouette.
+ * This function contains the implementation detail of ComputeVisiblePatch
+ * function. It should not be called by any function other than
+ * ComputeVisiblePatch.
  */
-static void floodFillSilhouetteRecursive(
-    const ccd_pt_t* polytope, const ccd_pt_face_t* f, int edge_index,
-    const ccd_vec3_t* new_vertex,
-    std::unordered_set<ccd_pt_edge_t*>* silhouette_edges,
-    std::unordered_set<ccd_pt_face_t*>* obsolete_faces,
-    std::unordered_set<ccd_pt_edge_t*>* obsolete_edges) {
-  ccd_pt_face_t* f_neighbour = f->edge[edge_index]->faces[0] == f
-                                   ? f->edge[edge_index]->faces[1]
-                                   : f->edge[edge_index]->faces[0];
-  if (obsolete_faces->count(f_neighbour) == 0) {
+static void ComputeVisiblePatchRecursive(
+    const ccd_pt_t& polytope, ccd_pt_face_t& f, int edge_index,
+    const ccd_vec3_t& query_point,
+    std::unordered_set<ccd_pt_edge_t*>* border_edges,
+    std::unordered_set<ccd_pt_face_t*>* visible_faces,
+    std::unordered_set<ccd_pt_edge_t*>* internal_edges) {
+  /*
+  This function will be called recursively. It first checks if
+  the face neighouring face `f` along the common edge `f->edge[edge_index]` can
+  be seen from the point `query_point`. We denote this face as "g", If this face
+  "g" cannot be seen, then stop. Otherwise, we continue to check the
+  neighbouring faces of "g", by calling this function recursively.
+  */
+  ccd_pt_face_t* f_neighbour = f.edge[edge_index]->faces[0] == &f
+                                   ? f.edge[edge_index]->faces[1]
+                                   : f.edge[edge_index]->faces[0];
+  if (visible_faces->count(f_neighbour) == 0) {
     // f_neighbour is not an obsolete face
-    if (!isOutsidePolytopeFace(polytope, f_neighbour, new_vertex)) {
+    if (!isOutsidePolytopeFace(&polytope, f_neighbour, &query_point)) {
       // Cannot see the neighbouring face from the new vertex.
-      silhouette_edges->insert(f->edge[edge_index]);
+      border_edges->insert(f.edge[edge_index]);
       return;
     } else {
-      obsolete_faces->insert(f_neighbour);
-      obsolete_edges->insert(f->edge[edge_index]);
+      visible_faces->insert(f_neighbour);
+      internal_edges->insert(f.edge[edge_index]);
       for (int i = 0; i < 3; ++i) {
-        if (f_neighbour->edge[i] != f->edge[edge_index]) {
+        if (f_neighbour->edge[i] != f.edge[edge_index]) {
           // One of the neighbouring face is `f`, so do not need to visit again.
-          floodFillSilhouetteRecursive(polytope, f_neighbour, i, new_vertex,
-                              silhouette_edges, obsolete_faces, obsolete_edges);
+          ComputeVisiblePatchRecursive(polytope, *f_neighbour, i, query_point,
+                                       border_edges, visible_faces,
+                                       internal_edges);
         }
       }
     }
   }
 }
 
-/**
- * Traverse the faces of the polytope, to find out all the faces that can be
- * seen from a point `new_vertex`. A face can be seen from a point outside
- * of the polytope, if the point lies on the outward side of the plane.
- * @param[in] f The starting face for the traversal. f is a face that can be
- * seen from the new vertex. 
- * @param[in] new_vertex A point ouside of the polytope.
- * @param[out] silhouette_edges If one of the neighbouring faces cannot be
- * seen from the new vertex, and one of the neighbouring faces is visible from
- * @p new_vertex, then the edge is a silhouette edge. silhouette_edges contains
- * all the silhouette edges on the polytope.
- * @param[out] obsolete_faces If the face can be seen from the new vertex, then
- * this face is obsolete. obsolete_faces contains all the obsolete faces on the
- * polytope.
- * @param[out] obsolete_edges If both of the neighbouring faces are obsolete,
- * then this edge is obsolete. obsolete_edges contains all the obsolete edges
- * on the polytope.
- * @pre polytope is convex, new_vertex is outside of the polytope.
- * silhouette_edges, obsolete_faces and obsolete_edges cannot be null.
- * TODO(hongkai.dai): do not store obsolete_faces/edges in a set, but remove
- * them within this function. Also we can record the faces being visited, 
- * together with if they are visible/occuluded. So that we do not need to
- * compute if a face is visible for multiple times.
- */
-static void floodFillSilhouette(
-    const ccd_pt_t* polytope, ccd_pt_face_t* f,
-    const ccd_vec3_t* new_vertex,
-    std::unordered_set<ccd_pt_edge_t*>* silhouette_edges,
-    std::unordered_set<ccd_pt_face_t*>* obsolete_faces,
-    std::unordered_set<ccd_pt_edge_t*>* obsolete_edges) {
-  assert(obsolete_faces->empty());
-  assert(silhouette_edges->empty());
-  assert(obsolete_edges->empty());
-  assert(silhouette_edges);
-  assert(obsolete_faces);
-  assert(obsolete_edges);
-  obsolete_faces->insert(f);
+/** Defines the "visible" patch on the given convex `polytope` (with respect to
+ the given `query_vertex`).
+
+ A patch is characterized by:
+   - a contiguous set of visible faces
+   - internal edges (the edges for which *both* adjacent faces are in the patch)
+   - border edges (edges for which only *one* adjacent face is in the patch)
+
+ A face `f` (with vertices `(v₀, v₁, v₂)` and outward pointing normal `n̂`) is
+ "visible" and included in the patch if, for query vertex `q`:
+
+    `n̂ ⋅ (q - v₀) > 0`
+
+ Namely the query vertex `q` is on the "outer" side of the face `f`.
+
+@param polytope             The polytope to evaluate.
+@param f                    A face known to be visible to the query point.
+@param query_point          The point from which visibility is evaluated.
+@param[out] border_edges    The collection of patch border edges.
+@param[out] visible_faces   The collection of patch faces.
+@param[out] internal_edges  The collection of internal edges.
+
+@pre The `polytope` is convex.
+@pre The face `f` is visible from `query_point`.
+@pre Output parameters are non-null.
+**/
+static void ComputeVisiblePatch(
+    const ccd_pt_t& polytope, ccd_pt_face_t& f,
+    const ccd_vec3_t& query_point,
+    std::unordered_set<ccd_pt_edge_t*>* border_edges,
+    std::unordered_set<ccd_pt_face_t*>* visible_faces,
+    std::unordered_set<ccd_pt_edge_t*>* internal_edges) {
+  assert(border_edges);
+  assert(visible_faces);
+  assert(internal_edges);
+  assert(border_edges->empty());
+  assert(visible_faces->empty());
+  assert(internal_edges->empty());
+  assert(isOutsidePolytopeFace(&polytope, &f, &query_point));
+  visible_faces->insert(&f);
   for (int i = 0; i < 3; ++i) {
-    floodFillSilhouetteRecursive(polytope, f, i, new_vertex, silhouette_edges,
-                                 obsolete_faces, obsolete_edges);
+    ComputeVisiblePatchRecursive(polytope, f, i, query_point, border_edges,
+                                 visible_faces, internal_edges);
   }
 }
 
@@ -897,43 +905,34 @@ static void floodFillSilhouette(
  * existing edges). We only keep the edges and faces that are on the boundary
  * of the new polytope. The edges/faces on the original polytope that would be
  * interior to the new convex hull are discarded.
- * @param[in/out] pt The polytope.
+ * @param[in/out] polytope The polytope.
  * @param[in] el A feature that is visible from the point `newv`. A face is
  * visible from a point ouside the original polytope, if the point is on the
  * "outer" side of the face. An edge is visible from that point, if one of its
- * neighbouring faces is visible. 
+ * neighbouring faces is visible. This feature contains the point that is
+ * closest to the origin on the boundary of the polytope.
  * @param[in] newv The new vertex add to the polytope.
  * @retval status Returns 0 on success. Returns -2 otherwise. 
  */
-static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
+static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
                           const ccd_support_t *newv)
 {
   // The outline of the algorithm is as follows:
-  // 1. Remove all the faces that can be seen from the new vertex, namely the
-  //    new vertex is outside of that face. Algebraiclly, a face can be seen
-  //    from the new vertex if
-  //    face.normal.dot(new_vertex) > face.normal.dot(face.vertex[0])
-  //    where face.normal points outward from the polytope.
-  // 2. For each edge, if both neighbouring faces of the edge is removed, then
-  //    remove that edge.
-  // 3. If an edge has one of its neighbouring face being removed, and one of
-  //    its neighbouring face is preserved, we call this edge "silhouette edge".
-  //    We connect the new vertex to each boundary edge, to form new faces and
-  //    new edges.
-  
+  //  1. Compute the visible patch relative to the new vertex (See
+  //  ComputeVisiblePatch() for details).
+  //  2. Delete the faces and internal edges.
+  //  3. Build a new face from each border edge and the new vertex.
+
   // To remove all faces that can be seen from the new vertex, we start with the
   // face on which the closest point lives, and then do a depth-first search on
   // its neighbouring triangles, until the triangle cannot be seen from the new
   // vertex.
-  // TODO(hongkai.dai@tri.global): it is inefficient to store obsolete
-  // faces/edges. A better implementation should remove obsolete faces/edges
-  // inside silhouetteFloodFill function, when travering the faces on the
-  // polytope. We focus on the correctness in the first place. Later
-  // when we make sure that the whole EPA implementation is bug free, we will
-  // improve the performance.
-  //
-  // Traverse the polytope faces to determine which face/edge shall be obsolete,
-  // together with the silhouette edges.
+  // TODO(hongkai.dai@tri.global): it is inefficient to store visible 
+  // faces/edges. A better implementation should remove visible faces and
+  // internal edges inside ComputeVisiblePatch() function, when traversing the
+  // faces on the polytope. We focus on the correctness in the first place.
+  // Later when we make sure that the whole EPA implementation is bug free, we
+  // will improve the performance.
 
   ccd_pt_face_t* start_face = NULL;
   // If the feature is a point, in the EPA algorithm, this means that the two
@@ -942,14 +941,14 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
   assert(el->type != CCD_PT_VERTEX);
   // Start with the face on which the closest point lives
   if (el->type == CCD_PT_FACE) {
-    start_face = (ccd_pt_face_t*)el;
+    start_face = reinterpret_cast<ccd_pt_face_t*>(el);
   } else if (el->type == CCD_PT_EDGE) {
     // Check the two neighbouring faces of the edge.
     ccd_pt_face_t* f[2];
-    ccdPtEdgeFaces((ccd_pt_edge_t*)el, &f[0], &f[1]);
-    if (isOutsidePolytopeFace(pt, f[0], &newv->v)) {
+    ccdPtEdgeFaces(reinterpret_cast<ccd_pt_edge_t*>(el), &f[0], &f[1]);
+    if (isOutsidePolytopeFace(polytope, f[0], &newv->v)) {
       start_face = f[0];
-    } else if (isOutsidePolytopeFace(pt, f[1], &newv->v)) {
+    } else if (isOutsidePolytopeFace(polytope, f[1], &newv->v)) {
       start_face = f[1];
     } else {
       throw std::logic_error(
@@ -960,52 +959,55 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
     }
   }
 
-  std::unordered_set<ccd_pt_face_t*> obsolete_faces;
-  std::unordered_set<ccd_pt_edge_t*> obsolete_edges;
-  std::unordered_set<ccd_pt_edge_t*> silhouette_edges;
-  floodFillSilhouette(pt, start_face, &newv->v, &silhouette_edges,
-                      &obsolete_faces, &obsolete_edges);
+  std::unordered_set<ccd_pt_face_t*> visible_faces;
+  std::unordered_set<ccd_pt_edge_t*> internal_edges;
+  std::unordered_set<ccd_pt_edge_t*> border_edges;
+  ComputeVisiblePatch(*polytope, *start_face, newv->v, &border_edges,
+                      &visible_faces, &internal_edges);
 
   // Now remove all the obsolete faces.
   // TODO(hongkai.dai@tri.global): currently we need to loop through each face
-  // in obsolete_faces, and then do a linear search in the list pt->faces to
+  // in visible_faces, and then do a linear search in the list pt->faces to
   // delete `face`. It would be better if we only loop through the list
-  // pt->faces for once. Same for the edges.
-  for (const auto& f : obsolete_faces) {
-    ccdPtDelFace(pt, f);
+  // polytope->faces for once. Same for the edges.
+  for (const auto& f : visible_faces) {
+    ccdPtDelFace(polytope, f);
   }
 
   // Now remove all the obsolete edges.
-  for (const auto& e : obsolete_edges) {
-    ccdPtDelEdge(pt, e);
+  for (const auto& e : internal_edges) {
+    ccdPtDelEdge(polytope, e);
   }
   // A vertex cannot be obsolete, since a vertex is always on the boundary of
-  // the Minkowski difference A⊖B.
+  // the Minkowski difference A ⊖ B.
+  // TODO(hongkai.dai@tri.global): as a sanity check, we should make sure that
+  // all vertices has at least one face/edge invisible from the new vertex
+  // `newv`.
   
   // Now add the new vertex.
-  ccd_pt_vertex_t* new_vertex = ccdPtAddVertex(pt, newv);
+  ccd_pt_vertex_t* new_vertex = ccdPtAddVertex(polytope, newv);
 
   // Now add the new edges and faces, by connecting the new vertex with vertices
-  // on silhouette_edges. map_vertex_to_new_edge maps a vertex on the silhouette
+  // on border_edges. map_vertex_to_new_edge maps a vertex on the silhouette
   // edges to a new edge, with one end being the new vertex, and the other end
   // being that vertex on the silhouette edges.
   std::unordered_map<ccd_pt_vertex_t*, ccd_pt_edge_t*> map_vertex_to_new_edge;
-  for (const auto& silhouette_edge : silhouette_edges) {
+  for (const auto& border_edge : border_edges) {
     ccd_pt_edge_t* e[2];  // The two new edges added by connecting new_vertex
-                          // to the two vertices on silhouette_edge.
+                          // to the two vertices on border_edge.
     for (int i = 0; i < 2; ++i) {
-      auto it = map_vertex_to_new_edge.find(silhouette_edge->vertex[i]);
+      auto it = map_vertex_to_new_edge.find(border_edge->vertex[i]);
       if (it == map_vertex_to_new_edge.end()) {
         // This edge has not been added yet.
-        e[i] = ccdPtAddEdge(pt, new_vertex, silhouette_edge->vertex[i]);
-        map_vertex_to_new_edge.emplace_hint(it, silhouette_edge->vertex[i],
+        e[i] = ccdPtAddEdge(polytope, new_vertex, border_edge->vertex[i]);
+        map_vertex_to_new_edge.emplace_hint(it, border_edge->vertex[i],
                                             e[i]);
       } else {
         e[i] = it->second;
       }
     }
     // Now add the face.
-    ccdPtAddFace(pt, silhouette_edge, e[0], e[1]);
+    ccdPtAddFace(polytope, border_edge, e[0], e[1]);
   }
 
   return 0;
@@ -1016,10 +1018,6 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
  * boundary to the origin, a support direction will be computed, to find the
  * support of the Minkowski difference A ⊖ B along that direction, so as to
  * expand the polytope.
- * If we denote the nearest point as v, when the v is not the origin, then the
- * support direction is v. If v is the origin, then v should be an interior
- * point on a face, and the support direction is the normal of that face,
- * pointing outward from the polytope.
  * @param polytope The polytope contained in A ⊖ B.
  * @param nearest_pt The nearest point on the boundary of the polytope to the
  * origin.
@@ -1028,6 +1026,13 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
  */
 static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
                                       const ccd_pt_el_t* nearest_pt) {
+
+  /*
+  If we denote the nearest point as v, when v is not the origin, then the
+  support direction is v. If v is the origin, then v should be an interior
+  point on a face, and the support direction is the normal of that face,
+  pointing outward from the polytope.
+  */
   ccd_vec3_t dir;
   if (ccdIsZero(nearest_pt->dist)) {
     // nearest_pt is the origin.
@@ -1036,15 +1041,16 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
         throw std::runtime_error(
             "The nearest point to the origin is a vertex of the polytope. This "
             "should be identified as a touching contact, before calling "
-            "function supportEPADirection");
+            "function supportEPADirection()");
       }
       case CCD_PT_EDGE: {
         // When the nearest point is on an edge, the origin must be on that
         // edge. The support direction could be in the range between
         // edge.faces[0].normal and edge.faces[1].normal, where the face normals
-        // point outward from the polytope. In this implementatin, we
+        // point outward from the polytope. In this implementation, we
         // arbitrarily choose faces[0] normal.
-        ccd_pt_edge_t* edge = (ccd_pt_edge_t*)nearest_pt;
+        const ccd_pt_edge_t* edge =
+            reinterpret_cast<const ccd_pt_edge_t*>(nearest_pt);
         dir = faceNormalPointingOutward(polytope, edge->faces[0]);
         ccdVec3Normalize(&dir);
         break;
@@ -1052,8 +1058,10 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
       case CCD_PT_FACE: {
         // If origin is an interior point of a face, then choose the normal of
         // that face as the sample direction.
-        ccd_pt_face_t* face = (ccd_pt_face_t*)nearest_pt;
+        const ccd_pt_face_t* face =
+            reinterpret_cast<const ccd_pt_face_t*>(nearest_pt);
         dir = faceNormalPointingOutward(polytope, face);
+
         ccdVec3Normalize(&dir);
         break;
       }
@@ -1076,8 +1084,9 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
  * @param[in] el The current nearest point on the boundary of the polytope to
  * the origin. 
  * @param[out] out The next support point.
- * @retval status If the program converges, then return -1. Otherwise return 0.
- * There are several cases that the program could converge.
+ * @retval status If the next support point is found, then returns 0; otherwise
+ * returns -1. There are several reasons why the newxt support point is not
+ * found:
  * 1. If the nearest point on the boundary of the polytope to the origin is a
  * vertex of the polytope. Then we know the two objects A and B are in touching
  * contact.
@@ -1101,7 +1110,7 @@ static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
   // determine whether we expanded a polytope surrounding the origin a bit.
   dist = ccdVec3Dot(&out->v, &dir);
 
-  // el->dist is the squared distance from the feature "el".
+  // el->dist is the squared distance from the feature "el" to the origin..
   // dist is an upper bound on the distance from the boundary of the Minkowski
   // difference to the origin, and sqrt(el->dist) is a lower bound of that
   // distance.
@@ -1109,13 +1118,13 @@ static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
 
   if (el->type == CCD_PT_EDGE) {
     // fetch end points of edge
-    ccdPtEdgeVec3((ccd_pt_edge_t*)el, &a, &b);
+    ccdPtEdgeVec3(reinterpret_cast<const ccd_pt_edge_t*>(el), &a, &b);
 
     // get distance from segment
     dist = ccdVec3PointSegmentDist2(&out->v, a, b, NULL);
   } else {  // el->type == CCD_PT_FACE
     // fetch vertices of triangle face
-    ccdPtFaceVec3((ccd_pt_face_t*)el, &a, &b, &c);
+    ccdPtFaceVec3(reinterpret_cast<const ccd_pt_face_t*>(el), &a, &b, &c);
 
     // check if new point can significantly expand polytope
     dist = ccdVec3PointTriDist2(&out->v, a, b, c, NULL);
@@ -1621,9 +1630,6 @@ static int penEPAPosClosest(const ccd_pt_el_t* nearest, ccd_vec3_t* p1,
   // the reconstructed simplex has size up to 3 (at most 3 vertices).
   if (nearest->type == CCD_PT_VERTEX) {
     ccd_pt_vertex_t* v = (ccd_pt_vertex_t*)nearest;
-    if(v == NULL) {
-      return -1;
-    }
     ccdVec3Copy(p1, &v->v.v1);
     ccdVec3Copy(p2, &v->v.v2);
     return 0;
@@ -1631,17 +1637,11 @@ static int penEPAPosClosest(const ccd_pt_el_t* nearest, ccd_vec3_t* p1,
     ccd_simplex_t s;
     ccdSimplexInit(&s);
     if (nearest->type == CCD_PT_EDGE) {
-      ccd_pt_edge_t* e = (ccd_pt_edge_t*)nearest;
-      if (e == NULL) {
-        return -1;
-      }
+      const ccd_pt_edge_t* e = reinterpret_cast<const ccd_pt_edge_t*>(nearest);
       ccdSimplexAdd(&s, &(e->vertex[0]->v));
       ccdSimplexAdd(&s, &(e->vertex[1]->v));
     } else if (nearest->type == CCD_PT_FACE) {
-      ccd_pt_face_t* f = (ccd_pt_face_t*)nearest;
-      if (f == NULL) {
-        return -1;
-      }
+      const ccd_pt_face_t* f = reinterpret_cast<const ccd_pt_face_t*>(nearest);
       // The face triangle has three edges, each edge consists of two end
       // points, so there are 6 end points in total, each vertex of the triangle
       // appears twice among the 6 end points. We need to choose the three
@@ -1657,13 +1657,13 @@ static int penEPAPosClosest(const ccd_pt_el_t* nearest, ccd_vec3_t* p1,
         if (third_vertex != f->edge[0]->vertex[0] &&
             third_vertex != f->edge[0]->vertex[1]) {
           ccdSimplexAdd(&s, &(third_vertex->v));
-          //break;
+          break;
         }
       }
     } else {
       throw std::logic_error(
           "Unsupported point type. The closest point should be either a "
-          "vertex, on an edge, or an a face.\n");
+          "vertex, on an edge, or on a face.");
     }
     // Now compute the closest point in the simplex.
     // TODO(hongkai.dai@tri.global): we do not need to compute the closest point
