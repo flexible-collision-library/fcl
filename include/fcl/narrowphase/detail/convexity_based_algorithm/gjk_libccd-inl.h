@@ -811,6 +811,46 @@ static bool isOutsidePolytopeFace(const ccd_pt_t* polytope,
 }
 
 /**
+ * The invariant for computing the visible patch is that for each edge in the
+ * polytope, if both neighbouring faces are visible, then the edge is an
+ * internal edge; if only one neighbouring face is visible, then the edge
+ * is a border edge. Throws a runtime error if the sanity check fails.
+ * For each face, if one of its edges is an internal edge, then the face is
+ * visible.
+ */
+static bool ComputeVisiblePatchRecursiveSanityCheck(
+    const ccd_pt_t& polytope,
+    const std::unordered_set<ccd_pt_edge_t*>& border_edges,
+    const std::unordered_set<ccd_pt_face_t*>& visible_faces,
+    const std::unordered_set<ccd_pt_edge_t*>& internal_edges) {
+  ccd_pt_face_t* f;
+  ccdListForEachEntry(&polytope.faces, f, ccd_pt_face_t, list) {
+    bool is_edge_internal = false;
+    for (int i = 0; i < 3; ++i) {
+      if (internal_edges.count(f->edge[i]) == 1) {
+        is_edge_internal = true;
+        break;
+      }
+    }
+    if (is_edge_internal) {
+      assert(visible_faces.count(f) == 1);
+    }
+  }
+  ccd_pt_edge_t* e;
+  ccdListForEachEntry(&polytope.edges, e, ccd_pt_edge_t, list) {
+    if (visible_faces.count(e->faces[0]) == 1 &&
+        visible_faces.count(e->faces[1]) == 1) {
+      assert(internal_edges.count(e) == 1);
+    } else if (visible_faces.count(e->faces[0]) +
+                   visible_faces.count(e->faces[1]) ==
+               1) {
+      assert(border_edges.count(e) == 1);
+    }
+  }
+  return true;
+}
+
+/**
  * This function contains the implementation detail of ComputeVisiblePatch
  * function. It should not be called by any function other than
  * ComputeVisiblePatch.
@@ -850,6 +890,8 @@ static void ComputeVisiblePatchRecursive(
       }
     }
   }
+  assert(ComputeVisiblePatchRecursiveSanityCheck(
+      polytope, *border_edges, *visible_faces, *internal_edges));
 }
 
 /** Defines the "visible" patch on the given convex `polytope` (with respect to
@@ -978,6 +1020,13 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   for (const auto& e : internal_edges) {
     ccdPtDelEdge(polytope, e);
   }
+
+  ccd_pt_edge_t* e;
+  ccdListForEachEntry(&polytope->edges, e, ccd_pt_edge_t, list) {
+    if (e->faces[0] == NULL && e->faces[1] == NULL) {
+      std::cout << "error";
+    }
+  }
   // A vertex cannot be obsolete, since a vertex is always on the boundary of
   // the Minkowski difference A ⊖ B.
   // TODO(hongkai.dai@tri.global): as a sanity check, we should make sure that
@@ -1008,6 +1057,11 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
     }
     // Now add the face.
     ccdPtAddFace(polytope, border_edge, e[0], e[1]);
+  }
+  ccdListForEachEntry(&polytope->edges, e, ccd_pt_edge_t, list) {
+    if (e->faces[0] == NULL || e->faces[1] == NULL) {
+      std::cout << "error";
+    }
   }
 
   return 0;
