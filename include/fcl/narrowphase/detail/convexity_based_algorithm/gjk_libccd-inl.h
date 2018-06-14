@@ -558,90 +558,83 @@ simplexToPolytope2_not_touching_contact:
     return 0;
 }
 
-
 /** Transforms simplex to polytope, three vertices required */
-static int simplexToPolytope3(const void *obj1, const void *obj2,
-                              const ccd_t *ccd,
-                              const ccd_simplex_t *simplex,
-                              ccd_pt_t *pt, ccd_pt_el_t **nearest)
-{
-    const ccd_support_t *a, *b, *c;
-    ccd_support_t d, d2;
-    ccd_vec3_t ab, ac, dir;
-    ccd_pt_vertex_t *v[5];
-    ccd_pt_edge_t *e[9];
-    ccd_real_t dist, dist2;
+static int simplexToPolytope3(const void* obj1, const void* obj2,
+                              const ccd_t* ccd, const ccd_simplex_t* simplex,
+                              ccd_pt_t* pt, ccd_pt_el_t** nearest) {
+  const ccd_support_t *a, *b, *c;
+  ccd_support_t d, d2;
+  ccd_vec3_t ab, ac, dir;
+  ccd_pt_vertex_t* v[4];
+  ccd_pt_edge_t* e[6];
+  ccd_real_t dist, dist2;
 
-    *nearest = NULL;
+  *nearest = NULL;
 
-    a = ccdSimplexPoint(simplex, 0);
-    b = ccdSimplexPoint(simplex, 1);
-    c = ccdSimplexPoint(simplex, 2);
+  a = ccdSimplexPoint(simplex, 0);
+  b = ccdSimplexPoint(simplex, 1);
+  c = ccdSimplexPoint(simplex, 2);
 
-    // If only one triangle left from previous GJK run origin lies on this
-    // triangle. So it is necessary to expand triangle into two
-    // tetrahedrons connected with base (which is exactly abc triangle).
+  // If only one triangle left from previous GJK run origin lies on this
+  // triangle. So it is necessary to expand triangle into two
+  // tetrahedrons connected with base (which is exactly abc triangle).
 
-    // get next support point in direction of normal of triangle
-    ccdVec3Sub2(&ab, &b->v, &a->v);
-    ccdVec3Sub2(&ac, &c->v, &a->v);
-    ccdVec3Cross(&dir, &ab, &ac);
-    __ccdSupport(obj1, obj2, &dir, ccd, &d);
-    dist = ccdVec3PointTriDist2(&d.v, &a->v, &b->v, &c->v, NULL);
+  // get next support point in direction of normal of triangle
+  ccdVec3Sub2(&ab, &b->v, &a->v);
+  ccdVec3Sub2(&ac, &c->v, &a->v);
+  ccdVec3Cross(&dir, &ab, &ac);
+  __ccdSupport(obj1, obj2, &dir, ccd, &d);
+  dist = ccdVec3PointTriDist2(&d.v, &a->v, &b->v, &c->v, NULL);
 
-    // and second one take in opposite direction
-    ccdVec3Scale(&dir, -CCD_ONE);
-    __ccdSupport(obj1, obj2, &dir, ccd, &d2);
-    dist2 = ccdVec3PointTriDist2(&d2.v, &a->v, &b->v, &c->v, NULL);
+  // and second one take in opposite direction
+  ccdVec3Scale(&dir, -CCD_ONE);
+  __ccdSupport(obj1, obj2, &dir, ccd, &d2);
+  dist2 = ccdVec3PointTriDist2(&d2.v, &a->v, &b->v, &c->v, NULL);
 
-    // check if face isn't already on edge of minkowski sum and thus we
-    // have touching contact
-    if (ccdIsZero(dist) || ccdIsZero(dist2)){
-        v[0] = ccdPtAddVertex(pt, a);
-        v[1] = ccdPtAddVertex(pt, b);
-        v[2] = ccdPtAddVertex(pt, c);
-        e[0] = ccdPtAddEdge(pt, v[0], v[1]);
-        e[1] = ccdPtAddEdge(pt, v[1], v[2]);
-        e[2] = ccdPtAddEdge(pt, v[2], v[0]);
-        *nearest = (ccd_pt_el_t *)ccdPtAddFace(pt, e[0], e[1], e[2]);
-        if (*nearest == NULL)
-            return -2;
-
-        return -1;
-    }
-
-    // form polyhedron
+  // check if face isn't already on edge of minkowski sum and thus we
+  // have touching contact
+  if (ccdIsZero(dist) || ccdIsZero(dist2)) {
     v[0] = ccdPtAddVertex(pt, a);
     v[1] = ccdPtAddVertex(pt, b);
     v[2] = ccdPtAddVertex(pt, c);
-    v[3] = ccdPtAddVertex(pt, &d);
-    v[4] = ccdPtAddVertex(pt, &d2);
+    e[0] = ccdPtAddEdge(pt, v[0], v[1]);
+    e[1] = ccdPtAddEdge(pt, v[1], v[2]);
+    e[2] = ccdPtAddEdge(pt, v[2], v[0]);
+    *nearest = (ccd_pt_el_t*)ccdPtAddFace(pt, e[0], e[1], e[2]);
+    if (*nearest == NULL) return -2;
+
+    return -1;
+  }
+  // Form a tetrahedron with abc as one face, pick either d or d2, based
+  // on which one has larger distance to the face abc.
+
+  auto FormTetrahedron = [pt, a, b, c, &v, &e](ccd_support_t& new_support) {
+    v[0] = ccdPtAddVertex(pt, a);
+    v[1] = ccdPtAddVertex(pt, b);
+    v[2] = ccdPtAddVertex(pt, c);
+    v[3] = ccdPtAddVertex(pt, &new_support);
 
     e[0] = ccdPtAddEdge(pt, v[0], v[1]);
     e[1] = ccdPtAddEdge(pt, v[1], v[2]);
     e[2] = ccdPtAddEdge(pt, v[2], v[0]);
-
-    e[3] = ccdPtAddEdge(pt, v[3], v[0]);
-    e[4] = ccdPtAddEdge(pt, v[3], v[1]);
-    e[5] = ccdPtAddEdge(pt, v[3], v[2]);
-
-    e[6] = ccdPtAddEdge(pt, v[4], v[0]);
-    e[7] = ccdPtAddEdge(pt, v[4], v[1]);
-    e[8] = ccdPtAddEdge(pt, v[4], v[2]);
-
-    if (ccdPtAddFace(pt, e[3], e[4], e[0]) == NULL
-            || ccdPtAddFace(pt, e[4], e[5], e[1]) == NULL
-            || ccdPtAddFace(pt, e[5], e[3], e[2]) == NULL
-
-            || ccdPtAddFace(pt, e[6], e[7], e[0]) == NULL
-            || ccdPtAddFace(pt, e[7], e[8], e[1]) == NULL
-            || ccdPtAddFace(pt, e[8], e[6], e[2]) == NULL){
-        return -2;
+    e[3] = ccdPtAddEdge(pt, v[0], v[3]);
+    e[4] = ccdPtAddEdge(pt, v[1], v[3]);
+    e[5] = ccdPtAddEdge(pt, v[2], v[3]);
+    if (ccdPtAddFace(pt, e[0], e[1], e[2]) == NULL ||
+        ccdPtAddFace(pt, e[0], e[3], e[4]) == NULL ||
+        ccdPtAddFace(pt, e[1], e[4], e[5]) == NULL ||
+        ccdPtAddFace(pt, e[2], e[5], e[3]) == NULL) {
+      return -2;
     }
-
     return 0;
-}
+  };
 
+  if (std::abs(dist) > std::abs(dist2)) {
+    return FormTetrahedron(d);
+  } else {
+    return FormTetrahedron(d2);
+  }
+}
 
 /** Transforms simplex to polytope. It is assumed that simplex has 4
  *  vertices! */
@@ -743,15 +736,29 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
   // e2 are not colinear. We should check if e1 and e2 are colinear, and handle
   // this corner case.
   ccdVec3Cross(&dir, &e1, &e2);
+  const ccd_real_t dir_norm = std::sqrt(ccdVec3Len2(&dir));
+  // If the distance from a vertex to the face is above dist_tol, then we regard
+  // the distance is large enough, such that we can say which side of the vertex
+  // is in, with respect to the face.
+  // The choice of 1cm is arbitrary here. We could choose any threshold here,
+  // since if we do not find any vertices whose distance to the plane is less
+  // than 1cm, the function will proceed to record the maximal/minimal
+  // distance among all vertices, and then choose whether to flip the dir
+  // vector based on the maximal/minimal distance. The value of the tolerance
+  // determines whether the function needs to loop through all the vertices
+  // or not. Thus by choosing a different threshold, the computation time of
+  // this function would change, but the result is the same.
+  const ccd_real_t dist_tol = 0.01;
+  ccd_real_t tol = dist_tol * dir_norm;
   ccd_real_t projection = ccdVec3Dot(&dir, &(face->edge[0]->vertex[0]->v.v));
-  if (projection < 0) {
-    // This means dir.dot(origin) = 0 > dir.dot(face.v).
-    // The origin is on the outward direction along `dir`. Since origin is
+  if (projection < -tol) {
+    // This means that the origin is at least with distance "dist_tol" to the
+    // plane, and it is on the outward direction along `dir`. Since origin is
     // within the polytope, this means `dir` points into the polytope, so we
     // should flip the direction.
     ccdVec3Scale(&dir, ccd_real_t(-1));
-  } else if (ccdIsZero(projection)) {
-    // The origin is on the face. Pick another vertex to test the normal
+  } else if (projection >= -tol && projection <= tol) {
+    // The origin is close to the face. Pick another vertex to test the normal
     // direction. 
     ccd_real_t max_projection = -CCD_REAL_MAX;
     ccd_real_t min_projection = CCD_REAL_MAX;
@@ -759,15 +766,6 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
     // If the magnitude of the projection is larger than tolerance, then it
     // means one of the vertices is at least 1cm away from the plane coinciding
     // with the face.
-    // The choice of 1cm is arbitrary here. We could choose any threshold here,
-    // since if we do not find any vertices whose distance to the plane is less
-    // than 1cm, the function will proceed to record the maximal/minimal
-    // distance among all vertices, and then choose whether to flip the dir
-    // vector based on the maximal/minimal distance. The value of the tolerance
-    // determines whether the function needs to loop through all the vertices
-    // or not. Thus by choosing a different threshold, the computation time of
-    // this function would change, but the result is the same.
-    ccd_real_t tol = 1E-2 * std::sqrt(ccdVec3Len2(&dir));
     ccdListForEachEntry(&polytope->vertices, v, ccd_pt_vertex_t, list) {
       projection = ccdVec3Dot(&dir, &(v->v.v)); 
       if (projection > tol) {
