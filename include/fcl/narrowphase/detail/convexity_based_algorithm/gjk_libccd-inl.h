@@ -889,9 +889,12 @@ static void ComputeVisiblePatchRecursive(
         }
       }
     }
+  } else {
+    // for f.edge[edge_index], its two neighbouring faces are
+    // f and f_neighbour, both faces are visible, so f.edge[edge_index]
+    // is an internal edge.
+    internal_edges->insert(f.edge[edge_index]);
   }
-  assert(ComputeVisiblePatchRecursiveSanityCheck(
-      polytope, *border_edges, *visible_faces, *internal_edges));
 }
 
 /** Defines the "visible" patch on the given convex `polytope` (with respect to
@@ -938,6 +941,8 @@ static void ComputeVisiblePatch(
     ComputeVisiblePatchRecursive(polytope, f, i, query_point, border_edges,
                                  visible_faces, internal_edges);
   }
+  assert(ComputeVisiblePatchRecursiveSanityCheck(
+      polytope, *border_edges, *visible_faces, *internal_edges));
 }
 
 /** Expands the polytope by adding a new vertex @p newv to the polytope. The
@@ -1021,12 +1026,6 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
     ccdPtDelEdge(polytope, e);
   }
 
-  ccd_pt_edge_t* e;
-  ccdListForEachEntry(&polytope->edges, e, ccd_pt_edge_t, list) {
-    if (e->faces[0] == NULL && e->faces[1] == NULL) {
-      std::cout << "error";
-    }
-  }
   // A vertex cannot be obsolete, since a vertex is always on the boundary of
   // the Minkowski difference A ⊖ B.
   // TODO(hongkai.dai@tri.global): as a sanity check, we should make sure that
@@ -1057,11 +1056,6 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
     }
     // Now add the face.
     ccdPtAddFace(polytope, border_edge, e[0], e[1]);
-  }
-  ccdListForEachEntry(&polytope->edges, e, ccd_pt_edge_t, list) {
-    if (e->faces[0] == NULL || e->faces[1] == NULL) {
-      std::cout << "error";
-    }
   }
 
   return 0;
