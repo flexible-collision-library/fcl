@@ -216,7 +216,7 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
       EXPECT_TRUE(res);
     }
 
-    //EXPECT_NEAR(dist, distance_expected, tol);
+    EXPECT_NEAR(dist, distance_expected, tol);
     const Vector3<S> p_FNa =
         X_WF.linear().transpose() * (p_WNa - X_WF.translation());
     const Vector3<S> p_FNb =
@@ -247,12 +247,12 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
   //---------------------------------------------------------------
   //                      Touching contact
   // An edge of box 2 is touching a face of box 1
-  /*X_FB2.translation() << -1, 0, 0.5;
+  X_FB2.translation() << -1, 0, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   // Shift box 2 on y axis by 0.1m.
   X_FB2.translation() << -1, 0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);*/
+  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   // Shift box 2 on y axis by -0.1m.
   X_FB2.translation() << -1, -0.1, 0.5;
@@ -261,7 +261,7 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
   //--------------------------------------------------------------
   //                      Penetrating contact
   // An edge of box 2 penetrates into a face of box 1
-  /*X_FB2.translation() << -0.9, 0, 0.5;
+  X_FB2.translation() << -0.9, 0, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   // Shift box 2 on y axis by 0.1m.
@@ -274,14 +274,14 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
 
   // Shift box 2 on y axis by -0.1m.
   X_FB2.translation() << -0.9, -0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);*/
+  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 }
 
 template <typename S>
 void TestBoxes(S tol) {
   // Frame F coincides with the world frame W.
   Transform3<S> X_WF;
-  /*X_WF.setIdentity();
+  X_WF.setIdentity();
   TestBoxesInFrameF(tol, X_WF);
 
   // Frame F is shifted from the world frame W.
@@ -292,26 +292,32 @@ void TestBoxes(S tol) {
   TestBoxesInFrameF(tol, X_WF);
 
   X_WF.translation() << 1, 0, 0;
-  TestBoxesInFrameF(tol, X_WF);*/
+  TestBoxesInFrameF(tol, X_WF);
 
   // Frame F is rotated from the world frame W.
   X_WF.setIdentity();
-  X_WF.linear() = Eigen::AngleAxis<S>(0.1 * M_PI, Vector3<S>::UnitZ()).toRotationMatrix();
+  X_WF.linear() =
+      Eigen::AngleAxis<S>(0.1 * M_PI, Vector3<S>::UnitZ()).toRotationMatrix();
   TestBoxesInFrameF(tol, X_WF);
-  /*X_WF.linear() =
+
+  // TODO(hongkai.dai): This test exposes an error in simplexToPolytope4, that
+  // the initial simplex can be degenerate. Should add the special case on
+  // degenerate simplex in simplexToPolytope4.
+  /*X_WF.translation() << 0, 0, 0;
+  X_WF.linear() =
       Eigen::AngleAxis<S>(0.1 * M_PI, Vector3<S>(1.0 / 3, 2.0 / 3, -2.0 / 3))
           .toRotationMatrix();
-  TestBoxesInFrameF(tol, X_WF);
+  TestBoxesInFrameF(tol, X_WF);*/
 
   // Frame F is rotated and shifted from the world frame W.
   X_WF.translation() << 0.1, 0.2, 0.3;
-  TestBoxesInFrameF(tol, X_WF);*/
+  TestBoxesInFrameF(tol, X_WF);
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, box_box) {
   // By setting gjkSolver.distance_tolerance to the default value (1E-6), the
   // tolerance we get on the closest points are only up to 1E-3
-  //TestBoxes<double>(1E-3);
+  TestBoxes<double>(1E-3);
   TestBoxes<float>(1E-3);
 }
 }  // namespace detail
