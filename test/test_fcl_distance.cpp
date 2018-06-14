@@ -310,7 +310,7 @@ GTEST_TEST(FCL_DISTANCE, mesh_distance)
 
 template <typename S>
 void NearestPointFromDegenerateSimplex() {
-  // Tests an historical bug. In certain configurations, the distance query
+  // Tests a historical bug. In certain configurations, the distance query
   // would terminate with a degenerate 3-simplex; the triangle was actually a
   // line segment. As a result, nearest points were populated with NaN values.
   // See https://github.com/flexible-collision-library/fcl/issues/293 for
@@ -335,13 +335,17 @@ void NearestPointFromDegenerateSimplex() {
 
   EXPECT_NO_THROW(fcl::distance(&box_object_1, &box_object_2, request, result));
 
-  auto is_nan = [](const Vector3<S>& test_vector) {
-    using std::isnan;
-    return isnan(test_vector(0)) && isnan(test_vector(1)) &&
-        isnan(test_vector(2));
-  };
-  EXPECT_TRUE(is_nan(result.nearest_points[0]));
-  EXPECT_TRUE(is_nan(result.nearest_points[1]));
+  // The values here have been visually confirmed from the computation.
+  S expected_dist{0.053516322172152138};
+  Vector3<S> expected_p0{-1.375, -0.098881502700918666, -0.025000000000000022};
+  Vector3<S> expected_p1{0.21199965773384655, 0.074999692703297122,
+                         0.084299993303443954};
+  EXPECT_TRUE(nearlyEqual(result.nearest_points[0], expected_p0));
+  EXPECT_TRUE(nearlyEqual(result.nearest_points[1], expected_p1));
+  // TODO(SeanCurtis-TRI): Change this tolerance to constants<S>::eps_34() when
+  // the mac single/double libccd problem is resolved.
+  EXPECT_NEAR(expected_dist, result.min_distance,
+              constants<ccd_real_t>::eps_34());
 }
 
 GTEST_TEST(FCL_DISTANCE, NearestPointFromDegenerateSimplex) {
