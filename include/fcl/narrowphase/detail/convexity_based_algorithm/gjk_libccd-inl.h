@@ -558,7 +558,20 @@ simplexToPolytope2_not_touching_contact:
     return 0;
 }
 
-/** Transforms simplex to polytope, three vertices required */
+/** Transforms simplex to polytope (tetrahedron), three vertices required
+ * Both the simplex and the transformed polytope contain the origin.
+ * @param[in] obj1 object 1 on which the penetration depth is queried.
+ * @param[in] obj2 object 2 on which the penetration depth is queried.
+ * @param[in] ccd The ccd solver.
+ * @param[in] simplex The simplex (with three vertices) that contains the
+ * origin.
+ * @param[out] pt The polytope (tetrahedron) that also contains the origin.
+ * @param[out] nearest If the function detects that obj1 and obj2 are touching,
+ * then set nearest to be the nearest points on obj1 and obj2 respectively;
+ * otherwise set nearest to NULL.
+ * @retval status return 0 on success, -1 if touching contact is detected, and
+ * -2 on failure (mostly due to memory allocation bug).
+ */
 static int simplexToPolytope3(const void* obj1, const void* obj2,
                               const ccd_t* ccd, const ccd_simplex_t* simplex,
                               ccd_pt_t* pt, ccd_pt_el_t** nearest) {

@@ -150,9 +150,9 @@ void TestNonCollidingSphereGJKSignedDistance(S tol) {
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, sphere_sphere) {
-  // TODO(hongkai.dai@tri.global): By setting gjkSolver.distance_tolerance to
-  // the default value (1E-6), the tolerance we get on the closest points are
-  // only up to the square root of 1E-6, namely 1E-3.
+  // By setting gjkSolver.distance_tolerance to the default value (1E-6), the
+  // tolerance we get on the closest points are only up to the square root of
+  // 1E-6, namely 1E-3.
   TestNonCollidingSphereGJKSignedDistance<double>(1E-3);
   TestNonCollidingSphereGJKSignedDistance<float>(1E-3);
 }

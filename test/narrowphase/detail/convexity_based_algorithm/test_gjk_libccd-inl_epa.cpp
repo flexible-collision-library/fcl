@@ -49,6 +49,63 @@
 
 namespace fcl {
 namespace detail {
+
+template <typename S>
+struct BoxSpecification {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  BoxSpecification(const fcl::Vector3<S>& m_size) : size(m_size) {
+    X_FB.setIdentity();
+  }
+  fcl::Vector3<S> size;
+  fcl::Transform3<S> X_FB;
+};
+
+// Test simplexToPolytope3 function.
+// We construct a test scenario that two boxes are on the xy plane of frame F.
+// The two boxes penetrate to each other, as shown in the bottom plot.
+//              y
+//          ┲━━━│━━━┱ Box1
+//         ┲┃━━┱│   ┃
+//      ───┃┃──┃O───┃─────x
+//     box2┗┃━━┛│   ┃
+//          ┗━━━│━━━┛
+//              
+// @param X_WF The pose of the frame F measured and expressed in the world frame
+// W.             
+template <typename S>
+void SetUpBoxToBox(const Transform3<S>& X_WF, void* o1, void* o2, ccd_t* ccd) {
+  const fcl::Vector3<S> box1_size(2, 2, 2);
+  const fcl::Vector3<S> box2_size(1, 1, 2);
+  fcl::Transform3<S> X_FB1, X_FB2;
+  // Box 1 is fixed.
+  X_FB1.setIdentity(); 
+  X_FB1.translation() << 0, 0, 1;
+  X_FB2.setIdentity();
+  X_FB2.translation() << -0.6, 0, 1;
+
+  const fcl::Transform3<S> X_WB1 = X_WF * X_FB1;
+  const fcl::Transform3<S> X_WB2 = X_WF * X_FB2;
+  fcl::Box<S> box1(box1_size);
+  fcl::Box<S> box2(box2_size);
+  o1 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box1, X_WB1);
+  o2 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box1, X_WB2);
+
+  // Set up ccd solver.
+  CCD_INIT(ccd);
+  ccd->support1 = detail::GJKInitializer<S, Box<S>>::getSupportFunction();
+  ccd->support2 = detail::GJKInitializer<S, Box<S>>::getSupportFunction();
+  ccd->max_iterations = 1000;
+  ccd->dist_tolerance = 1E-6;
+}
+
+template <typename S>
+void TestSimplexToPolytope3() {
+
+}
+
+GTEST_TEST(FCL_GJK_EPA, simplexToPolytope3) {
+}
+
 class EquilateralTetrahedron {
  public:
   EquilateralTetrahedron(ccd_real_t bottom_center_x = 0,
