@@ -1005,148 +1005,278 @@ static int __ccdEPA(const void *obj1, const void *obj2,
     return 0;
 }
 
-/** Returns the points p1 and p2 on the original shapes that correspond to point
- * p in the given simplex.*/
-static void extractClosestPoints(ccd_simplex_t* simplex,
-                                 ccd_vec3_t* p1, ccd_vec3_t* p2, ccd_vec3_t* p)
-{
+
+/** Reports true if p and q are coincident. */
+static bool are_coincident(const ccd_vec3_t& p, const ccd_vec3_t& q) {
+  // This uses a scale-dependent basis for determining coincidence. It examines
+  // each axis independently, and only, if all three axes are sufficiently
+  // close (relative to its own scale), are the two points considered
+  // coincident.
+  //
+  // For dimension i, two values are considered the same if:
+  //   |pᵢ - qᵢ| <= ε·max(1, |pᵢ|, |pᵢ|)
+  // And the points are coincident if the previous condition for all
+  // `i ∈ {0, 1, 2}` (i.e. the x-, y-, *and* z-dimensions).
+  using std::abs;
+  using std::max;
+  
+  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  // NOTE: Wrapping "1.0" with ccd_real_t accounts for mac problems where ccd
+  // is actually float based.
+  for (int i = 0; i < 3; ++i) {
+    const ccd_real_t scale =
+        max({ccd_real_t{1}, abs(p.v[i]), abs(q.v[i])}) * eps;
+    const ccd_real_t delta = abs(p.v[i] - q.v[i]);
+    if (delta > scale) return false;
+  }
+  return true;
+}
+
+/** Determines if the the triangle defined by the three vertices has zero area.
+ Area can be zero for one of two reasons:
+   - the triangle is so small that the vertices are functionally coincident, or
+   - the vertices are co-linear.
+ Both conditions are computed with respect to machine precision.
+ @returns true if the area is zero.  */
+static bool triangle_area_is_zero(const ccd_vec3_t& a, const ccd_vec3_t& b,
+                                  const ccd_vec3_t& c) {
+  // First coincidence condition. This doesn't *explicitly* test for b and c
+  // being coincident. That will be captured in the subsequent co-linearity
+  // test. If b and c *were* coincident, it would be cheaper to perform the
+  // coincidence test than the co-linearity test.
+  // However, the expectation is that typically the triangle will not have zero
+  // area. In that case, we want to minimize the number of tests performed on
+  // the average, so we prefer to eliminate one coincidence test.
+  if (are_coincident(a, b) || are_coincident(a, c)) return true;
+
+  // We're going to compute the *sine* of the angle θ between edges (given that
+  // the vertices are *not* coincident). If the sin(θ) < ε, the edges are
+  // co-linear.
+  ccd_vec3_t AB, AC, n;
+  ccdVec3Sub2(&AB, &b, &a);
+  ccdVec3Sub2(&AC, &c, &a);
+  ccdVec3Normalize(&AB);
+  ccdVec3Normalize(&AC);
+  ccdVec3Cross(&n, &AB, &AC);
+  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  // Second co-linearity condition.
+  if (ccdVec3Len2(&n) < eps * eps) return true;
+  return false;
+}
+
+/** Given a single support point, `q`, extract the point `p1` and `p2`, the
+ points on object 1 and 2, respectively, in the support data of `q`.  */
+static void extractObjectPointsFromPoint(ccd_support_t *q, ccd_vec3_t *p1,
+                                         ccd_vec3_t *p2) {
+  // TODO(SeanCurtis-TRI): Determine if I should be demanding that p1 and p2
+  // are defined.
+  // Closest points are the ones stored in the simplex
+  if (p1) *p1 = q->v1;
+  if (p2) *p2 = q->v2;
+}
+
+/** Given two support points which define a line segment (`a` and `b`), and a
+ point on that line segment `p`, computes the points `p1` and `p2`, the points
+ on object 1 and 2, respectively, in the support data which correspond to `p`.
+ @pre `p = a + s(b - a), 0 <= s <= 1`  */
+static void extractObjectPointsFromSegment(ccd_support_t *a, ccd_support_t *b,
+                                           ccd_vec3_t *p1, ccd_vec3_t *p2,
+                                           ccd_vec3_t *p) {
+  // Closest points lie on the segment defined by the points in the simplex
+  // Let the segment be defined by points A and B. We can write p as
+  //
+  // p = A + s*AB, 0 <= s <= 1
+  // p - A = s*AB
+  ccd_vec3_t AB;
+  ccdVec3Sub2(&AB, &(b->v), &(a->v));
+
+  // This defines three equations, but we only need one. Taking the i-th
+  // component gives
+  //
+  // p_i - A_i = s*AB_i.
+  //
+  // Thus, s is given by
+  //
+  // s = (p_i - A_i)/AB_i.
+  //
+  // To avoid dividing by an AB_i ≪ 1, we choose i such that |AB_i| is
+  // maximized
+  ccd_real_t abs_AB_x{std::abs(ccdVec3X(&AB))};
+  ccd_real_t abs_AB_y{std::abs(ccdVec3Y(&AB))};
+  ccd_real_t abs_AB_z{std::abs(ccdVec3Z(&AB))};
+
+  ccd_real_t A_i, AB_i, p_i;
+  if (abs_AB_x >= abs_AB_y && abs_AB_x >= abs_AB_z) {
+    A_i = ccdVec3X(&(a->v));
+    AB_i = ccdVec3X(&AB);
+    p_i = ccdVec3X(p);
+  } else if (abs_AB_y >= abs_AB_z) {
+    A_i = ccdVec3Y(&(a->v));
+    AB_i = ccdVec3Y(&AB);
+    p_i = ccdVec3Y(p);
+  } else {
+    A_i = ccdVec3Z(&(a->v));
+    AB_i = ccdVec3Z(&AB);
+    p_i = ccdVec3Z(p);
+  }
+
+  if (std::abs(AB_i) < constants<ccd_real_t>::eps()) {
+    // Points are coincident; treat as a single point.
+    extractObjectPointsFromPoint(a, p1, p2);
+    return;
+  }
+
+  auto calc_p = [](ccd_vec3_t *p_a, ccd_vec3_t *p_b, ccd_vec3_t *p,
+                   ccd_real_t s) {
+    ccd_vec3_t sAB;
+    ccdVec3Sub2(&sAB, p_b, p_a);
+    ccdVec3Scale(&sAB, s);
+    ccdVec3Copy(p, p_a);
+    ccdVec3Add(p, &sAB);
+  };
+
+  // TODO(SeanCurtis-TRI): If p1 or p2 is null, there seems little point in
+  // calling this method. It seems that both of these being non-null should be
+  // a *requirement*. Determine that this is the case and do so.
+  ccd_real_t s = (p_i - A_i) / AB_i;
+
+  if (p1) {
+    // p1 = A1 + s*A1B1
+    calc_p(&(a->v1), &(b->v1), p1, s);
+  }
+  if (p2) {
+    // p2 = A2 + s*A2B2
+    calc_p(&(a->v2), &(b->v2), p2, s);
+  }
+}
+
+/** Returns the points `p1` and `p2` on the original shapes that correspond to
+ point `p` in the given simplex.
+ @pre simplex size <= 3.
+ @pre p lies _on_ the simplex (i.e., within the triangle, line segment, or is
+      coincident with the point).  */
+static void extractClosestPoints(ccd_simplex_t *simplex, ccd_vec3_t *p1,
+                                 ccd_vec3_t *p2, ccd_vec3_t *p) {
   const int simplex_size = ccdSimplexSize(simplex);
   assert(simplex_size <= 3);
   if (simplex_size == 1)
   {
-      // Closest points are the ones stored in the simplex
-      if(p1) *p1 = simplex->ps[simplex->last].v1;
-      if(p2) *p2 = simplex->ps[simplex->last].v2;
+    extractObjectPointsFromPoint(&simplex->ps[0], p1, p2);
   }
-  else if (simplex_size ==2)
+  else if (simplex_size == 2)
   {
-      // Closest points lie on the segment defined by the points in the simplex
-      // Let the segment be defined by points A and B. We can write p as
-      //
-      // p = A + s*AB, 0 <= s <= 1
-      // p - A = s*AB
-      ccd_vec3_t AB;
-      ccdVec3Sub2(&AB, &(simplex->ps[1].v), &(simplex->ps[0].v));
-
-      // This defines three equations, but we only need one. Taking the i-th
-      // component gives
-      //
-      // p_i - A_i = s*AB_i.
-      //
-      // Thus, s is given by
-      //
-      // s = (p_i - A_i)/AB_i.
-      //
-      // To avoid dividing by an AB_i ≪ 1, we choose i such that |AB_i| is
-      // maximized
-      ccd_real_t abs_AB_x{std::abs(ccdVec3X(&AB))};
-      ccd_real_t abs_AB_y{std::abs(ccdVec3Y(&AB))};
-      ccd_real_t abs_AB_z{std::abs(ccdVec3Z(&AB))};
-      ccd_real_t s{0};
-
-      if (abs_AB_x >= abs_AB_y && abs_AB_x >= abs_AB_z) {
-        ccd_real_t A_x{ccdVec3X(&(simplex->ps[0].v))};
-        ccd_real_t AB_x{ccdVec3X(&AB)};
-        ccd_real_t p_x{ccdVec3X(p)};
-        s = (p_x - A_x) / AB_x;
-      } else if (abs_AB_y >= abs_AB_z) {
-        ccd_real_t A_y{ccdVec3Y(&(simplex->ps[0].v))};
-        ccd_real_t AB_y{ccdVec3Y(&AB)};
-        ccd_real_t p_y{ccdVec3Y(p)};
-        s = (p_y - A_y) / AB_y;
-      } else {
-        ccd_real_t A_z{ccdVec3Z(&(simplex->ps[0].v))};
-        ccd_real_t AB_z{ccdVec3Z(&AB)};
-        ccd_real_t p_z{ccdVec3Z(p)};
-        s = (p_z - A_z) / AB_z;
-      }
-
-      if (p1)
-      {
-        // p1 = A1 + s*A1B1
-        ccd_vec3_t sAB;
-        ccdVec3Sub2(&sAB, &(simplex->ps[1].v1), &(simplex->ps[0].v1));
-        ccdVec3Scale(&sAB, s);
-        ccdVec3Copy(p1, &(simplex->ps[0].v1));
-        ccdVec3Add(p1, &sAB);
-      }
-      if (p2)
-      {
-        // p2 = A2 + s*A2B2
-        ccd_vec3_t sAB;
-        ccdVec3Sub2(&sAB, &(simplex->ps[1].v2), &(simplex->ps[0].v2));
-        ccdVec3Scale(&sAB, s);
-        ccdVec3Copy(p2, &(simplex->ps[0].v2));
-        ccdVec3Add(p2, &sAB);
-      }
+    extractObjectPointsFromSegment(&simplex->ps[0], &simplex->ps[1], p1, p2, p);
   }
   else // simplex_size == 3
   {
-    // Closest points lie in the triangle defined by the points in the simplex
-    ccd_vec3_t AB, AC, n, v_prime, AB_cross_v_prime, AC_cross_v_prime;
-    // Let the triangle be defined by points A, B, and C. The triangle lies in
-    // the plane that passes through A, whose normal is given by n̂, where
-    //
-    // n = AB × AC
-    // n̂ = n / ‖n‖
-    ccdVec3Sub2(&AB, &(simplex->ps[1].v), &(simplex->ps[0].v));
-    ccdVec3Sub2(&AC, &(simplex->ps[2].v), &(simplex->ps[0].v));
-    ccdVec3Cross(&n, &AB, &AC);
+    if (triangle_area_is_zero(simplex->ps[0].v, simplex->ps[1].v,
+                              simplex->ps[2].v)) {
+      // The triangle is degenerate; compute the nearest point to a line
+      // segment. The segment is defined by the most-distant vertex pair.
+      int a_index, b_index;
+      ccd_vec3_t AB, AC, BC;
+      ccdVec3Sub2(&AB, &(simplex->ps[1].v), &(simplex->ps[0].v));
+      ccdVec3Sub2(&AC, &(simplex->ps[2].v), &(simplex->ps[0].v));
+      ccdVec3Sub2(&BC, &(simplex->ps[2].v), &(simplex->ps[1].v));
+      ccd_real_t AB_len2 = ccdVec3Len2(&AB);
+      ccd_real_t AC_len2 = ccdVec3Len2(&AC);
+      ccd_real_t BC_len2 = ccdVec3Len2(&BC);
+      if (AB_len2 >= AC_len2 && AB_len2 >= BC_len2) {
+        a_index = 0;
+        b_index = 1;
+      } else if (AC_len2 >= AB_len2 && AC_len2 >= BC_len2) {
+        a_index = 0;
+        b_index = 2;
+      } else {
+        a_index = 1;
+        b_index = 2;
+      }
+      extractObjectPointsFromSegment(&simplex->ps[a_index],
+                                     &simplex->ps[b_index], p1, p2, p);
+      return;
+    }
 
-    // Since p lies in ABC, it can be expressed as
+    // Compute the barycentric coordinates of point p in triangle ABC.
     //
-    // p = A + p'
-    // p' = s*AB + t*AC
+    //             A
+    //             ╱╲                p = αA + βB + γC
+    //            ╱ |╲
+    //           ╱  | ╲              α = 1 - β - γ
+    //          ╱ p |  ╲             β = AREA(pAC) / AREA(ABC)
+    //         ╱   / \  ╲            γ = AREA(pAB) / AREA(ABC)
+    //        ╱__/_____\_╲
+    //      B             C          AREA(XYZ) = |r_XY × r_XZ| / 2
     //
-    // where 0 <= s, t, s+t <= 1.
-    ccdVec3Sub2(&v_prime, p, &(simplex->ps[0].v));
+    //  Rewrite coordinates in terms of cross products.
+    //
+    //    β = AREA(pAC) / AREA(ABC) = |r_Ap × r_AC| / |r_AB × r_AC|
+    //    γ = AREA(pAB) / AREA(ABC) = |r_AB × r_Ap| / |r_AB × r_AC|
+    //
+    // NOTE: There are multiple options for the cross products, these have been
+    // selected to re-use as many symbols as possible.
+    //
+    // Solving for β and γ:
+    //
+    //  β = |r_Ap × r_AC| / |r_AB × r_AC|
+    //  β = |r_Ap × r_AC| / |n|                  n ≙ r_AB × r_AC, n̂ = n / |n|
+    //  β = n̂·(r_Ap × r_AC) / n̂·n                This step arises from the fact
+    //                                           that (r_Ap × r_AC) and n point
+    //                                           in the same direction. It
+    //                                           allows us to take a single sqrt
+    //                                           instead of three.
+    //  β = (n/|n|)·(r_Ap × r_AC) / (n/|n|)·n
+    //  β = n·(r_Ap × r_AC) / n·n
+    //  β = n·(r_Ap × r_AC) / |n|²
+    //
+    // A similar process to solve for gamma
+    //  γ = n·(r_AB × r_Ap) / |n|²
 
-    // To find the corresponding v1 and v2, we need
-    // values for s and t. Taking cross products with AB and AC gives the
-    // following system:
-    //
-    // AB × p' =  t*(AB × AC) =  t*n
-    // AC × p' = -s*(AB × AC) = -s*n
-    ccdVec3Cross(&AB_cross_v_prime, &AB, &v_prime);
-    ccdVec3Cross(&AC_cross_v_prime, &AC, &v_prime);
-
-    // To convert this to a system of scalar equations, we take the dot product
-    // with n:
-    //
-    // n ⋅ (AB × p') =  t * ‖n‖²
-    // n ⋅ (AC × p') = -s * ‖n‖²
+    // Compute n and |n|².
+    ccd_vec3_t r_AB, r_AC, n;
+    ccdVec3Sub2(&r_AB, &(simplex->ps[1].v), &(simplex->ps[0].v));
+    ccdVec3Sub2(&r_AC, &(simplex->ps[2].v), &(simplex->ps[0].v));
+    ccdVec3Cross(&n, &r_AB, &r_AC);
     ccd_real_t norm_squared_n{ccdVec3Len2(&n)};
 
-    // Therefore, s and t are given by
-    //
-    // s = -n ⋅ (AC × p') / ‖n‖²
-    // t =  n ⋅ (AB × p') / ‖n‖²
-    ccd_real_t s{-ccdVec3Dot(&n, &AC_cross_v_prime) / norm_squared_n};
-    ccd_real_t t{ccdVec3Dot(&n, &AB_cross_v_prime) / norm_squared_n};
+    // Compute r_Ap.
+    ccd_vec3_t r_Ap;
+    ccdVec3Sub2(&r_Ap, p, &(simplex->ps[0].v));
 
-    if (p1)
-    {
-      // p1 = A1 + s*A1B1 + t*A1C1
-      ccd_vec3_t sAB, tAC;
-      ccdVec3Sub2(&sAB, &(simplex->ps[1].v1), &(simplex->ps[0].v1));
-      ccdVec3Scale(&sAB, s);
-      ccdVec3Sub2(&tAC, &(simplex->ps[2].v1), &(simplex->ps[0].v1));
-      ccdVec3Scale(&tAC, t);
-      ccdVec3Copy(p1, &(simplex->ps[0].v1));
-      ccdVec3Add(p1, &sAB);
-      ccdVec3Add(p1, &tAC);
+    // Compute the cross products in the numerators.
+    ccd_vec3_t r_Ap_cross_r_AC, r_AB_cross_r_Ap;
+    ccdVec3Cross(&r_Ap_cross_r_AC, &r_Ap, &r_AC);  // r_Ap × r_AC
+    ccdVec3Cross(&r_AB_cross_r_Ap, &r_AB, &r_Ap);  // r_AB × r_Ap
+
+    // Compute beta and gamma.
+    ccd_real_t beta{ccdVec3Dot(&n, &r_Ap_cross_r_AC) / norm_squared_n};
+    ccd_real_t gamma{ccdVec3Dot(&n, &r_AB_cross_r_Ap) / norm_squared_n};
+
+    // Evaluate barycentric interpolation (with the locally defined barycentric
+    // coordinates).
+    auto interpolate = [&beta, &gamma](const ccd_vec3_t& r_WA,
+                                       const ccd_vec3_t& r_WB,
+                                       const ccd_vec3_t& r_WC,
+                                       ccd_vec3_t* r_WP) {
+      // r_WP = r_WA + β * r_AB + γ * r_AC
+      ccdVec3Copy(r_WP, &r_WA);
+
+      ccd_vec3_t beta_r_AB;
+      ccdVec3Sub2(&beta_r_AB, &r_WB, &r_WA);
+      ccdVec3Scale(&beta_r_AB, beta);
+      ccdVec3Add(r_WP, &beta_r_AB);
+
+      ccd_vec3_t  gamma_r_AC;
+      ccdVec3Sub2(&gamma_r_AC, &r_WC, &r_WA);
+      ccdVec3Scale(&gamma_r_AC, gamma);
+      ccdVec3Add(r_WP, &gamma_r_AC);
+    };
+
+    if (p1) {
+      interpolate(simplex->ps[0].v1, simplex->ps[1].v1, simplex->ps[2].v1, p1);
     }
-    if (p2)
-    {
-      // p2 = A2 + s*A2B2 + t*A2C2
-      ccd_vec3_t sAB, tAC;
-      ccdVec3Sub2(&sAB, &(simplex->ps[1].v2), &(simplex->ps[0].v2));
-      ccdVec3Scale(&sAB, s);
-      ccdVec3Sub2(&tAC, &(simplex->ps[2].v2), &(simplex->ps[0].v2));
-      ccdVec3Scale(&tAC, t);
-      ccdVec3Copy(p2, &(simplex->ps[0].v2));
-      ccdVec3Add(p2, &sAB);
-      ccdVec3Add(p2, &tAC);
+
+    if (p2) {
+      interpolate(simplex->ps[0].v2, simplex->ps[1].v2, simplex->ps[2].v2, p2);
     }
   }
 }
