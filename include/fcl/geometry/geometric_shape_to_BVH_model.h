@@ -56,6 +56,8 @@ namespace fcl
 /// @brief Generate BVH model from box
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose);
+template<typename BV>
+void generateBVHSubModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose);
 
 /// @brief Generate BVH model from sphere, given the number of segments along longitude and number of rings along latitude.
 template<typename BV>
@@ -81,12 +83,16 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shap
 /// @brief Generate BVH model from cylinder, given the number of segments along circle and the number of segments along axis.
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num);
+template<typename BV>
+void generateBVHSubModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num);
 
 /// @brief Generate BVH model from cylinder
 /// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cylinder with
 /// larger radius, the number of circle split number is r * tot.
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder);
+template<typename BV>
+void generateBVHSubModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder);
 
 /// @brief Generate BVH model from cone, given the number of segments along circle and the number of segments along axis.
 template<typename BV>
