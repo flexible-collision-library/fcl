@@ -263,7 +263,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject<S>*>& env,
 
     Sphere<S> sphere(single_size / 2);
     BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
-    generateBVHModel(*model, sphere, Transform3<S>::Identity(), 16, 16);
+    generateBVHModel(*model, sphere, Transform3<S>::Identity(), 16, 16, false);
     env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model),
                                       Transform3<S>(Translation3<S>(Vector3<S>(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -278,7 +278,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject<S>*>& env,
 
     Ellipsoid<S> ellipsoid(single_size / 2, single_size / 2, single_size / 2);
     BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
-    generateBVHModel(*model, ellipsoid, Transform3<S>::Identity(), 16, 16);
+    generateBVHModel(*model, ellipsoid, Transform3<S>::Identity(), 16, 16, false);
     env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model),
                                       Transform3<S>(Translation3<S>(Vector3<S>(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -293,7 +293,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject<S>*>& env,
 
     Cylinder<S> cylinder(single_size / 2, single_size);
     BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
-    generateBVHModel(*model, cylinder, Transform3<S>::Identity(), 16, 16);
+    generateBVHModel(*model, cylinder, Transform3<S>::Identity(), 16, 16, false);
     env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model),
                                       Transform3<S>(Translation3<S>(Vector3<S>(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -308,7 +308,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject<S>*>& env,
 
     Cone<S> cone(single_size / 2, single_size);
     BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
-    generateBVHModel(*model, cone, Transform3<S>::Identity(), 16, 16);
+    generateBVHModel(*model, cone, Transform3<S>::Identity(), 16, 16, false);
     env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model),
                                       Transform3<S>(Translation3<S>(Vector3<S>(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
