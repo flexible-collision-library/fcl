@@ -594,7 +594,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject<S>*>& env, S env_scale
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
-    generateBVHModel(*model, sphere, Transform3<S>::Identity(), 16, 16);
+    generateBVHModel(*model, sphere, Transform3<S>::Identity(), 16, 16, false);
     env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model), transforms[i]));
   }
 
@@ -603,7 +603,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject<S>*>& env, S env_scale
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
-    generateBVHModel(*model, cylinder, Transform3<S>::Identity(), 16, 16);
+    generateBVHModel(*model, cylinder, Transform3<S>::Identity(), 16, 16, false);
     env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model), transforms[i]));
   }
 }
