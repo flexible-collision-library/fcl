@@ -50,62 +50,6 @@
 namespace fcl {
 namespace detail {
 
-template <typename S>
-struct BoxSpecification {
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  BoxSpecification(const fcl::Vector3<S>& m_size) : size(m_size) {
-    X_FB.setIdentity();
-  }
-  fcl::Vector3<S> size;
-  fcl::Transform3<S> X_FB;
-};
-
-// Test simplexToPolytope3 function.
-// We construct a test scenario that two boxes are on the xy plane of frame F.
-// The two boxes penetrate to each other, as shown in the bottom plot.
-//              y
-//          ┲━━━│━━━┱ Box1
-//         ┲┃━━┱│   ┃
-//      ───┃┃──┃O───┃─────x
-//     box2┗┃━━┛│   ┃
-//          ┗━━━│━━━┛
-//              
-// @param X_WF The pose of the frame F measured and expressed in the world frame
-// W.             
-template <typename S>
-void SetUpBoxToBox(const Transform3<S>& X_WF, void* o1, void* o2, ccd_t* ccd) {
-  const fcl::Vector3<S> box1_size(2, 2, 2);
-  const fcl::Vector3<S> box2_size(1, 1, 2);
-  fcl::Transform3<S> X_FB1, X_FB2;
-  // Box 1 is fixed.
-  X_FB1.setIdentity(); 
-  X_FB1.translation() << 0, 0, 1;
-  X_FB2.setIdentity();
-  X_FB2.translation() << -0.6, 0, 1;
-
-  const fcl::Transform3<S> X_WB1 = X_WF * X_FB1;
-  const fcl::Transform3<S> X_WB2 = X_WF * X_FB2;
-  fcl::Box<S> box1(box1_size);
-  fcl::Box<S> box2(box2_size);
-  o1 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box1, X_WB1);
-  o2 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box1, X_WB2);
-
-  // Set up ccd solver.
-  CCD_INIT(ccd);
-  ccd->support1 = detail::GJKInitializer<S, Box<S>>::getSupportFunction();
-  ccd->support2 = detail::GJKInitializer<S, Box<S>>::getSupportFunction();
-  ccd->max_iterations = 1000;
-  ccd->dist_tolerance = 1E-6;
-}
-
-template <typename S>
-void TestSimplexToPolytope3() {
-
-}
-
-GTEST_TEST(FCL_GJK_EPA, simplexToPolytope3) {
-}
-
 class EquilateralTetrahedron {
  public:
   EquilateralTetrahedron(ccd_real_t bottom_center_x = 0,
@@ -963,6 +907,257 @@ GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest3) {
   CompareCcdVec3(p1, p1_expected, constants<ccd_real_t>::eps_78());
   CompareCcdVec3(p2, p2_expected, constants<ccd_real_t>::eps_78());
 }
+
+// Test simplexToPolytope3 function.
+// We construct a test scenario that two boxes are on the xy plane of frame F.
+// The two boxes penetrate to each other, as shown in the bottom plot.
+//              y
+//          ┲━━━│━━━┱ Box1
+//         ┲┃━━┱│   ┃
+//      ───┃┃──┃O───┃─────x
+//     box2┗┃━━┛│   ┃
+//          ┗━━━│━━━┛
+//
+// @param X_WF The pose of the frame F measured and expressed in the world frame
+// W.
+template <typename S>
+void SetUpBoxToBox(const Transform3<S>& X_WF, void** o1, void** o2, ccd_t* ccd,
+                   fcl::Transform3<S>* X_FB1, fcl::Transform3<S>* X_FB2) {
+  const fcl::Vector3<S> box1_size(2, 2, 2);
+  const fcl::Vector3<S> box2_size(1, 1, 2);
+  // Box 1 is fixed.
+  X_FB1->setIdentity();
+  X_FB1->translation() << 0, 0, 1;
+  X_FB2->setIdentity();
+  X_FB2->translation() << -0.6, 0, 1;
+
+  const fcl::Transform3<S> X_WB1 = X_WF * (*X_FB1);
+  const fcl::Transform3<S> X_WB2 = X_WF * (*X_FB2);
+  fcl::Box<S> box1(box1_size);
+  fcl::Box<S> box2(box2_size);
+  *o1 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box1, X_WB1);
+  *o2 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box1, X_WB2);
+
+  // Set up ccd solver.
+  CCD_INIT(ccd);
+  ccd->support1 = detail::GJKInitializer<S, Box<S>>::getSupportFunction();
+  ccd->support2 = detail::GJKInitializer<S, Box<S>>::getSupportFunction();
+  ccd->max_iterations = 1000;
+  ccd->dist_tolerance = 1E-6;
+}
+
+template <typename S>
+Vector3<S> ToEigenVector(const ccd_vec3_t& v) {
+  return (Vector3<S>() << v.v[0], v.v[1], v.v[2]).finished();
+}
+
+template <typename S>
+ccd_vec3_t ToCcdVec3(const Eigen::Ref<const Vector3<S>>& v) {
+  ccd_vec3_t u;
+  u.v[0] = v(0);
+  u.v[1] = v(1);
+  u.v[2] = v(2);
+  return u;
+}
+
+template <typename S>
+void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
+  void* o1 = NULL;
+  void* o2 = NULL;
+  ccd_t ccd;
+  fcl::Transform3<S> X_FB1, X_FB2;
+  SetUpBoxToBox(X_WF, &o1, &o2, &ccd, &X_FB1, &X_FB2);
+
+  // Construct a 3-simplex that contains the origin. The vertices of this
+  // 3-simplex is on the boundary of the Minkowski difference.
+  ccd_simplex_t simplex;
+  ccdSimplexInit(&simplex);
+  ccd_support_t pts[3];
+  // We find three points Pa1, Pb1, Pc1 on box 1, and three points Pa2, Pb2, Pc2
+  // on box 2, such that the 3-simplex with vertices (Pa1 - Pa2, Pb1 - Pb2,
+  // Pc1 - Pc2) contains the origin.
+  const Vector3<S> p_FPa1(-1, -1, -1);
+  const Vector3<S> p_FPa2(-0.1, 0.5, -1);
+  pts[0].v = ToCcdVec3<S>(p_FPa1 - p_FPa2);
+  pts[0].v1 = ToCcdVec3<S>(p_FPa1);
+  pts[0].v2 = ToCcdVec3<S>(p_FPa2);
+
+  const Vector3<S> p_FPb1(-1, 1, -1);
+  const Vector3<S> p_FPb2(-0.1, 0.5, -1);
+  pts[1].v = ToCcdVec3<S>(p_FPb1 - p_FPb2);
+  pts[1].v1 = ToCcdVec3<S>(p_FPb1);
+  pts[1].v2 = ToCcdVec3<S>(p_FPb2);
+
+  const Vector3<S> p_FPc1(1, 1, -1);
+  const Vector3<S> p_FPc2(-0.1, 0.5, -1);
+  pts[2].v = ToCcdVec3<S>(p_FPc1 - p_FPc2);
+  pts[2].v1 = ToCcdVec3<S>(p_FPc1);
+  pts[2].v2 = ToCcdVec3<S>(p_FPc2);
+  for (int i = 0; i < 3; ++i) {
+    ccdSimplexAdd(&simplex, &pts[i]);
+  }
+
+  ccd_pt_t polytope;
+  ccdPtInit(&polytope);
+  ccd_pt_el_t* nearest;
+  libccd_extension::simplexToPolytope3(o1, o2, &ccd, &simplex, &polytope,
+                                       &nearest);
+  // Box1 and Box2 are not touching, so nearest is set to null.
+  EXPECT_FALSE(nearest);
+
+  // Check the polytope
+  // The polytope should have 4 vertices, with three of them being the vertices
+  // of the 3-simplex, and another vertex that has the maximal support along
+  // the normal directions of the 3-simplex.
+  // We first construct the set containing the polytope vertices.
+  std::unordered_set<ccd_pt_vertex_t*> polytope_vertices;
+  {
+    ccd_pt_vertex_t* v;
+    ccdListForEachEntry(&polytope.vertices, v, ccd_pt_vertex_t, list) {
+      const auto it = polytope_vertices.find(v);
+      EXPECT_EQ(it, polytope_vertices.end());
+      polytope_vertices.emplace_hint(it, v);
+    }
+  }
+  EXPECT_EQ(polytope_vertices.size(), 4u);
+  // We need to find out the vertex on the polytope, that is not the vertex
+  // of the simplex.
+  ccd_pt_vertex_t* non_simplex_vertex;
+  // A simplex vertex matches with a polytope vertex if they coincide.
+  int num_matched_vertices = 0;
+  for (const auto& v : polytope_vertices) {
+    bool found_match = false;
+    for (int i = 0; i < 3; ++i) {
+      if (ccdVec3Dist2(&v->v.v, &pts[i].v) < 1E-4) {
+        num_matched_vertices++;
+        found_match = true;
+        break;
+      }
+    }
+    if (!found_match) {
+      non_simplex_vertex = v;
+    }
+  }
+  EXPECT_EQ(num_matched_vertices, 3);
+  // Make sure that the non-simplex vertex has the maximal support along the
+  // simplex normal direction.
+  // Find the two normal directions of the 3-simplex.
+  ccd_vec3_t dir1, dir2;
+  ccd_vec3_t ab, ac;
+  ccdVec3Sub2(&ab, &pts[1].v, &pts[0].v);
+  ccdVec3Sub2(&ac, &pts[2].v, &pts[0].v);
+  ccdVec3Cross(&dir1, &ab, &ac);
+  ccdVec3Copy(&dir2, &dir1);
+  ccdVec3Scale(&dir2, ccd_real_t(-1));
+  // Now make sure non_simplex_vertex has the largest support
+  // p_B1V1 are the position of the box 1 vertices in box1 frame B1.
+  // p_B2V1 are the position of the box 2 vertices in box2 frame B2.
+  const Eigen::Vector3d box1_size{2, 2, 2};
+  const Eigen::Vector3d box2_size{1, 1, 2};
+  Eigen::Matrix<S, 3, 8> p_B1V1, p_B2V2;
+  p_B1V1 << -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1,
+      1, -1, 1, -1, 1;
+  p_B2V2 << -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1,
+      1, -1, 1, -1, 1;
+  for (int i = 0; i < 3; ++i) {
+    p_B1V1.row(i) *= box1_size[i] / 2;
+    p_B2V2.row(i) *= box2_size[i] / 2;
+  }
+
+  const Eigen::Matrix<S, 3, 8> p_FV1 = X_FB1 * p_B1V1;
+  const Eigen::Matrix<S, 3, 8> p_FV2 = X_FB2 * p_B2V2;
+  // The support of the Minkowski difference along direction dir1.
+  const S max_support1 =
+      (ToEigenVector<S>(dir1).transpose() * p_FV1).maxCoeff() -
+      (ToEigenVector<S>(dir1).transpose() * p_FV2).minCoeff();
+  // The support of the Minkowski difference along direction dir2.
+  const S max_support2 =
+      (ToEigenVector<S>(dir2).transpose() * p_FV1).maxCoeff() -
+      (ToEigenVector<S>(dir2).transpose() * p_FV2).minCoeff();
+
+  const double expected_max_support = std::max(max_support1, max_support2);
+  const double non_simplex_vertex_support1 =
+      ToEigenVector<S>(non_simplex_vertex->v.v).dot(ToEigenVector<S>(dir1));
+  const double non_simplex_vertex_support2 =
+      ToEigenVector<S>(non_simplex_vertex->v.v).dot(ToEigenVector<S>(dir2));
+  EXPECT_NEAR(
+      std::max(non_simplex_vertex_support1, non_simplex_vertex_support2),
+      expected_max_support, 1E-10);
+
+  // Also make sure the non_simplex_vertex actually is inside the Minkowski
+  // difference.
+  // Call the non-simplex vertex as D. This vertex equals to the difference
+  // between a point Dv1 in box1, and a point Dv2 in box2.
+  const Vector3<S> p_B1Dv1 =
+      (X_WF * X_FB1).inverse() * ToEigenVector<S>(non_simplex_vertex->v.v1);
+  const Vector3<S> p_B2Dv2 =
+      (X_WF * X_FB2).inverse() * ToEigenVector<S>(non_simplex_vertex->v.v2);
+  // Now check if p_B1Dv1 is in box1, and p_B2Dv2 is in box2.
+  for (int i = 0; i < 3; ++i) {
+    EXPECT_LE(p_B1Dv1(i), box1_size(i) / 2 + 1E-10);
+    EXPECT_LE(p_B2Dv2(i), box2_size(i) / 2 + 1E-10);
+    EXPECT_GE(p_B1Dv1(i), -box1_size(i) / 2 - 1E-10);
+    EXPECT_GE(p_B2Dv2(i), -box2_size(i) / 2 - 1E-10);
+  }
+  // Now that we make sure the vertices of the polytope is correct, we will
+  // check the edges and faces of the polytope. We do so by constructing an
+  // expected polytope, and compare it with the polytope obtained from
+  // simplexToPolytope3
+  ccd_pt_t polytope_expected;
+  ccdPtInit(&polytope_expected);
+
+  ccd_pt_vertex_t* vertices_expected[4];
+  int v_count = 0;
+  for (const auto& v : polytope_vertices) {
+    vertices_expected[v_count++] = ccdPtAddVertex(&polytope_expected, &v->v);
+  }
+  ccd_pt_edge_t* edges_expected[6];
+  edges_expected[0] = ccdPtAddEdge(&polytope_expected, vertices_expected[0],
+                                   vertices_expected[1]);
+  edges_expected[1] = ccdPtAddEdge(&polytope_expected, vertices_expected[1],
+                                   vertices_expected[2]);
+  edges_expected[2] = ccdPtAddEdge(&polytope_expected, vertices_expected[2],
+                                   vertices_expected[0]);
+  edges_expected[3] = ccdPtAddEdge(&polytope_expected, vertices_expected[3],
+                                   vertices_expected[0]);
+  edges_expected[4] = ccdPtAddEdge(&polytope_expected, vertices_expected[3],
+                                   vertices_expected[1]);
+  edges_expected[5] = ccdPtAddEdge(&polytope_expected, vertices_expected[3],
+                                   vertices_expected[2]);
+
+  ccdPtAddFace(&polytope_expected, edges_expected[0], edges_expected[3],
+               edges_expected[4]);
+  ccdPtAddFace(&polytope_expected, edges_expected[1], edges_expected[4],
+               edges_expected[5]);
+  ccdPtAddFace(&polytope_expected, edges_expected[2], edges_expected[3],
+               edges_expected[5]);
+  ccdPtAddFace(&polytope_expected, edges_expected[0], edges_expected[1],
+               edges_expected[2]);
+
+  ComparePolytope(&polytope, &polytope_expected, 1E-3);
+
+  ccdPtDestroy(&polytope_expected);
+  ccdPtDestroy(&polytope);
+}
+
+template <typename S>
+void TestSimplexToPolytope3() {
+  Transform3<S> X_WF;
+  X_WF.setIdentity();
+  TestSimplexToPolytope3InGivenFrame(X_WF);
+
+  X_WF.translation() << 0, 0, 1;
+  TestSimplexToPolytope3InGivenFrame(X_WF);
+
+  X_WF.translation() << -0.2, 0.4, 0.1;
+  TestSimplexToPolytope3InGivenFrame(X_WF);
+}
+
+GTEST_TEST(FCL_GJK_EPA, simplexToPolytope3) {
+  TestSimplexToPolytope3<double>();
+  TestSimplexToPolytope3<float>();
+}
+
 }  // namespace detail
 }  // namespace fcl
 

@@ -621,7 +621,8 @@ static int simplexToPolytope3(const void* obj1, const void* obj2,
   // Form a tetrahedron with abc as one face, pick either d or d2, based
   // on which one has larger distance to the face abc.
 
-  auto FormTetrahedron = [pt, a, b, c, &v, &e](ccd_support_t& new_support) {
+  auto FormTetrahedron = [pt, a, b, c, &v,
+                          &e](ccd_support_t& new_support) -> int {
     v[0] = ccdPtAddVertex(pt, a);
     v[1] = ccdPtAddVertex(pt, b);
     v[2] = ccdPtAddVertex(pt, c);
@@ -633,10 +634,15 @@ static int simplexToPolytope3(const void* obj1, const void* obj2,
     e[3] = ccdPtAddEdge(pt, v[0], v[3]);
     e[4] = ccdPtAddEdge(pt, v[1], v[3]);
     e[5] = ccdPtAddEdge(pt, v[2], v[3]);
+
+    // ccdPtAdd*() functions return NULL either if the memory allocation
+    // failed of if any of the input pointers are NULL, so the bad
+    // allocation can be checked by the last calls of ccdPtAddFace()
+    // because the rest of the bad allocations eventually "bubble up" here
     if (ccdPtAddFace(pt, e[0], e[1], e[2]) == NULL ||
-        ccdPtAddFace(pt, e[0], e[3], e[4]) == NULL ||
-        ccdPtAddFace(pt, e[1], e[4], e[5]) == NULL ||
-        ccdPtAddFace(pt, e[2], e[5], e[3]) == NULL) {
+        ccdPtAddFace(pt, e[3], e[4], e[0]) == NULL ||
+        ccdPtAddFace(pt, e[4], e[5], e[1]) == NULL ||
+        ccdPtAddFace(pt, e[5], e[3], e[2]) == NULL) {
       return -2;
     }
     return 0;
