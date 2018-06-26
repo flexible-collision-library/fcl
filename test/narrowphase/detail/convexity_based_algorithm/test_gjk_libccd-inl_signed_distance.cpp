@@ -186,11 +186,16 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
   X_FB1.translation() << 0, 0, 0.5;
 
   // First fix the orientation of box 2, such that one of its diagonal (the one
-  // connecting the vertex (0.3, -0.4, 1) and (-0.3, 0.4, 1) is horizontal. If
-  // we move the position of box 2, we get different signed distance.
+  // connecting the vertex (0.3, -0.4, 1) and (-0.3, 0.4, 1) is parallel to the
+  // x axis in frame F. If we move the position of box 2, we get different
+  // signed distance.
   X_FB2.setIdentity();
   X_FB2.linear() << 0.6, -0.8, 0, 0.8, 0.6, 0, 0, 0, 1;
 
+  // p_xy_FNa is the xy position of point Na (the deepest penetration point on
+  // box 1) measured and expressed in the frame F.
+  // p_xy_FNb is the xy position of point Nb (the deepest penetration point on
+  // box 2) measured and expressed in the frame F.
   auto CheckDistance = [&box1_size, &box2_size, &X_FB1, &X_WF](
       const Transform3<S>& X_FB2, S distance_expected,
       const Vector2<S>& p_xy_FNa_expected, const Vector2<S>& p_xy_FNb_expected,
@@ -210,6 +215,8 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
         gjkSolver.max_distance_iterations, gjkSolver.distance_tolerance, &dist,
         &p_WNa, &p_WNb);
 
+    // It is unclear how FCL handles touching contact. It could return either
+    // true or false for touching contact.
     if (distance_expected < 0) {
       EXPECT_FALSE(res);
     } else if (distance_expected > 0) {
@@ -250,13 +257,16 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
   X_FB2.translation() << -1, 0, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
-  // Shift box 2 on y axis by 0.1m.
+  // The touching face on box 1 is parallel to the y axis, so shifting box 2 on
+  // y axis still gives touching contact. Shift box 2 on y axis by 0.1m.
   X_FB2.translation() << -1, 0.1, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
 
   // Shift box 2 on y axis by -0.1m.
   X_FB2.translation() << -1, -0.1, 0.5;
   CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
+  // TODO(hongkai.dai@tri.global): Add other touching contact cases, including
+  // face-face, face-vertex, edge-edge, edge-vertex and vertex-vertex.
 
   //--------------------------------------------------------------
   //                      Penetrating contact

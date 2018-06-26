@@ -619,8 +619,9 @@ static int simplexToPolytope3(const void* obj1, const void* obj2,
     return -1;
   }
   // Form a tetrahedron with abc as one face, pick either d or d2, based
-  // on which one has larger distance to the face abc.
-
+  // on which one has larger distance to the face abc. We pick the larger
+  // distance because it gives a tetrahedron with larger volume, so potentially
+  // more "expanded" than the one with the smaller volume.
   auto FormTetrahedron = [pt, a, b, c, &v,
                           &e](ccd_support_t& new_support) -> int {
     v[0] = ccdPtAddVertex(pt, a);
@@ -850,18 +851,24 @@ static bool ComputeVisiblePatchRecursiveSanityCheck(
       }
     }
     if (is_edge_internal) {
-      assert(visible_faces.count(f) == 1);
+      if (visible_faces.count(f) != 1) {
+        return false;
+      }
     }
   }
   ccd_pt_edge_t* e;
   ccdListForEachEntry(&polytope.edges, e, ccd_pt_edge_t, list) {
     if (visible_faces.count(e->faces[0]) == 1 &&
         visible_faces.count(e->faces[1]) == 1) {
-      assert(internal_edges.count(e) == 1);
+      if (internal_edges.count(e) != 1) {
+        return false;
+      }
     } else if (visible_faces.count(e->faces[0]) +
                    visible_faces.count(e->faces[1]) ==
                1) {
-      assert(border_edges.count(e) == 1);
+      if (border_edges.count(e) != 1) {
+        return false;
+      }
     }
   }
   return true;
@@ -870,7 +877,7 @@ static bool ComputeVisiblePatchRecursiveSanityCheck(
 /**
  * This function contains the implementation detail of ComputeVisiblePatch
  * function. It should not be called by any function other than
- * ComputeVisiblePatch.
+ * ComputeVisiblePatch().
  */
 static void ComputeVisiblePatchRecursive(
     const ccd_pt_t& polytope, ccd_pt_face_t& f, int edge_index,
@@ -881,9 +888,9 @@ static void ComputeVisiblePatchRecursive(
   /*
   This function will be called recursively. It first checks if
   the face neighouring face `f` along the common edge `f->edge[edge_index]` can
-  be seen from the point `query_point`. We denote this face as "g", If this face
-  "g" cannot be seen, then stop. Otherwise, we continue to check the
-  neighbouring faces of "g", by calling this function recursively.
+  be seen from the point `query_point`. We denote the neighbouring face as g. If
+  this face g cannot be seen, then stop. Otherwise, we continue to check the
+  neighbouring faces of g, by calling this function recursively.
   */
   ccd_pt_face_t* f_neighbour = f.edge[edge_index]->faces[0] == &f
                                    ? f.edge[edge_index]->faces[1]
@@ -939,6 +946,11 @@ static void ComputeVisiblePatchRecursive(
 @pre The `polytope` is convex.
 @pre The face `f` is visible from `query_point`.
 @pre Output parameters are non-null.
+TODO(hongkai.dai@tri.global) Replace patch computation with patch deletion and
+return border edges as an optimization.
+TODO(hongkai.dai@tri.global) Consider caching results of per-face visiblity
+status to prevent redundant recalculation -- or by associating the face normal
+with the face.
 **/
 static void ComputeVisiblePatch(
     const ccd_pt_t& polytope, ccd_pt_face_t& f,
@@ -974,7 +986,9 @@ static void ComputeVisiblePatch(
  * visible from a point ouside the original polytope, if the point is on the
  * "outer" side of the face. An edge is visible from that point, if one of its
  * neighbouring faces is visible. This feature contains the point that is
- * closest to the origin on the boundary of the polytope.
+ * closest to the origin on the boundary of the polytope. If the feature is
+ * an edge, and the two neighbouring faces of that edge are not co-planar, then
+ * the origin must lie on that edge.
  * @param[in] newv The new vertex add to the polytope.
  * @retval status Returns 0 on success. Returns -2 otherwise. 
  */

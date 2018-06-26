@@ -50,55 +50,116 @@
 namespace fcl {
 namespace detail {
 
-class EquilateralTetrahedron {
+class Polytope {
+ public:
+  Polytope() {}
+
+  ~Polytope() {
+    // ccdPtDestroy() destroys the vertices, edges, and faces, contained in the
+    // polytope, allowing the polytope itself to be subsequently deleted.
+    ccdPtDestroy(polytope_);
+    delete polytope_;
+  }
+
+  void Initialize() {
+    polytope_ = new ccd_pt_t;
+    ccdPtInit(polytope_);
+    DoInitialize();
+  }
+
+  ccd_pt_vertex_t& v(int i) { return *v_[i]; }
+
+  ccd_pt_edge_t& e(int i) { return *e_[i]; }
+
+  ccd_pt_face_t& f(int i) { return *f_[i]; }
+
+  ccd_pt_t& polytope() { return *polytope_; }
+
+  const ccd_pt_vertex_t& v(int i) const { return *v_[i]; }
+
+  const ccd_pt_edge_t& e(int i) const { return *e_[i]; }
+
+  const ccd_pt_face_t& f(int i) const { return *f_[i]; }
+
+  const ccd_pt_t& polytope() const { return *polytope_; }
+
+ protected:
+  std::vector<ccd_pt_vertex_t*>& v() { return v_; }
+  std::vector<ccd_pt_edge_t*>& e() { return e_; }
+  std::vector<ccd_pt_face_t*>& f() { return f_; }
+
+ private:
+  virtual void DoInitialize() = 0;
+  std::vector<ccd_pt_vertex_t*> v_;
+  std::vector<ccd_pt_edge_t*> e_;
+  std::vector<ccd_pt_face_t*> f_;
+  ccd_pt_t* polytope_;
+};
+
+/**
+  Simple equilateral tetrahedron.
+
+Geometrically, its edge lengths are the given length (default to unit length).
+Its "bottom" face is parallel with the z = 0 plane. It's default configuration
+places the bottom face *on* the z = 0 plane with the origin contained in the
+bottom face.
+
+In representation, the edge ordering is arbitrary (i.e., an edge can be defined
+as (vᵢ, vⱼ) or (vⱼ, vᵢ). However, given an arbitrary definition of edges, the
+*faces* have been defined to have a specific winding which causes e₀ × e₁ to
+point inwards or outwards for that face. This allows us to explicitly fully
+exercise the functionality for computing an outward normal.
+  - face 0: points outward
+  - face 1: points inward (requires flipping)
+  - face 2: points inward (requires flipping)
+  - face 3: points outward
+
+All property accessors are *mutable*.
+*/
+class EquilateralTetrahedron : public Polytope {
  public:
   EquilateralTetrahedron(ccd_real_t bottom_center_x = 0,
                          ccd_real_t bottom_center_y = 0,
                          ccd_real_t bottom_center_z = 0,
-                         ccd_real_t edge_length = 1)
-      : polytope_(new ccd_pt_t) {
-    ccdPtInit(polytope_.get());
-    auto AddTetrahedronVertex = [bottom_center_x, bottom_center_y,
-                                 bottom_center_z, edge_length, this](
-        ccd_real_t x, ccd_real_t y, ccd_real_t z) {
-      return ccdPtAddVertexCoords(
-          this->polytope_.get(), x * edge_length + bottom_center_x,
-          y * edge_length + bottom_center_y, z * edge_length + bottom_center_z);
-    };
-    v_[0] = AddTetrahedronVertex(0.5, -0.5 / std::sqrt(3), 0);
-    v_[1] = AddTetrahedronVertex(-0.5, -0.5 / std::sqrt(3), 0);
-    v_[2] = AddTetrahedronVertex(0, 1 / std::sqrt(3), 0);
-    v_[3] = AddTetrahedronVertex(0, 0, std::sqrt(2.0 / 3.0));
-    e_[0] = ccdPtAddEdge(polytope_.get(), v_[0], v_[1]);
-    e_[1] = ccdPtAddEdge(polytope_.get(), v_[1], v_[2]);
-    e_[2] = ccdPtAddEdge(polytope_.get(), v_[2], v_[0]);
-    e_[3] = ccdPtAddEdge(polytope_.get(), v_[0], v_[3]);
-    e_[4] = ccdPtAddEdge(polytope_.get(), v_[1], v_[3]);
-    e_[5] = ccdPtAddEdge(polytope_.get(), v_[2], v_[3]);
-    f_[0] = ccdPtAddFace(polytope_.get(), e_[0], e_[1], e_[2]);
-    f_[1] = ccdPtAddFace(polytope_.get(), e_[0], e_[3], e_[4]);
-    f_[2] = ccdPtAddFace(polytope_.get(), e_[1], e_[4], e_[5]);
-    f_[3] = ccdPtAddFace(polytope_.get(), e_[3], e_[5], e_[2]);
-  }
-
-  ccd_pt_vertex_t* v(int i) const { return v_[i]; }
-
-  ccd_pt_edge_t* e(int i) const { return e_[i]; }
-
-  ccd_pt_face_t* f(int i) const { return f_[i]; }
-
-  ccd_pt_t* polytope() const { return polytope_.get(); }
-
-  ~EquilateralTetrahedron() {
-    ccdPtDestroy(polytope_.get());
-    // ccdPtDestroy does not really delete the polytope_.get() pointer.
+                         ccd_real_t edge_length = 1) {
+    bottom_center_pos_[0] = bottom_center_x;
+    bottom_center_pos_[1] = bottom_center_y;
+    bottom_center_pos_[2] = bottom_center_z;
+    edge_length_ = edge_length;
+    Initialize();
   }
 
  private:
-  std::unique_ptr<ccd_pt_t> polytope_;
-  ccd_pt_vertex_t* v_[4];
-  ccd_pt_edge_t* e_[6];
-  ccd_pt_face_t* f_[4];
+  void DoInitialize() override {
+    v().resize(4);
+    e().resize(6);
+    f().resize(4);
+    auto AddTetrahedronVertex = [this](ccd_real_t x, ccd_real_t y,
+                                       ccd_real_t z) {
+      return ccdPtAddVertexCoords(
+          &this->polytope(),
+          x * this->edge_length_ + this->bottom_center_pos_[0],
+          y * this->edge_length_ + this->bottom_center_pos_[1],
+          z * this->edge_length_ + this->bottom_center_pos_[2]);
+    };
+    v()[0] = AddTetrahedronVertex(0.5, -0.5 / std::sqrt(3), 0);
+    v()[1] = AddTetrahedronVertex(-0.5, -0.5 / std::sqrt(3), 0);
+    v()[2] = AddTetrahedronVertex(0, 1 / std::sqrt(3), 0);
+    v()[3] = AddTetrahedronVertex(0, 0, std::sqrt(2.0 / 3.0));
+    e()[0] = ccdPtAddEdge(&polytope(), &v(0), &v(1));
+    e()[1] = ccdPtAddEdge(&polytope(), &v(1), &v(2));
+    e()[2] = ccdPtAddEdge(&polytope(), &v(2), &v(0));
+    e()[3] = ccdPtAddEdge(&polytope(), &v(0), &v(3));
+    e()[4] = ccdPtAddEdge(&polytope(), &v(1), &v(3));
+    e()[5] = ccdPtAddEdge(&polytope(), &v(2), &v(3));
+    f()[0] = ccdPtAddFace(&polytope(), &e(0), &e(1), &e(2));
+    f()[1] = ccdPtAddFace(&polytope(), &e(0), &e(3), &e(4));
+    f()[2] = ccdPtAddFace(&polytope(), &e(1), &e(4), &e(5));
+    f()[3] = ccdPtAddFace(&polytope(), &e(3), &e(5), &e(2));
+  }
+
+  ccd_real_t bottom_center_pos_[3];
+  ccd_real_t edge_length_;
 };
 
 GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
@@ -106,13 +167,28 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
   auto CheckTetrahedronFaceNormal = [](const EquilateralTetrahedron& p) {
     for (int i = 0; i < 4; ++i) {
       const ccd_vec3_t n =
-          libccd_extension::faceNormalPointingOutward(p.polytope(), p.f(i));
+          libccd_extension::faceNormalPointingOutward(&p.polytope(), &p.f(i));
       for (int j = 0; j < 4; ++j) {
-        EXPECT_LE(ccdVec3Dot(&n, &p.v(j)->v.v),
-                  ccdVec3Dot(&n, &p.f(i)->edge[0]->vertex[0]->v.v) + 1E-6);
+        EXPECT_LE(ccdVec3Dot(&n, &p.v(j).v.v),
+                  ccdVec3Dot(&n, &p.f(i).edge[0]->vertex[0]->v.v) +
+                      constants<ccd_real_t>::eps_34());
       }
     }
   };
+  /*
+   p1-p4: The tetrahedron is positioned so that the origin is placed on each
+   face (some requiring flipping, some not)
+   p5: Origin is well within
+   p6: Origin on the bottom face, but the tetrahedron is too small; it must
+   evaluate all vertices and do a min/max comparison.
+   p7: Small tetrahedron with origin properly inside.
+   p8: Origin on the side face.
+   We do not test the case that the origin is on a vertex of the polytope. When
+   the origin coincides with a vertex, the two objects are touching, and we do
+   not need to call faceNormalPointOutward function to compute the direction
+   along which the polytope is expanded.
+
+  */
   EquilateralTetrahedron p1;
   CheckTetrahedronFaceNormal(p1);
   // Origin on the plane, and requires flipping the direction.
@@ -123,7 +199,7 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
   CheckTetrahedronFaceNormal(p3);
   EquilateralTetrahedron p4(-1.0 / 6, -1.0 / (6 * std::sqrt(3)),
                             -std::sqrt(6) / 9);
-  CheckTetrahedronFaceNormal(p3);
+  CheckTetrahedronFaceNormal(p4);
 
   // Check when the origin is within the polytope.
   EquilateralTetrahedron p5(0, 0, -0.1);
@@ -134,6 +210,8 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
   CheckTetrahedronFaceNormal(p6);
   EquilateralTetrahedron p7(0, 0, -0.002, 0.01);
   CheckTetrahedronFaceNormal(p7);
+  EquilateralTetrahedron p8(0, 0.01 / (3 * std::sqrt(3)),
+                            -0.01 * std::sqrt(6) / 9, 0.01);
 }
 
 GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
@@ -152,39 +230,45 @@ GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
   // The sampled direction should be -z unit vector.
   EquilateralTetrahedron p1(0, 0, -0.1);
   // The computation on Mac is very imprecise, thus the tolerance is big.
+  // TODO(hongkai.dai@tri.global): this tolerance should be cranked up once
+  // #291 is resolved.
   const ccd_real_t tol = 3E-5;
-  CheckSupportEPADirection(p1.polytope(),
-                           reinterpret_cast<const ccd_pt_el_t*>(p1.f(0)),
+  CheckSupportEPADirection(&p1.polytope(),
+                           reinterpret_cast<const ccd_pt_el_t*>(&p1.f(0)),
                            Vector3<ccd_real_t>(0, 0, -1), tol);
   // Nearest point is on an edge, as the origin is on an edge.
   EquilateralTetrahedron p2(0, 0.5 / std::sqrt(3), 0);
-  if (p2.e(0)->faces[0] == p2.f(0)) {
-    CheckSupportEPADirection(p2.polytope(),
-                             reinterpret_cast<const ccd_pt_el_t*>(p2.e(0)),
+  // e(0) has two neighbouring faces, f(0) and f(1). The support direction could
+  // be the normal direction of either face.
+  if (p2.e(0).faces[0] == &p2.f(0)) {
+    // Check the support direction, should be the normal direction of f(0).
+    CheckSupportEPADirection(&p2.polytope(),
+                             reinterpret_cast<const ccd_pt_el_t*>(&p2.e(0)),
                              Vector3<ccd_real_t>(0, 0, -1), tol);
   } else {
+    // The support direction should be the normal direction of f(1)
     CheckSupportEPADirection(
-        p2.polytope(), reinterpret_cast<const ccd_pt_el_t*>(p2.e(0)),
+        &p2.polytope(), reinterpret_cast<const ccd_pt_el_t*>(&p2.e(0)),
         Vector3<ccd_real_t>(0, -2 * std::sqrt(2) / 3, 1.0 / 3), tol);
   }
   // Nearest point is on a vertex, should throw an error.
   EquilateralTetrahedron p3(-0.5, 0.5 / std::sqrt(3), 0);
   EXPECT_THROW(
       libccd_extension::supportEPADirection(
-          p3.polytope(), reinterpret_cast<const ccd_pt_el_t*>(p3.v(0))),
+          &p3.polytope(), reinterpret_cast<const ccd_pt_el_t*>(&p3.v(0))),
       std::runtime_error);
 
   // Origin is an internal point of the bottom triangle
   EquilateralTetrahedron p4(0, 0, 0);
-  CheckSupportEPADirection(p4.polytope(),
-                           reinterpret_cast<const ccd_pt_el_t*>(p4.f(0)),
+  CheckSupportEPADirection(&p4.polytope(),
+                           reinterpret_cast<const ccd_pt_el_t*>(&p4.f(0)),
                            Vector3<ccd_real_t>(0, 0, -1), tol);
 
   // Nearest point is on face(1)
   EquilateralTetrahedron p5(0, 1 / (3 * std::sqrt(3)),
                             -std::sqrt(6) / 9 + 0.01);
   CheckSupportEPADirection(
-      p5.polytope(), reinterpret_cast<const ccd_pt_el_t*>(p5.f(1)),
+      &p5.polytope(), reinterpret_cast<const ccd_pt_el_t*>(&p5.f(1)),
       Vector3<ccd_real_t>(0, -2 * std::sqrt(2) / 3, 1.0 / 3), tol);
 }
 
@@ -198,8 +282,8 @@ GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace) {
     pt.v[0] = x;
     pt.v[1] = y;
     pt.v[2] = z;
-    EXPECT_EQ(libccd_extension::isOutsidePolytopeFace(p.polytope(),
-                                                      p.f(face_index), &pt),
+    EXPECT_EQ(libccd_extension::isOutsidePolytopeFace(&p.polytope(),
+                                                      &p.f(face_index), &pt),
               is_outside_expected);
   };
 
@@ -247,71 +331,74 @@ GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace) {
 // f(1) is the lower triangle.
 // f(2 + i) is the triangle that connects v(i), v(i + 1) and v(i + 2), namely
 // the triangles on the side.
-class Hexagram {
+// For each face, the edge e(0).cross(e(1)) has the following direction
+// f(0) points inward.
+// f(1) points outward.
+// f(2) points inward.
+// f(3) points outward.
+// f(4) points inward.
+// f(5) points outward.
+// f(6) points inward
+// f(7) points outward.
+class Hexagram : public Polytope {
  public:
   Hexagram(ccd_real_t bottom_center_x = 0, ccd_real_t bottom_center_y = 0,
-           ccd_real_t bottom_center_z = 0)
-      : polytope_(new ccd_pt_t) {
-    ccdPtInit(polytope_.get());
-    auto AddHexagramVertex = [bottom_center_x, bottom_center_y, bottom_center_z,
-                              this](ccd_real_t x, ccd_real_t y, ccd_real_t z) {
-      return ccdPtAddVertexCoords(this->polytope_.get(), x + bottom_center_x,
-                                  y + bottom_center_y, z + bottom_center_z);
+           ccd_real_t bottom_center_z = 0) {
+    bottom_center_pos_[0] = bottom_center_x;
+    bottom_center_pos_[1] = bottom_center_y;
+    bottom_center_pos_[2] = bottom_center_z;
+    Initialize();
+  }
+
+ private:
+  void DoInitialize() {
+    v().resize(6);
+    e().resize(12);
+    f().resize(8);
+    auto AddHexagramVertex = [this](ccd_real_t x, ccd_real_t y, ccd_real_t z) {
+      return ccdPtAddVertexCoords(
+          &this->polytope(), x + this->bottom_center_pos_[0],
+          y + this->bottom_center_pos_[1], z + this->bottom_center_pos_[2]);
     };
     // right corner of upper triangle
-    v_[0] = AddHexagramVertex(0.5, -1 / std::sqrt(3), 1);
+    v()[0] = AddHexagramVertex(0.5, -1 / std::sqrt(3), 1);
     // bottom corner of lower triangle
-    v_[1] = AddHexagramVertex(0, -2 / std::sqrt(3), 0);
+    v()[1] = AddHexagramVertex(0, -2 / std::sqrt(3), 0);
     // left corner of upper triangle
-    v_[2] = AddHexagramVertex(-0.5, -1 / std::sqrt(3), 1);
+    v()[2] = AddHexagramVertex(-0.5, -1 / std::sqrt(3), 1);
     // left corner of lower triangle
-    v_[3] = AddHexagramVertex(-0.5, 1 / std::sqrt(3), 0);
+    v()[3] = AddHexagramVertex(-0.5, 1 / std::sqrt(3), 0);
     // top corner of upper triangle
-    v_[4] = AddHexagramVertex(0, 2 / std::sqrt(3), 1);
+    v()[4] = AddHexagramVertex(0, 2 / std::sqrt(3), 1);
     // right corner of lower triangle
-    v_[5] = AddHexagramVertex(0.5, 1 / std::sqrt(3), 0);
+    v()[5] = AddHexagramVertex(0.5, 1 / std::sqrt(3), 0);
 
     // edges on the upper triangle
-    e_[0] = ccdPtAddEdge(polytope_.get(), v_[0], v_[2]);
-    e_[1] = ccdPtAddEdge(polytope_.get(), v_[2], v_[4]);
-    e_[2] = ccdPtAddEdge(polytope_.get(), v_[4], v_[0]);
+    e()[0] = ccdPtAddEdge(&polytope(), &v(0), &v(2));
+    e()[1] = ccdPtAddEdge(&polytope(), &v(2), &v(4));
+    e()[2] = ccdPtAddEdge(&polytope(), &v(4), &v(0));
     // edges on the lower triangle
-    e_[3] = ccdPtAddEdge(polytope_.get(), v_[1], v_[3]);
-    e_[4] = ccdPtAddEdge(polytope_.get(), v_[3], v_[5]);
-    e_[5] = ccdPtAddEdge(polytope_.get(), v_[5], v_[1]);
+    e()[3] = ccdPtAddEdge(&polytope(), &v(1), &v(3));
+    e()[4] = ccdPtAddEdge(&polytope(), &v(3), &v(5));
+    e()[5] = ccdPtAddEdge(&polytope(), &v(5), &v(1));
     // edges connecting the upper triangle to the lower triangle
     for (int i = 0; i < 6; ++i) {
-      e_[6 + i] = ccdPtAddEdge(polytope_.get(), v_[i], v_[(i + 1) % 6]);
+      e()[6 + i] = ccdPtAddEdge(&polytope(), &v(i), &v((i + 1) % 6));
     }
 
     // upper triangle
-    f_[0] = ccdPtAddFace(polytope_.get(), e_[0], e_[1], e_[2]);
+    f()[0] = ccdPtAddFace(&polytope(), &e(0), &e(1), &e(2));
     // lower triangle
-    f_[1] = ccdPtAddFace(polytope_.get(), e_[3], e_[4], e_[5]);
+    f()[1] = ccdPtAddFace(&polytope(), &e(3), &e(4), &e(5));
     // triangles on the side
-    f_[2] = ccdPtAddFace(polytope_.get(), e_[0], e_[7], e_[6]);
-    f_[3] = ccdPtAddFace(polytope_.get(), e_[7], e_[8], e_[3]);
-    f_[4] = ccdPtAddFace(polytope_.get(), e_[8], e_[9], e_[1]);
-    f_[5] = ccdPtAddFace(polytope_.get(), e_[9], e_[10], e_[4]);
-    f_[6] = ccdPtAddFace(polytope_.get(), e_[10], e_[11], e_[2]);
-    f_[7] = ccdPtAddFace(polytope_.get(), e_[11], e_[6], e_[5]);
+    f()[2] = ccdPtAddFace(&polytope(), &e(0), &e(7), &e(6));
+    f()[3] = ccdPtAddFace(&polytope(), &e(7), &e(8), &e(3));
+    f()[4] = ccdPtAddFace(&polytope(), &e(8), &e(9), &e(1));
+    f()[5] = ccdPtAddFace(&polytope(), &e(9), &e(10), &e(4));
+    f()[6] = ccdPtAddFace(&polytope(), &e(10), &e(11), &e(2));
+    f()[7] = ccdPtAddFace(&polytope(), &e(11), &e(6), &e(5));
   }
-
-  ~Hexagram() { ccdPtDestroy(polytope_.get()); }
-
-  ccd_pt_t* polytope() const { return polytope_.get(); }
-
-  ccd_pt_vertex_t* v(int i) const { return v_[i]; }
-
-  ccd_pt_edge_t* e(int i) const { return e_[i]; }
-
-  ccd_pt_face_t* f(int i) const { return f_[i]; }
-
- private:
-  std::unique_ptr<ccd_pt_t> polytope_;
-  ccd_pt_vertex_t* v_[6];
-  ccd_pt_edge_t* e_[12];
-  ccd_pt_face_t* f_[8];
+  ccd_real_t bottom_center_pos_[3];
 };
 
 template <typename T>
@@ -319,9 +406,12 @@ bool IsElementInSet(const std::unordered_set<T>& S, const T& element) {
   return S.find(element) != S.end();
 }
 
-template <typename T>
+// @param border_edge_indices_expected
+// polytope.e(border_edge_indices_expected(i)) is a border edge. Similarly for
+// visible_face_indices_expected and internal_edges_indices_expected.
 void CheckComputeVisiblePatchCommon(
-    const T& polytope, const std::unordered_set<ccd_pt_edge_t*>& border_edges,
+    const Polytope& polytope,
+    const std::unordered_set<ccd_pt_edge_t*>& border_edges,
     const std::unordered_set<ccd_pt_face_t*>& visible_faces,
     const std::unordered_set<ccd_pt_edge_t*> internal_edges,
     const std::unordered_set<int>& border_edge_indices_expected,
@@ -330,34 +420,36 @@ void CheckComputeVisiblePatchCommon(
   // Check border_edges
   EXPECT_EQ(border_edges.size(), border_edge_indices_expected.size());
   for (const int edge_index : border_edge_indices_expected) {
-    EXPECT_TRUE(IsElementInSet(border_edges, polytope.e(edge_index)));
+    EXPECT_TRUE(IsElementInSet(
+        border_edges, const_cast<ccd_pt_edge_t*>(&polytope.e(edge_index))));
   }
   // Check visible_faces
   EXPECT_EQ(visible_faces.size(), visible_face_indices_expected.size());
   for (const int face_index : visible_face_indices_expected) {
-    EXPECT_TRUE(IsElementInSet(visible_faces, polytope.f(face_index)));
+    EXPECT_TRUE(IsElementInSet(
+        visible_faces, const_cast<ccd_pt_face_t*>(&polytope.f(face_index))));
   }
   // Check internal_edges
   EXPECT_EQ(internal_edges.size(), internal_edges_indices_expected.size());
   for (const auto edge_index : internal_edges_indices_expected) {
-    EXPECT_TRUE(IsElementInSet(internal_edges, polytope.e(edge_index)));
+    EXPECT_TRUE(IsElementInSet(
+        internal_edges, const_cast<ccd_pt_edge_t*>(&polytope.e(edge_index))));
   }
 }
 
-template <typename T>
 void CheckComputeVisiblePatchRecursive(
-    const T& polytope, ccd_pt_face_t* face,
+    const Polytope& polytope, ccd_pt_face_t& face,
     const std::vector<int>& edge_indices, const ccd_vec3_t& new_vertex,
     const std::unordered_set<int>& border_edge_indices_expected,
     const std::unordered_set<int>& visible_face_indices_expected,
     const std::unordered_set<int>& internal_edges_indices_expected) {
   std::unordered_set<ccd_pt_edge_t*> border_edges;
   std::unordered_set<ccd_pt_face_t*> visible_faces;
-  visible_faces.insert(face);
+  visible_faces.insert(&face);
   std::unordered_set<ccd_pt_edge_t*> internal_edges;
   for (const int edge_index : edge_indices) {
     libccd_extension::ComputeVisiblePatchRecursive(
-        *polytope.polytope(), *face, edge_index, new_vertex, &border_edges,
+        polytope.polytope(), face, edge_index, new_vertex, &border_edges,
         &visible_faces, &internal_edges);
   }
   CheckComputeVisiblePatchCommon(polytope, border_edges, visible_faces,
@@ -366,16 +458,15 @@ void CheckComputeVisiblePatchRecursive(
                                  internal_edges_indices_expected);
 }
 
-template <typename T>
 void CheckComputeVisiblePatch(
-    const T& polytope, ccd_pt_face_t* face, const ccd_vec3_t& new_vertex,
+    const Polytope& polytope, ccd_pt_face_t& face, const ccd_vec3_t& new_vertex,
     const std::unordered_set<int>& border_edge_indices_expected,
     const std::unordered_set<int>& visible_face_indices_expected,
     const std::unordered_set<int>& internal_edges_indices_expected) {
   std::unordered_set<ccd_pt_edge_t*> border_edges;
   std::unordered_set<ccd_pt_face_t*> visible_faces;
   std::unordered_set<ccd_pt_edge_t*> internal_edges;
-  libccd_extension::ComputeVisiblePatch(*polytope.polytope(), *face, new_vertex,
+  libccd_extension::ComputeVisiblePatch(polytope.polytope(), face, new_vertex,
                                         &border_edges, &visible_faces,
                                         &internal_edges);
 
@@ -385,7 +476,7 @@ void CheckComputeVisiblePatch(
                                  internal_edges_indices_expected);
 }
 
-GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch1) {
+GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch_TopFaceVisible) {
   // 1 visible face.
   Hexagram hex;
   // Point P is just slightly above the top triangle. Only the top triangle can
@@ -395,12 +486,14 @@ GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch1) {
   p.v[1] = 0;
   p.v[2] = 1.1;
   const std::unordered_set<int> empty_set;
+  // Test recursive implementation.
   CheckComputeVisiblePatchRecursive(hex, hex.f(0), {0}, p, {0}, {0}, empty_set);
 
+  // Test ComputeVisiblePatch.
   CheckComputeVisiblePatch(hex, hex.f(0), p, {0, 1, 2}, {0}, empty_set);
 }
 
-GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch2) {
+GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch_4FacesVisible) {
   // 4 visible faces.
   Hexagram hex;
   // Point P is just above the top triangle by a certain height, such that it
@@ -410,13 +503,15 @@ GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch2) {
   p.v[0] = 0;
   p.v[1] = 0;
   p.v[2] = 2.1;
+  // Test recursive implementation.
   CheckComputeVisiblePatchRecursive(hex, hex.f(0), {0}, p, {6, 7}, {0, 2}, {0});
 
+  // Test ComputeVisiblePatch.
   CheckComputeVisiblePatch(hex, hex.f(0), p, {6, 7, 8, 9, 10, 11}, {0, 2, 4, 6},
                            {0, 1, 2});
 }
 
-GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch3) {
+GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch_TopAndSideFacesVisible) {
   // 2 visible faces.
   Hexagram hex;
   // Point P is just outside the upper triangle (face0) and the triangle face2,
@@ -430,7 +525,7 @@ GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch3) {
   CheckComputeVisiblePatch(hex, hex.f(0), p, {1, 2, 6, 7}, {0, 2}, {0});
 }
 
-GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch4) {
+GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch_2FacesVisible) {
   // Test with the equilateral tetrahedron.
   // Point P is outside of an edge on the bottom triangle. It can see both faces
   // neighbouring that edge.
@@ -510,7 +605,7 @@ bool TriangleMatch(
 // @param feature2[out] The set of features in feature2_list.
 // @param map_feature1_to_feature2[out] Maps a feature in feature1_list to
 // a feature in feature2_list.
-// @note The features in feature1_list should be distince, so are in
+// @note The features in feature1_list should be unique, so are in
 // feature2_list.
 template <typename T>
 void MapFeature1ToFeature2(
@@ -537,10 +632,15 @@ void MapFeature1ToFeature2(
     bool found_match = false;
     for (const auto& f2 : *feature2) {
       if (cmp_feature(f1, f2)) {
-        map_feature1_to_feature2->emplace_hint(map_feature1_to_feature2->end(),
-                                               f1, f2);
-        found_match = true;
-        break;
+        if (!found_match) {
+          map_feature1_to_feature2->emplace_hint(
+              map_feature1_to_feature2->end(), f1, f2);
+          found_match = true;
+        } else {
+          throw std::logic_error(
+              "There should be only one element in feature2_list that matches "
+              "with an element in feature1_list.");
+        }
       }
     }
     EXPECT_TRUE(found_match);
@@ -623,7 +723,7 @@ void ComparePolytope(const ccd_pt_t* polytope1, const ccd_pt_t* polytope2,
   }
 }
 
-GTEST_TEST(FCL_GJK_EPA, expandPolytope1) {
+GTEST_TEST(FCL_GJK_EPA, expandPolytope_tetrahedron1) {
   // Expand the equilateral tetrahedron by adding a point just outside one of
   // the triangle face. That nearest triangle face will be deleted, and the
   // three new faces will be added, by connecting the new vertex with the three
@@ -636,32 +736,37 @@ GTEST_TEST(FCL_GJK_EPA, expandPolytope1) {
   newv.v.v[2] = -0.2;
 
   const int result = libccd_extension::expandPolytope(
-      polytope.polytope(), (ccd_pt_el_t*)polytope.f(0), &newv);
+      &polytope.polytope(), reinterpret_cast<ccd_pt_el_t*>(&polytope.f(0)),
+      &newv);
   EXPECT_EQ(result, 0);
 
   // Construct the expanded polytope manually.
   EquilateralTetrahedron tetrahedron(0, 0, -0.1);
-  ccd_pt_t* polytope_expected = tetrahedron.polytope();
+  ccd_pt_t& polytope_expected = tetrahedron.polytope();
   // The bottom face is removed.
-  ccdPtDelFace(polytope_expected, tetrahedron.f(0));
+  ccdPtDelFace(&polytope_expected, &tetrahedron.f(0));
   // Insert the vertex.
   ccd_pt_vertex_t* new_vertex =
-      ccdPtAddVertexCoords(polytope_expected, 0, 0, -0.2);
+      ccdPtAddVertexCoords(&polytope_expected, 0, 0, -0.2);
   // Add new edges.
   ccd_pt_edge_t* new_edges[3];
   for (int i = 0; i < 3; ++i) {
     new_edges[i] =
-        ccdPtAddEdge(polytope_expected, new_vertex, tetrahedron.v(i));
+        ccdPtAddEdge(&polytope_expected, new_vertex, &tetrahedron.v(i));
   }
   // Add new faces.
-  ccdPtAddFace(polytope_expected, tetrahedron.e(0), new_edges[0], new_edges[1]);
-  ccdPtAddFace(polytope_expected, tetrahedron.e(1), new_edges[1], new_edges[2]);
-  ccdPtAddFace(polytope_expected, tetrahedron.e(2), new_edges[2], new_edges[0]);
+  ccdPtAddFace(&polytope_expected, &tetrahedron.e(0), new_edges[0],
+               new_edges[1]);
+  ccdPtAddFace(&polytope_expected, &tetrahedron.e(1), new_edges[1],
+               new_edges[2]);
+  ccdPtAddFace(&polytope_expected, &tetrahedron.e(2), new_edges[2],
+               new_edges[0]);
 
-  ComparePolytope(polytope.polytope(), polytope_expected, 1E-3);
+  ComparePolytope(&polytope.polytope(), &polytope_expected,
+                  constants<ccd_real_t>::eps_34());
 }
 
-GTEST_TEST(FCL_GJK_EPA, expandPolytope2) {
+GTEST_TEST(FCL_GJK_EPA, expandPolytope_tetrahedron_2visible_faces) {
   // Expand the equilateral tetrahedron by adding a point just outside one edge.
   // The two neighbouring faces of that edge will be deleted. Four new faces
   // will be added, by connecting the new vertex with the remaining vertex on
@@ -674,37 +779,47 @@ GTEST_TEST(FCL_GJK_EPA, expandPolytope2) {
   newv.v.v[2] = -0.2;
 
   const int result = libccd_extension::expandPolytope(
-      polytope.polytope(), (ccd_pt_el_t*)polytope.e(0), &newv);
+      &polytope.polytope(), reinterpret_cast<ccd_pt_el_t*>(&polytope.e(0)),
+      &newv);
   EXPECT_EQ(result, 0);
 
   // Construct the expanded polytope manually.
   EquilateralTetrahedron tetrahedron(0, 0, -0.1);
-  ccd_pt_t* polytope_expected = tetrahedron.polytope();
+  ccd_pt_t& polytope_expected = tetrahedron.polytope();
   // The bottom face is removed.
-  ccdPtDelFace(polytope_expected, tetrahedron.f(0));
+  ccdPtDelFace(&polytope_expected, &tetrahedron.f(0));
   // The other face that neighbours with f(0) is removed.
-  ccdPtDelFace(polytope_expected, tetrahedron.f(1));
+  ccdPtDelFace(&polytope_expected, &tetrahedron.f(1));
   // The nearest edge is removed.
-  ccdPtDelEdge(polytope_expected, tetrahedron.e(0));
+  ccdPtDelEdge(&polytope_expected, &tetrahedron.e(0));
   // Insert the vertex.
   ccd_pt_vertex_t* new_vertex = ccdPtAddVertexCoords(
-      polytope_expected, newv.v.v[0], newv.v.v[1], newv.v.v[2]);
+      &polytope_expected, newv.v.v[0], newv.v.v[1], newv.v.v[2]);
   // Add new edges.
   ccd_pt_edge_t* new_edges[4];
-  new_edges[0] = ccdPtAddEdge(polytope_expected, new_vertex, tetrahedron.v(0));
-  new_edges[1] = ccdPtAddEdge(polytope_expected, new_vertex, tetrahedron.v(1));
-  new_edges[2] = ccdPtAddEdge(polytope_expected, new_vertex, tetrahedron.v(2));
-  new_edges[3] = ccdPtAddEdge(polytope_expected, new_vertex, tetrahedron.v(3));
+  new_edges[0] =
+      ccdPtAddEdge(&polytope_expected, new_vertex, &tetrahedron.v(0));
+  new_edges[1] =
+      ccdPtAddEdge(&polytope_expected, new_vertex, &tetrahedron.v(1));
+  new_edges[2] =
+      ccdPtAddEdge(&polytope_expected, new_vertex, &tetrahedron.v(2));
+  new_edges[3] =
+      ccdPtAddEdge(&polytope_expected, new_vertex, &tetrahedron.v(3));
   // Add new faces.
-  ccdPtAddFace(polytope_expected, tetrahedron.e(3), new_edges[0], new_edges[3]);
-  ccdPtAddFace(polytope_expected, tetrahedron.e(2), new_edges[0], new_edges[2]);
-  ccdPtAddFace(polytope_expected, tetrahedron.e(4), new_edges[1], new_edges[3]);
-  ccdPtAddFace(polytope_expected, tetrahedron.e(1), new_edges[1], new_edges[2]);
+  ccdPtAddFace(&polytope_expected, &tetrahedron.e(3), new_edges[0],
+               new_edges[3]);
+  ccdPtAddFace(&polytope_expected, &tetrahedron.e(2), new_edges[0],
+               new_edges[2]);
+  ccdPtAddFace(&polytope_expected, &tetrahedron.e(4), new_edges[1],
+               new_edges[3]);
+  ccdPtAddFace(&polytope_expected, &tetrahedron.e(1), new_edges[1],
+               new_edges[2]);
 
-  ComparePolytope(polytope.polytope(), polytope_expected, 1E-3);
+  ComparePolytope(&polytope.polytope(), &polytope_expected,
+                  constants<ccd_real_t>::eps_34());
 }
 
-GTEST_TEST(FCL_GJK_EPA, expandPolytope3) {
+GTEST_TEST(FCL_GJK_EPA, expandPolytope_hexagram_1visible_face) {
   // Expand the Hexagram by adding a point just above the upper triangle.
   // The upper triangle will be deleted. Three new faces will be added, by
   // connecting the new vertex with the three vertices of the removed triangle.
@@ -716,38 +831,39 @@ GTEST_TEST(FCL_GJK_EPA, expandPolytope3) {
   newv.v.v[2] = 0.2;
 
   const int result = libccd_extension::expandPolytope(
-      hex.polytope(), (ccd_pt_el_t*)hex.f(0), &newv);
+      &hex.polytope(), reinterpret_cast<ccd_pt_el_t*>(&hex.f(0)), &newv);
   EXPECT_EQ(result, 0);
 
   // Construct the expanded polytope manually.
   Hexagram hex_duplicate(0, 0, -0.9);
-  ccd_pt_t* polytope_expected = hex_duplicate.polytope();
+  ccd_pt_t& polytope_expected = hex_duplicate.polytope();
   // Remove the upper triangle.
-  ccdPtDelFace(polytope_expected, hex_duplicate.f(0));
+  ccdPtDelFace(&polytope_expected, &hex_duplicate.f(0));
 
   // Add the new vertex.
   ccd_pt_vertex_t* new_vertex = ccdPtAddVertexCoords(
-      polytope_expected, newv.v.v[0], newv.v.v[1], newv.v.v[2]);
+      &polytope_expected, newv.v.v[0], newv.v.v[1], newv.v.v[2]);
   // Add the new edges.
   ccd_pt_edge_t* new_edges[3];
   new_edges[0] =
-      ccdPtAddEdge(polytope_expected, new_vertex, hex_duplicate.v(0));
+      ccdPtAddEdge(&polytope_expected, new_vertex, &hex_duplicate.v(0));
   new_edges[1] =
-      ccdPtAddEdge(polytope_expected, new_vertex, hex_duplicate.v(2));
+      ccdPtAddEdge(&polytope_expected, new_vertex, &hex_duplicate.v(2));
   new_edges[2] =
-      ccdPtAddEdge(polytope_expected, new_vertex, hex_duplicate.v(4));
+      ccdPtAddEdge(&polytope_expected, new_vertex, &hex_duplicate.v(4));
   // Add the new faces.
-  ccdPtAddFace(polytope_expected, new_edges[0], new_edges[1],
-               hex_duplicate.e(0));
-  ccdPtAddFace(polytope_expected, new_edges[1], new_edges[2],
-               hex_duplicate.e(1));
-  ccdPtAddFace(polytope_expected, new_edges[2], new_edges[0],
-               hex_duplicate.e(2));
+  ccdPtAddFace(&polytope_expected, new_edges[0], new_edges[1],
+               &hex_duplicate.e(0));
+  ccdPtAddFace(&polytope_expected, new_edges[1], new_edges[2],
+               &hex_duplicate.e(1));
+  ccdPtAddFace(&polytope_expected, new_edges[2], new_edges[0],
+               &hex_duplicate.e(2));
 
-  ComparePolytope(hex.polytope(), polytope_expected, 1E-3);
+  ComparePolytope(&hex.polytope(), &polytope_expected,
+                  constants<ccd_real_t>::eps_34());
 }
 
-GTEST_TEST(FCL_GJK_EPA, expandPolytope4) {
+GTEST_TEST(FCL_GJK_EPA, expandPolytope_hexagram_4_visible_faces) {
   // Expand the Hexagram by adding a point above the upper triangle by a certain
   // height, such that the new vertex can see the upper triangle, together with
   // the three triangles on the side of the hexagram. All these four triangles
@@ -761,39 +877,40 @@ GTEST_TEST(FCL_GJK_EPA, expandPolytope4) {
   newv.v.v[2] = 1.2;
 
   const int result = libccd_extension::expandPolytope(
-      hex.polytope(), (ccd_pt_el_t*)hex.f(0), &newv);
+      &hex.polytope(), reinterpret_cast<ccd_pt_el_t*>(&hex.f(0)), &newv);
   EXPECT_EQ(result, 0);
 
   // Construct the expanded polytope manually.
   Hexagram hex_duplicate(0, 0, -0.9);
-  ccd_pt_t* polytope_expected = hex_duplicate.polytope();
+  ccd_pt_t& polytope_expected = hex_duplicate.polytope();
   // Remove the upper triangle.
-  ccdPtDelFace(polytope_expected, hex_duplicate.f(0));
+  ccdPtDelFace(&polytope_expected, &hex_duplicate.f(0));
   // Remove the triangles on the side, which consists of two vertices on the
   // upper triangle, and one vertex on the lower triangle.
-  ccdPtDelFace(polytope_expected, hex_duplicate.f(2));
-  ccdPtDelFace(polytope_expected, hex_duplicate.f(4));
-  ccdPtDelFace(polytope_expected, hex_duplicate.f(6));
+  ccdPtDelFace(&polytope_expected, &hex_duplicate.f(2));
+  ccdPtDelFace(&polytope_expected, &hex_duplicate.f(4));
+  ccdPtDelFace(&polytope_expected, &hex_duplicate.f(6));
   // Remove the edges of the upper triangle.
-  ccdPtDelEdge(polytope_expected, hex_duplicate.e(0));
-  ccdPtDelEdge(polytope_expected, hex_duplicate.e(1));
-  ccdPtDelEdge(polytope_expected, hex_duplicate.e(2));
+  ccdPtDelEdge(&polytope_expected, &hex_duplicate.e(0));
+  ccdPtDelEdge(&polytope_expected, &hex_duplicate.e(1));
+  ccdPtDelEdge(&polytope_expected, &hex_duplicate.e(2));
 
   // Add the new vertex.
   ccd_pt_vertex_t* new_vertex = ccdPtAddVertexCoords(
-      polytope_expected, newv.v.v[0], newv.v.v[1], newv.v.v[2]);
+      &polytope_expected, newv.v.v[0], newv.v.v[1], newv.v.v[2]);
   // Add the new edges.
   ccd_pt_edge_t* new_edges[6];
   for (int i = 0; i < 6; ++i) {
     new_edges[i] =
-        ccdPtAddEdge(polytope_expected, new_vertex, hex_duplicate.v(i));
+        ccdPtAddEdge(&polytope_expected, new_vertex, &hex_duplicate.v(i));
   }
   // Add the new faces.
   for (int i = 0; i < 6; ++i) {
-    ccdPtAddFace(polytope_expected, new_edges[i % 6], new_edges[(i + 1) % 6],
-                 hex_duplicate.e(i + 6));
+    ccdPtAddFace(&polytope_expected, new_edges[i % 6], new_edges[(i + 1) % 6],
+                 &hex_duplicate.e(i + 6));
   }
-  ComparePolytope(hex.polytope(), polytope_expected, 1E-3);
+  ComparePolytope(&hex.polytope(), &polytope_expected,
+                  constants<ccd_real_t>::eps_34());
 }
 
 void CompareCcdVec3(const ccd_vec3_t& v, const ccd_vec3_t& v_expected,
@@ -803,41 +920,38 @@ void CompareCcdVec3(const ccd_vec3_t& v, const ccd_vec3_t& v_expected,
   }
 }
 
-GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest1) {
+GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest_vertex) {
   // The nearest point is a vertex on the polytope.
   // tetrahedron.v(0) is the origin.
   EquilateralTetrahedron tetrahedron(-0.5, 0.5 / std::sqrt(3), 0);
   // Make sure that v1 - v2 = v.
-  tetrahedron.v(0)->v.v1.v[0] = 1;
-  tetrahedron.v(0)->v.v1.v[1] = 2;
-  tetrahedron.v(0)->v.v1.v[2] = 3;
+  tetrahedron.v(0).v.v1.v[0] = 1;
+  tetrahedron.v(0).v.v1.v[1] = 2;
+  tetrahedron.v(0).v.v1.v[2] = 3;
   for (int i = 0; i < 3; ++i) {
-    tetrahedron.v(0)->v.v2.v[i] = tetrahedron.v(0)->v.v1.v[i];
+    tetrahedron.v(0).v.v2.v[i] = tetrahedron.v(0).v.v1.v[i];
   }
   ccd_vec3_t p1, p2;
-  EXPECT_EQ(libccd_extension::penEPAPosClosest(
-                (const ccd_pt_el_t*)tetrahedron.v(0), &p1, &p2),
-            0);
-  CompareCcdVec3(p1, tetrahedron.v(0)->v.v1, 1E-14);
-  CompareCcdVec3(p2, tetrahedron.v(0)->v.v2, 1E-14);
+  EXPECT_EQ(
+      libccd_extension::penEPAPosClosest(
+          reinterpret_cast<const ccd_pt_el_t*>(&tetrahedron.v(0)), &p1, &p2),
+      0);
+  CompareCcdVec3(p1, tetrahedron.v(0).v.v1, constants<ccd_real_t>::eps_78());
+  CompareCcdVec3(p2, tetrahedron.v(0).v.v2, constants<ccd_real_t>::eps_78());
 }
 
-GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest2) {
+GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest_edge) {
   // The nearest point is on an edge of the polytope.
   // tetrahedron.e(1) contains the origin.
   EquilateralTetrahedron tetrahedron(0.25, -0.25 / std::sqrt(3), 0);
   // e(1) connects two vertices v(1) and v(2), make sure that v(1).v1 - v(1).v2
   // = v(1).v, also v(2).v1 - v(2).v2 = v(2).v
-  tetrahedron.v(1)->v.v1.v[0] = 1;
-  tetrahedron.v(1)->v.v1.v[1] = 2;
-  tetrahedron.v(1)->v.v1.v[2] = 3;
-  tetrahedron.v(2)->v.v1.v[0] = 4;
-  tetrahedron.v(2)->v.v1.v[1] = 5;
-  tetrahedron.v(2)->v.v1.v[2] = 6;
+  ccdVec3Set(&tetrahedron.v(1).v.v1, 1, 2, 3);
+  ccdVec3Set(&tetrahedron.v(2).v.v1, 4, 5, 6);
   for (int i = 1; i <= 2; ++i) {
     for (int j = 0; j < 3; ++j) {
-      tetrahedron.v(i)->v.v2.v[j] =
-          tetrahedron.v(i)->v.v1.v[j] - tetrahedron.v(i)->v.v.v[j];
+      tetrahedron.v(i).v.v2.v[j] =
+          tetrahedron.v(i).v.v1.v[j] - tetrahedron.v(i).v.v.v[j];
     }
   }
   // Notice that origin = 0.5*v(1).v + 0.5*v(2).v
@@ -846,21 +960,21 @@ GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest2) {
   ccd_vec3_t p1, p2;
   EXPECT_EQ(
       libccd_extension::penEPAPosClosest(
-          reinterpret_cast<const ccd_pt_el_t*>(tetrahedron.e(1)), &p1, &p2),
+          reinterpret_cast<const ccd_pt_el_t*>(&tetrahedron.e(1)), &p1, &p2),
       0);
   ccd_vec3_t p1_expected, p2_expected;
-  ccdVec3Copy(&p1_expected, &tetrahedron.v(1)->v.v1);
-  ccdVec3Add(&p1_expected, &tetrahedron.v(2)->v.v1);
+  ccdVec3Copy(&p1_expected, &tetrahedron.v(1).v.v1);
+  ccdVec3Add(&p1_expected, &tetrahedron.v(2).v.v1);
   ccdVec3Scale(&p1_expected, ccd_real_t(0.5));
-  ccdVec3Copy(&p2_expected, &tetrahedron.v(1)->v.v2);
-  ccdVec3Add(&p2_expected, &tetrahedron.v(2)->v.v2);
+  ccdVec3Copy(&p2_expected, &tetrahedron.v(1).v.v2);
+  ccdVec3Add(&p2_expected, &tetrahedron.v(2).v.v2);
   ccdVec3Scale(&p2_expected, ccd_real_t(0.5));
 
   CompareCcdVec3(p1, p1_expected, constants<ccd_real_t>::eps_78());
   CompareCcdVec3(p2, p2_expected, constants<ccd_real_t>::eps_78());
 }
 
-GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest3) {
+GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest_face) {
   // The nearest point is on a face of the polytope, It is the center of
   // tetrahedron.f(1).
   const Vector3<ccd_real_t> bottom_center_pos =
@@ -870,38 +984,39 @@ GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest3) {
                                      bottom_center_pos(2));
   // Assign v(i).v1 and v(i).v2 for i = 0, 1, 3, such that
   // v(i).v = v(i).v1 - v(i).v2
-  tetrahedron.v(0)->v.v1.v[0] = 1;
-  tetrahedron.v(0)->v.v1.v[1] = 2;
-  tetrahedron.v(0)->v.v1.v[2] = 3;
-  tetrahedron.v(1)->v.v1.v[0] = 4;
-  tetrahedron.v(1)->v.v1.v[1] = 5;
-  tetrahedron.v(1)->v.v1.v[2] = 6;
-  tetrahedron.v(3)->v.v1.v[0] = 7;
-  tetrahedron.v(3)->v.v1.v[1] = 8;
-  tetrahedron.v(3)->v.v1.v[2] = 9;
+  tetrahedron.v(0).v.v1.v[0] = 1;
+  tetrahedron.v(0).v.v1.v[1] = 2;
+  tetrahedron.v(0).v.v1.v[2] = 3;
+  tetrahedron.v(1).v.v1.v[0] = 4;
+  tetrahedron.v(1).v.v1.v[1] = 5;
+  tetrahedron.v(1).v.v1.v[2] = 6;
+  tetrahedron.v(3).v.v1.v[0] = 7;
+  tetrahedron.v(3).v.v1.v[1] = 8;
+  tetrahedron.v(3).v.v1.v[2] = 9;
   for (int i : {0, 1, 3}) {
     for (int j = 0; j < 3; ++j) {
-      tetrahedron.v(i)->v.v2.v[j] =
-          tetrahedron.v(i)->v.v1.v[j] - tetrahedron.v(i)->v.v.v[j];
+      tetrahedron.v(i).v.v2.v[j] =
+          tetrahedron.v(i).v.v1.v[j] - tetrahedron.v(i).v.v.v[j];
     }
   }
 
   ccd_vec3_t p1, p2;
-  EXPECT_EQ(libccd_extension::penEPAPosClosest(
-                (const ccd_pt_el_t*)tetrahedron.f(1), &p1, &p2),
-            0);
+  EXPECT_EQ(
+      libccd_extension::penEPAPosClosest(
+          reinterpret_cast<const ccd_pt_el_t*>(&tetrahedron.f(1)), &p1, &p2),
+      0);
 
   // Notice that the nearest point = 1/3 * v(0).v + 1/3 * v(1).v + 1/3 * v(3).v
   // So p1 = 1/3 * (v(0).v1 + v(1).v1 + v(3).v1)
   //    p2 = 1/3 * (v(0).v2 + v(1).v2 + v(3).v2)
   ccd_vec3_t p1_expected, p2_expected;
-  ccdVec3Copy(&p1_expected, &tetrahedron.v(0)->v.v1);
-  ccdVec3Add(&p1_expected, &tetrahedron.v(1)->v.v1);
-  ccdVec3Add(&p1_expected, &tetrahedron.v(3)->v.v1);
+  ccdVec3Copy(&p1_expected, &tetrahedron.v(0).v.v1);
+  ccdVec3Add(&p1_expected, &tetrahedron.v(1).v.v1);
+  ccdVec3Add(&p1_expected, &tetrahedron.v(3).v.v1);
   ccdVec3Scale(&p1_expected, ccd_real_t(1.0 / 3));
-  ccdVec3Copy(&p2_expected, &tetrahedron.v(0)->v.v2);
-  ccdVec3Add(&p2_expected, &tetrahedron.v(1)->v.v2);
-  ccdVec3Add(&p2_expected, &tetrahedron.v(3)->v.v2);
+  ccdVec3Copy(&p2_expected, &tetrahedron.v(0).v.v2);
+  ccdVec3Add(&p2_expected, &tetrahedron.v(1).v.v2);
+  ccdVec3Add(&p2_expected, &tetrahedron.v(3).v.v2);
   ccdVec3Scale(&p2_expected, ccd_real_t(1.0 / 3));
 
   CompareCcdVec3(p1, p1_expected, constants<ccd_real_t>::eps_78());
@@ -1082,7 +1197,7 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
       ToEigenVector<S>(non_simplex_vertex->v.v).dot(ToEigenVector<S>(dir2));
   EXPECT_NEAR(
       std::max(non_simplex_vertex_support1, non_simplex_vertex_support2),
-      expected_max_support, 1E-10);
+      expected_max_support, constants<ccd_real_t>::eps_78());
 
   // Also make sure the non_simplex_vertex actually is inside the Minkowski
   // difference.
@@ -1094,10 +1209,10 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
       (X_WF * X_FB2).inverse() * ToEigenVector<S>(non_simplex_vertex->v.v2);
   // Now check if p_B1Dv1 is in box1, and p_B2Dv2 is in box2.
   for (int i = 0; i < 3; ++i) {
-    EXPECT_LE(p_B1Dv1(i), box1_size(i) / 2 + 1E-10);
-    EXPECT_LE(p_B2Dv2(i), box2_size(i) / 2 + 1E-10);
-    EXPECT_GE(p_B1Dv1(i), -box1_size(i) / 2 - 1E-10);
-    EXPECT_GE(p_B2Dv2(i), -box2_size(i) / 2 - 1E-10);
+    EXPECT_LE(p_B1Dv1(i), box1_size(i) / 2 + constants<ccd_real_t>::eps_78());
+    EXPECT_LE(p_B2Dv2(i), box2_size(i) / 2 + constants<ccd_real_t>::eps_78());
+    EXPECT_GE(p_B1Dv1(i), -box1_size(i) / 2 - constants<ccd_real_t>::eps_78());
+    EXPECT_GE(p_B2Dv2(i), -box2_size(i) / 2 - constants<ccd_real_t>::eps_78());
   }
   // Now that we make sure the vertices of the polytope is correct, we will
   // check the edges and faces of the polytope. We do so by constructing an
