@@ -41,6 +41,7 @@
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/box_box.h"
 
 #include <algorithm>
+#include <sstream>
 
 namespace fcl
 {
@@ -258,14 +259,6 @@ int boxBox2(
     int maxc,
     std::vector<ContactPoint<S>>& contacts)
 {
-  // NOTE: This fudge factor is used to prefer face-feature contact over
-  // edge-edge. It is unclear why edge-edge contact receives this 5% penalty.
-  // Someone should document this.
-  const S fudge_factor = S(1.05);
-  Vector3<S> normalC;
-  S s, s2, l;
-  int invert_normal, code;
-
   Vector3<S> p = T2 - T1; // get vector from centers of box 1 to box 2, relative to box 1
   Vector3<S> pp = R1.transpose() * p; // get pp = p relative to body 1
 
@@ -291,13 +284,13 @@ int boxBox2(
   const Eigen::MatrixBase<DerivedA>* normalR = 0;
   S tmp = 0;
 
-  s = - std::numeric_limits<S>::max();
-  invert_normal = 0;
-  code = 0;
+  S s = -std::numeric_limits<S>::max();
+  int invert_normal = 0;
+  int code = 0;
 
   // separating axis = u1, u2, u3
   tmp = pp[0];
-  s2 = std::abs(tmp) - (Q.row(0).dot(B) + A[0]);
+  S s2 = std::abs(tmp) - (Q.row(0).dot(B) + A[0]);
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
@@ -369,10 +362,9 @@ int boxBox2(
     code = 6;
   }
 
-
   // This is used to detect zero-length axes which arise from taking the cross
   // product of parallel edges.
-  S eps = std::numeric_limits<S>::epsilon();
+  typename constants<S>::Real eps = constants<S>::eps();
 
   // We are performing the mathematical test: 0 > 0 (which should always be
   // false). However, zero can sometimes be 1e-16 or 1.5e-16. Thus,
@@ -397,14 +389,20 @@ int boxBox2(
     Q.array() += scale_factor;
   }
 
-  Vector3<S> n;
+
+
+  // NOTE: This fudge factor is used to prefer face-feature contact over
+  // edge-edge. It is unclear why edge-edge contact receives this 5% penalty.
+  // Someone should document this.
+  const S fudge_factor = S(1.05);
 
   // separating axis = u1 x (v1,v2,v3)
   tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
   s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(0, -R(2, 0), R(1, 0));
-  l = n.norm();
+  Vector3<S> n(0, -R(2, 0), R(1, 0));
+  S l = n.norm();
+  Vector3<S> normalC(n);
   if(l > eps)
   {
     s2 /= l;
@@ -421,7 +419,7 @@ int boxBox2(
   tmp = pp[2] * R(1, 1) - pp[1] * R(2, 1);
   s2 = std::abs(tmp) - (A[1] * Q(2, 1) + A[2] * Q(1, 1) + B[0] * Q(0, 2) + B[2] * Q(0, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(0, -R(2, 1), R(1, 1));
+  n << 0, -R(2, 1), R(1, 1);
   l = n.norm();
   if(l > eps)
   {
@@ -439,7 +437,7 @@ int boxBox2(
   tmp = pp[2] * R(1, 2) - pp[1] * R(2, 2);
   s2 = std::abs(tmp) - (A[1] * Q(2, 2) + A[2] * Q(1, 2) + B[0] * Q(0, 1) + B[1] * Q(0, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(0, -R(2, 2), R(1, 2));
+  n << 0, -R(2, 2), R(1, 2);
   l = n.norm();
   if(l > eps)
   {
@@ -458,7 +456,7 @@ int boxBox2(
   tmp = pp[0] * R(2, 0) - pp[2] * R(0, 0);
   s2 = std::abs(tmp) - (A[0] * Q(2, 0) + A[2] * Q(0, 0) + B[1] * Q(1, 2) + B[2] * Q(1, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(R(2, 0), 0, -R(0, 0));
+  n << R(2, 0), 0, -R(0, 0);
   l = n.norm();
   if(l > eps)
   {
@@ -476,7 +474,7 @@ int boxBox2(
   tmp = pp[0] * R(2, 1) - pp[2] * R(0, 1);
   s2 = std::abs(tmp) - (A[0] * Q(2, 1) + A[2] * Q(0, 1) + B[0] * Q(1, 2) + B[2] * Q(1, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(R(2, 1), 0, -R(0, 1));
+  n << R(2, 1), 0, -R(0, 1);
   l = n.norm();
   if(l > eps)
   {
@@ -494,7 +492,7 @@ int boxBox2(
   tmp = pp[0] * R(2, 2) - pp[2] * R(0, 2);
   s2 = std::abs(tmp) - (A[0] * Q(2, 2) + A[2] * Q(0, 2) + B[0] * Q(1, 1) + B[1] * Q(1, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(R(2, 2), 0, -R(0, 2));
+  n << R(2, 2), 0, -R(0, 2);
   l = n.norm();
   if(l > eps)
   {
@@ -513,7 +511,7 @@ int boxBox2(
   tmp = pp[1] * R(0, 0) - pp[0] * R(1, 0);
   s2 = std::abs(tmp) - (A[0] * Q(1, 0) + A[1] * Q(0, 0) + B[1] * Q(2, 2) + B[2] * Q(2, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(-R(1, 0), R(0, 0), 0);
+  n << -R(1, 0), R(0, 0), 0;
   l = n.norm();
   if(l > eps)
   {
@@ -531,7 +529,7 @@ int boxBox2(
   tmp = pp[1] * R(0, 1) - pp[0] * R(1, 1);
   s2 = std::abs(tmp) - (A[0] * Q(1, 1) + A[1] * Q(0, 1) + B[0] * Q(2, 2) + B[2] * Q(2, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(-R(1, 1), R(0, 1), 0);
+  n << -R(1, 1), R(0, 1), 0;
   l = n.norm();
   if(l > eps)
   {
@@ -549,7 +547,7 @@ int boxBox2(
   tmp = pp[1] * R(0, 2) - pp[0] * R(1, 2);
   s2 = std::abs(tmp) - (A[0] * Q(1, 2) + A[1] * Q(0, 2) + B[0] * Q(2, 1) + B[1] * Q(2, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<S>(-R(1, 2), R(0, 2), 0);
+  n << -R(1, 2), R(0, 2), 0;
   l = n.norm();
   if(l > eps)
   {
@@ -647,19 +645,19 @@ int boxBox2(
 
   // nr = normal vector of reference face dotted with axes of incident box.
   // anr = absolute values of nr.
-  Vector3<S> normal2, nr, anr;
+  Vector3<S> normal2(normal);
   if(code <= 3)
     normal2 = normal;
   else
     normal2 = -normal;
 
-  nr = Rb->transpose() * normal2;
-  anr = nr.cwiseAbs();
+  Vector3<S> nr = Rb->transpose() * normal2;
+  Vector3<S> anr = nr.cwiseAbs();
 
-  // find the largest compontent of anr: this corresponds to the normal
-  // for the indident face. the other axis numbers of the indicent face
+  // find the largest component of anr: this corresponds to the normal
+  // for the incident face. the other axis numbers of the incident face
   // are stored in a1,a2.
-  int lanr, a1, a2;
+  int lanr{-1}, a1{-1}, a2{-1};
   if(anr[1] > anr[0])
   {
     if(anr[1] > anr[2])
@@ -699,7 +697,7 @@ int boxBox2(
     center = (*pb) - (*pa) - Rb->col(lanr) * ((*Sb)[lanr]);
 
   // find the normal and non-normal axis numbers of the reference box
-  int codeN, code1, code2;
+  int codeN{-1}, code1{-1}, code2{-1};
   if(code <= 3)
     codeN = code-1;
   else codeN = code-4;
@@ -722,7 +720,13 @@ int boxBox2(
 
   // find the four corners of the incident face, in reference-face coordinates
   S quad[8]; // 2D coordinate of incident face (x,y pairs)
-  S c1, c2, m11, m12, m21, m22;
+  S c1{std::numeric_limits<S>::quiet_NaN()};
+  S c2{std::numeric_limits<S>::quiet_NaN()};
+  S m11{std::numeric_limits<S>::quiet_NaN()};
+  S m12{std::numeric_limits<S>::quiet_NaN()};
+  S m21{std::numeric_limits<S>::quiet_NaN()};
+  S m22{std::numeric_limits<S>::quiet_NaN()};
+
   c1 = Ra->col(code1).dot(center);
   c2 = Ra->col(code2).dot(center);
   // optimize this? - we have already computed this data above, but it is not
@@ -749,14 +753,20 @@ int boxBox2(
   quad[7] = c2 + k2 - k4;
 
   // find the size of the reference face
-  S rect[2];
-  rect[0] = (*Sa)[code1];
-  rect[1] = (*Sa)[code2];
+  S rect[2] = {(*Sa)[code1], (*Sa)[code2]};
 
   // intersect the incident and reference faces
   S ret[16];
   int n_intersect = intersectRectQuad2(rect, quad, ret);
-  if(n_intersect < 1) { *return_code = code; return 0; } // this should never happen
+  if(n_intersect < 1) {
+    // Historical documentation says that this "should never happen" but it
+    // still returned values that allowed computation to proceed. This arrests
+    // that evaluation in place and precludes the possibility of silently
+    // reaching this ostensibly unreachable code.
+    std::stringstream ss;
+    ss << "Reached 'unreachable' code -- n_intersect < 1";
+    throw std::logic_error(ss.str());
+  }
 
   // convert the intersection points into reference-face coordinates,
   // and compute the contact position and depth for each point. only keep

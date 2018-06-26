@@ -364,10 +364,10 @@ void test_collision_box_box_cull_contacts(fcl::GJKSolverType solver_type,
     //  y = expected_y = -√2/2 * sin(π/4 - θ)
     //  x = lines in the range [-x_e, x_e] where
     //  x_e = √2/2 + expected_y
+    const typename fcl::constants<S>::Real epsilon = fcl::constants<S>::eps();
     const S expected_z{-0.25 - expected_depth / 2};
     const S expected_y{-sqrt(2) / 2 * sin(pi / 4 - tilt)};
-    const S expected_x{sqrt(2) / 2 + expected_y +
-                       std::numeric_limits<S>::epsilon()};
+    const S expected_x{sqrt(2) / 2 + expected_y + epsilon};
     EXPECT_NEAR(expected_z, pos(2), tolerance) << origin_name;
     EXPECT_NEAR(expected_y, pos(1), tolerance) << origin_name;
     EXPECT_GE(pos(0), -expected_x);
