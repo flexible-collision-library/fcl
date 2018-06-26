@@ -1137,7 +1137,7 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   EXPECT_EQ(polytope_vertices.size(), 4u);
   // We need to find out the vertex on the polytope, that is not the vertex
   // of the simplex.
-  ccd_pt_vertex_t* non_simplex_vertex;
+  ccd_pt_vertex_t* non_simplex_vertex = NULL;
   // A simplex vertex matches with a polytope vertex if they coincide.
   int num_matched_vertices = 0;
   for (const auto& v : polytope_vertices) {
@@ -1154,6 +1154,7 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
     }
   }
   EXPECT_EQ(num_matched_vertices, 3);
+  EXPECT_TRUE(non_simplex_vertex);
   // Make sure that the non-simplex vertex has the maximal support along the
   // simplex normal direction.
   // Find the two normal directions of the 3-simplex.

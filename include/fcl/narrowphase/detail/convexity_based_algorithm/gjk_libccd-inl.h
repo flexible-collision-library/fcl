@@ -828,6 +828,11 @@ static bool isOutsidePolytopeFace(const ccd_pt_t* polytope,
   return ccdVec3Dot(&n, &r_VP) > 0;
 }
 
+#ifndef NDEBUG
+// The function ComputeVisiblePatchRecursiveSanityCheck is only called in the
+// debug mode. In the release mode, this function is declared/defined but not
+// used. Without this NDEBUG macro, the function will cause a -Wunused-function
+// error on CI's release builds.
 /**
  * The invariant for computing the visible patch is that for each edge in the
  * polytope, if both neighbouring faces are visible, then the edge is an
@@ -873,6 +878,7 @@ static bool ComputeVisiblePatchRecursiveSanityCheck(
   }
   return true;
 }
+#endif
 
 /**
  * This function contains the implementation detail of ComputeVisiblePatch
