@@ -1100,9 +1100,9 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   // If a, b, c and origin are co-planar, then aᵀ · (b × c)) = 0
   EXPECT_NEAR(a.dot(b.cross(c)), 0, 1E-10);
   // Now check if origin is within the triangle, by checking the condition
-  // (a × b)ᵀ · (b × c) >= 0
-  // (b × c)ᵀ · (c × a) >= 0
-  // (c × a)ᵀ · (a × b) >= 0
+  // (a × b)ᵀ · (b × c) ≥ 0
+  // (b × c)ᵀ · (c × a) ≥ 0
+  // (c × a)ᵀ · (a × b) ≥ 0
   // Namely the cross product a × b, b × c, c × a all point to the same
   // direction.
   // Note the check above is valid when either a, b, c is a zero vector, or
