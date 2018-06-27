@@ -1097,14 +1097,16 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   const Vector3<S> b = ToEigenVector<S>(pts[1].v);
   const Vector3<S> c = ToEigenVector<S>(pts[2].v);
   // We first check if the origin is co-planar with vertices a, b, and c.
-  // If a, b, c and origin are co-planar, then aᵀ(b.cross(c)) = 0
+  // If a, b, c and origin are co-planar, then aᵀ · (b × c)) = 0
   EXPECT_NEAR(a.dot(b.cross(c)), 0, 1E-10);
   // Now check if origin is within the triangle, by checking the condition
-  // (a.cross(b))ᵀ(b.cross(c)) >= 0
-  // (b.cross(c))ᵀ(c.cross(a)) >= 0
-  // (c.cross(a))ᵀ(a.cross(b)) >= 0
-  // Namely the cross product a x b, b x c, c x a all points to the same
+  // (a × b)ᵀ · (b × c) >= 0
+  // (b × c)ᵀ · (c × a) >= 0
+  // (c × a)ᵀ · (a × b) >= 0
+  // Namely the cross product a × b, b × c, c × a all point to the same
   // direction.
+  // Note the check above is valid when either a, b, c is a zero vector, or
+  // they are co-linear.
   EXPECT_GE(a.cross(b).dot(b.cross(c)), 0);
   EXPECT_GE(b.cross(c).dot(c.cross(a)), 0);
   EXPECT_GE(c.cross(a).dot(a.cross(b)), 0);

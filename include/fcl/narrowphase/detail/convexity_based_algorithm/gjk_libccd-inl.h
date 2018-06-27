@@ -558,8 +558,8 @@ simplexToPolytope2_not_touching_contact:
     return 0;
 }
 
-/** Transforms a 2-simplex (triagnel) to polytope (tetrahedron), three vertices
- * required.
+/** Transforms a 2-simplex (triangle) to a polytope (tetrahedron), three
+ * vertices required.
  * Both the simplex and the transformed polytope contain the origin. The simplex
  * vertices lie on the surface of the Minkowski difference obj1 ⊖ obj2.
  * @param[in] obj1 object 1 on which the distance is queried.
