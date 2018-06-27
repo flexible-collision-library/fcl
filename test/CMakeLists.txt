@@ -90,8 +90,8 @@ include_directories(.)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # Build all the tests
-foreach(test ${tests})
-  add_fcl_test(${test})
-endforeach(test)
+#foreach(test ${tests})
+#  add_fcl_test(${test})
+#endforeach(test)
 
 add_subdirectory(narrowphase)

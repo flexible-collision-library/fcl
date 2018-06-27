@@ -41,7 +41,7 @@
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/box_box.h"
 
 #include <algorithm>
-#include <sstream>
+#include <unordered_map>
 
 namespace fcl
 {
@@ -244,6 +244,20 @@ void cullPoints2(int n, S p[], int m, int i0, int iret[])
   }
 }
 
+class CiStream {
+ public:
+  CiStream(bool active = false) : active_(active), stream_(std::cout) {}
+  template <typename U>
+  CiStream& operator<<(const U& object) {
+    if (active_) stream_ << object;
+    return *this;
+  }
+
+ private:
+  bool active_{false};
+  std::ostream& stream_;
+};
+
 //==============================================================================
 template <typename S, typename DerivedA, typename DerivedB>
 int boxBox2(
@@ -257,18 +271,37 @@ int boxBox2(
     S* depth,
     int* return_code,
     int maxc,
-    std::vector<ContactPoint<S>>& contacts)
+    std::vector<ContactPoint<S>>& contacts,
+    bool verbose)
 {
+  CiStream cout(verbose);
+
+
+//  cout << "boxBox2\n";
+//  cout << " side1: " << side1.transpose() << "\n";
+//  cout << " R1: " << R1 << "\n";
+//  cout << " T1: " << T1.transpose() << "\n";
+//  cout << " side2: " << side2.transpose() << "\n";
+//  cout << " R2: " << R2 << "\n";
+//  cout << " T2: " << T2.transpose() << "\n";
+//  cout << "\n";
+
   Vector3<S> p = T2 - T1; // get vector from centers of box 1 to box 2, relative to box 1
   Vector3<S> pp = R1.transpose() * p; // get pp = p relative to body 1
-
+//  cout << " r_12_W: " << p.transpose() << "\n";
+//  cout << " r_12_1: " << pp.transpose() << "\n";
+//  cout << "\n";
   // get side lengths / 2
   Vector3<S> A = side1 * 0.5;
   Vector3<S> B = side2 * 0.5;
 
   // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
+
+  // NOTE: R1 --> R_W1 and R2 --> R_W2, so, R_W1ᵀ·R_W2 = R_1W · R_W2 = R_12
   Matrix3<S> R = R1.transpose() * R2;
   Matrix3<S> Q = R.cwiseAbs();
+//  cout << " R: " << R << "\n";
+//  cout << " Q: " << Q << "\n";
 
   // for all 15 possible separating axes:
   //   * see if the axis separates the boxes. if so, return 0.
@@ -288,79 +321,105 @@ int boxBox2(
   int invert_normal = 0;
   int code = 0;
 
+  auto assign_face_code = [&cout, &best_col_id, &normalR, &invert_normal](int c) {
+    (void)c;
+//  cout << " Assigning code " << c << ":\n";
+//  cout << "   best_col_id: " << best_col_id << "\n";
+//  cout << "   normalR:     " << normalR->transpose() << "\n";
+//  cout << "   invert_norm: " << invert_normal << "\n";
+  };
+
   // separating axis = u1, u2, u3
   tmp = pp[0];
   S s2 = std::abs(tmp) - (Q.row(0).dot(B) + A[0]);
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 1 - s: " << s << ", s2: " << s2 << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   if(s2 > s)
   {
+    code = 1;
     s = s2;
     best_col_id = 0;
     normalR = &R1;
     invert_normal = (tmp < 0);
-    code = 1;
+    assign_face_code(code);
   }
+//  cout << "\n";
 
   tmp = pp[1];
   s2 = std::abs(tmp) - (Q.row(1).dot(B) + A[1]);
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 2 - s: " << s << ", s2: " << s2 << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   if(s2 > s)
   {
+    code = 2;
     s = s2;
     best_col_id = 1;
     normalR = &R1;
     invert_normal = (tmp < 0);
-    code = 2;
+    assign_face_code(code);
   }
+//  cout << "\n";
 
   tmp = pp[2];
   s2 = std::abs(tmp) - (Q.row(2).dot(B) + A[2]);
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 3 - s: " << s << ", s2: " << s2 << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   if(s2 > s)
   {
+    code = 3;
     s = s2;
     best_col_id = 2;
     normalR = &R1;
     invert_normal = (tmp < 0);
-    code = 3;
+    assign_face_code(code);
   }
+//  cout << "\n";
 
   // separating axis = v1, v2, v3
   tmp = R2.col(0).dot(p);
   s2 = std::abs(tmp) - (Q.col(0).dot(A) + B[0]);
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 4 - s: " << s << ", s2: " << s2 << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   if(s2 > s)
   {
+    code = 4;
     s = s2;
     best_col_id = 0;
     normalR = &R2;
     invert_normal = (tmp < 0);
-    code = 4;
+    assign_face_code(code);
   }
+//  cout << "\n";
 
   tmp = R2.col(1).dot(p);
   s2 = std::abs(tmp) - (Q.col(1).dot(A) + B[1]);
-  if(s2 > 0) { *return_code = 0; return 0; }
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
+//  cout << "Code 5 - s: " << s << ", s2: " << s2 << "\n";
   if(s2 > s)
   {
+    code = 5;
     s = s2;
     best_col_id = 1;
     normalR = &R2;
     invert_normal = (tmp < 0);
-    code = 5;
+    assign_face_code(code);
   }
+//  cout << "\n";
 
   tmp = R2.col(2).dot(p);
   s2 =  std::abs(tmp) - (Q.col(2).dot(A) + B[2]);
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 6 - s: " << s << ", s2: " << s2 << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   if(s2 > s)
   {
+    code = 6;
     s = s2;
     best_col_id = 2;
     normalR = &R2;
     invert_normal = (tmp < 0);
-    code = 6;
+    assign_face_code(code);
   }
+//  cout << "\n";
 
   // This is used to detect zero-length axes which arise from taking the cross
   // product of parallel edges.
@@ -391,6 +450,7 @@ int boxBox2(
 
 
 
+
   // NOTE: This fudge factor is used to prefer face-feature contact over
   // edge-edge. It is unclear why edge-edge contact receives this 5% penalty.
   // Someone should document this.
@@ -399,26 +459,44 @@ int boxBox2(
   // separating axis = u1 x (v1,v2,v3)
   tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
   s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 7 - s: " << s << ", s2: " << s2 << ", s2 * fudge factor: ";
+//  cout << (s2 * fudge_factor) << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   Vector3<S> n(0, -R(2, 0), R(1, 0));
   S l = n.norm();
   Vector3<S> normalC(n);
+
+  auto assign_edge_code = [&cout, &best_col_id, &normalC, &invert_normal](int c) {
+    (void)c;
+//  cout << " Assigning code " << c << ":\n";
+//  cout << "   best_col_id: " << best_col_id << "\n";
+//  cout << "   normalC:     " << normalC.transpose() << "\n";
+//  cout << "   invert_norm: " << invert_normal << "\n";
+//  cout << "\n";
+  };
+
   if(l > eps)
   {
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 7;
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 7;
+      assign_edge_code(code);
     }
+  } else {
+//  cout << " l: " << l << "\n";
   }
+//  cout << "\n";
 
   tmp = pp[2] * R(1, 1) - pp[1] * R(2, 1);
   s2 = std::abs(tmp) - (A[1] * Q(2, 1) + A[2] * Q(1, 1) + B[0] * Q(0, 2) + B[2] * Q(0, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 8 - s: " << s << ", s2: " << s2 << ", s2 * fudge factor: ";
+//  cout << (s2 * fudge_factor) << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   n << 0, -R(2, 1), R(1, 1);
   l = n.norm();
   if(l > eps)
@@ -426,17 +504,23 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 8;
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 8;
+      assign_edge_code(code);
     }
+  } else {
+//  cout << " l: " << l << "\n";
   }
+//  cout << "\n";
 
   tmp = pp[2] * R(1, 2) - pp[1] * R(2, 2);
   s2 = std::abs(tmp) - (A[1] * Q(2, 2) + A[2] * Q(1, 2) + B[0] * Q(0, 1) + B[1] * Q(0, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 9 - s: " << s << ", s2: " << s2 << ", s2 * fudge factor: ";
+//  cout << (s2 * fudge_factor) << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   n << 0, -R(2, 2), R(1, 2);
   l = n.norm();
   if(l > eps)
@@ -444,18 +528,24 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 9;
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 9;
+      assign_edge_code(code);
     }
+  } else {
+//  cout << " l: " << l << "\n";
   }
+//  cout << "\n";
 
   // separating axis = u2 x (v1,v2,v3)
   tmp = pp[0] * R(2, 0) - pp[2] * R(0, 0);
   s2 = std::abs(tmp) - (A[0] * Q(2, 0) + A[2] * Q(0, 0) + B[1] * Q(1, 2) + B[2] * Q(1, 1));
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 10 - s: " << s << ", s2: " << s2 << ", s2 * fudge factor: ";
+//  cout << (s2 * fudge_factor) << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   n << R(2, 0), 0, -R(0, 0);
   l = n.norm();
   if(l > eps)
@@ -463,17 +553,23 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 10;
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 10;
+      assign_edge_code(code);
     }
+  } else {
+//  cout << " l: " << l << "\n";
   }
+//  cout << "\n";
 
   tmp = pp[0] * R(2, 1) - pp[2] * R(0, 1);
   s2 = std::abs(tmp) - (A[0] * Q(2, 1) + A[2] * Q(0, 1) + B[0] * Q(1, 2) + B[2] * Q(1, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 11 - s: " << s << ", s2: " << s2 << ", s2 * fudge factor: ";
+//  cout << (s2 * fudge_factor) << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   n << R(2, 1), 0, -R(0, 1);
   l = n.norm();
   if(l > eps)
@@ -481,17 +577,23 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 11;
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 11;
+      assign_edge_code(code);
     }
+  } else {
+//  cout << " l: " << l << "\n";
   }
+//  cout << "\n";
 
   tmp = pp[0] * R(2, 2) - pp[2] * R(0, 2);
   s2 = std::abs(tmp) - (A[0] * Q(2, 2) + A[2] * Q(0, 2) + B[0] * Q(1, 1) + B[1] * Q(1, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 12 - s: " << s << ", s2: " << s2 << ", s2 * fudge factor: ";
+//  cout << (s2 * fudge_factor) << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   n << R(2, 2), 0, -R(0, 2);
   l = n.norm();
   if(l > eps)
@@ -499,18 +601,24 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 12;
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 12;
+      assign_edge_code(code);
     }
+  } else {
+//  cout << " l: " << l << "\n";
   }
+//  cout << "\n";
 
   // separating axis = u3 x (v1,v2,v3)
   tmp = pp[1] * R(0, 0) - pp[0] * R(1, 0);
   s2 = std::abs(tmp) - (A[0] * Q(1, 0) + A[1] * Q(0, 0) + B[1] * Q(2, 2) + B[2] * Q(2, 1));
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 13 - s: " << s << ", s2: " << s2 << ", s2 * fudge factor: ";
+//  cout << (s2 * fudge_factor) << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   n << -R(1, 0), R(0, 0), 0;
   l = n.norm();
   if(l > eps)
@@ -518,17 +626,23 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 13;
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 13;
+      assign_edge_code(code);
     }
+  } else {
+//  cout << " l: " << l << "\n";
   }
+//  cout << "\n";
 
   tmp = pp[1] * R(0, 1) - pp[0] * R(1, 1);
   s2 = std::abs(tmp) - (A[0] * Q(1, 1) + A[1] * Q(0, 1) + B[0] * Q(2, 2) + B[2] * Q(2, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 14 - s: " << s << ", s2: " << s2 << ", s2 * fudge factor: ";
+//  cout << (s2 * fudge_factor) << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   n << -R(1, 1), R(0, 1), 0;
   l = n.norm();
   if(l > eps)
@@ -536,17 +650,23 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 14;
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 14;
+      assign_edge_code(code);
     }
+  } else {
+//  cout << " l: " << l << "\n";
   }
+//  cout << "\n";
 
   tmp = pp[1] * R(0, 2) - pp[0] * R(1, 2);
   s2 = std::abs(tmp) - (A[0] * Q(1, 2) + A[1] * Q(0, 2) + B[0] * Q(2, 1) + B[1] * Q(2, 0));
-  if(s2 > 0) { *return_code = 0; return 0; }
+//  cout << "Code 15 - s: " << s << ", s2: " << s2 << ", s2 * fudge factor: ";
+//  cout << (s2 * fudge_factor) << "\n";
+  if(s2 > 0) { cout << " non-intersecting!\n"; *return_code = 0; return 0; }
   n << -R(1, 2), R(0, 2), 0;
   l = n.norm();
   if(l > eps)
@@ -554,13 +674,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 15;
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 15;
+      assign_edge_code(code);
     }
+  } else {
+//  cout << " l: " << l << "\n";
   }
+//  cout << "\n";
 
   if (!code) { *return_code = code; return 0; }
 
@@ -576,10 +700,16 @@ int boxBox2(
 
   *depth = -s; // s is negative when the boxes are in collision
 
+//  cout << "normal: " << normal.transpose() << "\n";
+//  cout << "depth:  " << (*depth) << "\n";
+//  cout << "\n";
+
   // compute contact point(s)
 
   if(code > 6)
   {
+//  cout << "--------------------------------------------------------\n";
+//  cout << "Compute contact point from edge-edge: " << code << "\n";
     // an edge from box 1 touches an edge from box 2.
     // find a point pa on the intersecting edge of box 1
     Vector3<S> pa(T1);
@@ -604,16 +734,27 @@ int boxBox2(
     Vector3<S> ua(R1.col((code-7)/3));
     Vector3<S> ub(R2.col((code-7)%3));
 
+//  cout << " pa: " << pa.transpose() << "\n";
+//  cout << " pb: " << pb.transpose() << "\n";
+//  cout << " ua: " << ua.transpose() << "\n";
+//  cout << " ub: " << ub.transpose() << "\n";
+
     lineClosestApproach(pa, ua, pb, ub, &alpha, &beta);
     pa += ua * alpha;
     pb += ub * beta;
 
     Vector3<S> pointInWorld((pa + pb) * 0.5);
+//  cout << " pa: " << pa.transpose() << "\n";
+//  cout << " pb: " << pb.transpose() << "\n";
+//  cout << " point in world: " << pointInWorld.transpose() << "\n";
     contacts.emplace_back(normal, pointInWorld, *depth);
     *return_code = code;
 
     return 1;
   }
+
+//  cout << "--------------------------------------------------------\n";
+//  cout << "Compute contact point from face-something: " << code << "\n";
 
   // okay, we have a face-something intersection (because the separating
   // axis is perpendicular to a face). define face 'a' to be the reference
@@ -643,6 +784,14 @@ int boxBox2(
     Sb = &A;
   }
 
+//  cout << " Ra: " << Ra->transpose() << "\n";
+//  cout << " Rb: " << Rb->transpose() << "\n";
+//  cout << " pa: " << pa->transpose() << "\n";
+//  cout << " pb: " << pb->transpose() << "\n";
+//  cout << " Sa: " << Sa->transpose() << "\n";
+//  cout << " Sb: " << Sb->transpose() << "\n";
+//  cout << "\n";
+
   // nr = normal vector of reference face dotted with axes of incident box.
   // anr = absolute values of nr.
   Vector3<S> normal2(normal);
@@ -653,6 +802,11 @@ int boxBox2(
 
   Vector3<S> nr = Rb->transpose() * normal2;
   Vector3<S> anr = nr.cwiseAbs();
+
+//  cout << " normal2: " << normal2.transpose() << "\n";
+//  cout << " nr:      " << nr.transpose() << "\n";
+//  cout << " anr:     " << anr.transpose() << "\n";
+//  cout << "\n";
 
   // find the largest component of anr: this corresponds to the normal
   // for the incident face. the other axis numbers of the incident face
@@ -689,12 +843,20 @@ int boxBox2(
     }
   }
 
+//  cout << " lanr: " << lanr << "\n";
+//  cout << " a1:   " << a1 << "\n";
+//  cout << " a2:   " << a2 << "\n";
+//  cout << "\n";
+
   // compute center point of incident face, in reference-face coordinates
   Vector3<S> center;
   if(nr[lanr] < 0)
     center = (*pb) - (*pa) + Rb->col(lanr) * ((*Sb)[lanr]);
   else
     center = (*pb) - (*pa) - Rb->col(lanr) * ((*Sb)[lanr]);
+
+//  cout << " center: " << center.transpose() << "\n";
+//  cout << "\n";
 
   // find the normal and non-normal axis numbers of the reference box
   int codeN{-1}, code1{-1}, code2{-1};
@@ -716,6 +878,16 @@ int boxBox2(
   {
     code1 = 0;
     code2 = 1;
+  }
+
+//  cout << " codeN: " << codeN << "\n";
+//  cout << " code1: " << code1 << "\n";
+//  cout << " code2: " << code2 << "\n";
+//  cout << "\n";
+
+  // TODO(SeanCurtis-TRI): Remove this test once the mac woes are debugged.
+  if (code1 == -1 || code2 == -1 || codeN == -1) {
+    throw std::logic_error("Failed to initialize codes");
   }
 
   // find the four corners of the incident face, in reference-face coordinates
@@ -752,20 +924,39 @@ int boxBox2(
   quad[6] = c1 + k1 - k3;
   quad[7] = c2 + k2 - k4;
 
+  // TODO(SeanCurtis-TRI): Remove this test once the mac woes are debugged.
+  using std::isnan;
+  for (int i = 0; i < 8; ++i) {
+    if (isnan(quad[i])) {
+      throw std::logic_error("Quad contains NaN");
+    }
+  }
+
   // find the size of the reference face
   S rect[2] = {(*Sa)[code1], (*Sa)[code2]};
+
+//  cout << " rect: " << rect[0] << ", " << rect[1] << "\n";
+//  cout << " quad:\n";
+  for (int i = 0; i < 8; i += 2) {
+//  cout << "   " << quad[i] << ", " << quad[i + 1] << "\n";
+  }
 
   // intersect the incident and reference faces
   S ret[16];
   int n_intersect = intersectRectQuad2(rect, quad, ret);
+//  cout << " n_intersect: " << n_intersect << "\n";
+//  for (int i = 0; i < n_intersect; ++i) {
+//    int idx = i * 2;
+//  cout << "  " << ret[idx] << ", " << ret[idx + 1] << "\n";
+//  }
+//  cout << "\n";
+
   if(n_intersect < 1) {
     // Historical documentation says that this "should never happen" but it
     // still returned values that allowed computation to proceed. This arrests
     // that evaluation in place and precludes the possibility of silently
     // reaching this ostensibly unreachable code.
-    std::stringstream ss;
-    ss << "Reached 'unreachable' code -- n_intersect < 1";
-    throw std::logic_error(ss.str());
+    throw std::logic_error("Reached 'unreachable' code -- n_intersect < 1");
   }
 
   // convert the intersection points into reference-face coordinates,

@@ -1,2 +1,2 @@
-add_subdirectory(convexity_based_algorithm)
+#add_subdirectory(convexity_based_algorithm)
 add_subdirectory(primitive_shape_algorithm)
