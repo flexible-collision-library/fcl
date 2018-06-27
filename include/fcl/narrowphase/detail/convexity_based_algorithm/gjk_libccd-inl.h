@@ -558,7 +558,8 @@ simplexToPolytope2_not_touching_contact:
     return 0;
 }
 
-/** Transforms a 2-simplex to polytope (tetrahedron), three vertices required
+/** Transforms a 2-simplex (triagnel) to polytope (tetrahedron), three vertices
+ * required.
  * Both the simplex and the transformed polytope contain the origin. The simplex
  * vertices lie on the surface of the Minkowski difference obj1 ⊖ obj2.
  * @param[in] obj1 object 1 on which the distance is queried.
@@ -571,7 +572,7 @@ simplexToPolytope2_not_touching_contact:
  * then set *nearest to be the nearest points on obj1 and obj2 respectively;
  * otherwise set *nearest to NULL. @note nearest cannot be NULL.
  * @retval status return 0 on success, -1 if touching contact is detected, and
- * -2 on failure (mostly due to memory allocation bug).
+ * -2 on non-recoverable failure (mostly due to memory allocation bug).
  */
 static int Convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
                               const ccd_t* ccd, const ccd_simplex_t* simplex,

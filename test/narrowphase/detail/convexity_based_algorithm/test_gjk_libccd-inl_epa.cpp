@@ -57,11 +57,6 @@ class Polytope {
     ccdPtInit(polytope_);
   }
 
-  void Initialize(ccd_real_t tx, ccd_real_t ty, ccd_real_t tz,
-                  ccd_real_t scaling) {
-    DoInitialize(tx, ty, tz, scaling);
-  }
-
   ~Polytope() {
     // ccdPtDestroy() destroys the vertices, edges, and faces, contained in the
     // polytope, allowing the polytope itself to be subsequently deleted.
@@ -91,8 +86,6 @@ class Polytope {
   std::vector<ccd_pt_face_t*>& f() { return f_; }
 
  private:
-  virtual void DoInitialize(ccd_real_t tx, ccd_real_t ty, ccd_real_t tz,
-                            ccd_real_t scaling) = 0;
   std::vector<ccd_pt_vertex_t*> v_;
   std::vector<ccd_pt_edge_t*> e_;
   std::vector<ccd_pt_face_t*> f_;
@@ -126,13 +119,6 @@ class EquilateralTetrahedron : public Polytope {
                          ccd_real_t bottom_center_z = 0,
                          ccd_real_t edge_length = 1)
       : Polytope() {
-    Initialize(bottom_center_x, bottom_center_y, bottom_center_z, edge_length);
-  }
-
- private:
-  void DoInitialize(ccd_real_t bottom_center_x, ccd_real_t bottom_center_y,
-                    ccd_real_t bottom_center_z,
-                    ccd_real_t edge_length) override {
     v().resize(4);
     e().resize(6);
     f().resize(4);
@@ -158,9 +144,6 @@ class EquilateralTetrahedron : public Polytope {
     f()[2] = ccdPtAddFace(&polytope(), &e(1), &e(4), &e(5));
     f()[3] = ccdPtAddFace(&polytope(), &e(3), &e(5), &e(2));
   }
-
-  ccd_real_t bottom_center_pos_[3];
-  ccd_real_t edge_length_;
 };
 
 GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
@@ -346,22 +329,13 @@ class Hexagram : public Polytope {
   Hexagram(ccd_real_t bottom_center_x = 0, ccd_real_t bottom_center_y = 0,
            ccd_real_t bottom_center_z = 0)
       : Polytope() {
-    Initialize(bottom_center_x, bottom_center_y, bottom_center_z, 1);
-  }
-
- private:
-  void DoInitialize(ccd_real_t bottom_center_x, ccd_real_t bottom_center_y,
-                    ccd_real_t bottom_center_z, ccd_real_t top_edge_length) {
     v().resize(6);
     e().resize(12);
     f().resize(8);
     auto AddHexagramVertex = [bottom_center_x, bottom_center_y, bottom_center_z,
-                              top_edge_length,
                               this](ccd_real_t x, ccd_real_t y, ccd_real_t z) {
-      return ccdPtAddVertexCoords(&this->polytope(),
-                                  x * top_edge_length + bottom_center_x,
-                                  y * top_edge_length + bottom_center_y,
-                                  z * top_edge_length + bottom_center_z);
+      return ccdPtAddVertexCoords(&this->polytope(), x + bottom_center_x,
+                                  y + bottom_center_y, z + bottom_center_z);
     };
     // right corner of upper triangle
     v()[0] = AddHexagramVertex(0.5, -1 / std::sqrt(3), 1);
@@ -401,7 +375,6 @@ class Hexagram : public Polytope {
     f()[6] = ccdPtAddFace(&polytope(), &e(10), &e(11), &e(2));
     f()[7] = ccdPtAddFace(&polytope(), &e(11), &e(6), &e(5));
   }
-  ccd_real_t bottom_center_pos_[3];
 };
 
 template <typename T>
@@ -1120,12 +1093,18 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
     ccdSimplexAdd(&simplex, &pts[i]);
   }
   // Make sure that the origin is on the triangle.
-  // (a.cross(b))ᵀ(b.cross(c)) >= 0
-  // (b.cross(c))ᵀ(c.cross(a)) >= 0
-  // (c.cross(a))ᵀ(a.cross(b)) >= 0
   const Vector3<S> a = ToEigenVector<S>(pts[0].v);
   const Vector3<S> b = ToEigenVector<S>(pts[1].v);
   const Vector3<S> c = ToEigenVector<S>(pts[2].v);
+  // We first check if the origin is co-planar with vertices a, b, and c.
+  // If a, b, c and origin are co-planar, then aᵀ(b.cross(c)) = 0
+  EXPECT_NEAR(a.dot(b.cross(c)), 0, 1E-10);
+  // Now check if origin is within the triangle, by checking the condition
+  // (a.cross(b))ᵀ(b.cross(c)) >= 0
+  // (b.cross(c))ᵀ(c.cross(a)) >= 0
+  // (c.cross(a))ᵀ(a.cross(b)) >= 0
+  // Namely the cross product a x b, b x c, c x a all points to the same
+  // direction.
   EXPECT_GE(a.cross(b).dot(b.cross(c)), 0);
   EXPECT_GE(b.cross(c).dot(c.cross(a)), 0);
   EXPECT_GE(c.cross(a).dot(a.cross(b)), 0);
@@ -1200,13 +1179,11 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   const Eigen::Matrix<S, 3, 8> p_FV1 = X_FB1 * p_B1V1;
   const Eigen::Matrix<S, 3, 8> p_FV2 = X_FB2 * p_B2V2;
   // The support of the Minkowski difference along direction dir1.
-  const S max_support1 =
-      (dir1.transpose() * p_FV1).maxCoeff() -
-      (dir1.transpose() * p_FV2).minCoeff();
+  const S max_support1 = (dir1.transpose() * p_FV1).maxCoeff() -
+                         (dir1.transpose() * p_FV2).minCoeff();
   // The support of the Minkowski difference along direction dir2.
-  const S max_support2 =
-      (dir2.transpose() * p_FV1).maxCoeff() -
-      (dir2.transpose() * p_FV2).minCoeff();
+  const S max_support2 = (dir2.transpose() * p_FV1).maxCoeff() -
+                         (dir2.transpose() * p_FV2).minCoeff();
 
   const double expected_max_support = std::max(max_support1, max_support2);
   const double non_simplex_vertex_support1 =
