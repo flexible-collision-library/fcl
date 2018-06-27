@@ -34,7 +34,7 @@
 
 /** @author Hongkai Dai */
 /**
- * Test the signed distance query between two convex objects, whcn calling with
+ * Test the signed distance query between two convex objects, when calling with
  * solver = GST_LIBCCD.
  */
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd-inl.h"
@@ -216,7 +216,8 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
         &p_WNa, &p_WNb);
 
     // It is unclear how FCL handles touching contact. It could return either
-    // true or false for touching contact.
+    // true or false for touching contact. So, we ignore the condition where
+    // expected distance is zero.
     if (distance_expected < 0) {
       EXPECT_FALSE(res);
     } else if (distance_expected > 0) {

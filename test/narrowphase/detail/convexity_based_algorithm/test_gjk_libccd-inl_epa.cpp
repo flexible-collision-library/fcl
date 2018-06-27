@@ -52,19 +52,21 @@ namespace detail {
 
 class Polytope {
  public:
-  Polytope() {}
+  Polytope() {
+    polytope_ = new ccd_pt_t;
+    ccdPtInit(polytope_);
+  }
+
+  void Initialize(ccd_real_t tx, ccd_real_t ty, ccd_real_t tz,
+                  ccd_real_t scaling) {
+    DoInitialize(tx, ty, tz, scaling);
+  }
 
   ~Polytope() {
     // ccdPtDestroy() destroys the vertices, edges, and faces, contained in the
     // polytope, allowing the polytope itself to be subsequently deleted.
     ccdPtDestroy(polytope_);
     delete polytope_;
-  }
-
-  void Initialize() {
-    polytope_ = new ccd_pt_t;
-    ccdPtInit(polytope_);
-    DoInitialize();
   }
 
   ccd_pt_vertex_t& v(int i) { return *v_[i]; }
@@ -89,7 +91,8 @@ class Polytope {
   std::vector<ccd_pt_face_t*>& f() { return f_; }
 
  private:
-  virtual void DoInitialize() = 0;
+  virtual void DoInitialize(ccd_real_t tx, ccd_real_t ty, ccd_real_t tz,
+                            ccd_real_t scaling) = 0;
   std::vector<ccd_pt_vertex_t*> v_;
   std::vector<ccd_pt_edge_t*> e_;
   std::vector<ccd_pt_face_t*> f_;
@@ -121,26 +124,24 @@ class EquilateralTetrahedron : public Polytope {
   EquilateralTetrahedron(ccd_real_t bottom_center_x = 0,
                          ccd_real_t bottom_center_y = 0,
                          ccd_real_t bottom_center_z = 0,
-                         ccd_real_t edge_length = 1) {
-    bottom_center_pos_[0] = bottom_center_x;
-    bottom_center_pos_[1] = bottom_center_y;
-    bottom_center_pos_[2] = bottom_center_z;
-    edge_length_ = edge_length;
-    Initialize();
+                         ccd_real_t edge_length = 1)
+      : Polytope() {
+    Initialize(bottom_center_x, bottom_center_y, bottom_center_z, edge_length);
   }
 
  private:
-  void DoInitialize() override {
+  void DoInitialize(ccd_real_t bottom_center_x, ccd_real_t bottom_center_y,
+                    ccd_real_t bottom_center_z,
+                    ccd_real_t edge_length) override {
     v().resize(4);
     e().resize(6);
     f().resize(4);
-    auto AddTetrahedronVertex = [this](ccd_real_t x, ccd_real_t y,
-                                       ccd_real_t z) {
+    auto AddTetrahedronVertex = [bottom_center_x, bottom_center_y,
+                                 bottom_center_z, edge_length, this](
+        ccd_real_t x, ccd_real_t y, ccd_real_t z) {
       return ccdPtAddVertexCoords(
-          &this->polytope(),
-          x * this->edge_length_ + this->bottom_center_pos_[0],
-          y * this->edge_length_ + this->bottom_center_pos_[1],
-          z * this->edge_length_ + this->bottom_center_pos_[2]);
+          &this->polytope(), x * edge_length + bottom_center_x,
+          y * edge_length + bottom_center_y, z * edge_length + bottom_center_z);
     };
     v()[0] = AddTetrahedronVertex(0.5, -0.5 / std::sqrt(3), 0);
     v()[1] = AddTetrahedronVertex(-0.5, -0.5 / std::sqrt(3), 0);
@@ -187,7 +188,6 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
    the origin coincides with a vertex, the two objects are touching, and we do
    not need to call faceNormalPointOutward function to compute the direction
    along which the polytope is expanded.
-
   */
   EquilateralTetrahedron p1;
   CheckTetrahedronFaceNormal(p1);
@@ -212,6 +212,7 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
   CheckTetrahedronFaceNormal(p7);
   EquilateralTetrahedron p8(0, 0.01 / (3 * std::sqrt(3)),
                             -0.01 * std::sqrt(6) / 9, 0.01);
+  CheckTetrahedronFaceNormal(p8);
 }
 
 GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
@@ -343,22 +344,24 @@ GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace) {
 class Hexagram : public Polytope {
  public:
   Hexagram(ccd_real_t bottom_center_x = 0, ccd_real_t bottom_center_y = 0,
-           ccd_real_t bottom_center_z = 0) {
-    bottom_center_pos_[0] = bottom_center_x;
-    bottom_center_pos_[1] = bottom_center_y;
-    bottom_center_pos_[2] = bottom_center_z;
-    Initialize();
+           ccd_real_t bottom_center_z = 0)
+      : Polytope() {
+    Initialize(bottom_center_x, bottom_center_y, bottom_center_z, 1);
   }
 
  private:
-  void DoInitialize() {
+  void DoInitialize(ccd_real_t bottom_center_x, ccd_real_t bottom_center_y,
+                    ccd_real_t bottom_center_z, ccd_real_t top_edge_length) {
     v().resize(6);
     e().resize(12);
     f().resize(8);
-    auto AddHexagramVertex = [this](ccd_real_t x, ccd_real_t y, ccd_real_t z) {
-      return ccdPtAddVertexCoords(
-          &this->polytope(), x + this->bottom_center_pos_[0],
-          y + this->bottom_center_pos_[1], z + this->bottom_center_pos_[2]);
+    auto AddHexagramVertex = [bottom_center_x, bottom_center_y, bottom_center_z,
+                              top_edge_length,
+                              this](ccd_real_t x, ccd_real_t y, ccd_real_t z) {
+      return ccdPtAddVertexCoords(&this->polytope(),
+                                  x * top_edge_length + bottom_center_x,
+                                  y * top_edge_length + bottom_center_y,
+                                  z * top_edge_length + bottom_center_z);
     };
     // right corner of upper triangle
     v()[0] = AddHexagramVertex(0.5, -1 / std::sqrt(3), 1);
@@ -402,8 +405,8 @@ class Hexagram : public Polytope {
 };
 
 template <typename T>
-bool IsElementInSet(const std::unordered_set<T>& S, const T& element) {
-  return S.find(element) != S.end();
+bool IsElementInSet(const std::unordered_set<T*>& S, const T* element) {
+  return S.count(const_cast<T*>(element)) > 0;
 }
 
 // @param border_edge_indices_expected
@@ -420,23 +423,23 @@ void CheckComputeVisiblePatchCommon(
   // Check border_edges
   EXPECT_EQ(border_edges.size(), border_edge_indices_expected.size());
   for (const int edge_index : border_edge_indices_expected) {
-    EXPECT_TRUE(IsElementInSet(
-        border_edges, const_cast<ccd_pt_edge_t*>(&polytope.e(edge_index))));
+    EXPECT_TRUE(IsElementInSet(border_edges, &polytope.e(edge_index)));
   }
   // Check visible_faces
   EXPECT_EQ(visible_faces.size(), visible_face_indices_expected.size());
   for (const int face_index : visible_face_indices_expected) {
-    EXPECT_TRUE(IsElementInSet(
-        visible_faces, const_cast<ccd_pt_face_t*>(&polytope.f(face_index))));
+    EXPECT_TRUE(IsElementInSet(visible_faces, &polytope.f(face_index)));
   }
   // Check internal_edges
   EXPECT_EQ(internal_edges.size(), internal_edges_indices_expected.size());
   for (const auto edge_index : internal_edges_indices_expected) {
-    EXPECT_TRUE(IsElementInSet(
-        internal_edges, const_cast<ccd_pt_edge_t*>(&polytope.e(edge_index))));
+    EXPECT_TRUE(IsElementInSet(internal_edges, &polytope.e(edge_index)));
   }
 }
 
+// @param edge_indices we will call ComputeVisiblePatchRecursive(polytope, face,
+// edge_index, new_vertex, ...) for each edge_index in edge_indices. Namely we
+// will compute the visible patches, starting from face.e(edge_index).
 void CheckComputeVisiblePatchRecursive(
     const Polytope& polytope, ccd_pt_face_t& face,
     const std::vector<int>& edge_indices, const ccd_vec3_t& new_vertex,
@@ -1023,18 +1026,23 @@ GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest_face) {
   CompareCcdVec3(p2, p2_expected, constants<ccd_real_t>::eps_78());
 }
 
-// Test simplexToPolytope3 function.
+// Test Convert2SimplexToTetrahedron function.
 // We construct a test scenario that two boxes are on the xy plane of frame F.
 // The two boxes penetrate to each other, as shown in the bottom plot.
 //              y
-//          ┲━━━│━━━┱ Box1
-//         ┲┃━━┱│   ┃
+//          ┏━━━│━━━┓Box1
+//         ┏┃━━┓    ┃
 //      ───┃┃──┃O───┃─────x
 //     box2┗┃━━┛│   ┃
 //          ┗━━━│━━━┛
 //
-// @param X_WF The pose of the frame F measured and expressed in the world frame
-// W.
+// @param[in] X_WF The pose of the frame F measured and expressed in the world
+// frame W.
+// @param[out] o1 Box1
+// @param[out] o2 Box2
+// @param[out] ccd The ccd solver info.
+// @param[out] X_FB1 The pose of box 1 frame measured and expressed in frame F.
+// @param[out] X_FB2 The pose of box 2 frame measured and expressed in frame F.
 template <typename S>
 void SetUpBoxToBox(const Transform3<S>& X_WF, void** o1, void** o2, ccd_t* ccd,
                    fcl::Transform3<S>* X_FB1, fcl::Transform3<S>* X_FB2) {
@@ -1083,13 +1091,13 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   fcl::Transform3<S> X_FB1, X_FB2;
   SetUpBoxToBox(X_WF, &o1, &o2, &ccd, &X_FB1, &X_FB2);
 
-  // Construct a 3-simplex that contains the origin. The vertices of this
-  // 3-simplex is on the boundary of the Minkowski difference.
+  // Construct a 2-simplex that contains the origin. The vertices of this
+  // 2-simplex are on the boundary of the Minkowski difference.
   ccd_simplex_t simplex;
   ccdSimplexInit(&simplex);
   ccd_support_t pts[3];
   // We find three points Pa1, Pb1, Pc1 on box 1, and three points Pa2, Pb2, Pc2
-  // on box 2, such that the 3-simplex with vertices (Pa1 - Pa2, Pb1 - Pb2,
+  // on box 2, such that the 2-simplex with vertices (Pa1 - Pa2, Pb1 - Pb2,
   // Pc1 - Pc2) contains the origin.
   const Vector3<S> p_FPa1(-1, -1, -1);
   const Vector3<S> p_FPa2(-0.1, 0.5, -1);
@@ -1111,19 +1119,29 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   for (int i = 0; i < 3; ++i) {
     ccdSimplexAdd(&simplex, &pts[i]);
   }
+  // Make sure that the origin is on the triangle.
+  // (a.cross(b))ᵀ(b.cross(c)) >= 0
+  // (b.cross(c))ᵀ(c.cross(a)) >= 0
+  // (c.cross(a))ᵀ(a.cross(b)) >= 0
+  const Vector3<S> a = ToEigenVector<S>(pts[0].v);
+  const Vector3<S> b = ToEigenVector<S>(pts[1].v);
+  const Vector3<S> c = ToEigenVector<S>(pts[2].v);
+  EXPECT_GE(a.cross(b).dot(b.cross(c)), 0);
+  EXPECT_GE(b.cross(c).dot(c.cross(a)), 0);
+  EXPECT_GE(c.cross(a).dot(a.cross(b)), 0);
 
   ccd_pt_t polytope;
   ccdPtInit(&polytope);
-  ccd_pt_el_t* nearest;
-  libccd_extension::simplexToPolytope3(o1, o2, &ccd, &simplex, &polytope,
-                                       &nearest);
+  ccd_pt_el_t* nearest{};
+  libccd_extension::Convert2SimplexToTetrahedron(o1, o2, &ccd, &simplex,
+                                                 &polytope, &nearest);
   // Box1 and Box2 are not touching, so nearest is set to null.
-  EXPECT_FALSE(nearest);
+  EXPECT_EQ(nearest, nullptr);
 
   // Check the polytope
   // The polytope should have 4 vertices, with three of them being the vertices
-  // of the 3-simplex, and another vertex that has the maximal support along
-  // the normal directions of the 3-simplex.
+  // of the 2-simplex, and another vertex that has the maximal support along
+  // the normal directions of the 2-simplex.
   // We first construct the set containing the polytope vertices.
   std::unordered_set<ccd_pt_vertex_t*> polytope_vertices;
   {
@@ -1137,13 +1155,13 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   EXPECT_EQ(polytope_vertices.size(), 4u);
   // We need to find out the vertex on the polytope, that is not the vertex
   // of the simplex.
-  ccd_pt_vertex_t* non_simplex_vertex = NULL;
+  ccd_pt_vertex_t* non_simplex_vertex{nullptr};
   // A simplex vertex matches with a polytope vertex if they coincide.
   int num_matched_vertices = 0;
   for (const auto& v : polytope_vertices) {
     bool found_match = false;
     for (int i = 0; i < 3; ++i) {
-      if (ccdVec3Dist2(&v->v.v, &pts[i].v) < 1E-4) {
+      if (ccdVec3Dist2(&v->v.v, &pts[i].v) < constants<S>::eps_78()) {
         num_matched_vertices++;
         found_match = true;
         break;
@@ -1154,17 +1172,16 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
     }
   }
   EXPECT_EQ(num_matched_vertices, 3);
-  EXPECT_TRUE(non_simplex_vertex);
+  EXPECT_NE(non_simplex_vertex, nullptr);
   // Make sure that the non-simplex vertex has the maximal support along the
   // simplex normal direction.
-  // Find the two normal directions of the 3-simplex.
-  ccd_vec3_t dir1, dir2;
-  ccd_vec3_t ab, ac;
-  ccdVec3Sub2(&ab, &pts[1].v, &pts[0].v);
-  ccdVec3Sub2(&ac, &pts[2].v, &pts[0].v);
-  ccdVec3Cross(&dir1, &ab, &ac);
-  ccdVec3Copy(&dir2, &dir1);
-  ccdVec3Scale(&dir2, ccd_real_t(-1));
+  // Find the two normal directions of the 2-simplex.
+  Vector3<S> dir1, dir2;
+  Vector3<S> ab, ac;
+  ab = ToEigenVector<S>(pts[1].v) - ToEigenVector<S>(pts[0].v);
+  ac = ToEigenVector<S>(pts[2].v) - ToEigenVector<S>(pts[0].v);
+  dir1 = ab.cross(ac);
+  dir2 = -dir1;
   // Now make sure non_simplex_vertex has the largest support
   // p_B1V1 are the position of the box 1 vertices in box1 frame B1.
   // p_B2V1 are the position of the box 2 vertices in box2 frame B2.
@@ -1184,18 +1201,18 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   const Eigen::Matrix<S, 3, 8> p_FV2 = X_FB2 * p_B2V2;
   // The support of the Minkowski difference along direction dir1.
   const S max_support1 =
-      (ToEigenVector<S>(dir1).transpose() * p_FV1).maxCoeff() -
-      (ToEigenVector<S>(dir1).transpose() * p_FV2).minCoeff();
+      (dir1.transpose() * p_FV1).maxCoeff() -
+      (dir1.transpose() * p_FV2).minCoeff();
   // The support of the Minkowski difference along direction dir2.
   const S max_support2 =
-      (ToEigenVector<S>(dir2).transpose() * p_FV1).maxCoeff() -
-      (ToEigenVector<S>(dir2).transpose() * p_FV2).minCoeff();
+      (dir2.transpose() * p_FV1).maxCoeff() -
+      (dir2.transpose() * p_FV2).minCoeff();
 
   const double expected_max_support = std::max(max_support1, max_support2);
   const double non_simplex_vertex_support1 =
-      ToEigenVector<S>(non_simplex_vertex->v.v).dot(ToEigenVector<S>(dir1));
+      ToEigenVector<S>(non_simplex_vertex->v.v).dot(dir1);
   const double non_simplex_vertex_support2 =
-      ToEigenVector<S>(non_simplex_vertex->v.v).dot(ToEigenVector<S>(dir2));
+      ToEigenVector<S>(non_simplex_vertex->v.v).dot(dir2);
   EXPECT_NEAR(
       std::max(non_simplex_vertex_support1, non_simplex_vertex_support2),
       expected_max_support, constants<ccd_real_t>::eps_78());
@@ -1218,7 +1235,7 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   // Now that we make sure the vertices of the polytope is correct, we will
   // check the edges and faces of the polytope. We do so by constructing an
   // expected polytope, and compare it with the polytope obtained from
-  // simplexToPolytope3
+  // Convert2SimplexToTetrahedron().
   ccd_pt_t polytope_expected;
   ccdPtInit(&polytope_expected);
 
@@ -1269,7 +1286,7 @@ void TestSimplexToPolytope3() {
   TestSimplexToPolytope3InGivenFrame(X_WF);
 }
 
-GTEST_TEST(FCL_GJK_EPA, simplexToPolytope3) {
+GTEST_TEST(FCL_GJK_EPA, Convert2SimplexToTetrahedron) {
   TestSimplexToPolytope3<double>();
   TestSimplexToPolytope3<float>();
 }
