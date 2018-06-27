@@ -42,6 +42,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <unordered_map>
 
 namespace fcl
 {
@@ -288,17 +289,38 @@ int boxBox2(
   int invert_normal = 0;
   int code = 0;
 
+  std::unordered_map<int, std::string> calc_data;
+
+  auto code_passed = [] (const char* condition, S s2, S s, int code) {
+    std::stringstream ss;
+    ss << condition << " SATISFIED: ";
+    ss << "arg 1: " << s2 << ", arg 2: " << s << ". ";
+    ss << "Code set to " << code << ".";
+    return ss.str();
+  };
+
+  auto code_failed = [](const char* condition, S s2, S s, int code) {
+    std::stringstream ss;
+    ss << condition << " unsatisfied: ";
+    ss << "arg 1: " << s2 << ", arg 2: " << s << ". ";
+    ss << "Code " << code << " invalid.";
+    return ss.str();
+  };
+
   // separating axis = u1, u2, u3
   tmp = pp[0];
   S s2 = std::abs(tmp) - (Q.row(0).dot(B) + A[0]);
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
+    code = 1;
+    calc_data[code] = code_passed("s2 > s", s2, s, code);
     s = s2;
     best_col_id = 0;
     normalR = &R1;
     invert_normal = (tmp < 0);
-    code = 1;
+  } else {
+    calc_data[1] = code_failed("s2 > s", s2, s, 1);
   }
 
   tmp = pp[1];
@@ -306,11 +328,14 @@ int boxBox2(
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
+    code = 2;
+    calc_data[code] = code_passed("s2 > s", s2, s, code);
     s = s2;
     best_col_id = 1;
     normalR = &R1;
     invert_normal = (tmp < 0);
-    code = 2;
+  } else {
+    calc_data[2] = code_failed("s2 > s", s2, s, 2);
   }
 
   tmp = pp[2];
@@ -323,6 +348,9 @@ int boxBox2(
     normalR = &R1;
     invert_normal = (tmp < 0);
     code = 3;
+    calc_data[code] = code_passed("s2 > s", s2, s, code);
+  } else {
+    calc_data[3] = code_failed("s2 > s", s2, s, 3);
   }
 
   // separating axis = v1, v2, v3
@@ -336,6 +364,9 @@ int boxBox2(
     normalR = &R2;
     invert_normal = (tmp < 0);
     code = 4;
+    calc_data[code] = code_passed("s2 > s", s2, s, code);
+  } else {
+    calc_data[4] = code_failed("s2 > s", s2, s, 4);
   }
 
   tmp = R2.col(1).dot(p);
@@ -348,6 +379,9 @@ int boxBox2(
     normalR = &R2;
     invert_normal = (tmp < 0);
     code = 5;
+    calc_data[code] = code_passed("s2 > s", s2, s, code);
+  } else {
+    calc_data[5] = code_failed("s2 > s", s2, s, 5);
   }
 
   tmp = R2.col(2).dot(p);
@@ -360,6 +394,9 @@ int boxBox2(
     normalR = &R2;
     invert_normal = (tmp < 0);
     code = 6;
+    calc_data[code] = code_passed("s2 > s", s2, s, code);
+  } else {
+    calc_data[6] = code_failed("s2 > s", s2, s, 6);
   }
 
   // This is used to detect zero-length axes which arise from taking the cross
@@ -408,12 +445,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 7;
+      calc_data[code] = code_passed("s2 * fudge_factor > s", s2 * fudge_factor, s, code);
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 7;
+    } else {
+      calc_data[7] = code_failed("s2 * fudge_factor > s", s2 * fudge_factor, s, 7);
     }
+  } else {
+    calc_data[7] = code_failed("l > eps", l, eps, 7);
   }
 
   tmp = pp[2] * R(1, 1) - pp[1] * R(2, 1);
@@ -426,12 +468,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 8;
+      calc_data[code] = code_passed("s2 * fudge_factor > s", s2 * fudge_factor, s, code);
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 8;
+    } else {
+      calc_data[8] = code_failed("s2 * fudge_factor > s", s2 * fudge_factor, s, 8);
     }
+  } else {
+    calc_data[8] = code_failed("l > eps", l, eps, 8);
   }
 
   tmp = pp[2] * R(1, 2) - pp[1] * R(2, 2);
@@ -444,12 +491,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 9;
+      calc_data[code] = code_passed("s2 * fudge_factor > s", s2 * fudge_factor, s, code);
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 9;
+    } else {
+      calc_data[9] = code_failed("s2 * fudge_factor > s", s2 * fudge_factor, s, 9);
     }
+  } else {
+    calc_data[9] = code_failed("l > eps", l, eps, 9);
   }
 
   // separating axis = u2 x (v1,v2,v3)
@@ -463,12 +515,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 10;
+      calc_data[code] = code_passed("s2 * fudge_factor > s", s2 * fudge_factor, s, code);
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 10;
+    } else {
+      calc_data[10] = code_failed("s2 * fudge_factor > s", s2 * fudge_factor, s, 10);
     }
+  } else {
+    calc_data[10] = code_failed("l > eps", l, eps, 10);
   }
 
   tmp = pp[0] * R(2, 1) - pp[2] * R(0, 1);
@@ -481,12 +538,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 11;
+      calc_data[code] = code_passed("s2 * fudge_factor > s", s2 * fudge_factor, s, code);
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 11;
+    } else {
+      calc_data[11] = code_failed("s2 * fudge_factor > s", s2 * fudge_factor, s, 11);
     }
+  } else {
+    calc_data[11] = code_failed("l > eps", l, eps, 11);
   }
 
   tmp = pp[0] * R(2, 2) - pp[2] * R(0, 2);
@@ -499,12 +561,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 12;
+      calc_data[code] = code_passed("s2 * fudge_factor > s", s2 * fudge_factor, s, code);
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 12;
+    } else {
+      calc_data[12] = code_failed("s2 * fudge_factor > s", s2 * fudge_factor, s, 12);
     }
+  } else {
+    calc_data[12] = code_failed("l > eps", l, eps, 12);
   }
 
   // separating axis = u3 x (v1,v2,v3)
@@ -518,12 +585,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 13;
+      calc_data[code] = code_passed("s2 * fudge_factor > s", s2 * fudge_factor, s, code);
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 13;
+    } else {
+      calc_data[13] = code_failed("s2 * fudge_factor > s", s2 * fudge_factor, s, 13);
     }
+  } else {
+    calc_data[13] = code_failed("l > eps", l, eps, 13);
   }
 
   tmp = pp[1] * R(0, 1) - pp[0] * R(1, 1);
@@ -536,12 +608,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 14;
+      calc_data[code] = code_passed("s2 * fudge_factor > s", s2 * fudge_factor, s, code);
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 14;
+    } else {
+      calc_data[14] = code_failed("s2 * fudge_factor > s", s2 * fudge_factor, s, 14);
     }
+  } else {
+    calc_data[14] = code_failed("l > eps", l, eps, 14);
   }
 
   tmp = pp[1] * R(0, 2) - pp[0] * R(1, 2);
@@ -554,12 +631,17 @@ int boxBox2(
     s2 /= l;
     if(s2 * fudge_factor > s)
     {
+      code = 15;
+      calc_data[code] = code_passed("s2 * fudge_factor > s", s2 * fudge_factor, s, code);
       s = s2;
       best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
-      code = 15;
+    } else {
+      calc_data[15] = code_failed("s2 * fudge_factor > s", s2 * fudge_factor, s, 15);
     }
+  } else {
+    calc_data[15] = code_failed("l > eps", l, eps, 15);
   }
 
   if (!code) { *return_code = code; return 0; }
@@ -611,6 +693,13 @@ int boxBox2(
     Vector3<S> pointInWorld((pa + pb) * 0.5);
     contacts.emplace_back(normal, pointInWorld, *depth);
     *return_code = code;
+
+    std::cout << "Code > 6";
+    for (int i = 1; i < 16; ++i) {
+      if (calc_data.count(i) > 0) {
+        std::cout << "\nCode " << i << ": " << calc_data[i];
+      }
+    }
 
     return 1;
   }
@@ -718,6 +807,11 @@ int boxBox2(
     code2 = 1;
   }
 
+  // TODO(SeanCurtis-TRI): Remove this test once the mac woes are debugged.
+  if (code1 == -1 || code2 == -1 || codeN == -1) {
+    throw std::logic_error("Failed to initialize codes");
+  }
+
   // find the four corners of the incident face, in reference-face coordinates
   S quad[8]; // 2D coordinate of incident face (x,y pairs)
   S c1{std::numeric_limits<S>::quiet_NaN()};
@@ -752,6 +846,14 @@ int boxBox2(
   quad[6] = c1 + k1 - k3;
   quad[7] = c2 + k2 - k4;
 
+  // TODO(SeanCurtis-TRI): Remove this test once the mac woes are debugged.
+  using std::isnan;
+  for (int i = 0; i < 8; ++i) {
+    if (isnan(quad[i])) {
+      throw std::logic_error("Quad contains NaN");
+    }
+  }
+
   // find the size of the reference face
   S rect[2] = {(*Sa)[code1], (*Sa)[code2]};
 
@@ -759,12 +861,31 @@ int boxBox2(
   S ret[16];
   int n_intersect = intersectRectQuad2(rect, quad, ret);
   if(n_intersect < 1) {
+    // TODO(SeanCurtis-TRI): Simplify this back to "unreachable code" when
+    // mac woes are debugged.
     // Historical documentation says that this "should never happen" but it
     // still returned values that allowed computation to proceed. This arrests
     // that evaluation in place and precludes the possibility of silently
     // reaching this ostensibly unreachable code.
     std::stringstream ss;
     ss << "Reached 'unreachable' code -- n_intersect < 1";
+    ss << "\n  code: " << code;
+    ss << "\n  side 1: " << side1.transpose();
+    ss << "\n  R1: " << R1;
+    ss << "\n  T1: " << T1.transpose();
+    ss << "\n  side 2: " << side2.transpose();
+    ss << "\n  R2: " << R2;
+    ss << "\n  T2: " << T2.transpose();
+    ss << "\n  rect size: " << rect[0] << ", " << rect[1];
+    ss << "\n  quad: ";
+    for (int i = 0; i < 8; i += 2) {
+      ss << "\n    " << quad[i] << ", " << quad[i + 1];
+    }
+    for (int i = 1; i < 16; ++i) {
+      if (calc_data.count(i) > 0) {
+        ss << "\nCode " << i << ": " << calc_data[i];
+      }
+    }
     throw std::logic_error(ss.str());
   }
 
