@@ -84,6 +84,13 @@ public:
   /// @brief compute the AABB<S> for the octree in its local coordinate system
   void computeLocalAABB();
 
+  /// @brief get the metric extend of the occupied part of the tree
+  ///
+  /// note that getMetricMin/getMetricMax can only cache the result of this
+  /// expensive operation if called non-const. Ie make sure to call either one
+  /// of them once after each update to the octomap!
+  AABB<S> getOccupiedMetricBV() const;
+
   /// @brief get the bounding volume for the root
   AABB<S> getRootBV() const;
 
