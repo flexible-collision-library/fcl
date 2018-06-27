@@ -278,18 +278,18 @@ int boxBox2(
 
 
   cout << "boxBox2\n";
-//  cout << " side1: " << side1.transpose() << "\n";
-//  cout << " R1: " << R1 << "\n";
-//  cout << " T1: " << T1.transpose() << "\n";
-//  cout << " side2: " << side2.transpose() << "\n";
-//  cout << " R2: " << R2 << "\n";
-//  cout << " T2: " << T2.transpose() << "\n";
+  cout << " side1: " << side1.transpose() << "\n";
+  cout << " R1: " << R1 << "\n";
+  cout << " T1: " << T1.transpose() << "\n";
+  cout << " side2: " << side2.transpose() << "\n";
+  cout << " R2: " << R2 << "\n";
+  cout << " T2: " << T2.transpose() << "\n";
   cout << "\n";
 
   Vector3<S> p = T2 - T1; // get vector from centers of box 1 to box 2, relative to box 1
   Vector3<S> pp = R1.transpose() * p; // get pp = p relative to body 1
-//  cout << " r_12_W: " << p.transpose() << "\n";
-//  cout << " r_12_1: " << pp.transpose() << "\n";
+  cout << " r_12_W: " << p.transpose() << "\n";
+  cout << " r_12_1: " << pp.transpose() << "\n";
   cout << "\n";
   // get side lengths / 2
   Vector3<S> A = side1 * 0.5;
@@ -300,8 +300,8 @@ int boxBox2(
   // NOTE: R1 --> R_W1 and R2 --> R_W2, so, R_W1ᵀ·R_W2 = R_1W · R_W2 = R_12
   Matrix3<S> R = R1.transpose() * R2;
   Matrix3<S> Q = R.cwiseAbs();
-//  cout << " R: " << R << "\n";
-//  cout << " Q: " << Q << "\n";
+  cout << " R: " << R << "\n";
+  cout << " Q: " << Q << "\n";
 
   // for all 15 possible separating axes:
   //   * see if the axis separates the boxes. if so, return 0.
@@ -323,10 +323,10 @@ int boxBox2(
 
   auto assign_face_code = [&cout, &best_col_id, &normalR, &invert_normal](int c) {
     (void)c;
-//  cout << " Assigning code " << c << ":\n";
-//  cout << "   best_col_id: " << best_col_id << "\n";
-//  cout << "   normalR:     " << normalR->transpose() << "\n";
-//  cout << "   invert_norm: " << invert_normal << "\n";
+  cout << " Assigning code " << c << ":\n";
+  cout << "   best_col_id: " << best_col_id << "\n";
+  cout << "   normalR:     " << normalR->transpose() << "\n";
+  cout << "   invert_norm: " << invert_normal << "\n";
   };
 
   // separating axis = u1, u2, u3
