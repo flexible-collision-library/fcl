@@ -89,8 +89,7 @@ int boxBox2(
     S* depth,
     int* return_code,
     int maxc,
-    std::vector<ContactPoint<S>>& contacts,
-    bool verbose = false);
+    std::vector<ContactPoint<S>>& contacts);
 
 template <typename S>
 FCL_EXPORT

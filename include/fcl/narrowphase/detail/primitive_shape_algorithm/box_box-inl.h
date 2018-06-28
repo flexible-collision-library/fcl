@@ -244,19 +244,8 @@ void cullPoints2(int n, S p[], int m, int i0, int iret[])
   }
 }
 
-class CiStream {
- public:
-  CiStream(bool active = false) : active_(active), stream_(std::cout) {}
-  template <typename U>
-  CiStream& operator<<(const U& object) {
-    if (active_) stream_ << object;
-    return *this;
-  }
-
- private:
-  bool active_{false};
-  std::ostream& stream_;
-};
+template <typename S>
+void foo(const Matrix3<S>& mat);
 
 //==============================================================================
 template <typename S, typename DerivedA, typename DerivedB>
@@ -271,11 +260,8 @@ int boxBox2(
     S* depth,
     int* return_code,
     int maxc,
-    std::vector<ContactPoint<S>>& contacts,
-    bool verbose)
+    std::vector<ContactPoint<S>>& contacts)
 {
-  CiStream cout(verbose);
-
   Vector3<S> p = T2 - T1; // get vector from centers of box 1 to box 2, relative to box 1
   Vector3<S> pp = R1.transpose() * p; // get pp = p relative to body 1
   // get side lengths / 2
@@ -286,8 +272,8 @@ int boxBox2(
 
   // NOTE: R1 --> R_W1 and R2 --> R_W2, so, R_W1ᵀ·R_W2 = R_1W · R_W2 = R_12
   const Matrix3<S> R = R1.transpose() * R2;
+  foo(R);
   Matrix3<S> Q = R.cwiseAbs();
-  cout << " R: " << R << "\n";
 
   // for all 15 possible separating axes:
   //   * see if the axis separates the boxes. if so, return 0.
@@ -916,6 +902,10 @@ bool boxBoxIntersect(const Box<S>& s1, const Transform3<S>& tf1,
   return return_code != 0;
 }
 
+template <typename S>
+void foo(const Matrix3<S>& mat) {
+  (void)mat;
+}
 } // namespace detail
 } // namespace fcl
 
