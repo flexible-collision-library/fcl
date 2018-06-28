@@ -999,7 +999,7 @@ GTEST_TEST(FCL_GJK_EPA, penEPAPosClosest_face) {
   CompareCcdVec3(p2, p2_expected, constants<ccd_real_t>::eps_78());
 }
 
-// Test Convert2SimplexToTetrahedron function.
+// Test convert2SimplexToTetrahedron function.
 // We construct a test scenario that two boxes are on the xy plane of frame F.
 // The two boxes penetrate to each other, as shown in the bottom plot.
 //              y
@@ -1114,7 +1114,7 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   ccd_pt_t polytope;
   ccdPtInit(&polytope);
   ccd_pt_el_t* nearest{};
-  libccd_extension::Convert2SimplexToTetrahedron(o1, o2, &ccd, &simplex,
+  libccd_extension::convert2SimplexToTetrahedron(o1, o2, &ccd, &simplex,
                                                  &polytope, &nearest);
   // Box1 and Box2 are not touching, so nearest is set to null.
   EXPECT_EQ(nearest, nullptr);
@@ -1214,7 +1214,7 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   // Now that we make sure the vertices of the polytope is correct, we will
   // check the edges and faces of the polytope. We do so by constructing an
   // expected polytope, and compare it with the polytope obtained from
-  // Convert2SimplexToTetrahedron().
+  // convert2SimplexToTetrahedron().
   ccd_pt_t polytope_expected;
   ccdPtInit(&polytope_expected);
 
@@ -1265,7 +1265,7 @@ void TestSimplexToPolytope3() {
   TestSimplexToPolytope3InGivenFrame(X_WF);
 }
 
-GTEST_TEST(FCL_GJK_EPA, Convert2SimplexToTetrahedron) {
+GTEST_TEST(FCL_GJK_EPA, convert2SimplexToTetrahedron) {
   TestSimplexToPolytope3<double>();
   TestSimplexToPolytope3<float>();
 }

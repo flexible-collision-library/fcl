@@ -558,6 +558,30 @@ simplexToPolytope2_not_touching_contact:
     return 0;
 }
 
+#ifndef NDEBUG
+static bool isPolytopeEmpty(const ccd_pt_t& polytope) {
+  ccd_pt_vertex_t* v = nullptr;
+  ccdListForEachEntry(&polytope.vertices, v, ccd_pt_vertex_t, list) {
+    if (v) {
+      return false;
+    }
+  }
+  ccd_pt_edge_t* e = nullptr;
+  ccdListForEachEntry(&polytope.edges, e, ccd_pt_edge_t, list) {
+    if (e) {
+      return false;
+    }
+  }
+  ccd_pt_face_t* f = nullptr;
+  ccdListForEachEntry(&polytope.faces, f, ccd_pt_face_t, list) {
+    if (f) {
+      return false;
+    }
+  }
+  return true;
+}
+#endif
+
 /** Transforms a 2-simplex (triangle) to a polytope (tetrahedron), three
  * vertices required.
  * Both the simplex and the transformed polytope contain the origin. The simplex
@@ -567,17 +591,20 @@ simplexToPolytope2_not_touching_contact:
  * @param[in] ccd The ccd solver.
  * @param[in] simplex The simplex (with three vertices) that contains the
  * origin.
- * @param[out] pt The polytope (tetrahedron) that also contains the origin.
+ * @param[out] polytope The polytope (tetrahedron) that also contains the origin
+ * on one of its face. At input, the polytope should be empty.
  * @param[out] nearest If the function detects that obj1 and obj2 are touching,
  * then set *nearest to be the nearest points on obj1 and obj2 respectively;
  * otherwise set *nearest to NULL. @note nearest cannot be NULL.
  * @retval status return 0 on success, -1 if touching contact is detected, and
  * -2 on non-recoverable failure (mostly due to memory allocation bug).
  */
-static int Convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
+static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
                               const ccd_t* ccd, const ccd_simplex_t* simplex,
-                              ccd_pt_t* pt, ccd_pt_el_t** nearest) {
+                              ccd_pt_t* polytope, ccd_pt_el_t** nearest) {
   assert(nearest);
+  assert(isPolytopeEmpty(*polytope));
+  assert(simplex->last == 2); // a 2-simplex.
   const ccd_support_t *a, *b, *c;
   ccd_support_t d, d2;
   ccd_vec3_t ab, ac, dir;
@@ -608,13 +635,13 @@ static int Convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
   // check if face isn't already on edge of minkowski sum and thus we
   // have touching contact
   if (ccdIsZero(dist) || ccdIsZero(dist2)) {
-    v[0] = ccdPtAddVertex(pt, a);
-    v[1] = ccdPtAddVertex(pt, b);
-    v[2] = ccdPtAddVertex(pt, c);
-    e[0] = ccdPtAddEdge(pt, v[0], v[1]);
-    e[1] = ccdPtAddEdge(pt, v[1], v[2]);
-    e[2] = ccdPtAddEdge(pt, v[2], v[0]);
-    *nearest = (ccd_pt_el_t*)ccdPtAddFace(pt, e[0], e[1], e[2]);
+    v[0] = ccdPtAddVertex(polytope, a);
+    v[1] = ccdPtAddVertex(polytope, b);
+    v[2] = ccdPtAddVertex(polytope, c);
+    e[0] = ccdPtAddEdge(polytope, v[0], v[1]);
+    e[1] = ccdPtAddEdge(polytope, v[1], v[2]);
+    e[2] = ccdPtAddEdge(polytope, v[2], v[0]);
+    *nearest = (ccd_pt_el_t*)ccdPtAddFace(polytope, e[0], e[1], e[2]);
     if (*nearest == NULL) return -2;
 
     return -1;
@@ -623,19 +650,19 @@ static int Convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
   // on which one has larger distance to the face abc. We pick the larger
   // distance because it gives a tetrahedron with larger volume, so potentially
   // more "expanded" than the one with the smaller volume.
-  auto FormTetrahedron = [pt, a, b, c, &v,
+  auto FormTetrahedron = [polytope, a, b, c, &v,
                           &e](const ccd_support_t& new_support) -> int {
-    v[0] = ccdPtAddVertex(pt, a);
-    v[1] = ccdPtAddVertex(pt, b);
-    v[2] = ccdPtAddVertex(pt, c);
-    v[3] = ccdPtAddVertex(pt, &new_support);
+    v[0] = ccdPtAddVertex(polytope, a);
+    v[1] = ccdPtAddVertex(polytope, b);
+    v[2] = ccdPtAddVertex(polytope, c);
+    v[3] = ccdPtAddVertex(polytope, &new_support);
 
-    e[0] = ccdPtAddEdge(pt, v[0], v[1]);
-    e[1] = ccdPtAddEdge(pt, v[1], v[2]);
-    e[2] = ccdPtAddEdge(pt, v[2], v[0]);
-    e[3] = ccdPtAddEdge(pt, v[0], v[3]);
-    e[4] = ccdPtAddEdge(pt, v[1], v[3]);
-    e[5] = ccdPtAddEdge(pt, v[2], v[3]);
+    e[0] = ccdPtAddEdge(polytope, v[0], v[1]);
+    e[1] = ccdPtAddEdge(polytope, v[1], v[2]);
+    e[2] = ccdPtAddEdge(polytope, v[2], v[0]);
+    e[3] = ccdPtAddEdge(polytope, v[0], v[3]);
+    e[4] = ccdPtAddEdge(polytope, v[1], v[3]);
+    e[5] = ccdPtAddEdge(polytope, v[2], v[3]);
 
     // ccdPtAdd*() functions return NULL either if the memory allocation
     // failed of if any of the input pointers are NULL, so the bad
@@ -644,10 +671,10 @@ static int Convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
     // Note, there is no requirement on the winding of the face, namely we do
     // not guarantee if all f.e(0).cross(f.e(1)) points outward (or inward) for
     // all the faces added below.
-    if (ccdPtAddFace(pt, e[0], e[1], e[2]) == NULL ||
-        ccdPtAddFace(pt, e[3], e[4], e[0]) == NULL ||
-        ccdPtAddFace(pt, e[4], e[5], e[1]) == NULL ||
-        ccdPtAddFace(pt, e[5], e[3], e[2]) == NULL) {
+    if (ccdPtAddFace(polytope, e[0], e[1], e[2]) == NULL ||
+        ccdPtAddFace(polytope, e[3], e[4], e[0]) == NULL ||
+        ccdPtAddFace(polytope, e[4], e[5], e[1]) == NULL ||
+        ccdPtAddFace(polytope, e[5], e[3], e[2]) == NULL) {
       return -2;
     }
     return 0;
@@ -680,7 +707,7 @@ static int simplexToPolytope4(const void *obj1, const void *obj2,
     d = ccdSimplexPoint(simplex, 3);
 
     // check if origin lies on some of tetrahedron's face - if so use
-    // Convert2SimplexToTetrahedron()
+    // convert2SimplexToTetrahedron()
     use_polytope3 = 0;
     dist = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &c->v, NULL);
     if (ccdIsZero(dist)){
@@ -707,7 +734,7 @@ static int simplexToPolytope4(const void *obj1, const void *obj2,
 
     if (use_polytope3){
         ccdSimplexSetSize(simplex, 3);
-        return Convert2SimplexToTetrahedron(obj1, obj2, ccd, simplex, pt, nearest);
+        return convert2SimplexToTetrahedron(obj1, obj2, ccd, simplex, pt, nearest);
     }
 
     // no touching contact - simply create tetrahedron
@@ -739,12 +766,14 @@ static int simplexToPolytope4(const void *obj1, const void *obj2,
 /**
  * Computes the normal vector of a triangular face on a polytope, and the normal
  * vector points outward from the polytope. Notice we assume that the origin
- * lives within the polytope.
+ * lives within the polytope, and the normal vector may not have the unit
+ * length.
  * @param[in] polytope The polytope on which the face lives. We assume that the
  * origin also lives inside the polytope.
- * @param[in] face The face for which the unit length normal vector is computed.
+ * @param[in] face The face for which the normal vector is computed.
  * @retval dir The vector normal to the face, and points outward from the
- * polytope.
+ * polytope. `dir` is unnormalized, that it does not necessarily have a unit
+ * length.
  */
 static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
                                             const ccd_pt_face_t* face) {
@@ -775,10 +804,10 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
   // origin), then "inside" is defined as the side of the triangle that had the
   // most distant vertex.
 
-  // For these tests, we use the arbitrary distance of 1 cm as a "reliable"
-  // distance for both the origin and other vertices. Even if it seems large,
-  // the fall through case of comparing the maximum distance will always
-  // guarantee correctness.
+  // For these tests, we use the arbitrary distance of 0.01 unit length as a
+  // "reliable" distance for both the origin and other vertices. Even if it
+  // seems large, the fall through case of comparing the maximum distance will
+  // always guarantee correctness.
   const ccd_real_t dist_tol = 0.01;
   ccd_real_t tol = dist_tol * dir_norm;
   ccd_real_t projection = ccdVec3Dot(&dir, &(face->edge[0]->vertex[0]->v.v));
@@ -799,7 +828,7 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
     ccdListForEachEntry(&polytope->vertices, v, ccd_pt_vertex_t, list) {
       projection = ccdVec3Dot(&dir, &(v->v.v)); 
       if (projection > tol) {
-        // The vertex is at least 1cm away from the face plane, on the same
+        // The vertex is at least dist_tol away from the face plane, on the same
         // direction of `dir`. So we flip dir to point it outward from the
         // polytope.
         ccdVec3Scale(&dir, ccd_real_t(-1));
@@ -824,9 +853,9 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
   return dir;
 }
 
-// Return true if the point @p pt is on the outward side of the half-plane, on
-// which the triangle @p f lives. Notice if the point @p pt is exactly on the
-// half-plane, the return if false.
+// Return true if the point `pt` is on the outward side of the half-plane, on
+// which the triangle `f1 lives. Notice if the point @p pt is exactly on the
+// half-plane, the return is false.
 // @param f A triangle on a polytope.
 // @param pt A point.
 static bool isOutsidePolytopeFace(const ccd_pt_t* polytope,
@@ -861,28 +890,30 @@ static bool ComputeVisiblePatchRecursiveSanityCheck(
   ccdListForEachEntry(&polytope.faces, f, ccd_pt_face_t, list) {
     bool has_edge_internal = false;
     for (int i = 0; i < 3; ++i) {
-      if (internal_edges.count(f->edge[i]) == 1) {
+      // Sinve internal_edges is a set, internal_edges.count(e) means that e
+      // is contained in the set internal_edges.
+      if (internal_edges.count(f->edge[i]) > 0) {
         has_edge_internal = true;
         break;
       }
     }
     if (has_edge_internal) {
-      if (visible_faces.count(f) != 1) {
+      if (visible_faces.count(f) == 0) {
         return false;
       }
     }
   }
   ccd_pt_edge_t* e;
   ccdListForEachEntry(&polytope.edges, e, ccd_pt_edge_t, list) {
-    if (visible_faces.count(e->faces[0]) == 1 &&
-        visible_faces.count(e->faces[1]) == 1) {
-      if (internal_edges.count(e) != 1) {
+    if (visible_faces.count(e->faces[0]) > 0 &&
+        visible_faces.count(e->faces[1]) > 0) {
+      if (internal_edges.count(e) == 0) {
         return false;
       }
     } else if (visible_faces.count(e->faces[0]) +
                    visible_faces.count(e->faces[1]) ==
                1) {
-      if (border_edges.count(e) != 1) {
+      if (border_edges.count(e) == 0) {
         return false;
       }
     }
@@ -918,28 +949,26 @@ static void ComputeVisiblePatchRecursive(
       // Cannot see the neighbouring face from the new vertex.
       border_edges->insert(f.edge[edge_index]);
       return;
-    } else {
-      visible_faces->insert(g);
-      internal_edges->insert(f.edge[edge_index]);
-      for (int i = 0; i < 3; ++i) {
-        if (g->edge[i] != f.edge[edge_index]) {
-          // One of the neighbouring face is `f`, so do not need to visit again.
-          ComputeVisiblePatchRecursive(polytope, *g, i, query_point,
-                                       border_edges, visible_faces,
-                                       internal_edges);
-        }
+    }
+    visible_faces->insert(g);
+    internal_edges->insert(f.edge[edge_index]);
+    for (int i = 0; i < 3; ++i) {
+      if (g->edge[i] != f.edge[edge_index]) {
+        // One of the neighbouring face is `f`, so do not need to visit again.
+        ComputeVisiblePatchRecursive(polytope, *g, i, query_point, border_edges,
+                                     visible_faces, internal_edges);
       }
     }
   } else {
     // Face f is visible (prerequisite), and g has been previously
-    // marked visible (via a different path); their shared age should be marked
+    // marked visible (via a different path); their shared edge should be marked
     // internal.
     internal_edges->insert(f.edge[edge_index]);
   }
 }
 
 /** Defines the "visible" patch on the given convex `polytope` (with respect to
- the given `query_vertex`).
+ the given `query_vertex` which is a point outside the polytope.)
 
  A patch is characterized by:
    - a contiguous set of visible faces
@@ -983,9 +1012,9 @@ static void ComputeVisiblePatch(
   assert(internal_edges->empty());
   assert(isOutsidePolytopeFace(&polytope, &f, &query_point));
   visible_faces->insert(&f);
-  for (int i = 0; i < 3; ++i) {
-    ComputeVisiblePatchRecursive(polytope, f, i, query_point, border_edges,
-                                 visible_faces, internal_edges);
+  for (int edge_index = 0; edge_index < 3; ++edge_index) {
+    ComputeVisiblePatchRecursive(polytope, f, edge_index, query_point,
+                                 border_edges, visible_faces, internal_edges);
   }
   assert(ComputeVisiblePatchRecursiveSanityCheck(
       polytope, *border_edges, *visible_faces, *internal_edges));
@@ -1305,7 +1334,7 @@ static int __ccdEPA(const void *obj1, const void *obj2,
     if (size == 4){
         ret = simplexToPolytope4(obj1, obj2, ccd, simplex, polytope, nearest);
     } else if (size == 3) {
-      ret = Convert2SimplexToTetrahedron(obj1, obj2, ccd, simplex, polytope,
+      ret = convert2SimplexToTetrahedron(obj1, obj2, ccd, simplex, polytope,
                                          nearest);
     }else{ // size == 2
         ret = simplexToPolytope2(obj1, obj2, ccd, simplex, polytope, nearest);
