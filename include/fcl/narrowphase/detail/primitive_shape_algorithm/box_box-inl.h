@@ -323,10 +323,10 @@ int boxBox2(
 
   auto assign_face_code = [&cout, &best_col_id, &normalR, &invert_normal](int c) {
     (void)c;
-  cout << " Assigning code " << c << ":\n";
-  cout << "   best_col_id: " << best_col_id << "\n";
-  cout << "   normalR:     " << normalR->transpose() << "\n";
-  cout << "   invert_norm: " << invert_normal << "\n";
+//  cout << " Assigning code " << c << ":\n";
+//  cout << "   best_col_id: " << best_col_id << "\n";
+//  cout << "   normalR:     " << normalR->transpose() << "\n";
+//  cout << "   invert_norm: " << invert_normal << "\n";
   };
 
   // separating axis = u1, u2, u3
