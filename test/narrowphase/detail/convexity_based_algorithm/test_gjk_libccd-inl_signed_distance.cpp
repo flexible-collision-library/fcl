@@ -307,8 +307,9 @@ void TestBoxes(S tol) {
 
   // Frame F is rotated from the world frame W.
   X_WF.setIdentity();
+  const S kPi = fcl::constants<S>::pi();
   X_WF.linear() =
-      Eigen::AngleAxis<S>(0.1 * M_PI, Vector3<S>::UnitZ()).toRotationMatrix();
+      Eigen::AngleAxis<S>(0.1 * kPi, Vector3<S>::UnitZ()).toRotationMatrix();
   TestBoxesInFrameF(tol, X_WF);
 
   // TODO(hongkai.dai): This test exposes an error in simplexToPolytope4, that
@@ -316,7 +317,7 @@ void TestBoxes(S tol) {
   // degenerate simplex in simplexToPolytope4.
   /*X_WF.translation() << 0, 0, 0;
   X_WF.linear() =
-      Eigen::AngleAxis<S>(0.1 * M_PI, Vector3<S>(1.0 / 3, 2.0 / 3, -2.0 / 3))
+      Eigen::AngleAxis<S>(0.1 * kPi, Vector3<S>(1.0 / 3, 2.0 / 3, -2.0 / 3))
           .toRotationMatrix();
   TestBoxesInFrameF(tol, X_WF);*/
 
