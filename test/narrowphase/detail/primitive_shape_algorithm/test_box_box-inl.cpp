@@ -68,7 +68,7 @@ GTEST_TEST(BoxBoxPrimitive, Test1) {
   boxBox2(side1, X_WB1.linear(), X_WB1.translation(),
           side2, X_WB2.linear(), X_WB2.translation(),
           normal, &depth, &return_code, 20, contacts);
-  EXPECT_EQ(return_code, 8);
+  EXPECT_EQ(8, return_code);
 }
 
 }  // namespace detail
