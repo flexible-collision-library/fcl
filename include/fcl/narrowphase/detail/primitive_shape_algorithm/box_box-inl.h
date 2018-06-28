@@ -290,78 +290,50 @@ int boxBox2(
   int invert_normal = 0;
   int code = 0;
 
+  // TODO(SeanCurtis-TRI): Make sure I have this documentation right.
+
+  // Test the axes of the boxes as the separating axes. It performs the
+  // calculation of the extent of the test box along a particular `axis` of the
+  // reference box. The extent test is Q · B + Aᵢ (where Aᵢ is the element on
+  // A indexed by the the axis value. Q is the direction of the test box
+  // measured and expressed
+  //
+  //  @param axis       The axis of the box (0, 1, or 2) (x, y, or z,
+  //                    respectively).
+  //  @param box_index  The index of the box (0 or 1)
+  //  @param extent     The extent of the ref box along the test axis.
+  //  @param Q          The
+  auto test_axis = [&pp, &s, &normalR, &best_col_id, &code, &invert_normal](
+      int axis, int box_index, S extent, const Vector3<S>& Q,
+      const Vector3<S>& B, const Vector3<S>& A,
+      const Eigen::MatrixBase<DerivedA>& R) {
+    S s2 = std::abs(extent) - (Q.dot(B) + A[axis]);
+    if (s2 > 0)
+      return 0;
+    if (s2 > s) {
+      code = axis + (box_index * 3) + 1;
+      s = s2;
+      best_col_id = axis;
+      normalR = &R;
+      invert_normal = extent < 0;
+    }
+    return 1;
+  };
+
   // separating axis = u1, u2, u3
-  tmp = pp[0];
-  S s2 = std::abs(tmp) - (Q.row(0).dot(B) + A[0]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    code = 1;
-    s = s2;
-    best_col_id = 0;
-    normalR = &R1;
-    invert_normal = (tmp < 0);
-  }
-
-  tmp = pp[1];
-  s2 = std::abs(tmp) - (Q.row(1).dot(B) + A[1]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    code = 2;
-    s = s2;
-    best_col_id = 1;
-    normalR = &R1;
-    invert_normal = (tmp < 0);
-  }
-
-  tmp = pp[2];
-  s2 = std::abs(tmp) - (Q.row(2).dot(B) + A[2]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    code = 3;
-    s = s2;
-    best_col_id = 2;
-    normalR = &R1;
-    invert_normal = (tmp < 0);
+  for (int i = 0; i < 3; ++i) {
+    if (test_axis(i, 0, pp[i], Q.row(i), B, A, R1) == 0) {
+      *return_code = 0;
+      return 0;
+    }
   }
 
   // separating axis = v1, v2, v3
-  tmp = R2.col(0).dot(p);
-  s2 = std::abs(tmp) - (Q.col(0).dot(A) + B[0]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    code = 4;
-    s = s2;
-    best_col_id = 0;
-    normalR = &R2;
-    invert_normal = (tmp < 0);
-  }
-
-  tmp = R2.col(1).dot(p);
-  s2 = std::abs(tmp) - (Q.col(1).dot(A) + B[1]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    code = 5;
-    s = s2;
-    best_col_id = 1;
-    normalR = &R2;
-    invert_normal = (tmp < 0);
-  }
-
-  tmp = R2.col(2).dot(p);
-  s2 =  std::abs(tmp) - (Q.col(2).dot(A) + B[2]);
-  if(s2 > 0) { *return_code = 0; return 0; }
-  if(s2 > s)
-  {
-    code = 6;
-    s = s2;
-    best_col_id = 2;
-    normalR = &R2;
-    invert_normal = (tmp < 0);
+  for (int i = 0; i < 3; ++i) {
+    if (test_axis(i, 1, R2.col(i).dot(p), Q.col(i), A, B, R2) == 0) {
+      *return_code = 0;
+      return 0;
+    }
   }
 
   // This is used to detect zero-length axes which arise from taking the cross
@@ -391,9 +363,6 @@ int boxBox2(
     Q.array() += scale_factor;
   }
 
-
-
-
   // NOTE: This fudge factor is used to prefer face-feature contact over
   // edge-edge. It is unclear why edge-edge contact receives this 5% penalty.
   // Someone should document this.
@@ -401,7 +370,7 @@ int boxBox2(
 
   // separating axis = u1 x (v1,v2,v3)
   tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
-  s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
+  S s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
   Vector3<S> n(0, -R(2, 0), R(1, 0));
   S l = n.norm();
