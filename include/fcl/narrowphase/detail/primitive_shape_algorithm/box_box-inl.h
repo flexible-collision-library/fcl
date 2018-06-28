@@ -300,7 +300,7 @@ int boxBox2(
   // NOTE: R1 --> R_W1 and R2 --> R_W2, so, R_W1ᵀ·R_W2 = R_1W · R_W2 = R_12
   const Matrix3<S> R = R1.transpose() * R2;
   Matrix3<S> Q = R.cwiseAbs();
-//  cout << " R: " << R << "\n";
+  cout << " R: " << R << "\n";
   cout << " Q: " << Q << "\n";
 
   // for all 15 possible separating axes:
