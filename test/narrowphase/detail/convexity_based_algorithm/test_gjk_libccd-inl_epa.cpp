@@ -240,7 +240,7 @@ GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
   EXPECT_THROW(
       libccd_extension::supportEPADirection(
           &p3.polytope(), reinterpret_cast<const ccd_pt_el_t*>(&p3.v(0))),
-      std::runtime_error);
+      std::logic_error);
 
   // Origin is an internal point of the bottom triangle
   EquilateralTetrahedron p4(0, 0, 0);
@@ -613,9 +613,8 @@ void MapFeature1ToFeature2(
               map_feature1_to_feature2->end(), f1, f2);
           found_match = true;
         } else {
-          throw std::logic_error(
-              "There should be only one element in feature2_list that matches "
-              "with an element in feature1_list.");
+          GTEST_FAIL() << "There should be only one element in feature2_list "
+                          "that matches with an element in feature1_list.";
         }
       }
     }
@@ -1246,7 +1245,7 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   ccdPtAddFace(&polytope_expected, edges_expected[0], edges_expected[1],
                edges_expected[2]);
 
-  ComparePolytope(&polytope, &polytope_expected, 1E-3);
+  ComparePolytope(&polytope, &polytope_expected, constants<S>::eps_34());
 
   ccdPtDestroy(&polytope_expected);
   ccdPtDestroy(&polytope);
