@@ -1181,7 +1181,6 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
         const ccd_pt_edge_t* edge =
             reinterpret_cast<const ccd_pt_edge_t*>(nearest_feature);
         dir = faceNormalPointingOutward(polytope, edge->faces[0]);
-        ccdVec3Normalize(&dir);
         break;
       }
       case CCD_PT_FACE: {
@@ -1190,17 +1189,13 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
         const ccd_pt_face_t* face =
             reinterpret_cast<const ccd_pt_face_t*>(nearest_feature);
         dir = faceNormalPointingOutward(polytope, face);
-
-        ccdVec3Normalize(&dir);
         break;
       }
     }
   } else {
     ccdVec3Copy(&dir, &(nearest_feature->witness));
-    // The "dist" field in ccd_pt_el_t is actually the square of the distance.
-    const ccd_real_t dist = std::sqrt(nearest_feature->dist);
-    ccdVec3Scale(&dir, ccd_real_t(1.0) / dist);
   }
+  ccdVec3Normalize(&dir);
   return dir;
 }
 
