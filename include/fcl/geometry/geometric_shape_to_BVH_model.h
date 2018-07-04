@@ -54,58 +54,67 @@ namespace fcl
 {
 /**
 * \defgroup generateBVHModel
-* @param[out]  model a reference to the BVHModel to be generated or appended to
+* @param[out]  model a reference to the BVHModel to be generated or added to
 * @param[in]   shape a reference to the geometric object to be added to the BVHModel
 * @param[in]   pose a const reference to the pose of the geometric object
-* @param[in]   finalize_model a boolean indicating whether the model is final or more submodels can be added later
+* @param[in]   finalize_model a FinalizeModel enum indicating whether the model is final or more submodels can be added later
 * @{
 */
 
+/**
+* @brief    enum class used to indicate whether we simply want to add more primitives to the model
+*           or finalize it.
+*/
+enum class FinalizeModel{
+	DO_FINALIZE,
+	DONT_FINALIZE
+};
+
 /// @brief Generate BVH model from box
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose, bool finalize_model = true);
+void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose, FinalizeModel finalize_model = FinalizeModel::DO_FINALIZE);
 
 /// @brief Generate BVH model from sphere, given the number of segments along longitude and number of rings along latitude.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, bool finalize_model = true);
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, FinalizeModel finalize_model = FinalizeModel::DO_FINALIZE);
 
 /// @brief Generate BVH model from sphere
 /// The difference between generateBVHModel is that it gives the number of triangles faces N for a sphere with unit radius. For sphere of radius r,
 /// then the number of triangles is r * r * N so that the area represented by a single triangle is approximately the same.s
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_sphere, bool finalize_model = true);
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_sphere, FinalizeModel finalize_model = FinalizeModel::DO_FINALIZE);
 
 /// @brief Generate BVH model from ellipsoid, given the number of segments along longitude and number of rings along latitude.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, bool finalize_model = true);
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, FinalizeModel finalize_model = FinalizeModel::DO_FINALIZE);
 
 /// @brief Generate BVH model from ellipsoid
 /// The difference between generateBVHModel is that it gives the number of triangles faces N for an ellipsoid with unit radii (1, 1, 1). For ellipsoid of radii (a, b, c),
 /// then the number of triangles is ((a^p * b^p + b^p * c^p + c^p * a^p)/3)^(1/p) * N, where p is 1.6075, so that the area represented by a single triangle is approximately the same.
 /// Reference: https://en.wikipedia.org/wiki/Ellipsoid<S>#Approximate_formula
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_ellipsoid, bool finalize_model = true);
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_ellipsoid, FinalizeModel finalize_model = FinalizeModel::DO_FINALIZE);
 
 /// @brief Generate BVH model from cylinder, given the number of segments along circle and the number of segments along axis.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, bool finalize_model = true);
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, FinalizeModel finalize_model = FinalizeModel::DO_FINALIZE);
 
 /// @brief Generate BVH model from cylinder
 /// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cylinder with
 /// larger radius, the number of circle split number is r * tot.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder, bool finalize_model = true);
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder, FinalizeModel finalize_model = FinalizeModel::DO_FINALIZE);
 
 
 /// @brief Generate BVH model from cone, given the number of segments along circle and the number of segments along axis.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, bool finalize_model = true);
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, FinalizeModel finalize_model = FinalizeModel::DO_FINALIZE);
 
 /// @brief Generate BVH model from cone
 /// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cone with
 /// larger radius, the number of circle split number is r * tot.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cone, bool finalize_model = true);
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cone, FinalizeModel finalize_model = FinalizeModel::DO_FINALIZE);
 
 /**@} */ // end of doxygen group generateBVHModel
 

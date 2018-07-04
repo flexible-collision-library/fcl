@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose, bool finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -86,7 +86,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, con
   }
 
   model.addSubModel(points, tri_indices);
-  if(finalize_model){
+  if(finalize_model == FinalizeModel::DO_FINALIZE){
     model.endModel();
     model.computeLocalAABB();
   }
@@ -95,7 +95,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, con
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, bool finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -159,7 +159,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, 
   }
 
   model.addSubModel(points, tri_indices);
-  if(finalize_model){
+  if(finalize_model == FinalizeModel::DO_FINALIZE){
     model.endModel();
     model.computeLocalAABB();
   }
@@ -167,7 +167,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, 
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_sphere, bool finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_sphere, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -181,7 +181,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, 
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, bool finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -248,7 +248,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shap
   }
 
   model.addSubModel(points, tri_indices);
-  if(finalize_model){
+  if(finalize_model == FinalizeModel::DO_FINALIZE){
     model.endModel();
     model.computeLocalAABB();
   }
@@ -256,7 +256,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shap
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_ellipsoid, bool finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_ellipsoid, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -277,7 +277,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shap
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, bool finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -342,7 +342,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
   }
 
   model.addSubModel(points, tri_indices);
-  if(finalize_model){
+  if(finalize_model == FinalizeModel::DO_FINALIZE){
     model.endModel();
     model.computeLocalAABB();
   }
@@ -350,7 +350,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder, bool finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -369,7 +369,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, bool finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -434,7 +434,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
   }
 
   model.addSubModel(points, tri_indices);
-  if(finalize_model){
+  if(finalize_model == FinalizeModel::DO_FINALIZE){
     model.endModel();
     model.computeLocalAABB();
   }
@@ -442,7 +442,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cone, bool finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cone, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 

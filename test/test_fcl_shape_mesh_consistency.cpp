@@ -63,8 +63,8 @@ void test_consistency_distance_spheresphere_libccd()
   BVHModel<RSS<S>> s1_rss;
   BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
   DistanceRequest<S> request;
   DistanceResult<S> res, res1;
@@ -161,8 +161,8 @@ void test_consistency_distance_ellipsoidellipsoid_libccd()
   BVHModel<RSS<S>> s1_rss;
   BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
   DistanceRequest<S> request;
   DistanceResult<S> res, res1;
@@ -357,8 +357,8 @@ void test_consistency_distance_cylindercylinder_libccd()
   BVHModel<RSS<S>> s1_rss;
   BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
   DistanceRequest<S> request;
   DistanceResult<S> res, res1;
@@ -455,8 +455,8 @@ void test_consistency_distance_conecone_libccd()
   BVHModel<RSS<S>> s1_rss;
   BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
   DistanceRequest<S> request;
   DistanceResult<S> res, res1;
@@ -551,8 +551,8 @@ void test_consistency_distance_spheresphere_GJK()
   BVHModel<RSS<S>> s1_rss;
   BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
   DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
@@ -651,8 +651,8 @@ void test_consistency_distance_ellipsoidellipsoid_GJK()
   BVHModel<RSS<S>> s1_rss;
   BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
   DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
@@ -851,8 +851,8 @@ void test_consistency_distance_cylindercylinder_GJK()
   BVHModel<RSS<S>> s1_rss;
   BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
   DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
@@ -959,8 +959,8 @@ void test_consistency_distance_conecone_GJK()
   BVHModel<RSS<S>> s1_rss;
   BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
   DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
@@ -1059,10 +1059,10 @@ void test_consistency_collision_spheresphere_libccd()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
   CollisionRequest<S> request;
   CollisionResult<S> result;
@@ -1285,10 +1285,10 @@ void test_consistency_collision_ellipsoidellipsoid_libccd()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
   CollisionRequest<S> request;
   CollisionResult<S> result;
@@ -1643,9 +1643,9 @@ void test_consistency_collision_spherebox_libccd()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3<S>::Identity());
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3<S>::Identity());
 
   CollisionRequest<S> request;
@@ -1772,10 +1772,10 @@ void test_consistency_collision_cylindercylinder_libccd()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
   CollisionRequest<S> request;
   CollisionResult<S> result;
@@ -1868,10 +1868,10 @@ void test_consistency_collision_conecone_libccd()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
   CollisionRequest<S> request;
   CollisionResult<S> result;
@@ -2027,10 +2027,10 @@ void test_consistency_collision_spheresphere_GJK()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
   CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
@@ -2255,10 +2255,10 @@ void test_consistency_collision_ellipsoidellipsoid_GJK()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
   CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
@@ -2615,9 +2615,9 @@ void test_consistency_collision_spherebox_GJK()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3<S>::Identity());
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3<S>::Identity());
 
   CollisionRequest<S> request;
@@ -2746,10 +2746,10 @@ void test_consistency_collision_cylindercylinder_GJK()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
   CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
@@ -2844,10 +2844,10 @@ void test_consistency_collision_conecone_GJK()
   BVHModel<OBB<S>> s1_obb;
   BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16, false);
-  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16, false);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
   CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
