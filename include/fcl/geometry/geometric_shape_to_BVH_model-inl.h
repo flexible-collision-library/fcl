@@ -277,7 +277,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shap
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, FinalizeModel finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot, unsigned int h_num, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -288,45 +288,45 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
   S h = shape.lz;
   S phi, phid;
   const S pi = constants<S>::pi();
-  phid = pi * 2 / tot;
+  phid = pi * 2 / circle_split_tot;
   phi = 0;
 
   S hd = h / h_num;
 
-  for(unsigned int i = 0; i < tot; ++i)
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
     points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2);
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
-    for(unsigned int j = 0; j < tot; ++j)
+    for(unsigned int j = 0; j < circle_split_tot; ++j)
     {
       points.emplace_back(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd);
     }
   }
 
-  for(unsigned int i = 0; i < tot; ++i)
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
     points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2);
 
   points.emplace_back(0, 0, h / 2);
   points.emplace_back(0, 0, -h / 2);
 
-  for(unsigned int i = 0; i < tot; ++i)
-    tri_indices.emplace_back((h_num + 1) * tot, i, ((i == tot - 1) ? 0 : (i + 1)));
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
+    tri_indices.emplace_back((h_num + 1) * circle_split_tot, i, ((i == circle_split_tot - 1) ? 0 : (i + 1)));
 
-  for(unsigned int i = 0; i < tot; ++i)
-    tri_indices.emplace_back((h_num + 1) * tot + 1, h_num * tot + ((i == tot - 1) ? 0 : (i + 1)), h_num * tot + i);
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
+    tri_indices.emplace_back((h_num + 1) * circle_split_tot + 1, h_num * circle_split_tot + ((i == circle_split_tot - 1) ? 0 : (i + 1)), h_num * circle_split_tot + i);
 
   for(unsigned int i = 0; i < h_num; ++i)
   {
-    for(unsigned int j = 0; j < tot; ++j)
+    for(unsigned int j = 0; j < circle_split_tot; ++j)
     {
       int a, b, c, d;
       a = j;
-      b = (j == tot - 1) ? 0 : (j + 1);
-      c = j + tot;
-      d = (j == tot - 1) ? tot : (j + 1 + tot);
+      b = (j == circle_split_tot - 1) ? 0 : (j + 1);
+      c = j + circle_split_tot;
+      d = (j == circle_split_tot - 1) ? circle_split_tot : (j + 1 + circle_split_tot);
 
-      int start = i * tot;
+      int start = i * circle_split_tot;
       tri_indices.emplace_back(start + b, start + a, start + c);
       tri_indices.emplace_back(start + b, start + c, start + d);
     }
@@ -350,7 +350,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder, FinalizeModel finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot_for_unit_cylinder, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -358,18 +358,18 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
   S h = shape.lz;
 
   const S pi = constants<S>::pi();
-  unsigned int tot = tot_for_unit_cylinder * r;
-  S phid = pi * 2 / tot;
+  unsigned int circle_split_tot = circle_split_tot_for_unit_cylinder * r;
+  S phid = pi * 2 / circle_split_tot;
 
   S circle_edge = phid * r;
   unsigned int h_num = ceil(h / circle_edge);
 
-  generateBVHModel(model, shape, pose, tot, h_num, finalize_model);
+  generateBVHModel(model, shape, pose, circle_split_tot, h_num, finalize_model);
 }
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num, FinalizeModel finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot, unsigned int h_num, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -381,7 +381,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
 
   S phi, phid;
   const S pi = constants<S>::pi();
-  phid = pi * 2 / tot;
+  phid = pi * 2 / circle_split_tot;
   phi = 0;
 
   S hd = h / h_num;
@@ -390,35 +390,35 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
   {
     S h_i = h / 2 - (i + 1) * hd;
     S rh = r * (0.5 - h_i / h);
-    for(unsigned int j = 0; j < tot; ++j)
+    for(unsigned int j = 0; j < circle_split_tot; ++j)
     {
       points.emplace_back(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i);
     }
   }
 
-  for(unsigned int i = 0; i < tot; ++i)
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
     points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2);
 
   points.emplace_back(0, 0, h / 2);
   points.emplace_back(0, 0, -h / 2);
 
-  for(unsigned int i = 0; i < tot; ++i)
-    tri_indices.emplace_back(h_num * tot, i, (i == tot - 1) ? 0 : (i + 1));
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
+    tri_indices.emplace_back(h_num * circle_split_tot, i, (i == circle_split_tot - 1) ? 0 : (i + 1));
 
-  for(unsigned int i = 0; i < tot; ++i)
-    tri_indices.emplace_back(h_num * tot + 1, (h_num - 1) * tot + ((i == tot - 1) ? 0 : (i + 1)), (h_num - 1) * tot + i);
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
+    tri_indices.emplace_back(h_num * circle_split_tot + 1, (h_num - 1) * circle_split_tot + ((i == circle_split_tot - 1) ? 0 : (i + 1)), (h_num - 1) * circle_split_tot + i);
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
-    for(unsigned int j = 0; j < tot; ++j)
+    for(unsigned int j = 0; j < circle_split_tot; ++j)
     {
       int a, b, c, d;
       a = j;
-      b = (j == tot - 1) ? 0 : (j + 1);
-      c = j + tot;
-      d = (j == tot - 1) ? tot : (j + 1 + tot);
+      b = (j == circle_split_tot - 1) ? 0 : (j + 1);
+      c = j + circle_split_tot;
+      d = (j == circle_split_tot - 1) ? circle_split_tot : (j + 1 + circle_split_tot);
 
-      int start = i * tot;
+      int start = i * circle_split_tot;
       tri_indices.emplace_back(start + b, start + a, start + c);
       tri_indices.emplace_back(start + b, start + c, start + d);
     }
@@ -442,7 +442,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cone, FinalizeModel finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot_for_unit_cylinder, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -450,13 +450,13 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
   S h = shape.lz;
 
   const S pi = constants<S>::pi();
-  unsigned int tot = tot_for_unit_cone * r;
-  S phid = pi * 2 / tot;
+  unsigned int circle_split_tot = circle_split_tot_for_unit_cylinder * r;
+  S phid = pi * 2 / circle_split_tot;
 
   S circle_edge = phid * r;
   unsigned int h_num = ceil(h / circle_edge);
 
-  generateBVHModel(model, shape, pose, tot, h_num, finalize_model);
+  generateBVHModel(model, shape, pose, circle_split_tot, h_num, finalize_model);
 }
 
 } // namespace fcl
