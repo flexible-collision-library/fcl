@@ -37,7 +37,6 @@ target_link_libraries(test_fcl_utility fcl)
 
 # test file list
 set(tests
-    test_fcl_generate_bvh_model.cpp
     test_fcl_auto_diff.cpp
     test_fcl_box_box.cpp
     test_fcl_broadphase_collision_1.cpp
@@ -53,6 +52,7 @@ set(tests
     test_fcl_distance.cpp
     test_fcl_frontlist.cpp
     test_fcl_general.cpp
+    test_fcl_generate_bvh_model.cpp
     test_fcl_geometric_shapes.cpp
     test_fcl_math.cpp
     test_fcl_profiler.cpp

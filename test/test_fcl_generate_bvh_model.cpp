@@ -88,14 +88,14 @@ void testBVHModelFromSphere()
   
       // Testing the overload with num_faces defined ends up in a call to both
       generateBVHModel(*model, sphere, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-      EXPECT_EQ(model->num_vertices, 2 + ring * ring);
-      EXPECT_EQ(model->num_tris, 2 * ring * ring);
+      EXPECT_EQ(model->num_vertices, static_cast<int>(2 + ring * ring));
+      EXPECT_EQ(model->num_tris, static_cast<int>(2 * ring * ring));
       EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
 
       // Test that we can add another sphere to the model
       generateBVHModel(*model, sphere, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-      EXPECT_EQ(model->num_vertices, 2 * ( 2 + ring * ring));
-      EXPECT_EQ(model->num_tris, 2 * (2 * ring * ring));
+      EXPECT_EQ(model->num_vertices, static_cast<int>(2 * ( 2 + ring * ring)));
+      EXPECT_EQ(model->num_tris, static_cast<int>(2 * (2 * ring * ring)));
       EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
     }
   }
@@ -125,14 +125,14 @@ for(S a = 0.5; a <= 2.1; a += 0.8){
 
         // Testing the overload with num_faces defined ends up in a call to both
         generateBVHModel(*model, ellipsoid, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-        EXPECT_EQ(model->num_vertices, 2 + ring * ring);
-        EXPECT_EQ(model->num_tris, 2 * ring * ring);
+        EXPECT_EQ(model->num_vertices, static_cast<int>(2 + ring * ring));
+        EXPECT_EQ(model->num_tris, static_cast<int>(2 * ring * ring));
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
 
         // Make sure we can add another ellipsoid to the model
         generateBVHModel(*model, ellipsoid, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-        EXPECT_EQ(model->num_vertices, 2 * ( 2 + ring * ring));
-        EXPECT_EQ(model->num_tris, 2 * (2 * ring * ring));
+        EXPECT_EQ(model->num_vertices, static_cast<int>(2 * ( 2 + ring * ring)));
+        EXPECT_EQ(model->num_tris, static_cast<int>(2 * (2 * ring * ring)));
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
       }
     }
@@ -163,13 +163,13 @@ void testBVHModelFromCylinder()
         // Testing the overload with num_faces defined ends up in a call to both
         generateBVHModel(*model, cylinder, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
 
-        EXPECT_EQ(model->num_vertices, 2 + n_tot * (h_num + 1));
-        EXPECT_EQ(model->num_tris, (2 * h_num + 2) * n_tot);
+        EXPECT_EQ(model->num_vertices, static_cast<int>(2 + n_tot * (h_num + 1)));
+        EXPECT_EQ(model->num_tris, static_cast<int>((2 * h_num + 2) * n_tot));
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
 
         generateBVHModel(*model, cylinder, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-        EXPECT_EQ(model->num_vertices, 2 * (2 + n_tot * (h_num + 1)));
-        EXPECT_EQ(model->num_tris, 2 * ((2 * h_num + 2) * n_tot));
+        EXPECT_EQ(model->num_vertices, static_cast<int>(2 * (2 + n_tot * (h_num + 1))));
+        EXPECT_EQ(model->num_tris, static_cast<int>(2 * ((2 * h_num + 2) * n_tot)));
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
       }
     }
@@ -197,13 +197,13 @@ void testBVHModelFromCone()
 
         // Testing the overload with num_faces defined ends up in a call to both
         generateBVHModel(*model, cone, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-        EXPECT_EQ(model->num_vertices, 2 + n_tot * h_num);
-        EXPECT_EQ(model->num_tris, 2 * n_tot * h_num); 
+        EXPECT_EQ(model->num_vertices, static_cast<int>(2 + n_tot * h_num));
+        EXPECT_EQ(model->num_tris, static_cast<int>(2 * n_tot * h_num)); 
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
  
         generateBVHModel(*model, cone, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-        EXPECT_EQ(model->num_vertices, 2 * (2 + n_tot * h_num));
-        EXPECT_EQ(model->num_tris, 4 * n_tot * h_num);
+        EXPECT_EQ(model->num_vertices, static_cast<int>(2 * (2 + n_tot * h_num)));
+        EXPECT_EQ(model->num_tris, static_cast<int>(4 * n_tot * h_num));
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
       }
     }
