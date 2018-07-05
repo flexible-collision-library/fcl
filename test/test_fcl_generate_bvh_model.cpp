@@ -48,19 +48,26 @@ void testBVHModelFromBox()
 {
   using S = typename BV::S;
 
-  std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box<S> box(1.0, 1.0, 1.0);
+  // Test various box sizes
+  for(S a = 0.5; a <= 2.1; a += 0.8){
+    for(S b = 0.5; b <= 2.1; b += 0.8){
+      for(S c = 0.5; c <= 2.1; c += 0.8){
 
-  generateBVHModel(*model, box, Transform3<S>::Identity(), FinalizeModel::DONT_FINALIZE);
-  EXPECT_EQ(model->num_vertices, 8);
-  EXPECT_EQ(model->num_tris, 12);
-  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
+        std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+        Box<S> box(a, b, c);
 
-  generateBVHModel(*model, box, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))));
-  EXPECT_EQ(model->num_vertices, 16);
-  EXPECT_EQ(model->num_tris, 24);
-  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+        generateBVHModel(*model, box, Transform3<S>::Identity(), FinalizeModel::DONT_FINALIZE);
+        EXPECT_EQ(model->num_vertices, 8);
+        EXPECT_EQ(model->num_tris, 12);
+        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
 
+        generateBVHModel(*model, box, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))));
+        EXPECT_EQ(model->num_vertices, 16);
+        EXPECT_EQ(model->num_tris, 24);
+        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+      }
+    }
+  }
 }
 
 template<typename BV>
@@ -213,7 +220,6 @@ void testBVHModelFromPrimitives()
 
 GTEST_TEST(FCL_GENERATE_BVH_MODELS, generating_bvh_models_from_primitives)
 {
-
   testBVHModelFromPrimitives<AABB<double>>();
   testBVHModelFromPrimitives<OBB<double>>();
   testBVHModelFromPrimitives<RSS<double>>();
