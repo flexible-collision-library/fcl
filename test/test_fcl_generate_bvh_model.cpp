@@ -150,14 +150,15 @@ void testBVHModelFromCylinder()
   const S pi = constants<S>::pi();
 
   // Try various resolutions, radii and heights
-  for(uint8_t n = 4; n <= 32; n += 8){
-    for(S r = 0.5; r <= 2.1; r += 0.8){
-      for(S h = 0.5; h <= 2.1; h += 0.8){
+  for(S r = 0.5; r <= 2.1; r += 0.8){
+    for(S h = 0.5; h <= 2.1; h += 0.8){
+      Cylinder<S> cylinder(r, h);
+
+      for(uint8_t n = 4; n <= 32; n += 8){
         unsigned int n_tot = n * r;
         unsigned int h_num = ceil(h / ((pi * 2 / n_tot) * r));
 
         std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-        Cylinder<S> cylinder(r, h);
 
         // Testing the overload with num_faces defined ends up in a call to both
         generateBVHModel(*model, cylinder, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
@@ -184,14 +185,15 @@ void testBVHModelFromCone()
   const S pi = constants<S>::pi();
 
   // Try various resolutions, radii and heights
-  for(uint8_t n = 4; n <= 32; n += 8){
-    for(S r = 0.5; r <= 2.1; r += 0.8){
-      for(S h = 0.5; h <= 2.1; h += 0.8){
+  for(S r = 0.5; r <= 2.1; r += 0.8){
+    for(S h = 0.5; h <= 2.1; h += 0.8){
+      Cone<S> cone(r,h);
+  
+      for(uint8_t n = 4; n <= 32; n += 8){
         unsigned int n_tot = n * r;
         unsigned int h_num = ceil(h / ((pi * 2 / n_tot) * r));
 
         std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-        Cone<S> cone(r,h);
 
         // Testing the overload with num_faces defined ends up in a call to both
         generateBVHModel(*model, cone, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
