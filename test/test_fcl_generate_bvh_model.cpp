@@ -68,20 +68,30 @@ void testBVHModelFromSphere()
 {
   using S = typename BV::S;
 
-  std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Sphere<S> sphere(1.0);
+  // Test various radii
+  for(S r = 0.5; r <= 2.1; r += 0.8){
+    Sphere<S> sphere(r);
 
-  // Testing the overload with num_faces defined ends up in a call to both
-  generateBVHModel(*model, sphere, Transform3<S>::Identity(), 32, FinalizeModel::DONT_FINALIZE);
-  EXPECT_EQ(model->num_vertices, 18);
-  EXPECT_EQ(model->num_tris, 32);
-  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
+    // Test various resolutions
+    for(uint8_t n = 4; n <= 32; n += 8){
+      S n_low_bound = sqrtf(n / 2.0) * r * r;
+      unsigned int ring = ceil(n_low_bound);
 
-  generateBVHModel(*model, sphere, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), 32);
-  EXPECT_EQ(model->num_vertices, 36);
-  EXPECT_EQ(model->num_tris, 64);
-  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+      std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+  
+      // Testing the overload with num_faces defined ends up in a call to both
+      generateBVHModel(*model, sphere, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
+      EXPECT_EQ(model->num_vertices, 2 + ring * ring);
+      EXPECT_EQ(model->num_tris, 2 * ring * ring);
+      EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
 
+      // Test that we can add another sphere to the model
+      generateBVHModel(*model, sphere, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
+      EXPECT_EQ(model->num_vertices, 2 * ( 2 + ring * ring));
+      EXPECT_EQ(model->num_tris, 2 * (2 * ring * ring));
+      EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+    }
+  }
 }
 
 template<typename BV>
@@ -91,9 +101,9 @@ void testBVHModelFromEllipsoid()
   const S p = 1.6075;
 
 // Test various radii
-for(S a = 0.5; a <= 2.1; a+=0.8){
-  for(S b = 0.5; b <= 2.1; b+=0.8){
-    for(S c = 0.5; c <= 2.1; c+=0.8){
+for(S a = 0.5; a <= 2.1; a += 0.8){
+  for(S b = 0.5; b <= 2.1; b += 0.8){
+    for(S c = 0.5; c <= 2.1; c += 0.8){
       Ellipsoid<S> ellipsoid(a, b, c);
       const S& ap = std::pow(a, p);
       const S& bp = std::pow(b, p);
@@ -101,21 +111,21 @@ for(S a = 0.5; a <= 2.1; a+=0.8){
       const S ratio = std::pow((ap * bp + bp * cp + cp * ap) / 3.0, 1.0 / p);
 
       // Test various resolutions
-      for(uint8_t n = 4; n <= 32; n+=8){
+      for(uint8_t n = 4; n <= 32; n += 8){
         const S n_low_bound = std::sqrt(n / 2.0) * ratio;
         const unsigned int ring = std::ceil(n_low_bound);
         std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
         // Testing the overload with num_faces defined ends up in a call to both
         generateBVHModel(*model, ellipsoid, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-        EXPECT_EQ(model->num_vertices, 2+ring*ring);
-        EXPECT_EQ(model->num_tris, 2*ring*ring);
+        EXPECT_EQ(model->num_vertices, 2 + ring * ring);
+        EXPECT_EQ(model->num_tris, 2 * ring * ring);
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
 
         // Make sure we can add another ellipsoid to the model
         generateBVHModel(*model, ellipsoid, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-        EXPECT_EQ(model->num_vertices, 2*(2+ring*ring));
-        EXPECT_EQ(model->num_tris, 2*(2*ring*ring));
+        EXPECT_EQ(model->num_vertices, 2 * ( 2 + ring * ring));
+        EXPECT_EQ(model->num_tris, 2 * (2 * ring * ring));
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
       }
     }
@@ -133,9 +143,9 @@ void testBVHModelFromCylinder()
   const S pi = constants<S>::pi();
 
   // Try various resolutions, radii and heights
-  for(uint8_t n = 4; n <= 32; n+=8){
-    for(S r = 0.5; r <= 2.1; r+=0.8){
-      for(S h = 0.5; h <= 2.1; h+=0.8){
+  for(uint8_t n = 4; n <= 32; n += 8){
+    for(S r = 0.5; r <= 2.1; r += 0.8){
+      for(S h = 0.5; h <= 2.1; h += 0.8){
         unsigned int n_tot = n * r;
         unsigned int h_num = ceil(h / ((pi * 2 / n_tot) * r));
 
@@ -145,13 +155,13 @@ void testBVHModelFromCylinder()
         // Testing the overload with num_faces defined ends up in a call to both
         generateBVHModel(*model, cylinder, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
 
-        EXPECT_EQ(model->num_vertices, 2+n_tot*(h_num+1));
-        EXPECT_EQ(model->num_tris, (2*h_num+2)*n_tot);
+        EXPECT_EQ(model->num_vertices, 2 + n_tot * (h_num + 1));
+        EXPECT_EQ(model->num_tris, (2 * h_num + 2) * n_tot);
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
 
         generateBVHModel(*model, cylinder, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-        EXPECT_EQ(model->num_vertices, 2*( 2+n_tot*(h_num+1)));
-        EXPECT_EQ(model->num_tris, 2*((2*h_num+2)*n_tot));
+        EXPECT_EQ(model->num_vertices, 2 * (2 + n_tot * (h_num + 1)));
+        EXPECT_EQ(model->num_tris, 2 * ((2 * h_num + 2) * n_tot));
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
       }
     }
@@ -167,9 +177,9 @@ void testBVHModelFromCone()
   const S pi = constants<S>::pi();
 
   // Try various resolutions, radii and heights
-  for(uint8_t n = 4; n <= 32; n+=8){
-    for(S r = 0.5; r <= 2.1; r+=0.8){
-      for(S h = 0.5; h <= 2.1; h+=0.8){
+  for(uint8_t n = 4; n <= 32; n += 8){
+    for(S r = 0.5; r <= 2.1; r += 0.8){
+      for(S h = 0.5; h <= 2.1; h += 0.8){
         unsigned int n_tot = n * r;
         unsigned int h_num = ceil(h / ((pi * 2 / n_tot) * r));
 
@@ -178,13 +188,13 @@ void testBVHModelFromCone()
 
         // Testing the overload with num_faces defined ends up in a call to both
         generateBVHModel(*model, cone, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-        EXPECT_EQ(model->num_vertices, 2+n_tot*h_num);
-        EXPECT_EQ(model->num_tris, 2*n_tot*h_num); 
+        EXPECT_EQ(model->num_vertices, 2 + n_tot * h_num);
+        EXPECT_EQ(model->num_tris, 2 * n_tot * h_num); 
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
  
         generateBVHModel(*model, cone, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-        EXPECT_EQ(model->num_vertices, 2*(2+n_tot*h_num));
-        EXPECT_EQ(model->num_tris, 4*n_tot*h_num);
+        EXPECT_EQ(model->num_vertices, 2 * (2 + n_tot * h_num));
+        EXPECT_EQ(model->num_tris, 4 * n_tot * h_num);
         EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
       }
     }
