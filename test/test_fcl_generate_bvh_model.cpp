@@ -107,40 +107,37 @@ void testBVHModelFromEllipsoid()
   using S = typename BV::S;
   const S p = 1.6075;
 
-// Test various radii
-for(S a = 0.5; a <= 2.1; a += 0.8){
-  for(S b = 0.5; b <= 2.1; b += 0.8){
-    for(S c = 0.5; c <= 2.1; c += 0.8){
-      Ellipsoid<S> ellipsoid(a, b, c);
-      const S& ap = std::pow(a, p);
-      const S& bp = std::pow(b, p);
-      const S& cp = std::pow(c, p);
-      const S ratio = std::pow((ap * bp + bp * cp + cp * ap) / 3.0, 1.0 / p);
+  // Test various radii
+  for(S a = 0.5; a <= 2.1; a += 0.8){
+    for(S b = 0.5; b <= 2.1; b += 0.8){
+      for(S c = 0.5; c <= 2.1; c += 0.8){
+        Ellipsoid<S> ellipsoid(a, b, c);
+        const S& ap = std::pow(a, p);
+        const S& bp = std::pow(b, p);
+        const S& cp = std::pow(c, p);
+        const S ratio = std::pow((ap * bp + bp * cp + cp * ap) / 3.0, 1.0 / p);
 
-      // Test various resolutions
-      for(uint8_t n = 4; n <= 32; n += 8){
-        const S n_low_bound = std::sqrt(n / 2.0) * ratio;
-        const unsigned int ring = std::ceil(n_low_bound);
-        std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+        // Test various resolutions
+        for(uint8_t n = 4; n <= 32; n += 8){
+          const S n_low_bound = std::sqrt(n / 2.0) * ratio;
+          const unsigned int ring = std::ceil(n_low_bound);
+          std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
-        // Testing the overload with num_faces defined ends up in a call to both
-        generateBVHModel(*model, ellipsoid, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-        EXPECT_EQ(model->num_vertices, static_cast<int>(2 + ring * ring));
-        EXPECT_EQ(model->num_tris, static_cast<int>(2 * ring * ring));
-        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
+          // Testing the overload with num_faces defined ends up in a call to both
+          generateBVHModel(*model, ellipsoid, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
+          EXPECT_EQ(model->num_vertices, static_cast<int>(2 + ring * ring));
+          EXPECT_EQ(model->num_tris, static_cast<int>(2 * ring * ring));
+          EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
 
-        // Make sure we can add another ellipsoid to the model
-        generateBVHModel(*model, ellipsoid, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-        EXPECT_EQ(model->num_vertices, static_cast<int>(2 * ( 2 + ring * ring)));
-        EXPECT_EQ(model->num_tris, static_cast<int>(2 * (2 * ring * ring)));
-        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+          // Make sure we can add another ellipsoid to the model
+          generateBVHModel(*model, ellipsoid, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
+          EXPECT_EQ(model->num_vertices, static_cast<int>(2 * ( 2 + ring * ring)));
+          EXPECT_EQ(model->num_tris, static_cast<int>(2 * (2 * ring * ring)));
+          EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+        }
       }
     }
   }
-}
-  
-  
-
 }
 
 template<typename BV>
@@ -174,7 +171,6 @@ void testBVHModelFromCylinder()
       }
     }
   }
-
 }
 
 template<typename BV>

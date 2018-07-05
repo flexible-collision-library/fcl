@@ -462,4 +462,3 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
 } // namespace fcl
 
 #endif
-
