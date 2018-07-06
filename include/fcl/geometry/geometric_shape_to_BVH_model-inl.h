@@ -442,7 +442,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot_for_unit_cylinder, FinalizeModel finalize_model)
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot_for_unit_cone, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -450,7 +450,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
   S h = shape.lz;
 
   const S pi = constants<S>::pi();
-  unsigned int circle_split_tot = circle_split_tot_for_unit_cylinder * r;
+  unsigned int circle_split_tot = circle_split_tot_for_unit_cone * r;
   S phid = pi * 2 / circle_split_tot;
 
   S circle_edge = phid * r;
