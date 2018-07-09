@@ -66,14 +66,34 @@ template<typename BV>
 void checkNumVerticesAndTris(BVHModel<BV>& model, const Box<typename BV::S>& shape, int vertices, int tris)
 {
   using S = typename BV::S;
-  generateBVHModel(model, shape, Transform3<S>::Identity(), FinalizeModel::DONT);
+  auto ret  = generateBVHModel(model, shape, Transform3<S>::Identity(), FinalizeModel::DONT);
+  EXPECT_EQ(ret, BVH_OK);
   EXPECT_EQ(model.num_vertices, vertices);
   EXPECT_EQ(model.num_tris, tris); 
   EXPECT_EQ(model.build_state, BVH_BUILD_STATE_BEGUN);
-  generateBVHModel(model, shape, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))));
+  ret = generateBVHModel(model, shape, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))));
+  EXPECT_EQ(ret, BVH_OK);
   EXPECT_EQ(model.num_vertices, 2*vertices);
   EXPECT_EQ(model.num_tris, 2*tris);
   EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
+}
+
+template<typename BV, typename ShapeType>
+void checkAddToFinishedModel(BVHModel<BV>& model, const ShapeType& shape, uint8_t n)
+{
+  using S = typename BV::S;
+  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
+  auto ret = generateBVHModel(model, shape, Transform3<S>::Identity(), n, FinalizeModel::DONT);
+  EXPECT_EQ(ret, BVH_ERR_BUILD_OUT_OF_SEQUENCE);
+}
+
+template<typename BV>
+void checkAddToFinishedModel(BVHModel<BV>& model, const Box<typename BV::S>& shape)
+{
+  using S = typename BV::S;
+  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
+  auto ret = generateBVHModel(model, shape, Transform3<S>::Identity(), FinalizeModel::DONT);
+  EXPECT_EQ(ret, BVH_ERR_BUILD_OUT_OF_SEQUENCE);
 }
 
 template<typename BV>
@@ -90,6 +110,7 @@ void testBVHModelFromBox()
         Box<S> box(a, b, c);
 
         checkNumVerticesAndTris(*model, box, 8, 12);
+        checkAddToFinishedModel(*model, box);
       }
     }
   }
@@ -112,6 +133,7 @@ void testBVHModelFromSphere()
       std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
   
       checkNumVerticesAndTris(*model, sphere, n, static_cast<int>(2 + ring * ring), static_cast<int>(2 * ring * ring));
+      checkAddToFinishedModel(*model, sphere, n);
     }
   }
 }
@@ -139,6 +161,7 @@ void testBVHModelFromEllipsoid()
           std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
 
           checkNumVerticesAndTris(*model, ellipsoid, n, static_cast<int>(2 + ring * ring), static_cast<int>(2 * ring * ring));
+          checkAddToFinishedModel(*model, ellipsoid, n);
         }
       }
     }
@@ -163,6 +186,7 @@ void testBVHModelFromCylinder()
         std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
 
         checkNumVerticesAndTris(*model, cylinder, n, static_cast<int>(2 + n_tot * (h_num + 1)), static_cast<int>((2 * h_num + 2) * n_tot));
+        checkAddToFinishedModel(*model, cylinder, n);
       }
     }
   }
@@ -186,7 +210,7 @@ void testBVHModelFromCone()
 
         std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
         checkNumVerticesAndTris(*model, cone, n, static_cast<int>(2 + n_tot * h_num), static_cast<int>(2 * n_tot * h_num));
-
+        checkAddToFinishedModel(*model, cone, n);
       }
     }
   }
