@@ -102,9 +102,9 @@ void testBVHModelFromBox()
   using S = typename BV::S;
 
   // Test various box sizes
-  for(S a = 0.5; a <= 2.1; a += 0.8){
-    for(S b = 0.5; b <= 2.1; b += 0.8){
-      for(S c = 0.5; c <= 2.1; c += 0.8){
+  for(S a : {0.5, 1.0, 2.0, 3.1}){
+    for(S b : {0.5, 1.0, 2.0, 3.1}){
+      for(S c : {0.5, 1.0, 2.0, 3.1}){
 
         std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
         Box<S> box(a, b, c);
@@ -122,11 +122,11 @@ void testBVHModelFromSphere()
   using S = typename BV::S;
 
   // Test various radii
-  for(S r = 0.5; r <= 2.1; r += 0.8){
+  for(S r : {0.5, 1.0, 2.0, 3.1}){
     Sphere<S> sphere(r);
 
     // Test various resolutions
-    for(uint8_t n = 4; n <= 32; n += 8){
+    for(uint8_t n : {4, 8, 16, 32}){
       S n_low_bound = sqrtf(n / 2.0) * r * r;
       unsigned int ring = ceil(n_low_bound);
 
@@ -145,9 +145,9 @@ void testBVHModelFromEllipsoid()
   const S p = 1.6075;
 
   // Test various radii
-  for(S a = 0.5; a <= 2.1; a += 0.8){
-    for(S b = 0.5; b <= 2.1; b += 0.8){
-      for(S c = 0.5; c <= 2.1; c += 0.8){
+  for(S a : {0.5, 1.0, 2.0, 3.1}){
+    for(S b : {0.5, 1.0, 2.0, 3.1}){
+      for(S c : {0.5, 1.0, 2.0, 3.1}){
         Ellipsoid<S> ellipsoid(a, b, c);
         const S& ap = std::pow(a, p);
         const S& bp = std::pow(b, p);
@@ -155,7 +155,7 @@ void testBVHModelFromEllipsoid()
         const S ratio = std::pow((ap * bp + bp * cp + cp * ap) / 3.0, 1.0 / p);
 
         // Test various resolutions
-        for(uint8_t n = 4; n <= 32; n += 8){
+        for(uint8_t n : {4, 8, 16, 32}){
           const S n_low_bound = std::sqrt(n / 2.0) * ratio;
           const unsigned int ring = std::ceil(n_low_bound);
           std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
@@ -175,11 +175,11 @@ void testBVHModelFromCylinder()
   const S pi = constants<S>::pi();
 
   // Try various resolutions, radii and heights
-  for(S r = 0.5; r <= 2.1; r += 0.8){
-    for(S h = 0.5; h <= 2.1; h += 0.8){
+  for(S r : {0.5, 1.0, 2.0, 3.1}){
+    for(S h : {0.5, 1.0, 2.0, 3.1}){
       Cylinder<S> cylinder(r, h);
 
-      for(uint8_t n = 4; n <= 32; n += 8){
+      for(uint8_t n : {4, 8, 16, 32}){
         unsigned int n_tot = n * r;
         unsigned int h_num = ceil(h / ((pi * 2 / n_tot) * r));
 
@@ -200,11 +200,11 @@ void testBVHModelFromCone()
   const S pi = constants<S>::pi();
 
   // Try various resolutions, radii and heights
-  for(S r = 0.5; r <= 2.1; r += 0.8){
-    for(S h = 0.5; h <= 2.1; h += 0.8){
+  for(S r : {0.5, 1.0, 2.0, 3.1}){
+    for(S h : {0.5, 1.0, 2.0, 3.1}){
       Cone<S> cone(r,h);
   
-      for(uint8_t n = 4; n <= 32; n += 8){
+      for(uint8_t n : {4, 8, 16, 32}){
         unsigned int n_tot = n * r;
         unsigned int h_num = ceil(h / ((pi * 2 / n_tot) * r));
 
