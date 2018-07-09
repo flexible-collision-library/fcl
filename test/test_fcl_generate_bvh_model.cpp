@@ -43,6 +43,11 @@
 
 using namespace fcl;
 
+/**
+@details   This function tests adding geometric primitives to a model, by first creating one
+           and then appending to it. It checks proper functionality of those simply by 
+           verifying the return value, the number of vertices, triangles and the state of the model.
+**/
 template<typename BV, typename ShapeType>
 void checkNumVerticesAndTris(BVHModel<BV>& model, const ShapeType& shape, uint8_t n, int vertices, int tris)
 {  
@@ -78,6 +83,10 @@ void checkNumVerticesAndTris(BVHModel<BV>& model, const Box<typename BV::S>& sha
   EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
 }
 
+/**
+@details   This function tests that adding geometric primitives to a finalized model indeed
+           returns the BVH error we would expect.
+**/
 template<typename BV, typename ShapeType>
 void checkAddToFinishedModel(BVHModel<BV>& model, const ShapeType& shape, uint8_t n)
 {
