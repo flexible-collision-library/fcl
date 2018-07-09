@@ -43,6 +43,39 @@
 
 using namespace fcl;
 
+template<typename BV, typename ShapeType>
+void checkNumVerticesAndTris(BVHModel<BV>& model, const ShapeType& shape, uint8_t n, int vertices, int tris)
+{  
+  using S = typename BV::S;
+
+  // Add the shape to the model and count vertices and triangles to make sure it has been created
+  generateBVHModel(model, shape, Transform3<S>::Identity(), n, FinalizeModel::DONT);
+  EXPECT_EQ(model.num_vertices, vertices);
+  EXPECT_EQ(model.num_tris, tris); 
+  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_BEGUN);
+
+  // Add another instance of the shape and make sure it was added to the model by counting vertices and tris
+  generateBVHModel(model, shape, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
+  EXPECT_EQ(model.num_vertices, 2*vertices);
+  EXPECT_EQ(model.num_tris, 2*tris);
+  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
+}
+
+// Slightly different for boxes, cannot define numFaces
+template<typename BV>
+void checkNumVerticesAndTris(BVHModel<BV>& model, const Box<typename BV::S>& shape, int vertices, int tris)
+{
+  using S = typename BV::S;
+  generateBVHModel(model, shape, Transform3<S>::Identity(), FinalizeModel::DONT);
+  EXPECT_EQ(model.num_vertices, vertices);
+  EXPECT_EQ(model.num_tris, tris); 
+  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_BEGUN);
+  generateBVHModel(model, shape, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))));
+  EXPECT_EQ(model.num_vertices, 2*vertices);
+  EXPECT_EQ(model.num_tris, 2*tris);
+  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
+}
+
 template<typename BV>
 void testBVHModelFromBox()
 {
@@ -53,18 +86,10 @@ void testBVHModelFromBox()
     for(S b = 0.5; b <= 2.1; b += 0.8){
       for(S c = 0.5; c <= 2.1; c += 0.8){
 
-        std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+        std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
         Box<S> box(a, b, c);
 
-        generateBVHModel(*model, box, Transform3<S>::Identity(), FinalizeModel::DONT_FINALIZE);
-        EXPECT_EQ(model->num_vertices, 8);
-        EXPECT_EQ(model->num_tris, 12);
-        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
-
-        generateBVHModel(*model, box, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))));
-        EXPECT_EQ(model->num_vertices, 16);
-        EXPECT_EQ(model->num_tris, 24);
-        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+        checkNumVerticesAndTris(*model, box, 8, 12);
       }
     }
   }
@@ -84,19 +109,9 @@ void testBVHModelFromSphere()
       S n_low_bound = sqrtf(n / 2.0) * r * r;
       unsigned int ring = ceil(n_low_bound);
 
-      std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+      std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
   
-      // Testing the overload with num_faces defined ends up in a call to both
-      generateBVHModel(*model, sphere, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-      EXPECT_EQ(model->num_vertices, static_cast<int>(2 + ring * ring));
-      EXPECT_EQ(model->num_tris, static_cast<int>(2 * ring * ring));
-      EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
-
-      // Test that we can add another sphere to the model
-      generateBVHModel(*model, sphere, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-      EXPECT_EQ(model->num_vertices, static_cast<int>(2 * ( 2 + ring * ring)));
-      EXPECT_EQ(model->num_tris, static_cast<int>(2 * (2 * ring * ring)));
-      EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+      checkNumVerticesAndTris(*model, sphere, n, static_cast<int>(2 + ring * ring), static_cast<int>(2 * ring * ring));
     }
   }
 }
@@ -121,19 +136,9 @@ void testBVHModelFromEllipsoid()
         for(uint8_t n = 4; n <= 32; n += 8){
           const S n_low_bound = std::sqrt(n / 2.0) * ratio;
           const unsigned int ring = std::ceil(n_low_bound);
-          std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+          std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
 
-          // Testing the overload with num_faces defined ends up in a call to both
-          generateBVHModel(*model, ellipsoid, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-          EXPECT_EQ(model->num_vertices, static_cast<int>(2 + ring * ring));
-          EXPECT_EQ(model->num_tris, static_cast<int>(2 * ring * ring));
-          EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
-
-          // Make sure we can add another ellipsoid to the model
-          generateBVHModel(*model, ellipsoid, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-          EXPECT_EQ(model->num_vertices, static_cast<int>(2 * ( 2 + ring * ring)));
-          EXPECT_EQ(model->num_tris, static_cast<int>(2 * (2 * ring * ring)));
-          EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+          checkNumVerticesAndTris(*model, ellipsoid, n, static_cast<int>(2 + ring * ring), static_cast<int>(2 * ring * ring));
         }
       }
     }
@@ -155,19 +160,9 @@ void testBVHModelFromCylinder()
         unsigned int n_tot = n * r;
         unsigned int h_num = ceil(h / ((pi * 2 / n_tot) * r));
 
-        std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+        std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
 
-        // Testing the overload with num_faces defined ends up in a call to both
-        generateBVHModel(*model, cylinder, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-
-        EXPECT_EQ(model->num_vertices, static_cast<int>(2 + n_tot * (h_num + 1)));
-        EXPECT_EQ(model->num_tris, static_cast<int>((2 * h_num + 2) * n_tot));
-        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
-
-        generateBVHModel(*model, cylinder, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-        EXPECT_EQ(model->num_vertices, static_cast<int>(2 * (2 + n_tot * (h_num + 1))));
-        EXPECT_EQ(model->num_tris, static_cast<int>(2 * ((2 * h_num + 2) * n_tot)));
-        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+        checkNumVerticesAndTris(*model, cylinder, n, static_cast<int>(2 + n_tot * (h_num + 1)), static_cast<int>((2 * h_num + 2) * n_tot));
       }
     }
   }
@@ -189,18 +184,9 @@ void testBVHModelFromCone()
         unsigned int n_tot = n * r;
         unsigned int h_num = ceil(h / ((pi * 2 / n_tot) * r));
 
-        std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+        std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
+        checkNumVerticesAndTris(*model, cone, n, static_cast<int>(2 + n_tot * h_num), static_cast<int>(2 * n_tot * h_num));
 
-        // Testing the overload with num_faces defined ends up in a call to both
-        generateBVHModel(*model, cone, Transform3<S>::Identity(), n, FinalizeModel::DONT_FINALIZE);
-        EXPECT_EQ(model->num_vertices, static_cast<int>(2 + n_tot * h_num));
-        EXPECT_EQ(model->num_tris, static_cast<int>(2 * n_tot * h_num)); 
-        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_BEGUN);
- 
-        generateBVHModel(*model, cone, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-        EXPECT_EQ(model->num_vertices, static_cast<int>(2 * (2 + n_tot * h_num)));
-        EXPECT_EQ(model->num_tris, static_cast<int>(4 * n_tot * h_num));
-        EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
       }
     }
   }
