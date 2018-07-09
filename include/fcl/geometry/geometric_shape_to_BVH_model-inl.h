@@ -81,15 +81,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, con
     points[i] = pose * points[i];
   }
 
-  if(model.build_state == BVH_BUILD_STATE_EMPTY){
-    model.beginModel();
-  }
-
-  model.addSubModel(points, tri_indices);
-  if(finalize_model == FinalizeModel::DO_FINALIZE){
-    model.endModel();
-    model.computeLocalAABB();
-  }
+  addTriangles(model, points, tri_indices, finalize_model);
 }
 
 
@@ -154,15 +146,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, 
     points[i] = pose * points[i];
   }
 
-  if(model.build_state == BVH_BUILD_STATE_EMPTY){
-    model.beginModel();
-  }
-
-  model.addSubModel(points, tri_indices);
-  if(finalize_model == FinalizeModel::DO_FINALIZE){
-    model.endModel();
-    model.computeLocalAABB();
-  }
+  addTriangles(model, points, tri_indices, finalize_model);
 }
 
 //==============================================================================
@@ -243,15 +227,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shap
     points[i] = pose * points[i];
   }
 
-  if(model.build_state == BVH_BUILD_STATE_EMPTY){
-    model.beginModel();
-  }
-
-  model.addSubModel(points, tri_indices);
-  if(finalize_model == FinalizeModel::DO_FINALIZE){
-    model.endModel();
-    model.computeLocalAABB();
-  }
+  addTriangles(model, points, tri_indices, finalize_model);
 }
 
 //==============================================================================
@@ -337,15 +313,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
     points[i] = pose * points[i];
   }
 
-  if(model.build_state == BVH_BUILD_STATE_EMPTY){
-    model.beginModel();
-  }
-
-  model.addSubModel(points, tri_indices);
-  if(finalize_model == FinalizeModel::DO_FINALIZE){
-    model.endModel();
-    model.computeLocalAABB();
-  }
+  addTriangles(model, points, tri_indices, finalize_model);
 }
 
 //==============================================================================
@@ -429,15 +397,8 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
     points[i] = pose * points[i];
   }
 
-  if(model.build_state == BVH_BUILD_STATE_EMPTY){
-    model.beginModel();
-  }
-
-  model.addSubModel(points, tri_indices);
-  if(finalize_model == FinalizeModel::DO_FINALIZE){
-    model.endModel();
-    model.computeLocalAABB();
-  }
+  addTriangles(model, points, tri_indices, finalize_model);
+  
 }
 
 //==============================================================================
@@ -458,6 +419,22 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
 
   generateBVHModel(model, shape, pose, circle_split_tot, h_num, finalize_model);
 }
+
+//==============================================================================
+template<typename BV>
+void addTriangles(BVHModel<BV>& model, const std::vector<Vector3<typename BV::S>>& points, const std::vector<Triangle>& tri_indices, FinalizeModel finalize_model)
+{
+  if(model.build_state == BVH_BUILD_STATE_EMPTY){
+    model.beginModel();
+  }
+
+  model.addSubModel(points, tri_indices);
+  if(finalize_model == FinalizeModel::DO){
+    model.endModel();
+    model.computeLocalAABB();
+  }
+}
+
 
 } // namespace fcl
 
