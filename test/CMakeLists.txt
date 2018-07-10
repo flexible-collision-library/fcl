@@ -52,7 +52,8 @@ set(tests
     test_fcl_distance.cpp
     test_fcl_frontlist.cpp
     test_fcl_general.cpp
-    test_fcl_generate_bvh_model.cpp
+    test_fcl_generate_bvh_model_deferred_finalize.cpp
+    test_fcl_generate_bvh_model_primitives.cpp
     test_fcl_geometric_shapes.cpp
     test_fcl_math.cpp
     test_fcl_profiler.cpp

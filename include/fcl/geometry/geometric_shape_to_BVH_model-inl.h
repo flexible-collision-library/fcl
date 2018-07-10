@@ -44,6 +44,27 @@ namespace fcl
 {
 
 //==============================================================================
+// Local helper function to ease conditional adding of triangles to a BVHModel
+template<typename BV>
+int addTriangles(BVHModel<BV>& model, const std::vector<Vector3<typename BV::S>>& points, const std::vector<Triangle>& tri_indices, FinalizeModel finalize_model)
+{
+  int retval = BVH_OK;
+  if(model.build_state == BVH_BUILD_STATE_EMPTY){
+    retval = model.beginModel();
+  }
+
+  if(retval == BVH_OK){
+    retval = model.addSubModel(points, tri_indices);
+  }
+
+  if(retval == BVH_OK && finalize_model == FinalizeModel::DO){
+    retval = model.endModel();
+    model.computeLocalAABB();
+  }
+  return retval;
+}
+
+//==============================================================================
 template<typename BV>
 int generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose, FinalizeModel finalize_model)
 {
@@ -420,27 +441,6 @@ int generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, con
 
   return generateBVHModel(model, shape, pose, circle_split_tot, h_num, finalize_model);
 }
-
-//==============================================================================
-template<typename BV>
-int addTriangles(BVHModel<BV>& model, const std::vector<Vector3<typename BV::S>>& points, const std::vector<Triangle>& tri_indices, FinalizeModel finalize_model)
-{
-  int retval = BVH_OK;
-  if(model.build_state == BVH_BUILD_STATE_EMPTY){
-    retval = model.beginModel();
-  }
-
-  if(retval == BVH_OK){
-    retval = model.addSubModel(points, tri_indices);
-  }
-
-  if(retval == BVH_OK && finalize_model == FinalizeModel::DO){
-    retval = model.endModel();
-    model.computeLocalAABB();
-  }
-  return retval;
-}
-
 
 } // namespace fcl
 

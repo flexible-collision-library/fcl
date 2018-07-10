@@ -44,25 +44,37 @@
 using namespace fcl;
 
 /**
-@details   This function tests adding geometric primitives to a model, by first creating one
-           and then appending to it. It checks proper functionality of those simply by 
-           verifying the return value, the number of vertices, triangles and the state of the model.
+@brief      This file tests creation of BVHModels from geometric primitives.
+
+@details    It checks proper functionality of those simply by verifying the return value,
+            the number of vertices, triangles and the state of the model.
+
+@note       In the process, the provided model will always be finalized.
+
+@warning    Currently, there are no checks that the geometric primitives created are
+            actually correct in terms of tesselation resolution, dimensions, radii etc.
+            The current state of this test is a very basic "bare bones" for a future more
+            adequate test.
+
+@todo       These logic checks should be implemented by someone knowledgeable enough about
+            the inner workings of the generateBVHModel() functions.
 **/
+
+
 template<typename BV, typename ShapeType>
 void checkNumVerticesAndTris(BVHModel<BV>& model, const ShapeType& shape, uint8_t n, int vertices, int tris)
 {  
   using S = typename BV::S;
 
+  GTEST_ASSERT_EQ(model.build_state, BVH_BUILD_STATE_EMPTY);
+  GTEST_ASSERT_EQ(model.num_vertices, 0);
+  GTEST_ASSERT_EQ(model.num_tris, 0);
+
   // Add the shape to the model and count vertices and triangles to make sure it has been created
-  generateBVHModel(model, shape, Transform3<S>::Identity(), n, FinalizeModel::DONT);
+  auto ret = generateBVHModel(model, shape, Transform3<S>::Identity(), n, FinalizeModel::DO);
+  EXPECT_EQ(ret, BVH_OK);
   EXPECT_EQ(model.num_vertices, vertices);
   EXPECT_EQ(model.num_tris, tris); 
-  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_BEGUN);
-
-  // Add another instance of the shape and make sure it was added to the model by counting vertices and tris
-  generateBVHModel(model, shape, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), n);
-  EXPECT_EQ(model.num_vertices, 2*vertices);
-  EXPECT_EQ(model.num_tris, 2*tris);
   EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
 }
 
@@ -71,38 +83,17 @@ template<typename BV>
 void checkNumVerticesAndTris(BVHModel<BV>& model, const Box<typename BV::S>& shape, int vertices, int tris)
 {
   using S = typename BV::S;
-  auto ret  = generateBVHModel(model, shape, Transform3<S>::Identity(), FinalizeModel::DONT);
+
+  GTEST_ASSERT_EQ(model.build_state, BVH_BUILD_STATE_EMPTY);
+  GTEST_ASSERT_EQ(model.num_vertices, 0);
+  GTEST_ASSERT_EQ(model.num_tris, 0);
+
+  // Add the shape to the model and count vertices and triangles to make sure it has been created
+  auto ret = generateBVHModel(model, shape, Transform3<S>::Identity(), FinalizeModel::DO);
   EXPECT_EQ(ret, BVH_OK);
   EXPECT_EQ(model.num_vertices, vertices);
   EXPECT_EQ(model.num_tris, tris); 
-  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_BEGUN);
-  ret = generateBVHModel(model, shape, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))));
-  EXPECT_EQ(ret, BVH_OK);
-  EXPECT_EQ(model.num_vertices, 2*vertices);
-  EXPECT_EQ(model.num_tris, 2*tris);
   EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
-}
-
-/**
-@details   This function tests that adding geometric primitives to a finalized model indeed
-           returns the BVH error we would expect.
-**/
-template<typename BV, typename ShapeType>
-void checkAddToFinishedModel(BVHModel<BV>& model, const ShapeType& shape, uint8_t n)
-{
-  using S = typename BV::S;
-  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
-  auto ret = generateBVHModel(model, shape, Transform3<S>::Identity(), n, FinalizeModel::DONT);
-  EXPECT_EQ(ret, BVH_ERR_BUILD_OUT_OF_SEQUENCE);
-}
-
-template<typename BV>
-void checkAddToFinishedModel(BVHModel<BV>& model, const Box<typename BV::S>& shape)
-{
-  using S = typename BV::S;
-  EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
-  auto ret = generateBVHModel(model, shape, Transform3<S>::Identity(), FinalizeModel::DONT);
-  EXPECT_EQ(ret, BVH_ERR_BUILD_OUT_OF_SEQUENCE);
 }
 
 template<typename BV>
@@ -119,7 +110,6 @@ void testBVHModelFromBox()
         Box<S> box(a, b, c);
 
         checkNumVerticesAndTris(*model, box, 8, 12);
-        checkAddToFinishedModel(*model, box);
       }
     }
   }
@@ -142,7 +132,6 @@ void testBVHModelFromSphere()
       std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
   
       checkNumVerticesAndTris(*model, sphere, n, static_cast<int>(2 + ring * ring), static_cast<int>(2 * ring * ring));
-      checkAddToFinishedModel(*model, sphere, n);
     }
   }
 }
@@ -170,7 +159,6 @@ void testBVHModelFromEllipsoid()
           std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
 
           checkNumVerticesAndTris(*model, ellipsoid, n, static_cast<int>(2 + ring * ring), static_cast<int>(2 * ring * ring));
-          checkAddToFinishedModel(*model, ellipsoid, n);
         }
       }
     }
@@ -195,7 +183,6 @@ void testBVHModelFromCylinder()
         std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
 
         checkNumVerticesAndTris(*model, cylinder, n, static_cast<int>(2 + n_tot * (h_num + 1)), static_cast<int>((2 * h_num + 2) * n_tot));
-        checkAddToFinishedModel(*model, cylinder, n);
       }
     }
   }
@@ -219,7 +206,6 @@ void testBVHModelFromCone()
 
         std::shared_ptr<BVHModel<BV>> model(new BVHModel<BV>);
         checkNumVerticesAndTris(*model, cone, n, static_cast<int>(2 + n_tot * h_num), static_cast<int>(2 * n_tot * h_num));
-        checkAddToFinishedModel(*model, cone, n);
       }
     }
   }

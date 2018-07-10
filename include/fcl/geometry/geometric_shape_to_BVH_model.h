@@ -65,13 +65,19 @@ enum class FinalizeModel{
 /**
 @defgroup generateBVHModel
 @brief       Create a BVHModel using geometric primitives
-@details    The functions in this group can be used to add geometric primitives (Box, Sphere, Ellipsoid, Cylinder, Cone)
+@details     The functions in this group can be used to add geometric primitives (Box, Sphere, Ellipsoid, Cylinder, Cone)
              to a BVHModel. It can either close off the model or leave it unfinalized in order to add more primitives later.
-
+@note        All functions in this group have a common sub-set of parameters (listed below). In addition, each has unique
+             parameters related to the geometry type being added and how it should be tessellated. These additional parameters
+             are documented with their corresponding function
+@warning     If this function is used to create a BVHModel containing multiple geometric primitives, the BVHModel inherently 
+             represents the *union* of those primitives. The BVHModel structure does not retain any notion of the original 
+             geometric primitive.
 @param[out]  model The BVHModel to be generated or added to
 @param[in]   shape The geometric object to be added to the BVHModel
 @param[in]   pose The pose of the geometric object
 @param[in]   finalize_model an enum indicating whether the model is final or more submodels can be added later
+@return      BVHReturnCode indicating the success of the operation
 @{
 */
 
@@ -148,16 +154,6 @@ int generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, con
 **/
 template<typename BV>
 int generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot_for_unit_cone, FinalizeModel finalize_model = FinalizeModel::DO);
-
-/**
-@brief          AddTriangles to a BVHModel
-@param[in, out] model The BVHModel
-@param[in]      points The points to add
-@param[in]      tri_indices The triangles to add
-@param[in]      finalize_model An enum indicating whether to close off the model afterwards
-**/
-template<typename BV>
-int addTriangles(BVHModel<BV>& model, const std::vector<Vector3<typename BV::S>>& points, const std::vector<Triangle>& tri_indices, FinalizeModel finalize_model);
 
 /**@} */ // end of doxygen group generateBVHModel
 
