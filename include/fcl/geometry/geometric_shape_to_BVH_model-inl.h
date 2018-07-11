@@ -44,8 +44,29 @@ namespace fcl
 {
 
 //==============================================================================
+// Local helper function to ease conditional adding of triangles to a BVHModel
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose)
+int addTriangles(BVHModel<BV>& model, const std::vector<Vector3<typename BV::S>>& points, const std::vector<Triangle>& tri_indices, FinalizeModel finalize_model)
+{
+  int retval = BVH_OK;
+  if(model.build_state == BVH_BUILD_STATE_EMPTY){
+    retval = model.beginModel();
+  }
+
+  if(retval == BVH_OK){
+    retval = model.addSubModel(points, tri_indices);
+  }
+
+  if(retval == BVH_OK && finalize_model == FinalizeModel::DO){
+    retval = model.endModel();
+    model.computeLocalAABB();
+  }
+  return retval;
+}
+
+//==============================================================================
+template<typename BV>
+int generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -81,15 +102,13 @@ void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, con
     points[i] = pose * points[i];
   }
 
-  model.beginModel();
-  model.addSubModel(points, tri_indices);
-  model.endModel();
-  model.computeLocalAABB();
+  return addTriangles(model, points, tri_indices, finalize_model);
 }
+
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring)
+int generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -148,15 +167,12 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, 
     points[i] = pose * points[i];
   }
 
-  model.beginModel();
-  model.addSubModel(points, tri_indices);
-  model.endModel();
-  model.computeLocalAABB();
+  return addTriangles(model, points, tri_indices, finalize_model);
 }
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_sphere)
+int generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_sphere, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -165,12 +181,12 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, 
   unsigned int ring = ceil(n_low_bound);
   unsigned int seg = ceil(n_low_bound);
 
-  generateBVHModel(model, shape, pose, seg, ring);
+  return generateBVHModel(model, shape, pose, seg, ring, finalize_model);
 }
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring)
+int generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -232,15 +248,12 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shap
     points[i] = pose * points[i];
   }
 
-  model.beginModel();
-  model.addSubModel(points, tri_indices);
-  model.endModel();
-  model.computeLocalAABB();
+  return addTriangles(model, points, tri_indices, finalize_model);
 }
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_ellipsoid)
+int generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_ellipsoid, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -256,12 +269,12 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shap
   const unsigned int ring = std::ceil(n_low_bound);
   const unsigned int seg = std::ceil(n_low_bound);
 
-  generateBVHModel(model, shape, pose, seg, ring);
+  return generateBVHModel(model, shape, pose, seg, ring, finalize_model);
 }
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num)
+int generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot, unsigned int h_num, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -272,45 +285,45 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
   S h = shape.lz;
   S phi, phid;
   const S pi = constants<S>::pi();
-  phid = pi * 2 / tot;
+  phid = pi * 2 / circle_split_tot;
   phi = 0;
 
   S hd = h / h_num;
 
-  for(unsigned int i = 0; i < tot; ++i)
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
     points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2);
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
-    for(unsigned int j = 0; j < tot; ++j)
+    for(unsigned int j = 0; j < circle_split_tot; ++j)
     {
       points.emplace_back(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd);
     }
   }
 
-  for(unsigned int i = 0; i < tot; ++i)
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
     points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2);
 
   points.emplace_back(0, 0, h / 2);
   points.emplace_back(0, 0, -h / 2);
 
-  for(unsigned int i = 0; i < tot; ++i)
-    tri_indices.emplace_back((h_num + 1) * tot, i, ((i == tot - 1) ? 0 : (i + 1)));
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
+    tri_indices.emplace_back((h_num + 1) * circle_split_tot, i, ((i == circle_split_tot - 1) ? 0 : (i + 1)));
 
-  for(unsigned int i = 0; i < tot; ++i)
-    tri_indices.emplace_back((h_num + 1) * tot + 1, h_num * tot + ((i == tot - 1) ? 0 : (i + 1)), h_num * tot + i);
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
+    tri_indices.emplace_back((h_num + 1) * circle_split_tot + 1, h_num * circle_split_tot + ((i == circle_split_tot - 1) ? 0 : (i + 1)), h_num * circle_split_tot + i);
 
   for(unsigned int i = 0; i < h_num; ++i)
   {
-    for(unsigned int j = 0; j < tot; ++j)
+    for(unsigned int j = 0; j < circle_split_tot; ++j)
     {
       int a, b, c, d;
       a = j;
-      b = (j == tot - 1) ? 0 : (j + 1);
-      c = j + tot;
-      d = (j == tot - 1) ? tot : (j + 1 + tot);
+      b = (j == circle_split_tot - 1) ? 0 : (j + 1);
+      c = j + circle_split_tot;
+      d = (j == circle_split_tot - 1) ? circle_split_tot : (j + 1 + circle_split_tot);
 
-      int start = i * tot;
+      int start = i * circle_split_tot;
       tri_indices.emplace_back(start + b, start + a, start + c);
       tri_indices.emplace_back(start + b, start + c, start + d);
     }
@@ -321,15 +334,12 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
     points[i] = pose * points[i];
   }
 
-  model.beginModel();
-  model.addSubModel(points, tri_indices);
-  model.endModel();
-  model.computeLocalAABB();
+  return addTriangles(model, points, tri_indices, finalize_model);
 }
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder)
+int generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot_for_unit_cylinder, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -337,19 +347,18 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape
   S h = shape.lz;
 
   const S pi = constants<S>::pi();
-  unsigned int tot = tot_for_unit_cylinder * r;
-  S phid = pi * 2 / tot;
+  unsigned int circle_split_tot = circle_split_tot_for_unit_cylinder * r;
+  S phid = pi * 2 / circle_split_tot;
 
   S circle_edge = phid * r;
   unsigned int h_num = ceil(h / circle_edge);
 
-  generateBVHModel(model, shape, pose, tot, h_num);
+  return generateBVHModel(model, shape, pose, circle_split_tot, h_num, finalize_model);
 }
-
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num)
+int generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot, unsigned int h_num, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
 
@@ -361,7 +370,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
 
   S phi, phid;
   const S pi = constants<S>::pi();
-  phid = pi * 2 / tot;
+  phid = pi * 2 / circle_split_tot;
   phi = 0;
 
   S hd = h / h_num;
@@ -370,35 +379,35 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
   {
     S h_i = h / 2 - (i + 1) * hd;
     S rh = r * (0.5 - h_i / h);
-    for(unsigned int j = 0; j < tot; ++j)
+    for(unsigned int j = 0; j < circle_split_tot; ++j)
     {
       points.emplace_back(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i);
     }
   }
 
-  for(unsigned int i = 0; i < tot; ++i)
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
     points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2);
 
   points.emplace_back(0, 0, h / 2);
   points.emplace_back(0, 0, -h / 2);
 
-  for(unsigned int i = 0; i < tot; ++i)
-    tri_indices.emplace_back(h_num * tot, i, (i == tot - 1) ? 0 : (i + 1));
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
+    tri_indices.emplace_back(h_num * circle_split_tot, i, (i == circle_split_tot - 1) ? 0 : (i + 1));
 
-  for(unsigned int i = 0; i < tot; ++i)
-    tri_indices.emplace_back(h_num * tot + 1, (h_num - 1) * tot + ((i == tot - 1) ? 0 : (i + 1)), (h_num - 1) * tot + i);
+  for(unsigned int i = 0; i < circle_split_tot; ++i)
+    tri_indices.emplace_back(h_num * circle_split_tot + 1, (h_num - 1) * circle_split_tot + ((i == circle_split_tot - 1) ? 0 : (i + 1)), (h_num - 1) * circle_split_tot + i);
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
-    for(unsigned int j = 0; j < tot; ++j)
+    for(unsigned int j = 0; j < circle_split_tot; ++j)
     {
       int a, b, c, d;
       a = j;
-      b = (j == tot - 1) ? 0 : (j + 1);
-      c = j + tot;
-      d = (j == tot - 1) ? tot : (j + 1 + tot);
+      b = (j == circle_split_tot - 1) ? 0 : (j + 1);
+      c = j + circle_split_tot;
+      d = (j == circle_split_tot - 1) ? circle_split_tot : (j + 1 + circle_split_tot);
 
-      int start = i * tot;
+      int start = i * circle_split_tot;
       tri_indices.emplace_back(start + b, start + a, start + c);
       tri_indices.emplace_back(start + b, start + c, start + d);
     }
@@ -409,29 +418,28 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
     points[i] = pose * points[i];
   }
 
-  model.beginModel();
-  model.addSubModel(points, tri_indices);
-  model.endModel();
-  model.computeLocalAABB();
+  return addTriangles(model, points, tri_indices, finalize_model);
+  
 }
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cone)
+int generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int circle_split_tot_for_unit_cone, FinalizeModel finalize_model)
 {
   using S = typename BV::S;
+
 
   S r = shape.radius;
   S h = shape.lz;
 
   const S pi = constants<S>::pi();
-  unsigned int tot = tot_for_unit_cone * r;
-  S phid = pi * 2 / tot;
+  unsigned int circle_split_tot = circle_split_tot_for_unit_cone * r;
+  S phid = pi * 2 / circle_split_tot;
 
   S circle_edge = phid * r;
   unsigned int h_num = ceil(h / circle_edge);
 
-  generateBVHModel(model, shape, pose, tot, h_num);
+  return generateBVHModel(model, shape, pose, circle_split_tot, h_num, finalize_model);
 }
 
 } // namespace fcl
