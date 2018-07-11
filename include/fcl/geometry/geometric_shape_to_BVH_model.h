@@ -77,7 +77,7 @@ enum class FinalizeModel{
 @param[in]   shape The geometric object to be added to the BVHModel
 @param[in]   pose The pose of the geometric object
 @param[in]   finalize_model an enum indicating whether the model is final or more submodels can be added later
-@return      BVHReturnCode indicating the success of the operation
+@return      Return code (as defined by BVHReturnCode) indicating the success of the operation
 @{
 */
 

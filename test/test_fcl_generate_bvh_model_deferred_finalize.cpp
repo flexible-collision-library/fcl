@@ -90,16 +90,14 @@ void checkAddToEmptyModel(BVHModel<BV>& model, const Box<typename BV::S>& shape)
 
   // Make sure we are given an empty model
   GTEST_ASSERT_EQ(model.build_state, BVH_BUILD_STATE_EMPTY);
-  uint8_t num_vertices = model.num_vertices;
-  uint8_t num_tris = model.num_tris;
-  GTEST_ASSERT_EQ(num_vertices, 0);
-  GTEST_ASSERT_EQ(num_tris, 0);
+  GTEST_ASSERT_EQ(model.num_vertices, 0);
+  GTEST_ASSERT_EQ(model.num_tris, 0);
 
   // Add the shape to the model and count vertices and triangles to make sure it has been created
   ret = generateBVHModel(model, shape, Transform3<S>::Identity(), FinalizeModel::DONT);
   GTEST_ASSERT_EQ(ret, BVH_OK);
-  EXPECT_GT(model.num_vertices, num_vertices);
-  EXPECT_GT(model.num_tris, num_tris); 
+  EXPECT_EQ(model.num_vertices, 8);
+  EXPECT_EQ(model.num_tris, 12); 
   EXPECT_EQ(model.build_state, BVH_BUILD_STATE_BEGUN);
 }
 
@@ -145,8 +143,8 @@ void checkAddToUnfinalizedModel(BVHModel<BV>& model, const Box<typename BV::S>& 
   // Add the shape to the model and count vertices and triangles to make sure it has been created
   ret = generateBVHModel(model, shape, Transform3<S>(Translation3<S>(Vector3<S>(2.0, 2.0, 2.0))), FinalizeModel::DONT);
   GTEST_ASSERT_EQ(ret, BVH_OK);
-  EXPECT_GT(model.num_vertices, num_vertices);
-  EXPECT_GT(model.num_tris, num_tris); 
+  EXPECT_EQ(model.num_vertices, num_vertices + 8);
+  EXPECT_EQ(model.num_tris, num_tris + 12); 
   EXPECT_EQ(model.build_state, BVH_BUILD_STATE_BEGUN);
 }
 
@@ -190,8 +188,8 @@ void checkAddAndFinalizeModel(BVHModel<BV>& model, const Box<typename BV::S>& sh
   // Add another instance of the shape and make sure it was added to the model by counting vertices and tris
   ret = generateBVHModel(model, shape, Transform3<S>(Translation3<S>(Vector3<S>(3.0, 3.0, 3.0))), FinalizeModel::DO);
   GTEST_ASSERT_EQ(ret, BVH_OK);
-  EXPECT_GT(model.num_vertices, num_vertices);
-  EXPECT_GT(model.num_tris, num_tris);
+  EXPECT_EQ(model.num_vertices, num_vertices + 8);
+  EXPECT_EQ(model.num_tris, num_tris + 12);
   EXPECT_EQ(model.build_state, BVH_BUILD_STATE_PROCESSED);
 }
 
