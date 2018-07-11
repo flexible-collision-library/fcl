@@ -175,7 +175,7 @@ typename NarrowPhaseSolver::S distance(
     result.min_distance = -max_pen_depth;
     assert(index != static_cast<std::size_t>(-1));
 
-    if (request.enable_nearest_points)
+    if (request.enable_nearest_points && index != static_cast<std::size_t>(-1))
     {
       const Vector3<S>& pos = collision_result.getContact(index).pos;
       result.nearest_points[0] = pos;
