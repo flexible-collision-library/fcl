@@ -172,7 +172,7 @@ struct BoxSpecification {
 };
 
 template <typename S>
-void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
+void TestBoxesInFrameF(const Transform3<S>& X_WF) {
   const fcl::Vector3<S> box1_size(1, 1, 1);
   const fcl::Vector3<S> box2_size(0.6, 0.8, 1);
   // Put the two boxes on the xy plane of frame F.
@@ -198,8 +198,8 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
   // box 2) measured and expressed in the frame F.
   auto CheckDistance = [&box1_size, &box2_size, &X_FB1, &X_WF](
       const Transform3<S>& X_FB2, S distance_expected,
-      const Vector2<S>& p_xy_FNa_expected, const Vector2<S>& p_xy_FNb_expected,
-      S tol) {
+      const Vector2<S>& p_xy_FNa_expected,
+      const Vector2<S>& p_xy_FNb_expected) {
     const fcl::Transform3<S> X_WB1 = X_WF * X_FB1;
     const fcl::Transform3<S> X_WB2 = X_WF * X_FB2;
     fcl::Box<S> box1(box1_size);
@@ -224,6 +224,8 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
       EXPECT_TRUE(res);
     }
 
+    const S tol(gjkSolver.distance_tolerance);
+
     EXPECT_NEAR(dist, distance_expected, tol);
     const Vector3<S> p_FNa =
         X_WF.linear().transpose() * (p_WNa - X_WF.translation());
@@ -245,27 +247,27 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
     GJKInitializer<S, fcl::Sphere<S>>::deleteGJKObject(o2);
   };
 
-  auto CheckBoxEdgeBoxFaceDistance = [&CheckDistance](
-      const Transform3<S>& X_FB2, S tol) {
-    const double expected_distance = -X_FB2.translation()(0) - 1;
-    CheckDistance(
-        X_FB2, expected_distance, Vector2<S>(-0.5, X_FB2.translation()(1)),
-        Vector2<S>(X_FB2.translation()(0) + 0.5, X_FB2.translation()(1)), tol);
-  };
+  auto CheckBoxEdgeBoxFaceDistance =
+      [&CheckDistance](const Transform3<S>& X_FB2) {
+        const double expected_distance = -X_FB2.translation()(0) - 1;
+        CheckDistance(
+            X_FB2, expected_distance, Vector2<S>(-0.5, X_FB2.translation()(1)),
+            Vector2<S>(X_FB2.translation()(0) + 0.5, X_FB2.translation()(1)));
+      };
   //---------------------------------------------------------------
   //                      Touching contact
   // An edge of box 2 is touching a face of box 1
   X_FB2.translation() << -1, 0, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
+  CheckBoxEdgeBoxFaceDistance(X_FB2);
 
   // The touching face on box 1 is parallel to the y axis, so shifting box 2 on
   // y axis still gives touching contact. Shift box 2 on y axis by 0.1m.
   X_FB2.translation() << -1, 0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
+  CheckBoxEdgeBoxFaceDistance(X_FB2);
 
   // Shift box 2 on y axis by -0.1m.
   X_FB2.translation() << -1, -0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
+  CheckBoxEdgeBoxFaceDistance(X_FB2);
   // TODO(hongkai.dai@tri.global): Add other touching contact cases, including
   // face-face, face-vertex, edge-edge, edge-vertex and vertex-vertex.
 
@@ -273,44 +275,44 @@ void TestBoxesInFrameF(S tol, const Transform3<S>& X_WF) {
   //                      Penetrating contact
   // An edge of box 2 penetrates into a face of box 1
   X_FB2.translation() << -0.9, 0, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
+  CheckBoxEdgeBoxFaceDistance(X_FB2);
 
   // Shift box 2 on y axis by 0.1m.
   X_FB2.translation() << -0.9, 0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
+  CheckBoxEdgeBoxFaceDistance(X_FB2);
 
   // Shift box 2 on y axis by -0.05m.
   X_FB2.translation() << -0.9, -0.05, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
+  CheckBoxEdgeBoxFaceDistance(X_FB2);
 
   // Shift box 2 on y axis by -0.1m.
   X_FB2.translation() << -0.9, -0.1, 0.5;
-  CheckBoxEdgeBoxFaceDistance(X_FB2, tol);
+  CheckBoxEdgeBoxFaceDistance(X_FB2);
 }
 
 template <typename S>
-void TestBoxes(S tol) {
+void TestBoxes() {
   // Frame F coincides with the world frame W.
   Transform3<S> X_WF;
   X_WF.setIdentity();
-  TestBoxesInFrameF(tol, X_WF);
+  TestBoxesInFrameF(X_WF);
 
   // Frame F is shifted from the world frame W.
   X_WF.translation() << 0, 0, 1;
-  TestBoxesInFrameF(tol, X_WF);
+  TestBoxesInFrameF(X_WF);
 
   X_WF.translation() << 0, 1, 0;
-  TestBoxesInFrameF(tol, X_WF);
+  TestBoxesInFrameF(X_WF);
 
   X_WF.translation() << 1, 0, 0;
-  TestBoxesInFrameF(tol, X_WF);
+  TestBoxesInFrameF(X_WF);
 
   // Frame F is rotated from the world frame W.
   X_WF.setIdentity();
   const S kPi = fcl::constants<S>::pi();
   X_WF.linear() =
       Eigen::AngleAxis<S>(0.1 * kPi, Vector3<S>::UnitZ()).toRotationMatrix();
-  TestBoxesInFrameF(tol, X_WF);
+  TestBoxesInFrameF(X_WF);
 
   // TODO(hongkai.dai): This test exposes an error in simplexToPolytope4, that
   // the initial simplex can be degenerate. Should add the special case on
@@ -319,18 +321,16 @@ void TestBoxes(S tol) {
   X_WF.linear() =
       Eigen::AngleAxis<S>(0.1 * kPi, Vector3<S>(1.0 / 3, 2.0 / 3, -2.0 / 3))
           .toRotationMatrix();
-  TestBoxesInFrameF(tol, X_WF);*/
+  TestBoxesInFrameF(X_WF);*/
 
   // Frame F is rotated and shifted from the world frame W.
   X_WF.translation() << 0.1, 0.2, 0.3;
-  TestBoxesInFrameF(tol, X_WF);
+  TestBoxesInFrameF(X_WF);
 }
 
 GTEST_TEST(FCL_GJKSignedDistance, box_box) {
-  // By setting gjkSolver.distance_tolerance to the default value (1E-6), the
-  // tolerance we get on the closest points are only up to 1E-3
-  TestBoxes<double>(1E-3);
-  TestBoxes<float>(1E-3);
+  TestBoxes<double>();
+  TestBoxes<float>();
 }
 }  // namespace detail
 }  // namespace fcl

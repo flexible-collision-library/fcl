@@ -1215,8 +1215,8 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
  * vertex of the polytope. Then we know the two objects A and B are in touching
  * contact.
  * 2. If the difference between the upper bound and lower bound of the distance
- * is below sqrt(ccd->epa_tolerance), then we converge to a distance whose
- * difference from the real distance is less than sqrt(ccd->epa_tolerance).
+ * is below ccd->epa_tolerance, then we converge to a distance whose
+ * difference from the real distance is less than ccd->epa_tolerance.
  */
 static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
                        const void* obj2, const ccd_t* ccd,
