@@ -150,7 +150,7 @@ void TestNonCollidingSphereGJKSignedDistance() {
   spheres.emplace_back(0.5, Vector3<S>(1.25, 0, 0));
   spheres.emplace_back(0.3, Vector3<S>(-0.2, 0, 0));
   spheres.emplace_back(0.4, Vector3<S>(-0.2, 0, 1.1));
-  std::vector<S> solver_tolerances = {1E-4, 1E-5, 1E-6};
+  std::vector<S> solver_tolerances = {S(1E-4), S(1E-5), S(1E-6)};
   for (int i = 0; i < static_cast<int>(spheres.size()); ++i) {
     for (int j = i + 1; j < static_cast<int>(spheres.size()); ++j) {
       if ((spheres[i].center - spheres[j].center).norm() >
@@ -189,7 +189,7 @@ void TestCollidingSphereGJKSignedDistance() {
   spheres.emplace_back(0.5, Vector3<S>(0.75, 0, 0));
   spheres.emplace_back(0.3, Vector3<S>(0.2, 0, 0));
   spheres.emplace_back(0.4, Vector3<S>(0.2, 0, 0.4));
-  std::vector<S> solver_tolerances = {1E-4, 1E-5, 1E-6};
+  std::vector<S> solver_tolerances = {S(1E-4), S(1E-5), S(1E-6)};
   for (int i = 0; i < static_cast<int>(spheres.size()); ++i) {
     for (int j = i + 1; j < static_cast<int>(spheres.size()); ++j) {
       if ((spheres[i].center - spheres[j].center).norm() <
@@ -330,7 +330,7 @@ void TestBoxesInFrameF(const Transform3<S>& X_WF) {
         test_witness_tolerance);
   };
 
-  std::vector<S> solver_distance_tolerances{1E-4, 1E-5, 1E-6};
+  std::vector<S> solver_distance_tolerances{S(1E-4), S(1E-5), S(1E-6)};
   //---------------------------------------------------------------
   //                      Touching contact
   for (int i = 0; i < static_cast<int>(solver_distance_tolerances.size());
