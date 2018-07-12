@@ -72,14 +72,14 @@ void TestSphereToSphereGJKSignedDistance(S radius1, S radius2,
   // algorithm. But here we choose spheres for simplicity.
   //
   // There are two tolerance, the solver_tolerance, and the test_tol.
-  // solver_tolerance is used to determine the the algorithm terminates. When
+  // solver_tolerance is used to determine when the algorithm terminates. If
   // the objects are separated, the GJK algorithm terminates when the change of
   // distance is below solver_tolerance, which does NOT mean that the separation
   // distance computed by GJK is within solver_tolerance to the true distance,
   // so we use test_tol as a separate tolerance to check the accuracy of the
   // computed distance.
-  // When the objects are penetrating, the EPA algorithm terminates when the
-  // difference between the upper bound of penetration depth and the lower bound
+  // If the objects penetrate, the EPA algorithm terminates when the difference
+  // between the upper bound of penetration depth and the lower bound
   // is below solver_distance, which means that the EPA computed penetration
   // depth is within solver_tolerance to the true depth.
   fcl::Sphere<S> s1(radius1);
@@ -330,15 +330,17 @@ void TestBoxesInFrameF(const Transform3<S>& X_WF) {
         test_witness_tolerance);
   };
 
+  // Test with different solver distance tolerances.
   std::vector<S> solver_distance_tolerances{S(1E-4), S(1E-5), S(1E-6)};
   //---------------------------------------------------------------
   //                      Touching contact
   for (int i = 0; i < static_cast<int>(solver_distance_tolerances.size());
        ++i) {
     const S solver_distance_tolerance = solver_distance_tolerances[i];
-    // For touching contact, FCL might call GJK algorithm. There is no
-    // theoretical guarantee, on how the distance error is related to solver's
-    // distance_tolerance. Empirically I find 10x is reasonable.
+    // For touching contact, FCL might call either GJK or EPA algorithm. When it
+    // calls GJK algorithm, there is no theoretical guarantee, on how the
+    // distance error is related to solver's distance_tolerance.
+    // Empirically I find 10x is reasonable.
     const S test_distance_tolerance = 10 * solver_distance_tolerance;
     const S test_witness_tolerance = test_distance_tolerance;
     // An edge of box 2 is touching a face of box 1
