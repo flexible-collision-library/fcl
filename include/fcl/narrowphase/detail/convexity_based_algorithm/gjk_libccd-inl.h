@@ -2253,6 +2253,7 @@ bool GJKDistanceImpl(void* obj1, ccd_support_fn supp1, void* obj2,
 
   ccd.max_iterations = max_iterations;
   ccd.dist_tolerance = tolerance;
+  ccd.epa_tolerance = tolerance;
 
   ccd_vec3_t p1_, p2_;
   // NOTE(JS): p1_ and p2_ are set to zeros in order to suppress uninitialized
