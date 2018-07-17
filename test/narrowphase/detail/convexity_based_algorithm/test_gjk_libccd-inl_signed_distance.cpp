@@ -71,7 +71,7 @@ void TestSphereToSphereGJKSignedDistance(S radius1, S radius2,
   // be computed using distance between primitives, instead of the GJK
   // algorithm. But here we choose spheres for simplicity.
   //
-  // There are two tolerance, the solver_tolerance, and the test_tol.
+  // There are two tolerances, the solver_tolerance, and the test_tol.
   // solver_tolerance is used to determine when the algorithm terminates. If
   // the objects are separated, the GJK algorithm terminates when the change of
   // distance is below solver_tolerance, which does NOT mean that the separation
@@ -106,25 +106,29 @@ void TestSphereToSphereGJKSignedDistance(S radius1, S radius2,
   EXPECT_EQ(res, min_distance_expected >= 0);
 
   EXPECT_NEAR(dist, min_distance_expected, test_tol);
-  // Now check if the distance between p1 and p2 matches with dist.
+  // Now check if the distance between p1 and p2 matches with dist, they should
+  // match independent of what solver_tolerance we choose.
   EXPECT_NEAR((p_FNa - p_FNb).norm(), std::abs(dist),
               fcl::constants<S>::eps_78());
-  // Check if p1 is in sphere 1 and p2 is in sphere 2.
-  EXPECT_LE((p_FNa - p_FA).norm(), radius1 + fcl::constants<S>::eps_78());
-  EXPECT_LE((p_FNb - p_FB).squaredNorm(),
-            radius2 + fcl::constants<S>::eps_78());
-  // If we shift sphere 1 by p_FNb - p_FNa, then the two spheres should be
+  // Check if p1 is on the boundary of sphere 1, and p2 is on the boundary of
+  // sphere 2.
+  EXPECT_NEAR((p_FNa - p_FA).norm(), radius1, test_tol);
+  EXPECT_NEAR((p_FNb - p_FB).norm(), radius2, test_tol);
+  // The witness points Na and Nb are defined as by shifting geometry B with
+  // the vector Na - Nb, the shifted geometry B' and A are touching. Hence
+  // if we shift sphere 1 by p_FNb - p_FNa, then the two spheres should be
   // touching. The shifted sphere is centered at p_FA + p_FNb - p_FNa.
   EXPECT_NEAR((p_FA + p_FNb - p_FNa - p_FB).norm(), radius1 + radius2,
               test_tol);
   // Note that we do not check the computed witness points to the true witness
   // points. There are two reasons
-  // 1. The witness points are NOT guaranteed to be unique (consider
+  // 1. Generally, the witness points are NOT guaranteed to be unique (consider
   // plane-to-plane contact).
   // 2. Even if there are unique witness points, it is hard to infer the bounds
   // on the computed witness points, based on the tolerance of the solver. This
-  // bounds depend on the curvature of the geometries, and I do not have an
-  // approach to compute the bound for generic geometries.
+  // bounds depend on the curvature of the geometries near the contact region,
+  // and we do not have a general approach to compute the bound for generic
+  // geometries.
   // On the other hand, for sphere-sphere contact, it is possible to compute
   // the bounds, since the witness points are unique, and the curvature is
   // constant. For the moment, I am satisfied with the test above. If the
@@ -150,13 +154,12 @@ void TestNonCollidingSphereGJKSignedDistance() {
   spheres.emplace_back(0.5, Vector3<S>(1.25, 0, 0));
   spheres.emplace_back(0.3, Vector3<S>(-0.2, 0, 0));
   spheres.emplace_back(0.4, Vector3<S>(-0.2, 0, 1.1));
-  std::vector<S> solver_tolerances = {S(1E-4), S(1E-5), S(1E-6)};
   for (int i = 0; i < static_cast<int>(spheres.size()); ++i) {
     for (int j = i + 1; j < static_cast<int>(spheres.size()); ++j) {
       if ((spheres[i].center - spheres[j].center).norm() >
           spheres[i].radius + spheres[j].radius) {
         // Not in collision.
-        for (int k = 0; k < static_cast<int>(solver_tolerances.size()); ++k) {
+        for (const S solver_tolerance : {S(1e-4), S(1e-5), S(1e-6)}) {
           const S min_distance_expected =
               ComputeSphereSphereDistance(spheres[i].radius, spheres[j].radius,
                                           spheres[i].center, spheres[j].center);
@@ -166,8 +169,8 @@ void TestNonCollidingSphereGJKSignedDistance() {
           // * solver_tolerances[k], but there is no proof.
           TestSphereToSphereGJKSignedDistance<S>(
               spheres[i].radius, spheres[j].radius, spheres[i].center,
-              spheres[j].center, solver_tolerances[k],
-              10 * solver_tolerances[k], min_distance_expected);
+              spheres[j].center, solver_tolerance, 10 * solver_tolerance,
+              min_distance_expected);
         }
       } else {
         GTEST_FAIL() << "The two spheres collide."
@@ -189,7 +192,6 @@ void TestCollidingSphereGJKSignedDistance() {
   spheres.emplace_back(0.5, Vector3<S>(0.75, 0, 0));
   spheres.emplace_back(0.3, Vector3<S>(0.2, 0, 0));
   spheres.emplace_back(0.4, Vector3<S>(0.2, 0, 0.4));
-  std::vector<S> solver_tolerances = {S(1E-4), S(1E-5), S(1E-6)};
   for (int i = 0; i < static_cast<int>(spheres.size()); ++i) {
     for (int j = i + 1; j < static_cast<int>(spheres.size()); ++j) {
       if ((spheres[i].center - spheres[j].center).norm() <
@@ -198,14 +200,16 @@ void TestCollidingSphereGJKSignedDistance() {
         const S min_distance_expected =
             ComputeSphereSphereDistance(spheres[i].radius, spheres[j].radius,
                                         spheres[i].center, spheres[j].center);
-        for (int k = 0; k < static_cast<int>(solver_tolerances.size()); ++k) {
+        for (const S solver_tolerance : {S(1E-4), S(1E-5), S(1E-6)}) {
+          // For colliding spheres, the solver_tolerance is the bound on the
+          // error relative to the true answer.
           TestSphereToSphereGJKSignedDistance<S>(
               spheres[i].radius, spheres[j].radius, spheres[i].center,
-              spheres[j].center, solver_tolerances[k], solver_tolerances[k],
+              spheres[j].center, solver_tolerance, solver_tolerance,
               min_distance_expected);
         }
       } else {
-        GTEST_FAIL() << "The two spheres do NOT collide."
+        GTEST_FAIL() << "The two spheres failed to collide."
                      << "\nSpheres[" << i << "] with radius "
                      << spheres[i].radius << ", centered at "
                      << spheres[i].center.transpose() << "\nSpheres[" << j
@@ -294,7 +298,7 @@ void TestBoxesInFrameF(const Transform3<S>& X_WF) {
     }
 
     // When the objects penetrate, the computed distance should be within
-    // gjkSOlver.distance_tolerance to the actual distance.
+    // gjkSolver.distance_tolerance to the actual distance.
 
     EXPECT_NEAR(dist, distance_expected, test_distance_tolerance);
     const Vector3<S> p_FNa =
@@ -330,13 +334,10 @@ void TestBoxesInFrameF(const Transform3<S>& X_WF) {
         test_witness_tolerance);
   };
 
-  // Test with different solver distance tolerances.
-  std::vector<S> solver_distance_tolerances{S(1E-4), S(1E-5), S(1E-6)};
   //---------------------------------------------------------------
   //                      Touching contact
-  for (int i = 0; i < static_cast<int>(solver_distance_tolerances.size());
-       ++i) {
-    const S solver_distance_tolerance = solver_distance_tolerances[i];
+  // Test with different solver distance tolerances.
+  for (const S solver_distance_tolerance : {S(1E-4), S(1E-5), S(1E-6)}) {
     // For touching contact, FCL might call either GJK or EPA algorithm. When it
     // calls GJK algorithm, there is no theoretical guarantee, on how the
     // distance error is related to solver's distance_tolerance.
@@ -368,9 +369,7 @@ void TestBoxesInFrameF(const Transform3<S>& X_WF) {
   //--------------------------------------------------------------
   //                      Penetrating contact
   // An edge of box 2 penetrates into a face of box 1
-  for (int i = 0; i < static_cast<int>(solver_distance_tolerances.size());
-       ++i) {
-    const S solver_distance_tolerance = solver_distance_tolerances[i];
+  for (const S solver_distance_tolerance : {S(1E-4), S(1E-5), S(1E-6)}) {
     // For penetrating contact, FCL calls EPA algorithm. When the solver
     // terminates, the computed distance should be within
     // solver.distance_tolerance to the actual distance.
