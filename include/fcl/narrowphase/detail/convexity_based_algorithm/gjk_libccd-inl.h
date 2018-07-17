@@ -1215,8 +1215,8 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
  * vertex of the polytope. Then we know the two objects A and B are in touching
  * contact.
  * 2. If the difference between the upper bound and lower bound of the distance
- * is below sqrt(ccd->epa_tolerance), then we converge to a distance whose
- * difference from the real distance is less than sqrt(ccd->epa_tolerance).
+ * is below ccd->epa_tolerance, then we converge to a distance whose
+ * difference from the real distance is less than ccd->epa_tolerance.
  */
 static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
                        const void* obj2, const ccd_t* ccd,
@@ -2253,6 +2253,7 @@ bool GJKDistanceImpl(void* obj1, ccd_support_fn supp1, void* obj2,
 
   ccd.max_iterations = max_iterations;
   ccd.dist_tolerance = tolerance;
+  ccd.epa_tolerance = tolerance;
 
   ccd_vec3_t p1_, p2_;
   // NOTE(JS): p1_ and p2_ are set to zeros in order to suppress uninitialized
@@ -2282,6 +2283,19 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
                                  p1, p2);
 }
 
+/**
+ * Compute the signed distance between two mesh objects. When the objects are
+ * separating, the signed distance is > 0. When the objects are touching or
+ * penetrating, the signed distance is <= 0.
+ * @param tolerance. When the objects are separating, the GJK algorithm
+ * terminates when the change of distance between iterations is smaller than
+ * this tolerance. Note that this does NOT necessarily mean that the computed
+ * distance is within @p tolerance to the actual distance. On the other hand,
+ * when the objects are penetrating, the EPA algorithm terminates when the
+ * difference between the upper bound and the lower bound of the penetration
+ * depth is smaller than @p tolerance. Hence the computed penetration depth is
+ * within @p tolerance to the true depth.
+ */
 template <typename S>
 bool GJKSignedDistance(void* obj1, ccd_support_fn supp1,
                        void* obj2, ccd_support_fn supp2,
