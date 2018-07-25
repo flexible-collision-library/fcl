@@ -39,6 +39,8 @@
 
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_box.h"
 
+#include <iomanip>
+
 namespace fcl {
 namespace detail {
 
@@ -172,14 +174,30 @@ FCL_EXPORT bool sphereBoxDistance(const Sphere<S>& sphere,
                                   const Transform3<S>& X_FB, S* distance,
                                   Vector3<S>* p_FSb, Vector3<S>* p_FBs) {
   // Find the sphere center C in the box's frame.
-  const Transform3<S> X_BS = X_FB.inverse() * X_FS;
+  const Transform3<S> X_FB_inv = X_FB.inverse();
+  const Transform3<S> X_BS = X_FB_inv * X_FS;
   const Vector3<S> p_BC = X_BS.translation();
   const S r = sphere.radius;
+
+  const Transform3<S> I = X_FB_inv * X_FB;
+
+  std::cout << "sphereBoxDistance\n";
+  std::cout << "Eigen version: " << EIGEN_WORLD_VERSION << "." << EIGEN_MAJOR_VERSION << "." << EIGEN_MINOR_VERSION << "\n";
+  std::cout << std::setprecision(20);
+  std::cout << "  X_FS:\n" << X_FS.matrix() << "\n";
+  std::cout << "  X_FB:\n" << X_FB.matrix() << "\n";
+  std::cout << "  X_FB^-1\n" << X_FB_inv.matrix() << "\n";
+  std::cout << "  I\n" << I.matrix() << "\n";
+  std::cout << "  |X_FB^-1 . X_FB|: " << I.matrix().cwiseAbs().maxCoeff() << "\n";
+  std::cout << "  X_BS:\n" << X_BS.matrix() << "\n";
+  std::cout << "  p_BC: " << p_BC.transpose() << "\n";
+  std::cout << "  r:    " << r << "\n";
 
   // Find N, the nearest point *inside* the box to the sphere center C (measured
   // and expressed in frame B)
   Vector3<S> p_BN;
   bool N_is_not_C = nearestPointInBox(box.side, p_BC, p_BN);
+  std::cout << "  p_BN: " << p_BN.transpose() << "\n";
 
   if (N_is_not_C) {
     // If N is not C, we know the sphere center is *outside* the box (but we
@@ -188,17 +206,19 @@ FCL_EXPORT bool sphereBoxDistance(const Sphere<S>& sphere,
     // Compute the position vector from the nearest point N to the sphere center
     // C in the frame B.
     Vector3<S> p_NC_B = p_BC - p_BN;
+    std::cout << " p_NC_B: " << p_NC_B.transpose() << "\n";
     S squared_distance = p_NC_B.squaredNorm();
+    std::cout << " dist^2: " << squared_distance << "\n";
     if (squared_distance > r * r) {
       // The distance to the nearest point is greater than the radius, we have
       // proven separation.
       S d{-1};
-      if (distance || p_FBs || p_FSb)
+      if (distance || p_FBs || p_FSb) {
         d = sqrt(squared_distance);
-      if (distance != nullptr)
-        *distance = d - r;
-      if (p_FBs != nullptr)
-        *p_FBs = X_FB * p_BN;
+        std::cout << "  |p_NC_B|: " << d << "\n";
+      }
+      if (distance != nullptr) *distance = d - r;
+      if (p_FBs != nullptr) *p_FBs = X_FB * p_BN;
       if (p_FSb != nullptr) {
         const Vector3<S> p_BSb = (p_NC_B / d) * (d - r) + p_BN;
         *p_FSb = X_FB * p_BSb;
