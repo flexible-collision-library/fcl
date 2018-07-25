@@ -38,6 +38,7 @@
 
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_box-inl.h"
 
+#include <iomanip>
 #include <string>
 
 #include <gtest/gtest.h>
@@ -378,7 +379,7 @@ std::vector<TestConfiguration<S>> GetUniformConfigurations() {
 template <typename S>
 std::vector<TestConfiguration<S>> GetNonUniformConfigurations() {
   std::vector<TestConfiguration<S>> configurations;
-
+#if 0
   {
     // Case: long "skinny" box and tiny sphere. Nearest feature is the +z face.
     const Vector3<S> half_size(15, 1, 1);
@@ -410,13 +411,14 @@ std::vector<TestConfiguration<S>> GetNonUniformConfigurations() {
       config.expected_p_BBs << p_BS(0), p_BS(1), half_size(2);
     }
   }
-
+#endif
   {
     // Case: Large sphere collides with small box. Nearest feature is the +x,
     // +y, +z corner.
     const Vector3<S> half_size(0.1, 0.15, 0.2);
     const S r = 10;
     const Vector3<S> n_SB = Vector3<S>{-1, -2, -3}.normalized();
+#if 0
     {
       // Subcase: colliding.
       S target_depth = half_size.minCoeff() * 0.5;
@@ -428,6 +430,7 @@ std::vector<TestConfiguration<S>> GetNonUniformConfigurations() {
       config.expected_depth = target_depth;
       config.expected_pos = half_size + n_SB * (target_depth * 0.5);
     }
+#endif
     {
       // Subcase: not colliding.
       S distance = half_size.minCoeff() * 0.1;
@@ -527,6 +530,13 @@ void EvalDistanceForTestConfiguration(const TestConfiguration<S>& config,
       sphereBoxDistance<S>(sphere, X_WS, box, X_WB, &distance, &p_WSb, &p_WBs);
   EXPECT_NE(separated, config.expected_colliding) << config.name;
   if (!config.expected_colliding) {
+    std::cout << "DISTANCE: " << config.name << "\n";
+    std::cout << std::setprecision(20);
+    std::cout << "  X_WB:\n" << X_WB.matrix() << "\n";
+    std::cout << "  X_WS:\n" << X_WS.matrix() << "\n";
+    std::cout << "  distance: " << distance << "\n";
+    std::cout << "  p_WSb:    " << p_WSb.transpose() << "\n";
+    std::cout << "  p_WBs:    " << p_WBs.transpose() << "\n";
     EXPECT_NEAR(distance, config.expected_distance, eps)
               << config.name;
     EXPECT_TRUE(CompareMatrices(p_WSb,
@@ -562,10 +572,13 @@ void QueryWithVaryingWorldFrames(
 
   // Frame F is the box frame.
   Transform3<S> X_FB = Transform3<S>::Identity();
+#if 0
   evaluate_all(AppendLabel(configurations, "X_FB = I"), X_FB);
 
   // Simple arbitrary translation away from the origin.
+#endif
   X_FB.translation() << 1.3, 2.7, 6.5;
+#if 0
   evaluate_all(AppendLabel(configurations, "X_FB is translation"), X_FB);
 
   std::string axis_name[] = {"x", "y", "z"};
@@ -576,7 +589,7 @@ void QueryWithVaryingWorldFrames(
     X_FB.linear() << angle_axis.matrix();
     evaluate_all(AppendLabel(configurations, label), X_FB);
   }
-
+#endif
   // Arbitrary orientation.
   {
     AngleAxis<S> angle_axis{constants<S>::pi() / 3,
@@ -585,7 +598,7 @@ void QueryWithVaryingWorldFrames(
     evaluate_all(AppendLabel(configurations, "X_FB is arbitrary rotation"),
                  X_FB);
   }
-
+#if 0
   // Near axis aligned.
   {
     AngleAxis<S> angle_axis{constants<S>::eps_12(), Vector3<S>::UnitX()};
@@ -593,6 +606,7 @@ void QueryWithVaryingWorldFrames(
     evaluate_all(AppendLabel(configurations, "X_FB is near identity"),
                  X_FB);
   }
+#endif
 }
 
 // Runs all test configurations across multiple poses in the world frame --
@@ -632,7 +646,7 @@ void QueryWithOrientedSphere(
 }
 
 //======================================================================
-
+#if 0
 // Tests the helper function that finds the closest point in the box.
 GTEST_TEST(SphereBoxPrimitiveTest, NearestPointInBox) {
   NearestPointInBox<float>();
@@ -684,15 +698,17 @@ GTEST_TEST(SphereBoxPrimitiveTest, DistanceWithSphereRotations) {
   QueryWithOrientedSphere<double>(GetUniformConfigurations<double>(),
                                   EvalDistanceForTestConfiguration<double>);
 }
-
+#endif
 // Evaluates distance on a small set of configurations where the box and scale
 // are of radically different scales - evaluation across multiple poses in the
 // world frame.
 GTEST_TEST(SphereBoxPrimitiveTest, DistanceIncompatibleScales) {
   QueryWithVaryingWorldFrames<float>(GetNonUniformConfigurations<float>(),
                                      EvalDistanceForTestConfiguration<float>);
+#if 0
   QueryWithVaryingWorldFrames<double>(GetNonUniformConfigurations<double>(),
                                       EvalDistanceForTestConfiguration<double>);
+#endif
 }
 
 } // namespace
