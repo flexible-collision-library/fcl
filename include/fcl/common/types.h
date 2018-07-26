@@ -86,7 +86,7 @@ template <typename S>
 using Quaternion = Eigen::Quaternion<S>;
 
 template <typename S>
-using Transform3 = Eigen::Transform<S, 3, Eigen::AffineCompact>;
+using Transform3 = Eigen::Transform<S, 3, Eigen::Isometry>;
 
 template <typename S>
 using Translation3 = Eigen::Translation<S, 3>;
