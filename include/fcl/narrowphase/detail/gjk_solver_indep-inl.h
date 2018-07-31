@@ -49,6 +49,7 @@
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/epa.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_box.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_capsule.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_sphere.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_triangle.h"
@@ -181,7 +182,7 @@ bool GJKSolver_indep<S>::shapeIntersect(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | box        |  O  |        |           |         |      |          |   O   |      O     |          |
+// | box        |  O  |   O    |           |         |      |          |   O   |      O     |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | sphere     |/////|   O    |           |    O    |      |          |   O   |      O     |     O    |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
@@ -245,6 +246,8 @@ FCL_GJK_INDEP_SHAPE_INTERSECT(Sphere, detail::sphereSphereIntersect)
 FCL_GJK_INDEP_SHAPE_INTERSECT(Box, detail::boxBoxIntersect)
 
 FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT(Sphere, Capsule, detail::sphereCapsuleIntersect)
+
+FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT(Sphere, Box, detail::sphereBoxIntersect)
 
 FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT(Sphere, Halfspace, detail::sphereHalfspaceIntersect)
 FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT(Ellipsoid, Halfspace, detail::ellipsoidHalfspaceIntersect)
@@ -670,7 +673,7 @@ bool GJKSolver_indep<S>::shapeSignedDistance(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | box        |     |        |           |         |      |          |       |            |          |
+// | box        |     |   O    |           |         |      |          |       |            |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | sphere     |/////|   O    |           |    O    |      |          |       |            |     O    |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
@@ -688,6 +691,42 @@ bool GJKSolver_indep<S>::shapeSignedDistance(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceIndepImpl<S, Sphere<S>, Box<S>>
+{
+  static bool run(
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Sphere<S>& s1,
+      const Transform3<S>& tf1,
+      const Box<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::sphereBoxDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceIndepImpl<S, Box<S>, Sphere<S>>
+{
+  static bool run(
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Box<S>& s1,
+      const Transform3<S>& tf1,
+      const Sphere<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::sphereBoxDistance(s2, tf2, s1, tf1, dist, p2, p1);
+  }
+};
 
 //==============================================================================
 template<typename S>

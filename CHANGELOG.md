@@ -16,6 +16,10 @@
 
   * Fixed redundant pair checking of SpatialHashingCollisionManager: [#156](https://github.com/flexible-collision-library/fcl/pull/156)
 
+* Narrowphase
+
+  * Add custom sphere-box collision and distance algorithms for both solvers: [#316](https://github.com/flexible-collision-library/fcl/pull/316)
+
 * Distance
 
   * Added distance request option for computing exact negative distance: [#172](https://github.com/flexible-collision-library/fcl/pull/172) 
@@ -26,6 +30,7 @@
   * Added CMake targets for generating API documentation: [#174](https://github.com/flexible-collision-library/fcl/pull/174)
   * Enabled build with SSE option by default: [#159](https://github.com/flexible-collision-library/fcl/pull/159)
   * Added missing copyright headers:  [#149](https://github.com/flexible-collision-library/fcl/pull/149)
+  * Added test utility for performing equality between Eigen matrix-types (`CompareMatrices` in `test/eign_matrix_compare.h`): [#316](https://github.com/flexible-collision-library/fcl/pull/316)
 
 ### FCL 0.5.0 (2016-07-19)
 
