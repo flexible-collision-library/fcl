@@ -11,6 +11,7 @@
 * Math
 
   * Switched to Eigen for math operations: [#96](https://github.com/flexible-collision-library/fcl/issues/96), [#150](https://github.com/flexible-collision-library/fcl/pull/150)
+  * fcl::Transform defined to be an Isometry to facilitate inverses [#318](https://github.com/flexible-collision-library/fcl/pull/318)
 
 * Broadphase
 
