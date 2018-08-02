@@ -834,6 +834,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
 template <typename S>
 void test_shapeIntersection_spherebox()
 {
+  // A collection of bool constants to make reading lists of bool easier.
+  const bool collides = true;
+  const bool check_position = true;
+  const bool check_depth = true;
+  const bool check_normal = true;
+  const bool check_opposite_normal = false;
+
   Sphere<S> s1(20);
   Box<S> s2(5, 5, 5);
 
@@ -847,36 +854,46 @@ void test_shapeIntersection_spherebox()
 
   tf1 = Transform3<S>::Identity();
   tf2 = Transform3<S>::Identity();
-  // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (-1, 0, 0).
+  // NOTE: The centers of the box and sphere are coincident. The documented
+  // convention is that the normal is aligned with the smallest dimension of
+  // the box, pointing in the negative direction of that axis. *This* test is
+  // the driving basis for that definition.
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, collides, contacts,
+                        !check_position, !check_depth, check_normal);
 
   tf1 = transform;
   tf2 = transform;
-  // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, collides, contacts,
+                        !check_position, !check_depth, !check_normal);
 
   tf1 = Transform3<S>::Identity();
   tf2 = Transform3<S>(Translation3<S>(Vector3<S>(22.5, 0, 0)));
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  // As documented in sphere_box.h, touching is considered collision, so this
+  // should produce a collision.
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, collides, contacts,
+                        !check_position, !check_depth, !check_normal);
 
   tf1 = transform;
   tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(22.501, 0, 0)));
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, !collides);
 
   tf1 = Transform3<S>::Identity();
   tf2 = Transform3<S>(Translation3<S>(Vector3<S>(22.4, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, collides, contacts,
+                        !check_position, !check_depth, check_normal);
 
   tf1 = transform;
   tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(22.4, 0, 0)));
   contacts.resize(1);
   contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-4);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, collides, contacts,
+                        !check_position, !check_depth, check_normal,
+                        !check_opposite_normal, 1e-4);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
