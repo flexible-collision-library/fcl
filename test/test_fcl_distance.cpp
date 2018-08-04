@@ -39,6 +39,7 @@
 
 #include "fcl/narrowphase/detail/traversal/collision_node.h"
 #include "test_fcl_utility.h"
+#include "eigen_matrix_compare.h"
 #include "fcl_resources/config.h"
 
 // TODO(SeanCurtis-TRI): A file called `test_fcl_distance.cpp` should *not* have
@@ -337,11 +338,19 @@ void NearestPointFromDegenerateSimplex() {
 
   // The values here have been visually confirmed from the computation.
   S expected_dist{0.053516322172152138};
-  Vector3<S> expected_p0{-1.375, -0.098881502700918666, -0.025000000000000022};
-  Vector3<S> expected_p1{0.21199965773384655, 0.074999692703297122,
-                         0.084299993303443954};
-  EXPECT_TRUE(nearlyEqual(result.nearest_points[0], expected_p0));
-  EXPECT_TRUE(nearlyEqual(result.nearest_points[1], expected_p1));
+  // The "nearest" points (N1 and N2) measured and expressed in box 1's and
+  // box 2's frames (B1 and B2, respectively).
+  Vector3<S> expected_p_B1N1{-1.375, -0.098881502700918666,
+                             -0.025000000000000022};
+  Vector3<S> expected_p_B2N2{0.21199965773384655, 0.074999692703297122,
+                            0.084299993303443954};
+  // The nearest points in the world frame.
+  Vector3<S> expected_p_WN1 = box_object_1.getTransform() * expected_p_B1N1;
+  Vector3<S> expected_p_WN2 = box_object_2.getTransform() * expected_p_B2N2;
+  EXPECT_TRUE(CompareMatrices(result.nearest_points[0], expected_p_WN1,
+                              DELTA<S>(), MatrixCompareType::absolute));
+  EXPECT_TRUE(CompareMatrices(result.nearest_points[1], expected_p_WN2,
+                              DELTA<S>(), MatrixCompareType::absolute));
   // TODO(SeanCurtis-TRI): Change this tolerance to constants<S>::eps_34() when
   // the mac single/double libccd problem is resolved.
   EXPECT_NEAR(expected_dist, result.min_distance,
