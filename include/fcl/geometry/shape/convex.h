@@ -51,7 +51,37 @@ public:
 
   using S = S_;
 
-  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
+  // TODO(SeanCurtis-TRI): Figure out what the ownership of this data is. It
+  // *seems* that this struct only owns the edges.
+  /// @brief Definition of a convex polytope.
+  ///
+  /// This requires *two* coordinated representations of the convex hull:
+  ///   - The set of half spaces that bound the hull region and
+  ///   - the polytope mesh formed by the intersection of the half spaces.
+  ///
+  /// The half spaces are defined by the implicit equation of a plane:
+  /// `Π(x, y, z) = Ax + By + Cz + d = 0` where `n̂ = [A, B, C]` and |n̂| = 1.
+  /// The normal points *outside* of the convex region. There should be *no*
+  /// redundant planes in the set.
+  ///
+  /// For each plane Π there should corresponding face f that lies on that plane
+  /// and whose edges and vertices are defined by the intersection of all other
+  /// planes with plane Π.
+  ///
+  /// @note: The %Convex geometry does *not* take ownership of any of the data
+  /// provided. The data must remain valid for as long as the %Convex instance
+  /// and must be cleaned up explicitly.
+  ///
+  /// @param plane_normals  For m planes, the normals of plane i:
+  ///                       `[n̂₀, n̂₁, ..., n̂ₘ₋₁]`.
+  /// @param plane_dis      For m planes, the offset values of plane i:
+  ///                       `[d₀, d₁, ..., dₘ₋₁]`.
+  /// @param num_planes     The number of planes `m`.
+  /// @param points         All unique vertices formed by the intersection of
+  ///                       three or more planes.
+  /// @param num_points     The number of vertices in `points`.
+  /// @param polygons       Encoding of the faces for each plane. See member
+  ///                       documentation for details on encoding.
   Convex(Vector3<S>* plane_normals,
          S* plane_dis,
          int num_planes,
@@ -67,15 +97,35 @@ public:
   /// @brief Compute AABB<S>
   void computeLocalAABB() override;
 
-  /// @brief Get node type: a conex polytope 
+  /// @brief Get node type: a convex polytope
   NODE_TYPE getNodeType() const override;
 
-  
+  /// @brief
   Vector3<S>* plane_normals;
   S* plane_dis;
 
-  /// @brief An array of indices to the points of each polygon, it should be the number of vertices
-  /// followed by that amount of indices to "points" in counter clockwise order
+  /// @brief The representation of the *faces* of the convex hull.
+  ///
+  /// The array is the concatenation of integer-based representations of each
+  /// face. A single face is encoded as a sub-array of ints where the first int
+  /// is the *number* n of vertices in the face, and the following n values
+  /// are ordered indices into `points` of the vertices in a *counter-clockwise*
+  /// order (viewed from the outside).
+  ///
+  /// For a well-formed face `f` consisting of indices [v₀, v₁, ..., vₘ₋₁], it
+  /// should be the case that:
+  ///
+  ///    `rᵢ × rᵢ₊₁ · n̂ₚ = |rᵢ × rᵢ₊₁|, ∀ 0 ≤ i < m, i ∈ ℤ`, where
+  ///    `n̂ₚ` is the normal for plane `p` on which the face `f` lies.
+  ///    `rᵢ = points[vᵢ] - points[vᵢ₋₁]` is the displacement of the edge of
+  ///    face `f` defined by adjacent vertex indices at iᵗʰ vertex (wrapping
+  ///    around such that i - 1 = m - 1 for i = 0).
+  ///
+  /// Satisfying this condition implies the following:
+  ///    1. Vertices are not coincident,
+  ///    2. The nᵗʰ encoded polygon corresponds with the nᵗʰ plane normal,
+  ///    3. The indices of the face correspond to a proper counter-clockwise
+  ///       ordering.
   int* polygons;
 
   Vector3<S>* points;
@@ -90,7 +140,10 @@ public:
 
   Edge* edges;
 
-  /// @brief center of the convex polytope, this is used for collision: center is guaranteed in the internal of the polytope (as it is convex) 
+  /// @brief The mean point of the convex polytope, used for collision. This
+  /// point is guaranteed to be inside the convex hull.
+  /// note: The name "center" is misleading; it is neither the centroid nor the
+  /// center of mass.
   Vector3<S> center;
 
   /// based on http://number-none.com/blow/inertia/bb_inertia.doc

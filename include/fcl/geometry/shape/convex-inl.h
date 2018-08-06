@@ -50,24 +50,24 @@ class FCL_EXPORT Convex<double>;
 //==============================================================================
 template <typename S>
 Convex<S>::Convex(
-    Vector3<S>* plane_normals, S* plane_dis, int num_planes_,
-    Vector3<S>* points, int num_points_, int* polygons_)
+    Vector3<S>* plane_normals_in, S* plane_dis_in, int num_planes_in,
+    Vector3<S>* points_in, int num_points_in, int* polygons_in)
   : ShapeBase<S>()
 {
-  plane_normals = plane_normals;
-  plane_dis = plane_dis;
-  num_planes = num_planes_;
-  points = points;
-  num_points = num_points_;
-  polygons = polygons_;
+  plane_normals = plane_normals_in;
+  plane_dis = plane_dis_in;
+  num_planes = num_planes_in;
+  points = points_in;
+  num_points = num_points_in;
+  polygons = polygons_in;
   edges = nullptr;
 
+  // Compute an interior point: the mean vertex (we're calling it "center").
   Vector3<S> sum = Vector3<S>::Zero();
   for(int i = 0; i < num_points; ++i)
   {
     sum += points[i];
   }
-
   center = sum * (S)(1.0 / num_points);
 
   fillEdges();
@@ -98,8 +98,8 @@ Convex<S>::~Convex()
 template <typename S>
 void Convex<S>::computeLocalAABB()
 {
-  this->aabb_local.min_.setConstant(-std::numeric_limits<S>::max());
-  this->aabb_local.max_.setConstant(std::numeric_limits<S>::max());
+  this->aabb_local.min_.setConstant(std::numeric_limits<S>::max());
+  this->aabb_local.max_.setConstant(-std::numeric_limits<S>::max());
   for(int i = 0; i < num_points; ++i)
     this->aabb_local += points[i];
 
