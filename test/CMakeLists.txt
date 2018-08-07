@@ -61,6 +61,7 @@ set(tests
     test_fcl_simple.cpp
     test_fcl_sphere_box.cpp
     test_fcl_sphere_capsule.cpp
+    test_fcl_sphere_cylinder.cpp
     test_fcl_sphere_sphere.cpp
 )
 
