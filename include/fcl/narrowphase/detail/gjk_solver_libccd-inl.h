@@ -48,6 +48,7 @@
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_box.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_capsule.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_cylinder.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_sphere.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_triangle.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/box_box.h"
@@ -180,7 +181,7 @@ bool GJKSolver_libccd<S>::shapeIntersect(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | box        |  O  |   O    |           |         |      |          |   O   |      O     |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |           |    O    |      |          |   O   |      O     |    O     |
+// | sphere     |/////|   O    |           |    O    |      |    O     |   O   |      O     |    O     |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | ellipsoid  |/////|////////|           |         |      |          |   O   |      O     |   TODO   |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
@@ -244,6 +245,8 @@ FCL_GJK_LIBCCD_SHAPE_INTERSECT(Box, detail::boxBoxIntersect)
 FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT(Sphere, Capsule, detail::sphereCapsuleIntersect)
 
 FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT(Sphere, Box, detail::sphereBoxIntersect)
+
+FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT(Sphere, Cylinder, detail::sphereCylinderIntersect)
 
 FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT(Sphere, Halfspace, detail::sphereHalfspaceIntersect)
 FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT(Ellipsoid, Halfspace, detail::ellipsoidHalfspaceIntersect)
@@ -656,7 +659,7 @@ bool GJKSolver_libccd<S>::shapeDistance(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | box        |     |   O    |           |         |      |          |       |            |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |           |    O    |      |          |       |            |     O    |
+// | sphere     |/////|   O    |           |    O    |      |    O     |       |            |     O    |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | ellipsoid  |/////|////////|           |         |      |          |       |            |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
@@ -742,6 +745,42 @@ struct ShapeDistanceLibccdImpl<S, Capsule<S>, Sphere<S>>
       Vector3<S>* p2)
   {
     return detail::sphereCapsuleDistance(s2, tf2, s1, tf1, dist, p2, p1);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Sphere<S>, Cylinder<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Sphere<S>& s1,
+      const Transform3<S>& tf1,
+      const Cylinder<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::sphereCylinderDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Cylinder<S>, Sphere<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Cylinder<S>& s1,
+      const Transform3<S>& tf1,
+      const Sphere<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::sphereCylinderDistance(s2, tf2, s1, tf1, dist, p2, p1);
   }
 };
 
