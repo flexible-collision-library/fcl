@@ -765,6 +765,64 @@ static int simplexToPolytope4(const void *obj1, const void *obj2,
     return 0;
 }
 
+/** Reports true if p and q are coincident. */
+static bool are_coincident(const ccd_vec3_t& p, const ccd_vec3_t& q) {
+  // This uses a scale-dependent basis for determining coincidence. It examines
+  // each axis independently, and only, if all three axes are sufficiently
+  // close (relative to its own scale), are the two points considered
+  // coincident.
+  //
+  // For dimension i, two values are considered the same if:
+  //   |pᵢ - qᵢ| <= ε·max(1, |pᵢ|, |qᵢ|)
+  // And the points are coincident if the previous condition holds for all
+  // `i ∈ {0, 1, 2}` (i.e. the x-, y-, *and* z-dimensions).
+  using std::abs;
+  using std::max;
+
+  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  // NOTE: Wrapping "1.0" with ccd_real_t accounts for mac problems where ccd
+  // is actually float based.
+  for (int i = 0; i < 3; ++i) {
+    const ccd_real_t tolerance =
+        max({ccd_real_t{1}, abs(p.v[i]), abs(q.v[i])}) * eps;
+    const ccd_real_t delta = abs(p.v[i] - q.v[i]);
+    if (delta > tolerance) return false;
+  }
+  return true;
+}
+
+/** Determines if the the triangle defined by the three vertices has zero area.
+ Area can be zero for one of two reasons:
+   - the triangle is so small that the vertices are functionally coincident, or
+   - the vertices are co-linear.
+ Both conditions are computed with respect to machine precision.
+ @returns true if the area is zero.  */
+static bool triangle_area_is_zero(const ccd_vec3_t& a, const ccd_vec3_t& b,
+                                  const ccd_vec3_t& c) {
+  // First coincidence condition. This doesn't *explicitly* test for b and c
+  // being coincident. That will be captured in the subsequent co-linearity
+  // test. If b and c *were* coincident, it would be cheaper to perform the
+  // coincidence test than the co-linearity test.
+  // However, the expectation is that typically the triangle will not have zero
+  // area. In that case, we want to minimize the number of tests performed on
+  // the average, so we prefer to eliminate one coincidence test.
+  if (are_coincident(a, b) || are_coincident(a, c)) return true;
+
+  // We're going to compute the *sine* of the angle θ between edges (given that
+  // the vertices are *not* coincident). If the sin(θ) < ε, the edges are
+  // co-linear.
+  ccd_vec3_t AB, AC, n;
+  ccdVec3Sub2(&AB, &b, &a);
+  ccdVec3Sub2(&AC, &c, &a);
+  ccdVec3Normalize(&AB);
+  ccdVec3Normalize(&AC);
+  ccdVec3Cross(&n, &AB, &AC);
+  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  // Second co-linearity condition.
+  if (ccdVec3Len2(&n) < eps * eps) return true;
+  return false;
+}
+
 /**
  * Computes the normal vector of a triangular face on a polytope, and the normal
  * vector points outward from the polytope. Notice we assume that the origin
@@ -778,6 +836,17 @@ static int simplexToPolytope4(const void *obj1, const void *obj2,
  */
 static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
                                             const ccd_pt_face_t* face) {
+  // This doesn't necessarily define a triangle; I don't know that the third
+  // vertex added here is unique from the other two.
+#ifndef NDEBUG
+  // quick test for degeneracy
+  const ccd_vec3_t& a = face->edge[0]->vertex[1]->v.v;
+  const ccd_vec3_t& b = face->edge[0]->vertex[0]->v.v;
+  const ccd_vec3_t& test_v = face->edge[1]->vertex[0]->v.v;
+  const ccd_vec3_t& c = are_coincident(test_v, a) || are_coincident(test_v, b) ?
+                        face->edge[1]->vertex[1]->v.v : test_v;
+  assert(!triangle_area_is_zero(a, b, c));
+#endif
   // We find two edges of the triangle as e1 and e2, and the normal vector
   // of the face is e1.cross(e2).
   ccd_vec3_t e1, e2;
@@ -1361,65 +1430,6 @@ static int __ccdEPA(const void *obj1, const void *obj2,
     }
 
     return 0;
-}
-
-
-/** Reports true if p and q are coincident. */
-static bool are_coincident(const ccd_vec3_t& p, const ccd_vec3_t& q) {
-  // This uses a scale-dependent basis for determining coincidence. It examines
-  // each axis independently, and only, if all three axes are sufficiently
-  // close (relative to its own scale), are the two points considered
-  // coincident.
-  //
-  // For dimension i, two values are considered the same if:
-  //   |pᵢ - qᵢ| <= ε·max(1, |pᵢ|, |pᵢ|)
-  // And the points are coincident if the previous condition for all
-  // `i ∈ {0, 1, 2}` (i.e. the x-, y-, *and* z-dimensions).
-  using std::abs;
-  using std::max;
-  
-  const ccd_real_t eps = constants<ccd_real_t>::eps();
-  // NOTE: Wrapping "1.0" with ccd_real_t accounts for mac problems where ccd
-  // is actually float based.
-  for (int i = 0; i < 3; ++i) {
-    const ccd_real_t scale =
-        max({ccd_real_t{1}, abs(p.v[i]), abs(q.v[i])}) * eps;
-    const ccd_real_t delta = abs(p.v[i] - q.v[i]);
-    if (delta > scale) return false;
-  }
-  return true;
-}
-
-/** Determines if the the triangle defined by the three vertices has zero area.
- Area can be zero for one of two reasons:
-   - the triangle is so small that the vertices are functionally coincident, or
-   - the vertices are co-linear.
- Both conditions are computed with respect to machine precision.
- @returns true if the area is zero.  */
-static bool triangle_area_is_zero(const ccd_vec3_t& a, const ccd_vec3_t& b,
-                                  const ccd_vec3_t& c) {
-  // First coincidence condition. This doesn't *explicitly* test for b and c
-  // being coincident. That will be captured in the subsequent co-linearity
-  // test. If b and c *were* coincident, it would be cheaper to perform the
-  // coincidence test than the co-linearity test.
-  // However, the expectation is that typically the triangle will not have zero
-  // area. In that case, we want to minimize the number of tests performed on
-  // the average, so we prefer to eliminate one coincidence test.
-  if (are_coincident(a, b) || are_coincident(a, c)) return true;
-
-  // We're going to compute the *sine* of the angle θ between edges (given that
-  // the vertices are *not* coincident). If the sin(θ) < ε, the edges are
-  // co-linear.
-  ccd_vec3_t AB, AC, n;
-  ccdVec3Sub2(&AB, &b, &a);
-  ccdVec3Sub2(&AC, &c, &a);
-  ccdVec3Normalize(&AB);
-  ccdVec3Normalize(&AC);
-  ccdVec3Cross(&n, &AB, &AC);
-  const ccd_real_t eps = constants<ccd_real_t>::eps();
-  // Second co-linearity condition.
-  if (ccdVec3Len2(&n) < eps * eps) return true;
-  return false;
 }
 
 /** Given a single support point, `q`, extract the point `p1` and `p2`, the
