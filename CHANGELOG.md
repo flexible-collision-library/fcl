@@ -20,6 +20,7 @@
 * Narrowphase
 
   * Add custom sphere-box collision and distance algorithms for both solvers: [#316](https://github.com/flexible-collision-library/fcl/pull/316)
+  * Add custom sphere-cylinder collision and distance algorithms for both solvers: [#321](https://github.com/flexible-collision-library/fcl/pull/321)
 
 * Distance
 
