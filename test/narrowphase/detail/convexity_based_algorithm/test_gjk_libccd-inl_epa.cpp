@@ -293,6 +293,144 @@ GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace) {
   CheckPointOutsidePolytopeFace(0, 0, 0, 3, expect_inside);
 }
 
+#ifndef NDEBUG
+
+/** A degenerate tetrahedron due to vertices considered to be coincident.
+ It is, strictly speaking a valid tetrahedron, but the points are so close that
+ the calculations on edge lengths cannot be trusted.
+
+ More particularly, one face is *very* small but the other three faces are quite
+ long with horrible aspect ratio.
+
+ Vertices v0, v1, and v2 are all close to each other, v3 is distant.
+ Edges e0, e1, and e2 connect vertices (v0, v1, and v2) and, as such, have very
+ short length. Edges e3, e4, and e5 connect to the distance vertex and have
+ long length.
+
+ Face 0 is the small face. Faces 1-3 all include one edge of the small face.
+
+ All faces should be considered degenerate due to coincident points. */
+class CoincidentTetrahedron : public Polytope {
+ public:
+  CoincidentTetrahedron() : Polytope() {
+    const ccd_real_t delta = constants<ccd_real_t>::eps() / 4;
+    v().resize(4);
+    e().resize(6);
+    f().resize(4);
+    auto AddTetrahedronVertex = [this](ccd_real_t x, ccd_real_t y,
+                                       ccd_real_t z) {
+      return ccdPtAddVertexCoords(&this->polytope(), x, y, z);
+    };
+    v()[0] = AddTetrahedronVertex(0.5, delta, delta);
+    v()[1] = AddTetrahedronVertex(0.5, -delta, delta);
+    v()[2] = AddTetrahedronVertex(0.5, -delta, -delta);
+    v()[3] = AddTetrahedronVertex(-0.5, 0, 0);
+    e()[0] = ccdPtAddEdge(&polytope(), &v(0), &v(1));
+    e()[1] = ccdPtAddEdge(&polytope(), &v(1), &v(2));
+    e()[2] = ccdPtAddEdge(&polytope(), &v(2), &v(0));
+    e()[3] = ccdPtAddEdge(&polytope(), &v(0), &v(3));
+    e()[4] = ccdPtAddEdge(&polytope(), &v(1), &v(3));
+    e()[5] = ccdPtAddEdge(&polytope(), &v(2), &v(3));
+    f()[0] = ccdPtAddFace(&polytope(), &e(0), &e(1), &e(2));
+    f()[1] = ccdPtAddFace(&polytope(), &e(0), &e(3), &e(4));
+    f()[2] = ccdPtAddFace(&polytope(), &e(1), &e(4), &e(5));
+    f()[3] = ccdPtAddFace(&polytope(), &e(3), &e(5), &e(2));
+  }
+};
+
+// Tests against a polytope with a face where all the points are too close to
+// distinguish.
+GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace_DegenerateFace_Coincident0) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  CoincidentTetrahedron p;
+
+  // The test point doesn't matter; it'll never get that far.
+  // NOTE: For platform compatibility, the assertion message is pared down to
+  // the simplest component: the actual function call in the assertion.
+  ccd_vec3_t pt{{10, 10, 10}};
+  ASSERT_DEATH(
+      libccd_extension::isOutsidePolytopeFace(&p.polytope(), &p.f(0), &pt),
+      ".*!triangle_area_is_zero.*");
+}
+
+// Tests against a polytope with a face where *two* points are too close to
+// distinguish.
+GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace_DegenerateFace_Coincident1) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  CoincidentTetrahedron p;
+
+  // The test point doesn't matter; it'll never get that far.
+  // NOTE: For platform compatibility, the assertion message is pared down to
+  // the simplest component: the actual function call in the assertion.
+  ccd_vec3_t pt{{10, 10, 10}};
+  ASSERT_DEATH(
+      libccd_extension::isOutsidePolytopeFace(&p.polytope(), &p.f(1), &pt),
+      ".*!triangle_area_is_zero.*");
+}
+
+/** A degenerate tetrahedron due to vertices considered to be colinear.
+ It is, strictly speaking a valid tetrahedron, but the vertices are so close to
+ being colinear, that the area can't meaningfully be computed.
+
+ More particularly, one face is *very* large but the fourth vertex lies just
+ slightly off that plane *over* one of the edges. The face that is incident to
+ that edge and vertex will have colinear edges.
+
+ Vertices v0, v1, and v2 are form the large triangle. v3 is the slightly
+ off-plane vertex. Edges e0, e1, and e2 connect vertices (v0, v1, and v2). v3
+ projects onto edge e0. Edges e3 and e4 connect v0 and v1 to v3, respectively.
+ Edges e3 and e4 are colinear. Edge e5 is the remaining, uninteresting edge.
+ Face 0 is the large triangle.
+ Face 1 is the bad face.  Faces 2 and 3 are irrelevant. */
+class ColinearTetrahedron : public Polytope {
+ public:
+  ColinearTetrahedron() : Polytope() {
+    const ccd_real_t delta = constants<ccd_real_t>::eps() / 100;
+    v().resize(4);
+    e().resize(6);
+    f().resize(4);
+    auto AddTetrahedronVertex = [this](ccd_real_t x, ccd_real_t y,
+                                       ccd_real_t z) {
+      return ccdPtAddVertexCoords(&this->polytope(), x, y, z);
+    };
+    v()[0] = AddTetrahedronVertex(0.5, -0.5 / std::sqrt(3), -1);
+    v()[1] = AddTetrahedronVertex(-0.5, -0.5 / std::sqrt(3), -1);
+    v()[2] = AddTetrahedronVertex(0, 1 / std::sqrt(3), -1);
+    // This point should lie *slightly* above the edge connecting v0 and v1.
+    v()[3] = AddTetrahedronVertex(0, -0.5 / std::sqrt(3), -1 + delta);
+
+    e()[0] = ccdPtAddEdge(&polytope(), &v(0), &v(1));
+    e()[1] = ccdPtAddEdge(&polytope(), &v(1), &v(2));
+    e()[2] = ccdPtAddEdge(&polytope(), &v(2), &v(0));
+    e()[3] = ccdPtAddEdge(&polytope(), &v(0), &v(3));
+    e()[4] = ccdPtAddEdge(&polytope(), &v(1), &v(3));
+    e()[5] = ccdPtAddEdge(&polytope(), &v(2), &v(3));
+    f()[0] = ccdPtAddFace(&polytope(), &e(0), &e(1), &e(2));
+    f()[1] = ccdPtAddFace(&polytope(), &e(0), &e(3), &e(4));
+    f()[2] = ccdPtAddFace(&polytope(), &e(1), &e(4), &e(5));
+    f()[3] = ccdPtAddFace(&polytope(), &e(3), &e(5), &e(2));
+  }
+};
+
+// Tests against a polytope with a face where two edges are colinear.
+GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace_DegenerateFace_Colinear) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  ColinearTetrahedron p;
+
+  // This test point should pass w.r.t. the big face.
+  ccd_vec3_t pt{{0, 0, -10}};
+  EXPECT_TRUE(libccd_extension::isOutsidePolytopeFace(&p.polytope(), &p.f(0),
+                                                      &pt));
+  // Face 1, however, is definitely colinear.
+  // NOTE: For platform compatibility, the assertion message is pared down to
+  // the simplest component: the actual function call in the assertion.
+  ASSERT_DEATH(
+      libccd_extension::isOutsidePolytopeFace(&p.polytope(), &p.f(1), &pt),
+      ".*!triangle_area_is_zero.*");
+}
+#endif
+
+
 // Construct a polytope with the following shape, namely an equilateral triangle
 // on the top, and an equilateral triangle of the same size, but rotate by 60
 // degrees on the bottom. We will then connect the vertices of the equilateral
