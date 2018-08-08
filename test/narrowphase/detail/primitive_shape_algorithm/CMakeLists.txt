@@ -1,5 +1,6 @@
 set(tests
     test_sphere_box.cpp
+    test_sphere_cylinder.cpp
 )
 
 # Build all the tests
