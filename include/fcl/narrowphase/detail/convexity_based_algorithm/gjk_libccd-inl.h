@@ -2105,15 +2105,15 @@ static void supportConvex(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v
   ccd_real_t maxdot, dot;
   int i;
   Vector3<S>* curp;
-  const auto& center = c->convex->center;
+  const auto& center = c->convex->interior_point;
 
   ccdVec3Copy(&dir, dir_);
   ccdQuatRotVec(&dir, &c->rot_inv);
 
   maxdot = -CCD_REAL_MAX;
-  curp = c->convex->points;
+  curp = c->convex->vertices;
 
-  for(i = 0; i < c->convex->num_points; ++i, curp += 1)
+  for(i = 0; i < c->convex->num_vertices; ++i, curp += 1)
   {
     ccdVec3Set(&p, (*curp)[0] - center[0], (*curp)[1] - center[1], (*curp)[2] - center[2]);
     dot = ccdVec3Dot(&dir, &p);
@@ -2167,7 +2167,8 @@ template <typename S>
 static void centerConvex(const void* obj, ccd_vec3_t* c)
 {
   const auto *o = static_cast<const ccd_convex_t<S>*>(obj);
-  ccdVec3Set(c, o->convex->center[0], o->convex->center[1], o->convex->center[2]);
+  const Vector3<S>& p = o->convex->interior_point;
+  ccdVec3Set(c, p[0], p[1], p[2]);
   ccdQuatRotVec(c, &o->rot);
   ccdVec3Add(c, &o->pos);
 }

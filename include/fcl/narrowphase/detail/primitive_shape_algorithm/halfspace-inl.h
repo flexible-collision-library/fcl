@@ -500,9 +500,9 @@ bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
   Vector3<S> v;
   S depth = std::numeric_limits<S>::max();
 
-  for(int i = 0; i < s1.num_points; ++i)
+  for(int i = 0; i < s1.num_vertices; ++i)
   {
-    Vector3<S> p = tf1 * s1.points[i];
+    Vector3<S> p = tf1 * s1.vertices[i];
 
     S d = new_s2.signedDistance(p);
     if(d < depth)
