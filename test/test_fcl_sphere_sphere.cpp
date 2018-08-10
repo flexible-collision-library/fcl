@@ -41,6 +41,7 @@
 #include <gtest/gtest.h>
 #include <Eigen/Dense>
 
+#include "eigen_matrix_compare.h"
 #include "fcl/narrowphase/collision_object.h"
 #include "fcl/narrowphase/distance.h"
 #include "fcl/narrowphase/distance_request.h"
@@ -106,8 +107,8 @@ void CheckSphereToSphereDistance(const SphereSpecification<S>& sphere1,
       enable_nearest_points, enable_signed_distance, &result);
   EXPECT_NEAR(min_distance, min_distance_expected, tol);
   EXPECT_NEAR(result.min_distance, min_distance_expected, tol);
-  EXPECT_TRUE(result.nearest_points[0].isApprox(p1_expected, tol));
-  EXPECT_TRUE(result.nearest_points[1].isApprox(p2_expected, tol));
+  EXPECT_TRUE(fcl::CompareMatrices(result.nearest_points[0], p1_expected, tol));
+  EXPECT_TRUE(fcl::CompareMatrices(result.nearest_points[1], p2_expected, tol));
 }
 
 template <typename S>
@@ -118,18 +119,16 @@ struct SphereSphereDistance {
     min_distance =
         (sphere1.p_FC - sphere2.p_FC).norm() - sphere1.radius - sphere2.radius;
     const fcl::Vector3<S> AB = (sphere1.p_FC - sphere2.p_FC).normalized();
-    p_S1P1 = AB * -sphere1.radius;
-    p_S2P2 = AB * sphere2.radius;
+    p_WP1 = sphere1.p_FC + AB * -sphere1.radius;
+    p_WP2 = sphere2.p_FC + AB * sphere2.radius;
   }
   SphereSpecification<S> sphere1;
   SphereSpecification<S> sphere2;
   S min_distance;
-  // The closest point P1 on sphere 1 is expressed in the sphere 1 body frame
-  // S1.
-  // The closest point P2 on sphere 2 is expressed in the sphere 2 body frame
-  // S2.
-  fcl::Vector3<S> p_S1P1;
-  fcl::Vector3<S> p_S2P2;
+  // The closest point P1 on sphere 1 is expressed in the world frame W.
+  fcl::Vector3<S> p_WP1;
+  // The closest point P2 on sphere 2 is expressed in the world frame W.
+  fcl::Vector3<S> p_WP2;
 };
 
 template <typename S>
@@ -146,27 +145,28 @@ void TestSeparatingSpheres(S tol, fcl::GJKSolverType solver_type) {
       bool enable_signed_distance = true;
       CheckSphereToSphereDistance<S>(
           spheres[i], spheres[j], solver_type, true, enable_signed_distance,
-          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S1P1,
-          sphere_sphere_distance.p_S2P2, tol);
+          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_WP1,
+          sphere_sphere_distance.p_WP2, tol);
 
       // Now switch the order of sphere 1 with sphere 2 in calling
       // fcl::distance function, and test again.
       CheckSphereToSphereDistance<S>(
           spheres[j], spheres[i], solver_type, true, enable_signed_distance,
-          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S2P2,
-          sphere_sphere_distance.p_S1P1, tol);
+          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_WP2,
+          sphere_sphere_distance.p_WP1, tol);
 
       enable_signed_distance = false;
       CheckSphereToSphereDistance<S>(
           spheres[i], spheres[j], solver_type, true, enable_signed_distance,
-          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S1P1,
-          sphere_sphere_distance.p_S2P2, tol);
+          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_WP1,
+          sphere_sphere_distance.p_WP2, tol);
+
       // Now switch the order of sphere 1 with sphere 2 in calling
       // fcl::distance function, and test again.
       CheckSphereToSphereDistance<S>(
           spheres[j], spheres[i], solver_type, true, enable_signed_distance,
-          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_S2P2,
-          sphere_sphere_distance.p_S1P1, tol);
+          sphere_sphere_distance.min_distance, sphere_sphere_distance.p_WP2,
+          sphere_sphere_distance.p_WP1, tol);
 
       // TODO (hongkai.dai@tri.global): Test enable_nearest_points=false.
     }
