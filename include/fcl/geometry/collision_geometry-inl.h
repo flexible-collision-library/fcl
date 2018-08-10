@@ -141,6 +141,13 @@ S CollisionGeometry<S>::computeVolume() const
 template <typename S>
 Matrix3<S> CollisionGeometry<S>::computeMomentofInertiaRelatedToCOM() const
 {
+  // TODO(SeanCurtis-TRI): This is *horribly* inefficient. In complex cases,
+  // this will require computing volume integrals three times. The
+  // CollisionGeometry class should have a single virtual function that will
+  // return all three quantities in one call so that particular sub-classes can
+  // override this to process this answer more efficiently. The default
+  // implementation can be exactly these three calls.
+  // See: https://github.com/flexible-collision-library/fcl/issues/327.
   Matrix3<S> C = computeMomentofInertia();
   Vector3<S> com = computeCOM();
   S V = computeVolume();

@@ -183,9 +183,9 @@ Vector3<S> getSupport(
     {
       const Convex<S>* convex = static_cast<const Convex<S>*>(shape);
       S maxdot = - std::numeric_limits<S>::max();
-      Vector3<S>* curp = convex->points;
+      Vector3<S>* curp = convex->vertices;
       Vector3<S> bestv = Vector3<S>::Zero();
-      for(int i = 0; i < convex->num_points; ++i, curp+=1)
+      for(int i = 0; i < convex->num_vertices; ++i, curp+=1)
       {
         S dot = dir.dot(*curp);
         if(dot > maxdot)

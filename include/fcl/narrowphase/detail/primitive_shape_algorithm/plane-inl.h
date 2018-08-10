@@ -648,9 +648,9 @@ bool convexPlaneIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
   Vector3<S> v_min, v_max;
   S d_min = std::numeric_limits<S>::max(), d_max = -std::numeric_limits<S>::max();
 
-  for(int i = 0; i < s1.num_points; ++i)
+  for(int i = 0; i < s1.num_vertices; ++i)
   {
-    Vector3<S> p = tf1 * s1.points[i];
+    Vector3<S> p = tf1 * s1.vertices[i];
 
     S d = new_s2.signedDistance(p);
 
