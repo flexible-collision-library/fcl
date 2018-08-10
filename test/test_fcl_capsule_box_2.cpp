@@ -74,9 +74,9 @@ void test_distance_capsule_box(fcl::GJKSolverType solver_type, S solver_toleranc
   fcl::Vector3<S> o2 = distanceResult.nearest_points [1];
 
   EXPECT_NEAR (distanceResult.min_distance, 5.5, test_tolerance);
-  EXPECT_NEAR (o1 [0],  0.0, test_tolerance);
-  EXPECT_NEAR (o1 [1],  0.0, test_tolerance);
-  EXPECT_NEAR (o1 [2],  4.0, test_tolerance);
+  EXPECT_NEAR (o1 [0], -6.0, test_tolerance);
+  EXPECT_NEAR (o1 [1],  0.8, test_tolerance);
+  EXPECT_NEAR (o1 [2],  1.5, test_tolerance);
   EXPECT_NEAR (o2 [0], -0.5, test_tolerance);
   EXPECT_NEAR (o2 [1],  0.8, test_tolerance);
   EXPECT_NEAR (o2 [2],  1.5, test_tolerance);
