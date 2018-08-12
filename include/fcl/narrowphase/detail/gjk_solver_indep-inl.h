@@ -625,8 +625,10 @@ struct ShapeDistanceIndepImpl
 
       if(distance) *distance = (w0 - w1).norm();
 
-      if(p1) *p1 = w0;
-      if(p2) (*p2).noalias() = shape.toshape0.inverse() * w1;
+      // Answer is solved in Shape1's local frame; answers are given in the
+      // world frame.
+      if(p1) p1->noalias() = tf1 * w0;
+      if(p2) p2->noalias() = tf1 * w1;
 
       return true;
     }
@@ -880,8 +882,9 @@ struct ShapeTriangleDistanceIndepImpl
       }
 
       if(distance) *distance = (w0 - w1).norm();
+      // The answers are produced in world coordinates. Keep them there.
       if(p1) *p1 = w0;
-      if(p2) (*p2).noalias() = shape.toshape0 * w1;
+      if(p2) *p2 = w1;
       return true;
     }
     else
@@ -970,8 +973,8 @@ struct ShapeTransformedTriangleDistanceIndepImpl
       }
 
       if(distance) *distance = (w0 - w1).norm();
-      if(p1) *p1 = w0;
-      if(p2) (*p2).noalias() = shape.toshape0 * w1;
+      if(p1) p1->noalias() = tf1 * w0;
+      if(p2) p2->noalias() = tf1 * w1;
       return true;
     }
     else

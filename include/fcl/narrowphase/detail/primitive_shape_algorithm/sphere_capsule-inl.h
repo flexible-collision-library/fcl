@@ -137,8 +137,16 @@ bool sphereCapsuleDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
 
   S distance = diff.norm() - s1.radius - s2.radius;
 
-  if(distance <= 0)
+  if(distance <= 0) {
+    // NOTE: By assigning this a negative value, it allows the ultimately
+    // calling code in distance-inl.h (distance() method) to use collision to
+    // determine penetration depth and contact points. NOTE: This is a
+    // *horrible* thing.
+    // TODO(SeanCurtis-TRI): Create a *signed* distance variant of this and use
+    // it to determined signed distance, penetration, and distance.
+    if (dist) *dist = -1;
     return false;
+  }
 
   if(dist) *dist = distance;
 
@@ -146,10 +154,14 @@ bool sphereCapsuleDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
   if(p1)
   {
     *p1 = s_c - diff * s1.radius;
-    *p1 = tf1.inverse(Eigen::Isometry) * tf2 * (*p1);
+    *p1 = tf2 * (*p1);
   }
 
-  if(p2) *p2 = segment_point + diff * s1.radius;
+  if(p2)
+  {
+    *p2 = segment_point + diff * s2.radius;
+    *p2 = tf2 * (*p2);
+  }
 
   return true;
 }

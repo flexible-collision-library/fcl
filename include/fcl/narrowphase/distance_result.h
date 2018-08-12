@@ -63,9 +63,9 @@ public:
   /// @sa DistanceRequest::enable_signed_distance
   S min_distance;
 
-  /// @brief Nearest points in the world coordinates
+  /// @brief Nearest points in the world coordinates.
   ///
-  /// @sa DeistanceRequest::enable_nearest_points
+  /// @sa DistanceRequest::enable_nearest_points
   Vector3<S> nearest_points[2];
 
   /// @brief collision object 1
