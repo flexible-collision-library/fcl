@@ -13,6 +13,10 @@
   * Switched to Eigen for math operations: [#96](https://github.com/flexible-collision-library/fcl/issues/96), [#150](https://github.com/flexible-collision-library/fcl/pull/150)
   * fcl::Transform defined to be an Isometry to facilitate inverses [#318](https://github.com/flexible-collision-library/fcl/pull/318)
 
+* Geometry
+
+  * Simplified Convex class, deprecating old constructor in favor of simpler, documented constructor: [#325](https://github.com/flexible-collision-library/fcl/pull/325)
+
 * Broadphase
 
   * Fixed redundant pair checking of SpatialHashingCollisionManager: [#156](https://github.com/flexible-collision-library/fcl/pull/156)
