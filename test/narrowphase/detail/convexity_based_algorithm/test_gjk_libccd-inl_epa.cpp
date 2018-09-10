@@ -92,6 +92,9 @@ class Polytope {
   ccd_pt_t* polytope_;
 };
 
+/**
+ * A tetrahedron with some specific ordering on its edges, and faces.
+ */
 class Tetrahedron : public Polytope {
  public:
   Tetrahedron(const std::array<fcl::Vector3<ccd_real_t>, 4>& vertices)
@@ -153,29 +156,30 @@ exercise the functionality for computing an outward normal.
 
 All property accessors are *mutable*.
 */
-class EquilateralTetrahedron : public Tetrahedron{
+class EquilateralTetrahedron : public Tetrahedron {
  public:
   EquilateralTetrahedron(ccd_real_t bottom_center_x = 0,
                          ccd_real_t bottom_center_y = 0,
                          ccd_real_t bottom_center_z = 0,
                          ccd_real_t edge_length = 1)
-      : Tetrahedron(EquilateralTetrahedronVertices(bottom_center_x, bottom_center_y, bottom_center_z, edge_length)){
-  }
+      : Tetrahedron(EquilateralTetrahedronVertices(
+            bottom_center_x, bottom_center_y, bottom_center_z, edge_length)) {}
 };
+
+void CheckTetrahedronFaceNormal(const Tetrahedron& p) {
+  for (int i = 0; i < 4; ++i) {
+    const ccd_vec3_t n =
+        libccd_extension::faceNormalPointingOutward(&p.polytope(), &p.f(i));
+    for (int j = 0; j < 4; ++j) {
+      EXPECT_LE(ccdVec3Dot(&n, &p.v(j).v.v),
+                ccdVec3Dot(&n, &p.f(i).edge[0]->vertex[0]->v.v) +
+                    constants<ccd_real_t>::eps_34());
+    }
+  }
+}
 
 GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
   // Construct a equilateral tetrahedron, compute the normal on each face.
-  auto CheckTetrahedronFaceNormal = [](const Tetrahedron& p) {
-    for (int i = 0; i < 4; ++i) {
-      const ccd_vec3_t n =
-          libccd_extension::faceNormalPointingOutward(&p.polytope(), &p.f(i));
-      for (int j = 0; j < 4; ++j) {
-        EXPECT_LE(ccdVec3Dot(&n, &p.v(j).v.v),
-                  ccdVec3Dot(&n, &p.f(i).edge[0]->vertex[0]->v.v) +
-                      constants<ccd_real_t>::eps_34());
-      }
-    }
-  };
   /*
    p1-p4: The tetrahedron is positioned so that the origin is placed on each
    face (some requiring flipping, some not)
@@ -213,35 +217,50 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
   EquilateralTetrahedron p8(0, 0.01 / (3 * std::sqrt(3)),
                             -0.01 * std::sqrt(6) / 9, 0.01);
   CheckTetrahedronFaceNormal(p8);
+}
 
-  // The top face of the tetrahedron is right above the origin,  and the origin
+GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace1) {
+  // The top face of the tetrahedron is right above the origin, and the origin
   // is near the top face (with distance being 0.5mm). In this tetrahedron,
   // e₀ × e₁ on the top face points upward (and outward from the tetrahedron).
-  {
-    const double face0_origin_distance = 0.005;
-    std::array<fcl::Vector3<ccd_real_t>, 4> p9_vertices;
-    p9_vertices[0] << 0.5, -0.5, face0_origin_distance;
-    p9_vertices[1] << 0, 1, face0_origin_distance;
-    p9_vertices[2] << -0.5, -0.5, face0_origin_distance;
-    p9_vertices[3] << 0, 0, -1;
-    Eigen::AngleAxisd rotation(0.05 * M_PI, Eigen::Vector3d::UnitX());
-    for (int i = 0; i < 4; ++i) {
-      p9_vertices[i] = rotation * p9_vertices[i];
-    }
-    Tetrahedron p9(p9_vertices);
-    {
-      // Make sure that the e₀ × e₁ points upward.
-      ccd_vec3_t f0_e0, f0_e1;
-      ccdVec3Sub2(&f0_e0, &(p9.f(0).edge[0]->vertex[1]->v.v),
-                  &(p9.f(0).edge[0]->vertex[0]->v.v));
-      ccdVec3Sub2(&f0_e1, &(p9.f(0).edge[1]->vertex[1]->v.v),
-                  &(p9.f(0).edge[1]->vertex[0]->v.v));
-      ccd_vec3_t f0_e0_cross_e1;
-      ccdVec3Cross(&f0_e0_cross_e1, &f0_e0, &f0_e1);
-      EXPECT_GE(f0_e0_cross_e1.v[2], 0);
-    }
-    CheckTetrahedronFaceNormal(p9);
+  // The bottom vertex vertices[3] is far away from the top face, that this
+  // vertex serves as a good witness point to determine the direction of the
+  // normal vector of the top face.
+  const double face0_origin_distance = 0.005;
+  std::array<fcl::Vector3<ccd_real_t>, 4> vertices;
+  vertices[0] << 0.5, -0.5, face0_origin_distance;
+  vertices[1] << 0, 1, face0_origin_distance;
+  vertices[2] << -0.5, -0.5, face0_origin_distance;
+  vertices[3] << 0, 0, -1;
+  Eigen::AngleAxisd rotation(0.05 * M_PI, Eigen::Vector3d::UnitX());
+  for (int i = 0; i < 4; ++i) {
+    vertices[i] = rotation * vertices[i];
   }
+  Tetrahedron p(vertices);
+  {
+    // Make sure that the e₀ × e₁ points upward.
+    ccd_vec3_t f0_e0, f0_e1;
+    ccdVec3Sub2(&f0_e0, &(p.f(0).edge[0]->vertex[1]->v.v),
+                &(p.f(0).edge[0]->vertex[0]->v.v));
+    ccdVec3Sub2(&f0_e1, &(p.f(0).edge[1]->vertex[1]->v.v),
+                &(p.f(0).edge[1]->vertex[0]->v.v));
+    ccd_vec3_t f0_e0_cross_e1;
+    ccdVec3Cross(&f0_e0_cross_e1, &f0_e0, &f0_e1);
+    EXPECT_GE(f0_e0_cross_e1.v[2], 0);
+  }
+  CheckTetrahedronFaceNormal(p);
+}
+
+GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace2) {
+  const double face0_origin_distance = 0.005;
+  std::array<fcl::Vector3<ccd_real_t>, 4> vertices;
+  vertices[0] << 0.5, -0.5, face0_origin_distance;
+  vertices[1] << 0, 1, face0_origin_distance;
+  vertices[2] << -0.5, -0.5, face0_origin_distance;
+  vertices[3] << 0, 0, -0.001;
+
+  Tetrahedron p(vertices);
+  CheckTetrahedronFaceNormal(p);
 }
 
 GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
