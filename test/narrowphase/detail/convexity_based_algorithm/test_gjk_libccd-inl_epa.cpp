@@ -92,6 +92,47 @@ class Polytope {
   ccd_pt_t* polytope_;
 };
 
+class Tetrahedron : public Polytope {
+ public:
+  Tetrahedron(const std::array<fcl::Vector3<ccd_real_t>, 4>& vertices)
+      : Polytope() {
+    v().resize(4);
+    e().resize(6);
+    f().resize(4);
+    for (int i = 0; i < 4; ++i) {
+      v()[i] = ccdPtAddVertexCoords(&this->polytope(), vertices[i](0),
+                                    vertices[i](1), vertices[i](2));
+    }
+    e()[0] = ccdPtAddEdge(&polytope(), &v(0), &v(1));
+    e()[1] = ccdPtAddEdge(&polytope(), &v(1), &v(2));
+    e()[2] = ccdPtAddEdge(&polytope(), &v(2), &v(0));
+    e()[3] = ccdPtAddEdge(&polytope(), &v(0), &v(3));
+    e()[4] = ccdPtAddEdge(&polytope(), &v(1), &v(3));
+    e()[5] = ccdPtAddEdge(&polytope(), &v(2), &v(3));
+    f()[0] = ccdPtAddFace(&polytope(), &e(0), &e(1), &e(2));
+    f()[1] = ccdPtAddFace(&polytope(), &e(0), &e(3), &e(4));
+    f()[2] = ccdPtAddFace(&polytope(), &e(1), &e(4), &e(5));
+    f()[3] = ccdPtAddFace(&polytope(), &e(3), &e(5), &e(2));
+  }
+};
+
+std::array<fcl::Vector3<ccd_real_t>, 4> EquilateralTetrahedronVertices(
+    ccd_real_t bottom_center_x, ccd_real_t bottom_center_y,
+    ccd_real_t bottom_center_z, ccd_real_t edge_length) {
+  std::array<fcl::Vector3<ccd_real_t>, 4> vertices;
+  auto compute_vertex = [bottom_center_x, bottom_center_y, bottom_center_z,
+                         edge_length](ccd_real_t x, ccd_real_t y, ccd_real_t z,
+                                      fcl::Vector3<ccd_real_t>* vertex) {
+    *vertex << x * edge_length + bottom_center_x,
+        y * edge_length + bottom_center_y, z * edge_length + bottom_center_z;
+  };
+  compute_vertex(0.5, -0.5 / std::sqrt(3), 0, &vertices[0]);
+  compute_vertex(-0.5, -0.5 / std::sqrt(3), 0, &vertices[1]);
+  compute_vertex(0, 1 / std::sqrt(3), 0, &vertices[2]);
+  compute_vertex(0, 0, std::sqrt(2.0 / 3.0), &vertices[3]);
+  return vertices;
+}
+
 /**
   Simple equilateral tetrahedron.
 
@@ -112,43 +153,19 @@ exercise the functionality for computing an outward normal.
 
 All property accessors are *mutable*.
 */
-class EquilateralTetrahedron : public Polytope {
+class EquilateralTetrahedron : public Tetrahedron{
  public:
   EquilateralTetrahedron(ccd_real_t bottom_center_x = 0,
                          ccd_real_t bottom_center_y = 0,
                          ccd_real_t bottom_center_z = 0,
                          ccd_real_t edge_length = 1)
-      : Polytope() {
-    v().resize(4);
-    e().resize(6);
-    f().resize(4);
-    auto AddTetrahedronVertex = [bottom_center_x, bottom_center_y,
-                                 bottom_center_z, edge_length, this](
-        ccd_real_t x, ccd_real_t y, ccd_real_t z) {
-      return ccdPtAddVertexCoords(
-          &this->polytope(), x * edge_length + bottom_center_x,
-          y * edge_length + bottom_center_y, z * edge_length + bottom_center_z);
-    };
-    v()[0] = AddTetrahedronVertex(0.5, -0.5 / std::sqrt(3), 0);
-    v()[1] = AddTetrahedronVertex(-0.5, -0.5 / std::sqrt(3), 0);
-    v()[2] = AddTetrahedronVertex(0, 1 / std::sqrt(3), 0);
-    v()[3] = AddTetrahedronVertex(0, 0, std::sqrt(2.0 / 3.0));
-    e()[0] = ccdPtAddEdge(&polytope(), &v(0), &v(1));
-    e()[1] = ccdPtAddEdge(&polytope(), &v(1), &v(2));
-    e()[2] = ccdPtAddEdge(&polytope(), &v(2), &v(0));
-    e()[3] = ccdPtAddEdge(&polytope(), &v(0), &v(3));
-    e()[4] = ccdPtAddEdge(&polytope(), &v(1), &v(3));
-    e()[5] = ccdPtAddEdge(&polytope(), &v(2), &v(3));
-    f()[0] = ccdPtAddFace(&polytope(), &e(0), &e(1), &e(2));
-    f()[1] = ccdPtAddFace(&polytope(), &e(0), &e(3), &e(4));
-    f()[2] = ccdPtAddFace(&polytope(), &e(1), &e(4), &e(5));
-    f()[3] = ccdPtAddFace(&polytope(), &e(3), &e(5), &e(2));
+      : Tetrahedron(EquilateralTetrahedronVertices(bottom_center_x, bottom_center_y, bottom_center_z, edge_length)){
   }
 };
 
 GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
   // Construct a equilateral tetrahedron, compute the normal on each face.
-  auto CheckTetrahedronFaceNormal = [](const EquilateralTetrahedron& p) {
+  auto CheckTetrahedronFaceNormal = [](const Tetrahedron& p) {
     for (int i = 0; i < 4; ++i) {
       const ccd_vec3_t n =
           libccd_extension::faceNormalPointingOutward(&p.polytope(), &p.f(i));
@@ -196,6 +213,35 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
   EquilateralTetrahedron p8(0, 0.01 / (3 * std::sqrt(3)),
                             -0.01 * std::sqrt(6) / 9, 0.01);
   CheckTetrahedronFaceNormal(p8);
+
+  // The top face of the tetrahedron is right above the origin,  and the origin
+  // is near the top face (with distance being 0.5mm). In this tetrahedron,
+  // e₀ × e₁ on the top face points upward (and outward from the tetrahedron).
+  {
+    const double face0_origin_distance = 0.005;
+    std::array<fcl::Vector3<ccd_real_t>, 4> p9_vertices;
+    p9_vertices[0] << 0.5, -0.5, face0_origin_distance;
+    p9_vertices[1] << 0, 1, face0_origin_distance;
+    p9_vertices[2] << -0.5, -0.5, face0_origin_distance;
+    p9_vertices[3] << 0, 0, -1;
+    Eigen::AngleAxisd rotation(0.05 * M_PI, Eigen::Vector3d::UnitX());
+    for (int i = 0; i < 4; ++i) {
+      p9_vertices[i] = rotation * p9_vertices[i];
+    }
+    Tetrahedron p9(p9_vertices);
+    {
+      // Make sure that the e₀ × e₁ points upward.
+      ccd_vec3_t f0_e0, f0_e1;
+      ccdVec3Sub2(&f0_e0, &(p9.f(0).edge[0]->vertex[1]->v.v),
+                  &(p9.f(0).edge[0]->vertex[0]->v.v));
+      ccdVec3Sub2(&f0_e1, &(p9.f(0).edge[1]->vertex[1]->v.v),
+                  &(p9.f(0).edge[1]->vertex[0]->v.v));
+      ccd_vec3_t f0_e0_cross_e1;
+      ccdVec3Cross(&f0_e0_cross_e1, &f0_e0, &f0_e1);
+      EXPECT_GE(f0_e0_cross_e1.v[2], 0);
+    }
+    CheckTetrahedronFaceNormal(p9);
+  }
 }
 
 GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {

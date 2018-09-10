@@ -902,11 +902,11 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
         // direction of `dir`. So we flip dir to point it outward from the
         // polytope.
         ccdVec3Scale(&dir, ccd_real_t(-1));
-        break;
+        return dir;
       } else if (projection < -tol) {
         // The vertex is at least 1cm away from the face plane, on the opposite
         // direction of `dir`. So `dir` points outward already.
-        break;
+        return dir;
       } else {
         max_projection = std::max(max_projection, projection);
         min_projection = std::min(min_projection, projection);
