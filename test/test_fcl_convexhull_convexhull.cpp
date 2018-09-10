@@ -394,6 +394,33 @@ void test_distance_convexhull_convexhull(fcl::GJKSolverType solver_type, S solve
 
 }
 
+template <typename S>
+void test_distance_box_cylinder(fcl::GJKSolverType solver_type, S solver_tolerance, S test_tolerance)
+{
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
+
+  CollisionGeometryPtr_t geometry1 (new fcl::Box<S>(1, 1, 1));
+  CollisionGeometryPtr_t geometry2 (new fcl::Cylinder<S>(0.25, 0.25));
+
+  // Enable computation of nearest points
+  fcl::DistanceRequest<S> distanceRequest (true, true);
+  fcl::DistanceResult<S> distanceResult;
+
+  distanceRequest.gjk_solver_type = solver_type;
+  distanceRequest.distance_tolerance = solver_tolerance;
+
+  fcl::Transform3<S> tf1;
+  tf1.setIdentity();
+
+  fcl::Transform3<S> tf2(fcl::Translation3<S>(fcl::Vector3<S> (0.2, 0, 0)));
+  fcl::CollisionObject<S> collision_object1 (geometry1, tf1);
+  fcl::CollisionObject<S> collision_object2 (geometry2, tf2);
+
+  // test distance
+  fcl::distance (&collision_object1, &collision_object2, distanceRequest, distanceResult);
+
+}
+
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, convexhull_convexhull_ccd)
 {
   test_distance_convexhull_convexhull<double>(fcl::GJKSolverType::GST_LIBCCD, 1e-6, 1e-4);
@@ -402,6 +429,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, convexhull_convexhull_ccd)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, convexhull_convexhull_indep)
 {
   test_distance_convexhull_convexhull<double>(fcl::GJKSolverType::GST_INDEP, 1e-8, 1e-4);
+}
+
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, box_cylinder_ccd)
+{
+  test_distance_box_cylinder<double>(fcl::GJKSolverType::GST_LIBCCD, 1e-6, 1e-4);
+}
+
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, box_cylinder_indep)
+{
+  test_distance_box_cylinder<double>(fcl::GJKSolverType::GST_INDEP, 1e-8, 1e-4);
 }
 
 //==============================================================================
