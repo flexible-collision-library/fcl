@@ -222,11 +222,14 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
 
 GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace1) {
   // The top face of the tetrahedron is right above the origin, and the origin
-  // is near the top face (with distance being 0.5mm). In this tetrahedron,
-  // e₀ × e₁ on the top face points upward (and outward from the tetrahedron).
-  // The bottom vertex vertices[3] is far away from the top face, that this
-  // vertex serves as a good witness point to determine the direction of the
-  // normal vector of the top face.
+  // is near the top face (with distance being 0.5mm, this distance is less
+  // than the threshold, such that the origin is not regarded as a good witness
+  // point to determine the direction of the top face normal). In this
+  // tetrahedron, e₀ × e₁ on the top face points upward (and outward from the
+  // tetrahedron). The bottom vertex vertices[3] is far away from the top face,
+  // that this vertex serves as a good witness point to determine the direction
+  // of the normal vector of the top face. This test is created when addressing
+  // the test failure from PR 334.
   const double face0_origin_distance = 0.005;
   std::array<fcl::Vector3<ccd_real_t>, 4> vertices;
   vertices[0] << 0.5, -0.5, face0_origin_distance;
@@ -253,6 +256,16 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace1) {
 }
 
 GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace2) {
+  // The top face of the tetrahedron is right above the origin, and the origin
+  // is near the top face (with distance being 0.5mm, this distance is less
+  // than the threshold, such that the origin is not regarded as a good witness
+  // point to determine the direction of the top face normal). In this
+  // tetrahedron, e₀ × e₁ on the top face points upward (and outward from the
+  // tetrahedron). The bottom vertex vertices[3] is also close to the top face,
+  // such that the bottom vertex won't be regarded as a definitive good witness
+  // point to determine the direction of the top face normal.
+  // faceNormalPointingOutward will loop through all vertices, and check along
+  // which direction the vertices has larger projection to the top face.
   const double face0_origin_distance = 0.005;
   std::array<fcl::Vector3<ccd_real_t>, 4> vertices;
   vertices[0] << 0.5, -0.5, face0_origin_distance;

@@ -887,7 +887,7 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
     // value implies that the normal vector is pointing in the wrong direction;
     // flip it.
     ccdVec3Scale(&dir, ccd_real_t(-1));
-  } else if (projection_to_origin >= -tol && projection_to_origin <= tol) {
+  } else if (-tol <= projection_to_origin && projection_to_origin <= tol) {
     // The origin is close to the plane of the face. Pick another vertex to test
     // the normal direction.
     ccd_real_t max_projection_to_plane = -CCD_REAL_MAX;
