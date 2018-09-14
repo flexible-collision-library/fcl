@@ -44,7 +44,7 @@
 #include "fcl/narrowphase/collision_object.h"
 
 template <typename S>
-void test_distance_convexhull_convexhull(fcl::GJKSolverType solver_type, S solver_tolerance, S test_tolerance)
+void test_convex_face_normal(fcl::GJKSolverType solver_type, S solver_tolerance, S test_tolerance)
 {
   using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
   std::vector<fcl::Vector3<S>, Eigen::aligned_allocator<fcl::Vector3<S>>> vertices1, vertices2;
@@ -395,7 +395,7 @@ void test_distance_convexhull_convexhull(fcl::GJKSolverType solver_type, S solve
 }
 
 template <typename S>
-void test_distance_box_cylinder(fcl::GJKSolverType solver_type, S solver_tolerance, S test_tolerance)
+void test_box_cylinder(fcl::GJKSolverType solver_type, S solver_tolerance, S test_tolerance)
 {
   using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
 
@@ -409,36 +409,229 @@ void test_distance_box_cylinder(fcl::GJKSolverType solver_type, S solver_toleran
   distanceRequest.gjk_solver_type = solver_type;
   distanceRequest.distance_tolerance = solver_tolerance;
 
-  fcl::Transform3<S> tf1;
-  tf1.setIdentity();
+  fcl::Transform3<S> tf1, tf2;
 
-  fcl::Transform3<S> tf2(fcl::Translation3<S>(fcl::Vector3<S> (0.2, 0, 0)));
+  //////////////////////////////////////
+  // Test when object is in collision
+  //////////////////////////////////////
+  tf1.setIdentity();
+  tf2.setIdentity();
+  tf2.translation()(0) = 0.2;
+
   fcl::CollisionObject<S> collision_object1 (geometry1, tf1);
   fcl::CollisionObject<S> collision_object2 (geometry2, tf2);
 
   // test distance
   fcl::distance (&collision_object1, &collision_object2, distanceRequest, distanceResult);
 
+  EXPECT_NEAR(distanceResult.min_distance, -0.55, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][2], distanceResult.nearest_points[1][2], test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][0], 0.5, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][1], 0.0, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[1][0], -0.05, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[1][1], 0.0, test_tolerance);
+
+  ////////////////////////
+  // Test object distance
+  ////////////////////////
+  distanceResult.clear();
+  tf2.setIdentity();
+  tf2.translation()(0) = 1.0;
+
+  collision_object1 = fcl::CollisionObject<S>(geometry1, tf1);
+  collision_object2 = fcl::CollisionObject<S>(geometry2, tf2);
+
+  // test distance
+  fcl::distance (&collision_object1, &collision_object2, distanceRequest, distanceResult);
+
+  EXPECT_NEAR(distanceResult.min_distance, 0.25, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][2], distanceResult.nearest_points[1][2], test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][0], 0.5, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][1], 0.0, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][0], 0.75, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][1], 0.0, test_tolerance);
 }
 
-GTEST_TEST(FCL_GEOMETRIC_SHAPES, convexhull_convexhull_ccd)
+template <typename S>
+void test_convex_sphere_sphere(fcl::GJKSolverType solver_type, S solver_tolerance, S test_tolerance)
 {
-  test_distance_convexhull_convexhull<double>(fcl::GJKSolverType::GST_LIBCCD, 1e-6, 1e-4);
+  std::vector<fcl::Vector3<S>, Eigen::aligned_allocator<fcl::Vector3<S>>> vertices;
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
+
+  vertices.reserve(42);
+  vertices.push_back(fcl::Vector3<S>(0.000000,-0.250000,0.000000));
+  vertices.push_back(fcl::Vector3<S>(0.146904,-0.202232,0.000000));
+  vertices.push_back(fcl::Vector3<S>(0.069076,-0.212657,0.111785));
+  vertices.push_back(fcl::Vector3<S>(-0.065678,-0.202232,0.131412));
+  vertices.push_back(fcl::Vector3<S>(-0.146904,-0.202232,0.000000));
+  vertices.push_back(fcl::Vector3<S>(-0.069076,-0.212657,-0.111785));
+  vertices.push_back(fcl::Vector3<S>(0.065678,-0.202232,-0.131412));
+  vertices.push_back(fcl::Vector3<S>(0.237764,-0.077232,0.000000));
+  vertices.push_back(fcl::Vector3<S>(0.172039,-0.124951,0.131412));
+  vertices.push_back(fcl::Vector3<S>(0.180883,-0.131412,-0.111785));
+  vertices.push_back(fcl::Vector3<S>(0.040589,-0.124951,0.212657));
+  vertices.push_back(fcl::Vector3<S>(-0.106314,-0.077232,0.212657));
+  vertices.push_back(fcl::Vector3<S>(-0.180883,-0.131412,0.111785));
+  vertices.push_back(fcl::Vector3<S>(-0.237764,-0.077232,0.000000));
+  vertices.push_back(fcl::Vector3<S>(-0.172039,-0.124951,-0.131412));
+  vertices.push_back(fcl::Vector3<S>(-0.040589,-0.124951,-0.212657));
+  vertices.push_back(fcl::Vector3<S>(0.106314,-0.077232,-0.212657));
+  vertices.push_back(fcl::Vector3<S>(0.212629,0.000000,-0.131412));
+  vertices.push_back(fcl::Vector3<S>(0.237764,0.077232,0.000000));
+  vertices.push_back(fcl::Vector3<S>(0.223567,0.000000,0.111785));
+  vertices.push_back(fcl::Vector3<S>(0.131404,0.000000,0.212657));
+  vertices.push_back(fcl::Vector3<S>(0.000000,0.000000,0.250000));
+  vertices.push_back(fcl::Vector3<S>(-0.106314,0.077232,0.212657));
+  vertices.push_back(fcl::Vector3<S>(-0.212629,0.000000,0.131412));
+  vertices.push_back(fcl::Vector3<S>(-0.223567,0.000000,-0.111785));
+  vertices.push_back(fcl::Vector3<S>(-0.237764,0.077232,0.000000));
+  vertices.push_back(fcl::Vector3<S>(-0.131404,0.000000,-0.212657));
+  vertices.push_back(fcl::Vector3<S>(0.000000,0.000000,-0.250000));
+  vertices.push_back(fcl::Vector3<S>(0.106314,0.077232,-0.212657));
+  vertices.push_back(fcl::Vector3<S>(0.180883,0.131412,-0.111785));
+  vertices.push_back(fcl::Vector3<S>(0.146904,0.202232,0.000000));
+  vertices.push_back(fcl::Vector3<S>(0.172039,0.124951,0.131412));
+  vertices.push_back(fcl::Vector3<S>(0.040589,0.124951,0.212657));
+  vertices.push_back(fcl::Vector3<S>(-0.065678,0.202232,0.131412));
+  vertices.push_back(fcl::Vector3<S>(-0.180883,0.131412,0.111785));
+  vertices.push_back(fcl::Vector3<S>(-0.172039,0.124951,-0.131412));
+  vertices.push_back(fcl::Vector3<S>(-0.146904,0.202232,0.000000));
+  vertices.push_back(fcl::Vector3<S>(-0.040589,0.124951,-0.212657));
+  vertices.push_back(fcl::Vector3<S>(0.065678,0.202232,-0.131412));
+  vertices.push_back(fcl::Vector3<S>(0.000000,0.250000,0.000000));
+  vertices.push_back(fcl::Vector3<S>(0.069076,0.212657,0.111785));
+  vertices.push_back(fcl::Vector3<S>(-0.069076,0.212657,-0.111785));
+
+  std::vector<int> faces = {3,0,1,2,3,0,2,3,3,0,3,4,3,0,4,5,3,0,5,6,3,0,6,1,3,1,7,8,3,1,8,2,
+                            3,1,6,9,3,1,9,7,3,2,8,10,3,2,10,3,3,3,10,11,3,3,11,12,3,3,12,4,3,4,12,13,
+                            3,4,13,14,3,4,14,5,3,5,14,15,3,5,15,6,3,6,15,16,3,6,16,9,3,7,9,17,3,7,17,18,
+                            3,7,18,19,3,7,19,8,3,8,19,20,3,8,20,10,3,9,16,17,3,10,20,21,3,10,21,11,3,11,21,22,
+                            3,11,22,23,3,11,23,12,3,12,23,13,3,13,24,14,3,13,23,25,3,13,25,24,3,14,26,15,3,14,24,26,
+                            3,15,27,16,3,15,26,27,3,16,28,17,3,16,27,28,3,17,28,29,3,17,29,18,3,18,30,31,3,18,31,19,
+                            3,18,29,30,3,19,31,20,3,20,31,32,3,20,32,21,3,21,32,22,3,22,32,33,3,22,33,34,3,22,34,23,
+                            3,23,34,25,3,24,25,35,3,24,35,26,3,25,34,36,3,25,36,35,3,26,35,37,3,26,37,27,3,27,37,28,
+                            3,28,37,38,3,28,38,29,3,29,38,30,3,30,39,40,3,30,40,31,3,30,38,39,3,31,40,32,3,32,40,33,
+                            3,33,40,39,3,33,39,36,3,33,36,34,3,35,41,37,3,35,36,41,3,36,39,41,3,37,41,38,3,38,41,39};
+
+  CollisionGeometryPtr_t convexGeometry1 (new fcl::Convex<S>(vertices.size(), vertices.data(), 80, faces.data()));
+  CollisionGeometryPtr_t convexGeometry2 (new fcl::Convex<S>(vertices.size(), vertices.data(), 80, faces.data()));
+
+  // Enable computation of nearest points
+  fcl::DistanceRequest<S> distanceRequest (true, true);
+  fcl::DistanceResult<S> distanceResult;
+
+  distanceRequest.gjk_solver_type = solver_type;
+  distanceRequest.distance_tolerance = solver_tolerance;
+
+  fcl::Transform3<S> tf1, tf2;
+
+  ///////////////////////////////////////////////////////////////////
+  // Test when object is in collision (Closest Feature Edge to Edge)
+  ///////////////////////////////////////////////////////////////////
+
+  tf1.setIdentity();
+  tf2.setIdentity();
+  tf2.translation()(0) = 0.2;
+
+  fcl::CollisionObject<S> convex1 (convexGeometry1, tf1);
+  fcl::CollisionObject<S> convex2 (convexGeometry2, tf2);
+
+  // test distance
+  fcl::distance (&convex1, &convex2, distanceRequest, distanceResult);
+
+  EXPECT_NEAR(distanceResult.min_distance, -0.27552, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][0], 0.23776, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[1][0], -0.03776, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][1], distanceResult.nearest_points[1][1], test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][2], distanceResult.nearest_points[1][2], test_tolerance);
+
+  ///////////////////////////////////////////////////////
+  // Test object distance (Closest Feature Edge to Edge)
+  ///////////////////////////////////////////////////////
+  distanceResult.clear();
+  tf2.setIdentity();
+  tf2.translation()(0) = 1;
+
+  convex1 = fcl::CollisionObject<S>(convexGeometry1, tf1);
+  convex2 = fcl::CollisionObject<S>(convexGeometry2, tf2);
+
+  // test distance
+  fcl::distance (&convex1, &convex2, distanceRequest, distanceResult);
+
+  EXPECT_NEAR(distanceResult.min_distance, 0.52448, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][0], 0.23776, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][0], 0.76224, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][1], distanceResult.nearest_points[1][1], test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][2], distanceResult.nearest_points[1][2], test_tolerance);
+
+  //////////////////////////////////////////////////////////////////////
+  // Test when object is in collision (Closest Feature Vertex to Vertex)
+  //////////////////////////////////////////////////////////////////////
+  distanceResult.clear();
+  tf2.setIdentity();
+  tf2.translation()(1) = 0.2;
+
+  convex1 = fcl::CollisionObject<S>(convexGeometry1, tf1);
+  convex2 = fcl::CollisionObject<S>(convexGeometry2, tf2);
+
+  // test distance
+  fcl::distance (&convex1, &convex2, distanceRequest, distanceResult);
+
+  EXPECT_NEAR(distanceResult.min_distance, -0.25, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][1], 0.25, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[1][1], -0.05, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][0], distanceResult.nearest_points[1][0], test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][2], distanceResult.nearest_points[1][2], test_tolerance);
+
+  ///////////////////////////////////////////////////////////
+  // Test object distance (Closest Feature Vertex to Vertex)
+  ///////////////////////////////////////////////////////////
+  distanceResult.clear();
+  tf2.setIdentity();
+  tf2.translation()(1) = 1.0;
+
+  convex1 = fcl::CollisionObject<S>(convexGeometry1, tf1);
+  convex2 = fcl::CollisionObject<S>(convexGeometry2, tf2);
+
+  // test distance
+  fcl::distance (&convex1, &convex2, distanceRequest, distanceResult);
+
+  EXPECT_NEAR(distanceResult.min_distance, 0.5, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][1], 0.25, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[1][1], 0.75, test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][0], distanceResult.nearest_points[1][0], test_tolerance);
+  EXPECT_NEAR(distanceResult.nearest_points[0][2], distanceResult.nearest_points[1][2], test_tolerance);
 }
 
-GTEST_TEST(FCL_GEOMETRIC_SHAPES, convexhull_convexhull_indep)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, convex_sphere_sphere_ccd)
 {
-  test_distance_convexhull_convexhull<double>(fcl::GJKSolverType::GST_INDEP, 1e-8, 1e-4);
+  test_convex_sphere_sphere<double>(fcl::GJKSolverType::GST_LIBCCD, 1e-6, 1e-4);
 }
+
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, convex_sphere_sphere_indep)
+{
+  test_convex_sphere_sphere<double>(fcl::GJKSolverType::GST_INDEP, 1e-8, 1e-4);
+}
+
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, convex_face_normal_ccd)
+{
+  test_convex_face_normal<double>(fcl::GJKSolverType::GST_LIBCCD, 1e-6, 1e-4);
+}
+
+// TODO: This test is planned to be fixed later
+//GTEST_TEST(FCL_GEOMETRIC_SHAPES, cconvex_face_normal_indep)
+//{
+//  test_convex_face_normal<double>(fcl::GJKSolverType::GST_INDEP, 1e-8, 1e-4);
+//}
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, box_cylinder_ccd)
 {
-  test_distance_box_cylinder<double>(fcl::GJKSolverType::GST_LIBCCD, 1e-6, 1e-4);
+  test_box_cylinder<double>(fcl::GJKSolverType::GST_LIBCCD, 1e-6, 1e-4);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, box_cylinder_indep)
 {
-  test_distance_box_cylinder<double>(fcl::GJKSolverType::GST_INDEP, 1e-8, 1e-4);
+  test_box_cylinder<double>(fcl::GJKSolverType::GST_INDEP, 1e-8, 1e-4);
 }
 
 //==============================================================================
