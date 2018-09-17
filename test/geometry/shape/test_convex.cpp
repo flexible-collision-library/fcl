@@ -81,7 +81,7 @@ class Polytope {
  public:
   explicit Polytope(S scale) : scale_(scale)
   {
-    vertices_.reset(new aligned_vector<Vector3<S>>());
+    vertices_.reset(new std::vector<Vector3<S>>());
     polygons_.reset(new std::vector<int>());
   }
 
@@ -94,8 +94,12 @@ class Polytope {
 
   // The scale of the polytope to use with test tolerances.
   S scale() const { return scale_; }
-  const std::shared_ptr<aligned_vector<Vector3<S>>>& points() const { return vertices_; }
-  const std::shared_ptr<std::vector<int>>& polygons() const { return polygons_; }
+  const std::shared_ptr<const std::vector<Vector3<S>>>& points() const {
+    return vertices_;
+  }
+  const std::shared_ptr<const std::vector<int>>& polygons() const {
+    return polygons_;
+  }
   Convex<S> MakeConvex() const {
     // The Polytope class makes the pointers to vertices and faces const access.
     // The Convex class calls for non-const pointers. Temporarily const-casting
@@ -105,7 +109,7 @@ class Polytope {
   Vector3<S> min_point() const {
     Vector3<S> m;
     m.setConstant(std::numeric_limits<S>::max());
-    for (const auto &v : *vertices_) {
+    for (const auto& v : *vertices_) {
       for (int i = 0; i < 3; ++i) {
         if (v(i) < m(i)) m(i) = v(i);
       }
@@ -115,7 +119,7 @@ class Polytope {
   Vector3<S> max_point() const {
     Vector3<S> m;
     m.setConstant(-std::numeric_limits<S>::max());
-    for (const auto &v : *vertices_) {
+    for (const auto& v : *vertices_) {
       for (int i = 0; i < 3; ++i) {
         if (v(i) > m(i)) m(i) = v(i);
       }
@@ -150,7 +154,7 @@ class Polytope {
     int i = 0;
     while (i < static_cast<int>(polygons_->size())) {
       ++count;
-      i += polygons_->at(i) + 1;
+      i += (*polygons_)[i] + 1;
     }
     GTEST_ASSERT_EQ(i, static_cast<int>(polygons_->size()))
                   << "Badly defined polygons";
@@ -158,7 +162,7 @@ class Polytope {
   }
 
  private:
-  std::shared_ptr<aligned_vector<Vector3<S>>> vertices_;
+  std::shared_ptr<std::vector<Vector3<S>>> vertices_;
   std::shared_ptr<std::vector<int>> polygons_;
   S scale_{1};
 };
@@ -270,7 +274,7 @@ void testConvexConstruction() {
   EXPECT_EQ(convex.getNodeType(), GEOM_CONVEX);
 
   // The constructor computes the interior point.
-  EXPECT_TRUE(CompareMatrices(convex.interior_point, p_WB));
+  EXPECT_TRUE(CompareMatrices(convex.getInteriorPoint(), p_WB));
 }
 
 template <template <typename> class Shape, typename S>

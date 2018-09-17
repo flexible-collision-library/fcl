@@ -46,23 +46,23 @@ namespace OBB_fit_functions {
 
 //==============================================================================
 template
-void fit1(Vector3<double>* ps, OBB<double>& bv);
+void fit1(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 template
-void fit2(Vector3<double>* ps, OBB<double>& bv);
+void fit2(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 template
-void fit3(Vector3<double>* ps, OBB<double>& bv);
+void fit3(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 template
-void fit6(Vector3<double>* ps, OBB<double>& bv);
+void fit6(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 template
-void fitn(Vector3<double>* ps, int n, OBB<double>& bv);
+void fitn(const Vector3d* const ps, int n, OBB<double>& bv);
 
 //==============================================================================
 } // namespace OBB_fit_functions
@@ -74,23 +74,23 @@ namespace RSS_fit_functions {
 
 //==============================================================================
 template
-void fit1(Vector3<double>* ps, RSS<double>& bv);
+void fit1(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 template
-void fit2(Vector3<double>* ps, RSS<double>& bv);
+void fit2(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 template
-void fit3(Vector3<double>* ps, RSS<double>& bv);
+void fit3(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 template
-void fit6(Vector3<double>* ps, RSS<double>& bv);
+void fit6(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 template
-void fitn(Vector3<double>* ps, int n, RSS<double>& bv);
+void fitn(const Vector3d* const ps, int n, RSS<double>& bv);
 
 //==============================================================================
 } // namespace RSS_fit_functions
@@ -102,19 +102,19 @@ namespace kIOS_fit_functions {
 
 //==============================================================================
 template
-void fit1(Vector3<double>* ps, kIOS<double>& bv);
+void fit1(const Vector3d* const ps, kIOS<double>& bv);
 
 //==============================================================================
 template
-void fit2(Vector3<double>* ps, kIOS<double>& bv);
+void fit2(const Vector3d* const ps, kIOS<double>& bv);
 
 //==============================================================================
 template
-void fit3(Vector3<double>* ps, kIOS<double>& bv);
+void fit3(const Vector3d* const ps, kIOS<double>& bv);
 
 //==============================================================================
 template
-void fitn(Vector3<double>* ps, int n, kIOS<double>& bv);
+void fitn(const Vector3d* const ps, int n, kIOS<double>& bv);
 
 //==============================================================================
 } // namespace kIOS_fit_functions
@@ -126,19 +126,19 @@ namespace OBBRSS_fit_functions {
 
 //==============================================================================
 template
-void fit1(Vector3<double>* ps, OBBRSS<double>& bv);
+void fit1(const Vector3d* const ps, OBBRSS<double>& bv);
 
 //==============================================================================
 template
-void fit2(Vector3<double>* ps, OBBRSS<double>& bv);
+void fit2(const Vector3d* const ps, OBBRSS<double>& bv);
 
 //==============================================================================
 template
-void fit3(Vector3<double>* ps, OBBRSS<double>& bv);
+void fit3(const Vector3d* const ps, OBBRSS<double>& bv);
 
 //==============================================================================
 template
-void fitn(Vector3<double>* ps, int n, OBBRSS<double>& bv);
+void fitn(const Vector3d* const ps, int n, OBBRSS<double>& bv);
 
 //==============================================================================
 } // namespace OBBRSS_fit_functions
