@@ -100,7 +100,7 @@ public:
   /// @param faces          Encoding of the polytope faces. Must encode
   ///                       `num_faces` number of faces. See member
   ///                       documentation for details on encoding.
-  Convex(int num_vertices, Vector3<S>* vertices, int num_faces, int* faces);
+  Convex(const std::shared_ptr<aligned_vector<Vector3<S>>> &vertices, int num_faces, const std::shared_ptr<std::vector<int>> &faces);
 
   /// @brief Copy constructor 
   Convex(const Convex& other) = default;
@@ -113,11 +113,8 @@ public:
   /// @brief Get node type: a convex polytope.
   NODE_TYPE getNodeType() const override;
 
-  /// @brief The total number of vertices in the convex mesh.
-  int num_vertices;
-
   /// @brief The vertex positions in the geometry's frame G.
-  Vector3<S>* vertices;
+  std::shared_ptr<aligned_vector<Vector3<S>>> vertices;
 
   /// @brief The total number of faces in the convex mesh.
   int num_faces;
@@ -143,7 +140,7 @@ public:
   ///    1. vertices are not coincident and
   ///    3. the indices of the face correspond to a proper counter-clockwise
   ///       ordering.
-  int* faces;
+  std::shared_ptr<std::vector<int>> faces;
 
   /// @brief A point guaranteed to be on the interior of the convex polytope,
   /// used for collision.
@@ -160,7 +157,7 @@ public:
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+  aligned_vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
 };
 
 using Convexf = Convex<float>;
