@@ -125,8 +125,8 @@ void relativeTransform(
 template <typename S>
 FCL_EXPORT
 void getRadiusAndOriginAndRectangleSize(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -140,8 +140,8 @@ void getRadiusAndOriginAndRectangleSize(
 template <typename S>
 FCL_EXPORT
 void getRadiusAndOriginAndRectangleSize(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -163,8 +163,8 @@ void circumCircleComputation(
 template <typename S>
 FCL_EXPORT
 S maximumDistance(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -175,8 +175,8 @@ S maximumDistance(
 template <typename S>
 FCL_EXPORT
 void getExtentAndCenter(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -189,8 +189,8 @@ void getExtentAndCenter(
 template <typename S>
 FCL_EXPORT
 void getExtentAndCenter(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -203,8 +203,8 @@ void getExtentAndCenter(
 template <typename S>
 FCL_EXPORT
 void getCovariance(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,

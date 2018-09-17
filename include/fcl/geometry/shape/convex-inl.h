@@ -50,22 +50,19 @@ class FCL_EXPORT Convex<double>;
 
 //==============================================================================
 template <typename S>
-Convex<S>::Convex(int num_vertices, Vector3<S>* vertices,
-                  int num_faces, int* faces)
+Convex<S>::Convex(const std::shared_ptr<const std::vector<Vector3<S>>>& vertices,
+                  int num_faces, const std::shared_ptr<const std::vector<int>>& faces)
   : ShapeBase<S>(),
-    num_vertices(num_vertices),
-    vertices(vertices),
-    num_faces(num_faces),
-    faces(faces) {
+    vertices_(vertices),
+    num_faces_(num_faces),
+    faces_(faces) {
   assert(vertices != nullptr);
   assert(faces != nullptr);
   // Compute an interior point. We're computing the mean point and *not* some
   // alternative such as the centroid or bounding box center.
   Vector3<S> sum = Vector3<S>::Zero();
-  for(int i = 0; i < num_vertices; ++i) {
-    sum += vertices[i];
-  }
-  interior_point = sum * (S)(1.0 / num_vertices);
+  sum = std::accumulate(vertices_->begin(), vertices_->end(), sum);
+  interior_point_ = sum * (S)(1.0 / vertices_->size());
 }
 
 //==============================================================================
@@ -73,8 +70,10 @@ template <typename S>
 void Convex<S>::computeLocalAABB() {
   this->aabb_local.min_.setConstant(std::numeric_limits<S>::max());
   this->aabb_local.max_.setConstant(-std::numeric_limits<S>::max());
-  for(int i = 0; i < num_vertices; ++i)
-    this->aabb_local += vertices[i];
+
+  for(const auto& v : *vertices_) {
+    this->aabb_local += v;
+  }
 
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
@@ -94,6 +93,8 @@ NODE_TYPE Convex<S>::getNodeType() const {
 //  http://number-none.com/blow/inertia/bb_inertia.doc
 template <typename S>
 Matrix3<S> Convex<S>::computeMomentofInertia() const {
+  const std::vector<Vector3<S>>& vertices = *vertices_;
+  const std::vector<int>& faces = *faces_;
   Matrix3<S> C = Matrix3<S>::Zero();
 
   Matrix3<S> C_canonical;
@@ -102,23 +103,23 @@ Matrix3<S> Convex<S>::computeMomentofInertia() const {
       1/120.0, 1/120.0, 1/ 60.0;
 
   S vol_times_six = 0;
-  int* face_encoding = faces;
-  int* index = faces + 1;
-  for(int i = 0; i < num_faces; ++i) {
-    const int vertex_count = *face_encoding;
+  int face_index = 0;
+  for(int i = 0; i < num_faces_; ++i) {
+    const int vertex_count = faces[face_index];
     Vector3<S> face_center = Vector3<S>::Zero();
 
     // Compute the center of the face.
-    for(int j = 0; j < vertex_count; ++j)
-      face_center += vertices[index[j]];
+    for(int j = 1; j <= vertex_count; ++j) {
+      face_center += vertices[faces[face_index + j]];
+    }
     face_center = face_center * (1.0 / vertex_count);
 
     // Compute the volume of tetrahedron formed by the vertices on one of the
     // polygon's edges, the center point, and the shape's frame's origin.
     const Vector3<S>& v3 = face_center;
-    for(int j = 0; j < vertex_count; ++j) {
-      int e_first = index[j];
-      int e_second = index[(j + 1) % vertex_count];
+    for(int j = 1; j <= vertex_count; ++j) {
+      int e_first = faces[face_index + j];
+      int e_second = faces[face_index + (j % vertex_count) + 1];
       const Vector3<S>& v1 = vertices[e_first];
       const Vector3<S>& v2 = vertices[e_second];
       S d_six_vol = (v1.cross(v2)).dot(v3);
@@ -130,8 +131,7 @@ Matrix3<S> Convex<S>::computeMomentofInertia() const {
       vol_times_six += d_six_vol;
     }
 
-    face_encoding += vertex_count + 1;
-    index = face_encoding + 1;
+    face_index += vertex_count + 1;
   }
 
   S trace_C = C(0, 0) + C(1, 1) + C(2, 2);
@@ -147,37 +147,38 @@ Matrix3<S> Convex<S>::computeMomentofInertia() const {
 //==============================================================================
 template <typename S>
 Vector3<S> Convex<S>::computeCOM() const {
+  const std::vector<Vector3<S>>& vertices = *vertices_;
+  const std::vector<int>& faces = *faces_;
   Vector3<S> com = Vector3<S>::Zero();
   S vol = 0;
-  int* face_encoding = faces;
-  int* index = faces + 1;
-  for(int i = 0; i < num_faces; ++i) {
-    const int vertex_count = *face_encoding;
+  int face_index = 0;
+  for(int i = 0; i < num_faces_; ++i) {
+    const int vertex_count = faces[face_index];
     Vector3<S> face_center = Vector3<S>::Zero();
 
     // TODO(SeanCurtis-TRI): See note in computeVolume() on the efficiency of
     // this approach.
 
     // Compute the center of the polygon.
-    for(int j = 0; j < vertex_count; ++j)
-      face_center += vertices[index[j]];
+    for(int j = 1; j <= vertex_count; ++j) {
+      face_center += vertices[faces[face_index + j]];
+    }
     face_center = face_center * (1.0 / vertex_count);
 
     // Compute the volume of tetrahedron formed by the vertices on one of the
     // polygon's edges, the center point, and the shape's frame's origin.
     const Vector3<S>& v3 = face_center;
-    for(int j = 0; j < vertex_count; ++j) {
-      int e_first = index[j];
-      int e_second = index[(j + 1) % vertex_count];
+    for(int j = 1; j <= vertex_count; ++j) {
+      int e_first = faces[face_index + j];
+      int e_second = faces[face_index + (j % vertex_count) + 1];
       const Vector3<S>& v1 = vertices[e_first];
       const Vector3<S>& v2 = vertices[e_second];
       S d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
-      com += (vertices[e_first] + vertices[e_second] + face_center) * d_six_vol;
+      com += (v1 + v2 + face_center) * d_six_vol;
     }
 
-    face_encoding += vertex_count + 1;
-    index = face_encoding + 1;
+    face_index += vertex_count + 1;
   }
 
   return com / (vol * 4); // here we choose zero as the reference
@@ -185,11 +186,12 @@ Vector3<S> Convex<S>::computeCOM() const {
 
 //==============================================================================
 template <typename S> S Convex<S>::computeVolume() const {
+  const std::vector<Vector3<S>>& vertices = *vertices_;
+  const std::vector<int>& faces = *faces_;
   S vol = 0;
-  int *face_encoding = faces;
-  int *index = faces + 1;
-  for(int i = 0; i < num_faces; ++i) {
-    const int vertex_count = *face_encoding;
+  int face_index = 0;
+  for(int i = 0; i < num_faces_; ++i) {
+    const int vertex_count = faces[face_index];
     Vector3<S> face_center = Vector3<S>::Zero();
 
     // TODO(SeanCurtis-TRI): While this is general, this is inefficient. If the
@@ -200,8 +202,9 @@ template <typename S> S Convex<S>::computeVolume() const {
     // falling through to this.
 
     // Compute the center of the polygon.
-    for(int j = 0; j < vertex_count; ++j)
-      face_center += vertices[index[j]];
+    for(int j = 1; j <= vertex_count; ++j) {
+      face_center += vertices[faces[face_index + j]];
+    }
     face_center = face_center * (1.0 / vertex_count);
 
     // TODO(SeanCurtis-TRI): Because volume serves as the weights for
@@ -212,17 +215,16 @@ template <typename S> S Convex<S>::computeVolume() const {
     // Compute the volume of tetrahedron formed by the vertices on one of the
     // polygon's edges, the center point, and the shape's frame's origin.
     const Vector3<S>& v3 = face_center;
-    for(int j = 0; j < vertex_count; ++j) {
-      int e_first = index[j];
-      int e_second = index[(j + 1) % vertex_count];
+    for(int j = 1; j <= vertex_count; ++j) {
+      int e_first = faces[face_index + j];
+      int e_second = faces[face_index + (j % vertex_count) + 1];
       const Vector3<S>& v1 = vertices[e_first];
       const Vector3<S>& v2 = vertices[e_second];
       S d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
     }
 
-    face_encoding += vertex_count + 1;
-    index = face_encoding + 1;
+    face_index += vertex_count + 1;
   }
 
   return vol / 6;
@@ -232,10 +234,11 @@ template <typename S> S Convex<S>::computeVolume() const {
 template <typename S>
 std::vector<Vector3<S>> Convex<S>::getBoundVertices(
     const Transform3<S>& tf) const {
-  std::vector<Vector3<S>> result(num_vertices);
-  for(int i = 0; i < num_vertices; ++i)
-  {
-    result[i] = tf * vertices[i];
+  std::vector<Vector3<S>> result;
+  result.reserve(vertices_->size());
+
+  for(const auto& v : *vertices_) {
+    result.push_back(tf * v);
   }
 
   return result;

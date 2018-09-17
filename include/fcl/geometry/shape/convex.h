@@ -87,20 +87,19 @@ public:
 
   /// @brief Constructor
   ///
-  /// @note: The %Convex geometry does *not* take ownership of any of the data
-  /// provided. The data must remain valid for as long as the %Convex instance
-  /// and must be cleaned up explicitly.
+  /// @note: The %Convex geometry assumes that the input data %vertices and
+  /// %faces do not change through the life of the object.
   ///
   /// @warning: The %Convex class does *not* validate the input; it trusts that
   /// the inputs truly represent a coherent convex polytope.
   ///
-  /// @param num_vertices   The number of vertices defined in `vertices`.
   /// @param vertices       The positions of the polytope vertices.
   /// @param num_faces      The number of faces defined in `faces`.
   /// @param faces          Encoding of the polytope faces. Must encode
   ///                       `num_faces` number of faces. See member
   ///                       documentation for details on encoding.
-  Convex(int num_vertices, Vector3<S>* vertices, int num_faces, int* faces);
+  Convex(const std::shared_ptr<const std::vector<Vector3<S>>>& vertices,
+         int num_faces, const std::shared_ptr<const std::vector<int>>& faces);
 
   /// @brief Copy constructor 
   Convex(const Convex& other) = default;
@@ -113,16 +112,15 @@ public:
   /// @brief Get node type: a convex polytope.
   NODE_TYPE getNodeType() const override;
 
-  /// @brief The total number of vertices in the convex mesh.
-  int num_vertices;
+  /// @brief Get the vertex positions in the geometry's frame G.
+  const std::shared_ptr<const std::vector<Vector3<S>>>& getVertices() const {
+    return vertices_;
+  }
 
-  /// @brief The vertex positions in the geometry's frame G.
-  Vector3<S>* vertices;
+  /// @brief Get the total number of faces in the convex mesh.
+  int getFaceCount() const { return num_faces_; }
 
-  /// @brief The total number of faces in the convex mesh.
-  int num_faces;
-
-  /// @brief The representation of the *faces* of the convex hull.
+  /// @brief Get the representation of the *faces* of the convex hull.
   ///
   /// The array is the concatenation of an integer-based representations of each
   /// face. A single face is encoded as a sub-array of ints where the first int
@@ -143,11 +141,15 @@ public:
   ///    1. vertices are not coincident and
   ///    3. the indices of the face correspond to a proper counter-clockwise
   ///       ordering.
-  int* faces;
+  const std::shared_ptr<const std::vector<int>>& getFaces() const {
+    return faces_;
+  }
+
 
   /// @brief A point guaranteed to be on the interior of the convex polytope,
   /// used for collision.
-  Vector3<S> interior_point;
+  const Vector3<S>& getInteriorPoint() const { return interior_point_; }
+
 
   // Documentation inherited.
   Matrix3<S> computeMomentofInertia() const override;
@@ -161,6 +163,12 @@ public:
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+
+private:
+  const std::shared_ptr<const std::vector<Vector3<S>>> vertices_;
+  int num_faces_;
+  const std::shared_ptr<const std::vector<int>> faces_;
+  Vector3<S> interior_point_;
 };
 
 using Convexf = Convex<float>;
