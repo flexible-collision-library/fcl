@@ -80,8 +80,8 @@ void generateCoordinateSystem(Transform3d& tf);
 //==============================================================================
 extern template
 void getRadiusAndOriginAndRectangleSize(
-    Vector3d* ps,
-    Vector3d* ps2,
+    const Vector3d* const ps,
+    const Vector3d* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -93,8 +93,8 @@ void getRadiusAndOriginAndRectangleSize(
 //==============================================================================
 extern template
 void getRadiusAndOriginAndRectangleSize(
-    Vector3d* ps,
-    Vector3d* ps2,
+    const Vector3d* const ps,
+    const Vector3d* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -114,8 +114,8 @@ void circumCircleComputation(
 //==============================================================================
 extern template
 double maximumDistance(
-    Vector3d* ps,
-    Vector3d* ps2,
+    const Vector3d* const ps,
+    const Vector3d* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -124,8 +124,8 @@ double maximumDistance(
 //==============================================================================
 extern template
 void getExtentAndCenter(
-    Vector3d* ps,
-    Vector3d* ps2,
+    const Vector3d* const ps,
+    const Vector3d* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -136,8 +136,8 @@ void getExtentAndCenter(
 //==============================================================================
 extern template
 void getCovariance(
-    Vector3d* ps,
-    Vector3d* ps2,
+    const Vector3d* const ps,
+    const Vector3d* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n, Matrix3d& M);
@@ -150,8 +150,8 @@ namespace detail {
 template <typename S>
 FCL_EXPORT
 S maximumDistance_mesh(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -195,8 +195,8 @@ S maximumDistance_mesh(
 template <typename S>
 FCL_EXPORT
 S maximumDistance_pointcloud(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     unsigned int* indices,
     int n,
     const Vector3<S>& query)
@@ -230,8 +230,8 @@ S maximumDistance_pointcloud(
 template <typename S>
 FCL_EXPORT
 void getExtentAndCenter_pointcloud(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     unsigned int* indices,
     int n,
     const Matrix3<S>& axis,
@@ -295,8 +295,8 @@ void getExtentAndCenter_pointcloud(
 template <typename S>
 FCL_EXPORT
 void getExtentAndCenter_mesh(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -367,8 +367,8 @@ void getExtentAndCenter_mesh(
 //==============================================================================
 extern template
 double maximumDistance_mesh(
-    Vector3d* ps,
-    Vector3d* ps2,
+    const Vector3d* const ps,
+    const Vector3d* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -377,8 +377,8 @@ double maximumDistance_mesh(
 //==============================================================================
 extern template
 double maximumDistance_pointcloud(
-    Vector3d* ps,
-    Vector3d* ps2,
+    const Vector3d* const ps,
+    const Vector3d* const ps2,
     unsigned int* indices,
     int n,
     const Vector3d& query);
@@ -386,25 +386,25 @@ double maximumDistance_pointcloud(
 //==============================================================================
 extern template
 void getExtentAndCenter_pointcloud(
-    Vector3<double>* ps,
-    Vector3<double>* ps2,
+    const Vector3d* const ps,
+    const Vector3d* const ps2,
     unsigned int* indices,
     int n,
-    const Matrix3<double>& axis,
-    Vector3<double>& center,
-    Vector3<double>& extent);
+    const Matrix3d& axis,
+    Vector3d& center,
+    Vector3d& extent);
 
 //==============================================================================
 extern template
 void getExtentAndCenter_mesh(
-    Vector3<double>* ps,
-    Vector3<double>* ps2,
+    const Vector3d* const ps,
+    const Vector3d* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    const Matrix3<double>& axis,
-    Vector3<double>& center,
-    Vector3<double>& extent);
+    const Matrix3d& axis,
+    Vector3d& center,
+    Vector3d& extent);
 
 //==============================================================================
 } // namespace detail
@@ -826,8 +826,8 @@ void relativeTransform(
 template <typename S>
 FCL_EXPORT
 void getRadiusAndOriginAndRectangleSize(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -1109,8 +1109,8 @@ void getRadiusAndOriginAndRectangleSize(
 template <typename S>
 FCL_EXPORT
 void getRadiusAndOriginAndRectangleSize(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -1416,8 +1416,8 @@ void circumCircleComputation(
 template <typename S>
 FCL_EXPORT
 S maximumDistance(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -1433,8 +1433,8 @@ S maximumDistance(
 template <typename S>
 FCL_EXPORT
 void getExtentAndCenter(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
@@ -1451,8 +1451,9 @@ void getExtentAndCenter(
 //==============================================================================
 template <typename S>
 FCL_EXPORT
-void getCovariance(Vector3<S>* ps,
-    Vector3<S>* ps2,
+void getCovariance(
+    const Vector3<S>* const ps,
+    const Vector3<S>* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n, Matrix3<S>& M)

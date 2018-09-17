@@ -79,7 +79,11 @@ struct ScalarString<float> {
 template <typename S>
 class Polytope {
  public:
-  explicit Polytope(S scale) : scale_(scale) {}
+  explicit Polytope(S scale) : scale_(scale)
+  {
+    vertices_.reset(new std::vector<Vector3<S>>());
+    polygons_.reset(new std::vector<int>());
+  }
 
   virtual int face_count() const = 0;
   virtual int vertex_count() const = 0;
@@ -90,19 +94,22 @@ class Polytope {
 
   // The scale of the polytope to use with test tolerances.
   S scale() const { return scale_; }
-  const Vector3<S>* points() const { return &vertices_[0]; }
-  const int* polygons() const { return &polygons_[0]; }
+  std::shared_ptr<const std::vector<Vector3<S>>> points() const {
+    return vertices_;
+  }
+  std::shared_ptr<const std::vector<int>> polygons() const {
+    return polygons_;
+  }
   Convex<S> MakeConvex() const {
     // The Polytope class makes the pointers to vertices and faces const access.
     // The Convex class calls for non-const pointers. Temporarily const-casting
     // them to make it compatible.
-    return Convex<S>(vertex_count(), const_cast<Vector3<S>*>(points()),
-                     face_count(), const_cast<int*>(polygons()));
+    return Convex<S>(points(), face_count(), polygons());
   }
   Vector3<S> min_point() const {
     Vector3<S> m;
     m.setConstant(std::numeric_limits<S>::max());
-    for (const Vector3<S>& v : vertices_) {
+    for (const auto& v : *vertices_) {
       for (int i = 0; i < 3; ++i) {
         if (v(i) < m(i)) m(i) = v(i);
       }
@@ -112,7 +119,7 @@ class Polytope {
   Vector3<S> max_point() const {
     Vector3<S> m;
     m.setConstant(-std::numeric_limits<S>::max());
-    for (const Vector3<S>& v : vertices_) {
+    for (const auto& v : *vertices_) {
       for (int i = 0; i < 3; ++i) {
         if (v(i) > m(i)) m(i) = v(i);
       }
@@ -124,39 +131,39 @@ class Polytope {
   }
   S aabb_radius() const { return (min_point() - aabb_center()).norm(); }
   void SetPose(const Transform3<S>& X_WP) {
-    for (auto& v : vertices_) {
+    for (auto& v : *vertices_) {
       v = X_WP * v;
     }
   }
 
  protected:
-  void add_vertex(const Vector3<S>& vertex) { vertices_.push_back(vertex); }
+  void add_vertex(const Vector3<S>& vertex) { vertices_->push_back(vertex); }
   void add_face(std::initializer_list<int> indices) {
-    polygons_.push_back(static_cast<int>(indices.size()));
-    polygons_.insert(polygons_.end(), indices);
+    polygons_->push_back(static_cast<int>(indices.size()));
+    polygons_->insert(polygons_->end(), indices);
   }
   // Confirms the number of vertices and number of polygons matches the counts
   // implied by vertex_count() and face_count(), respectively.
   void confirm_data() {
     // Confirm point count.
-    GTEST_ASSERT_EQ(vertex_count(), static_cast<int>(vertices_.size()));
+    GTEST_ASSERT_EQ(vertex_count(), static_cast<int>(vertices_->size()));
 
     // Confirm face count.
     // Count the number of faces encoded in polygons_;
     int count = 0;
     int i = 0;
-    while (i < static_cast<int>(polygons_.size())) {
+    while (i < static_cast<int>(polygons_->size())) {
       ++count;
-      i += polygons_[i] + 1;
+      i += (*polygons_)[i] + 1;
     }
-    GTEST_ASSERT_EQ(i, static_cast<int>(polygons_.size()))
+    GTEST_ASSERT_EQ(i, static_cast<int>(polygons_->size()))
                   << "Badly defined polygons";
     GTEST_ASSERT_EQ(face_count(), count);
   }
 
  private:
-  std::vector<Vector3<S>> vertices_;
-  std::vector<int> polygons_;
+  std::shared_ptr<std::vector<Vector3<S>>> vertices_;
+  std::shared_ptr<std::vector<int>> polygons_;
   S scale_{1};
 };
 
@@ -267,7 +274,7 @@ void testConvexConstruction() {
   EXPECT_EQ(convex.getNodeType(), GEOM_CONVEX);
 
   // The constructor computes the interior point.
-  EXPECT_TRUE(CompareMatrices(convex.interior_point, p_WB));
+  EXPECT_TRUE(CompareMatrices(convex.getInteriorPoint(), p_WB));
 }
 
 template <template <typename> class Shape, typename S>

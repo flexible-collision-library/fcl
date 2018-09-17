@@ -47,7 +47,7 @@ namespace fcl
 /// @brief Compute a bounding volume that fits a set of n points.
 template <typename BV>
 FCL_EXPORT
-void fit(Vector3<typename BV::S>* ps, int n, BV& bv);
+void fit(const Vector3<typename BV::S>* const ps, int n, BV& bv);
 
 /// @brief Convert a bounding volume of type BV1 in configuration tf1 to
 /// bounding volume of type BV2 in identity configuration.
