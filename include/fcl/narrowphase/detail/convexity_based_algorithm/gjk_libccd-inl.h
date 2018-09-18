@@ -860,6 +860,8 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
   // this corner case.
   ccdVec3Cross(&dir, &e1, &e2);
   const ccd_real_t dir_norm = std::sqrt(ccdVec3Len2(&dir));
+  ccd_vec3_t unit_dir = dir;
+  ccdVec3Scale(&unit_dir, 1.0 / dir_norm);
   // The winding of the triangle is *not* guaranteed. The normal `n = e₁ × e₂`
   // may point inside or outside. We rely on the fact that the origin lies
   // within the polytope to resolve this ambiguity. A vector from the origin to
@@ -883,7 +885,7 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
   // the plane nᵀ * (x - v) = 0 coinciding with the triangle,  where v is a
   // point on the triangle.
   const ccd_real_t origin_distance_to_plane =
-      ccdVec3Dot(&dir, &(face->edge[0]->vertex[0]->v.v)) / dir_norm;
+      ccdVec3Dot(&unit_dir, &(face->edge[0]->vertex[0]->v.v));
   if (origin_distance_to_plane < -dist_tol) {
     // Origin is more than `dist_tol` away from the plane, but the negative
     // value implies that the normal vector is pointing in the wrong direction;
@@ -905,7 +907,7 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
       // (v->v.v - face_point). Note that origin_distance_to_plane = nᵀ *
       // face_point.
       const ccd_real_t distance_to_plane =
-          ccdVec3Dot(&dir, &(v->v.v)) / dir_norm - origin_distance_to_plane;
+          ccdVec3Dot(&unit_dir, &(v->v.v)) - origin_distance_to_plane;
       if (distance_to_plane > dist_tol) {
         // The vertex is at least dist_tol away from the face plane, on the same
         // direction of `dir`. So we flip dir to point it outward from the
