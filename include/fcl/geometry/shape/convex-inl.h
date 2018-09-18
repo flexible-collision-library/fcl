@@ -50,8 +50,8 @@ class FCL_EXPORT Convex<double>;
 
 //==============================================================================
 template <typename S>
-Convex<S>::Convex(const std::shared_ptr<const std::vector<Vector3<S>>> &vertices,
-                  int num_faces, const std::shared_ptr<const std::vector<int>> &faces)
+Convex<S>::Convex(const std::shared_ptr<const std::vector<Vector3<S>>>& vertices,
+                  int num_faces, const std::shared_ptr<const std::vector<int>>& faces)
   : ShapeBase<S>(),
     vertices_(vertices),
     num_faces_(num_faces),
@@ -93,8 +93,8 @@ NODE_TYPE Convex<S>::getNodeType() const {
 //  http://number-none.com/blow/inertia/bb_inertia.doc
 template <typename S>
 Matrix3<S> Convex<S>::computeMomentofInertia() const {
-  const std::vector<Vector3<S>> &vertices = *vertices_;
-  const std::vector<int> &faces = *faces_;
+  const std::vector<Vector3<S>>& vertices = *vertices_;
+  const std::vector<int>& faces = *faces_;
   Matrix3<S> C = Matrix3<S>::Zero();
 
   Matrix3<S> C_canonical;
@@ -131,7 +131,7 @@ Matrix3<S> Convex<S>::computeMomentofInertia() const {
       vol_times_six += d_six_vol;
     }
 
-    face_index += vertex_count + 2;
+    face_index += vertex_count + 1;
   }
 
   S trace_C = C(0, 0) + C(1, 1) + C(2, 2);
@@ -147,8 +147,8 @@ Matrix3<S> Convex<S>::computeMomentofInertia() const {
 //==============================================================================
 template <typename S>
 Vector3<S> Convex<S>::computeCOM() const {
-  const std::vector<Vector3<S>> &vertices = *vertices_;
-  const std::vector<int> &faces = *faces_;
+  const std::vector<Vector3<S>>& vertices = *vertices_;
+  const std::vector<int>& faces = *faces_;
   Vector3<S> com = Vector3<S>::Zero();
   S vol = 0;
   int face_index = 0;
@@ -178,7 +178,7 @@ Vector3<S> Convex<S>::computeCOM() const {
       com += (v1 + v2 + face_center) * d_six_vol;
     }
 
-    face_index += vertex_count + 2;
+    face_index += vertex_count + 1;
   }
 
   return com / (vol * 4); // here we choose zero as the reference
@@ -186,8 +186,8 @@ Vector3<S> Convex<S>::computeCOM() const {
 
 //==============================================================================
 template <typename S> S Convex<S>::computeVolume() const {
-  const std::vector<Vector3<S>> &vertices = *vertices_;
-  const std::vector<int> &faces = *faces_;
+  const std::vector<Vector3<S>>& vertices = *vertices_;
+  const std::vector<int>& faces = *faces_;
   S vol = 0;
   int face_index = 0;
   for(int i = 0; i < num_faces_; ++i) {
@@ -224,7 +224,7 @@ template <typename S> S Convex<S>::computeVolume() const {
       vol += d_six_vol;
     }
 
-    face_index += vertex_count + 2;
+    face_index += vertex_count + 1;
   }
 
   return vol / 6;

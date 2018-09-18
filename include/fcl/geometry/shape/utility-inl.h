@@ -234,9 +234,9 @@ struct FCL_EXPORT ComputeBVImpl<S, AABB<S>, Convex<S>>
     const Vector3<S>& T = tf.translation();
 
     AABB<S> bv_;
-    for(const auto& vertice : *(s.getVertices()))
+    for(const auto& vertex : *(s.getVertices()))
     {
-      Vector3<S> new_p = R * vertice + T;
+      Vector3<S> new_p = R * vertex + T;
       bv_ += new_p;
     }
 
@@ -250,7 +250,6 @@ struct FCL_EXPORT ComputeBVImpl<S, OBB<S>, Convex<S>>
 {
   static void run(const Convex<S>& s, const Transform3<S>& tf, OBB<S>& bv)
   {
-
     fit(s.getVertices()->data(), (int)s.getVertices()->size(), bv);
 
     bv.axis = tf.linear();

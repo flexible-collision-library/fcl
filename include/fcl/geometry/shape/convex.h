@@ -88,7 +88,7 @@ public:
   /// @brief Constructor
   ///
   /// @note: The %Convex geometry assumes that the input data %vertices and
-  /// %faces does not change through the life of the object.
+  /// %faces do not change through the life of the object.
   ///
   /// @warning: The %Convex class does *not* validate the input; it trusts that
   /// the inputs truly represent a coherent convex polytope.
@@ -98,8 +98,8 @@ public:
   /// @param faces          Encoding of the polytope faces. Must encode
   ///                       `num_faces` number of faces. See member
   ///                       documentation for details on encoding.
-  Convex(const std::shared_ptr<const std::vector<Vector3<S>>> &vertices,
-         int num_faces, const std::shared_ptr<const std::vector<int>> &faces);
+  Convex(const std::shared_ptr<const std::vector<Vector3<S>>>& vertices,
+         int num_faces, const std::shared_ptr<const std::vector<int>>& faces);
 
   /// @brief Copy constructor 
   Convex(const Convex& other) = default;

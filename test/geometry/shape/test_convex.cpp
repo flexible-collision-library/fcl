@@ -94,10 +94,10 @@ class Polytope {
 
   // The scale of the polytope to use with test tolerances.
   S scale() const { return scale_; }
-  const std::shared_ptr<const std::vector<Vector3<S>>>& points() const {
+  std::shared_ptr<const std::vector<Vector3<S>>> points() const {
     return vertices_;
   }
-  const std::shared_ptr<const std::vector<int>>& polygons() const {
+  std::shared_ptr<const std::vector<int>> polygons() const {
     return polygons_;
   }
   Convex<S> MakeConvex() const {

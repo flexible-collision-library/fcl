@@ -184,12 +184,12 @@ Vector3<S> getSupport(
       const Convex<S>* convex = static_cast<const Convex<S>*>(shape);
       S maxdot = - std::numeric_limits<S>::max();
       Vector3<S> bestv = Vector3<S>::Zero();
-      for(const auto& vertice : *(convex->getVertices()))
+      for(const auto& vertex : *(convex->getVertices()))
       {
-        S dot = dir.dot(vertice);
+        S dot = dir.dot(vertex);
         if(dot > maxdot)
         {
-          bestv = vertice;
+          bestv = vertex;
           maxdot = dot;
         }
       }
