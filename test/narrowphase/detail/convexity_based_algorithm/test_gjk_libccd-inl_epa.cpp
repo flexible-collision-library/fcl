@@ -95,6 +95,9 @@ class Polytope {
 
 /**
  * A tetrahedron with some specific ordering on its edges, and faces.
+ * The user should notice that due to the specific order of the edges, each face
+ * has its own orientations. Namely for some faces f, f.e(0).cross(f.e(1))
+ * points inward to the tetrahedron, for some other faces it points outward.
  */
 class Tetrahedron : public Polytope {
  public:
@@ -222,12 +225,12 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutward) {
 
 GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace1) {
   // Creates a downward pointing tetrahedron which contains the origin. The
-  // origin is just below "top" face of this tetrahedron. The remaining vertex
-  // is far enough away from the top face that it is considered a reliable
-  // witness to determine the direction of the face's normal. The top face is
-  // not quite parallel with the z = 0 plane. This test captures the failure
-  // condition reported in PR 334 -- a logic error made it so the reliable
-  // witness could be ignored.
+  // origin is just below the "top" face of this tetrahedron. The remaining
+  // vertex is far enough away from the top face that it is considered a
+  // reliable witness to determine the direction of the face's normal. The top
+  // face is not quite parallel with the z = 0 plane. This test captures the
+  // failure condition reported in PR 334 -- a logic error made it so the
+  // reliable witness could be ignored.
   const double face0_origin_distance = 0.005;
   std::array<fcl::Vector3<ccd_real_t>, 4> vertices;
   vertices[0] << 0.5, -0.5, face0_origin_distance;
@@ -257,8 +260,9 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace2) {
   // Similar to faceNormalPointingOutwardOriginNearFace1 with an important
   // difference: the fourth vertex is no longer a reliable witness; it lies
   // within the distance tolerance. However, it is unambiguously farther off the
-  // plane of the top face than those that form the face. This confirms when
-  // there are no obviously reliable witness that the most distant point serves.
+  // plane of the top face than those that form the face. This confirms that
+  // when there are no obviously reliable witness that the most distant point
+  // serves.
   const double face0_origin_distance = 0.005;
   std::array<fcl::Vector3<ccd_real_t>, 4> vertices;
   vertices[0] << 0.5, -0.5, face0_origin_distance;
