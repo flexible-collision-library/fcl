@@ -98,8 +98,8 @@ public:
   /// @param faces          Encoding of the polytope faces. Must encode
   ///                       `num_faces` number of faces. See member
   ///                       documentation for details on encoding.
-  Convex(const std::shared_ptr<const std::vector<Vector3<S>>> &vertices,
-         int num_faces, const std::shared_ptr<const std::vector<int>> &faces);
+  Convex(std::shared_ptr<const std::vector<Vector3<S>>> vertices,
+         int num_faces, std::shared_ptr<const std::vector<int>> faces);
 
   /// @brief Copy constructor 
   Convex(const Convex& other) = default;

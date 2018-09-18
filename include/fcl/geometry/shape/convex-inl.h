@@ -50,8 +50,8 @@ class FCL_EXPORT Convex<double>;
 
 //==============================================================================
 template <typename S>
-Convex<S>::Convex(const std::shared_ptr<const std::vector<Vector3<S>>> &vertices,
-                  int num_faces, const std::shared_ptr<const std::vector<int>> &faces)
+Convex<S>::Convex(std::shared_ptr<const std::vector<Vector3<S>>> vertices,
+                  int num_faces, std::shared_ptr<const std::vector<int>> faces)
   : ShapeBase<S>(),
     vertices_(vertices),
     num_faces_(num_faces),
