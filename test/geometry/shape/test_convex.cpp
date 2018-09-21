@@ -79,11 +79,14 @@ struct ScalarString<float> {
 template <typename S>
 class Polytope {
  public:
-  explicit Polytope(S scale) : scale_(scale)
-  {
-    vertices_.reset(new std::vector<Vector3<S>>());
-    polygons_.reset(new std::vector<int>());
-  }
+  explicit Polytope(S scale)
+    : vertices_(std::make_shared<std::vector<Vector3<S>>>()),
+      polygons_(std::make_shared<std::vector<int>>()), scale_(scale) {}
+
+  Polytope(const Polytope &other)
+    : vertices_(std::make_shared<std::vector<Vector3<S>>>(*(other.vertices_))),
+      polygons_(std::make_shared<std::vector<int>>(*(other.polygons_))),
+      scale_(other.scale_) {}
 
   virtual int face_count() const = 0;
   virtual int vertex_count() const = 0;
@@ -164,7 +167,7 @@ class Polytope {
  private:
   std::shared_ptr<std::vector<Vector3<S>>> vertices_;
   std::shared_ptr<std::vector<int>> polygons_;
-  S scale_{1};
+  S scale_{};
 };
 
 // A simple regular tetrahedron with edges of length `scale` centered on the
