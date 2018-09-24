@@ -61,7 +61,9 @@ Convex<S>::Convex(const std::shared_ptr<const std::vector<Vector3<S>>>& vertices
   // Compute an interior point. We're computing the mean point and *not* some
   // alternative such as the centroid or bounding box center.
   Vector3<S> sum = Vector3<S>::Zero();
-  sum = std::accumulate(vertices_->begin(), vertices_->end(), sum);
+  for(const auto& vertex : *vertices_) {
+    sum += vertex;
+  }
   interior_point_ = sum * (S)(1.0 / vertices_->size());
 }
 
