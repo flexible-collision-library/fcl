@@ -495,8 +495,8 @@ GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace_DegenerateFace_Colinear) {
 
   // This test point should pass w.r.t. the big face.
   ccd_vec3_t pt{{0, 0, -10}};
-  EXPECT_TRUE(libccd_extension::isOutsidePolytopeFace(&p.polytope(), &p.f(0),
-                                                      &pt));
+  EXPECT_TRUE(
+      libccd_extension::isOutsidePolytopeFace(&p.polytope(), &p.f(0), &pt));
   // Face 1, however, is definitely colinear.
   // NOTE: For platform compatibility, the assertion message is pared down to
   // the simplest component: the actual function call in the assertion.
@@ -505,7 +505,6 @@ GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace_DegenerateFace_Colinear) {
       ".*!triangle_area_is_zero.*");
 }
 #endif
-
 
 // Construct a polytope with the following shape, namely an equilateral triangle
 // on the top, and an equilateral triangle of the same size, but rotate by 60
