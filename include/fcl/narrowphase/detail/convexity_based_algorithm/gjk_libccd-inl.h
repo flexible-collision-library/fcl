@@ -860,6 +860,8 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
   // this corner case.
   ccdVec3Cross(&dir, &e1, &e2);
   const ccd_real_t dir_norm = std::sqrt(ccdVec3Len2(&dir));
+  ccd_vec3_t unit_dir = dir;
+  ccdVec3Scale(&unit_dir, 1.0 / dir_norm);
   // The winding of the triangle is *not* guaranteed. The normal `n = e₁ × e₂`
   // may point inside or outside. We rely on the fact that the origin lies
   // within the polytope to resolve this ambiguity. A vector from the origin to
@@ -879,44 +881,55 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
   // seems large, the fall through case of comparing the maximum distance will
   // always guarantee correctness.
   const ccd_real_t dist_tol = 0.01;
-  ccd_real_t tol = dist_tol * dir_norm;
-  ccd_real_t projection = ccdVec3Dot(&dir, &(face->edge[0]->vertex[0]->v.v));
-  if (projection < -tol) {
+  // origin_distance_to_plane computes the signed distance from the origin to
+  // the plane nᵀ * (x - v) = 0 coinciding with the triangle,  where v is a
+  // point on the triangle.
+  const ccd_real_t origin_distance_to_plane =
+      ccdVec3Dot(&unit_dir, &(face->edge[0]->vertex[0]->v.v));
+  if (origin_distance_to_plane < -dist_tol) {
     // Origin is more than `dist_tol` away from the plane, but the negative
     // value implies that the normal vector is pointing in the wrong direction;
     // flip it.
     ccdVec3Scale(&dir, ccd_real_t(-1));
-  } else if (projection >= -tol && projection <= tol) {
+  } else if (-dist_tol <= origin_distance_to_plane &&
+             origin_distance_to_plane <= dist_tol) {
     // The origin is close to the plane of the face. Pick another vertex to test
     // the normal direction.
-    ccd_real_t max_projection = -CCD_REAL_MAX;
-    ccd_real_t min_projection = CCD_REAL_MAX;
+    ccd_real_t max_distance_to_plane = -CCD_REAL_MAX;
+    ccd_real_t min_distance_to_plane = CCD_REAL_MAX;
     ccd_pt_vertex_t* v;
-    // If the magnitude of the projection is larger than tolerance, then it
-    // means one of the vertices is at least 1cm away from the plane coinciding
-    // with the face.
+    // If the magnitude of the distance_to_plane is larger than dist_tol,
+    // then it means one of the vertices is at least `dist_tol` away from the
+    // plane coinciding with the face.
     ccdListForEachEntry(&polytope->vertices, v, ccd_pt_vertex_t, list) {
-      projection = ccdVec3Dot(&dir, &(v->v.v)); 
-      if (projection > tol) {
+      // distance_to_plane is the signed distance from the
+      // vertex v->v.v to the face, i.e., distance_to_plane = nᵀ *
+      // (v->v.v - face_point). Note that origin_distance_to_plane = nᵀ *
+      // face_point.
+      const ccd_real_t distance_to_plane =
+          ccdVec3Dot(&unit_dir, &(v->v.v)) - origin_distance_to_plane;
+      if (distance_to_plane > dist_tol) {
         // The vertex is at least dist_tol away from the face plane, on the same
         // direction of `dir`. So we flip dir to point it outward from the
         // polytope.
         ccdVec3Scale(&dir, ccd_real_t(-1));
-        break;
-      } else if (projection < -tol) {
-        // The vertex is at least 1cm away from the face plane, on the opposite
-        // direction of `dir`. So `dir` points outward already.
-        break;
+        return dir;
+      } else if (distance_to_plane < -dist_tol) {
+        // The vertex is at least `dist_tol` away from the face plane, on the
+        // opposite direction of `dir`. So `dir` points outward already.
+        return dir;
       } else {
-        max_projection = std::max(max_projection, projection);
-        min_projection = std::min(min_projection, projection);
+        max_distance_to_plane =
+            std::max(max_distance_to_plane, distance_to_plane);
+        min_distance_to_plane =
+            std::min(min_distance_to_plane, distance_to_plane);
       }
     }
-    // If max_projection > |min_projection|, it means that the vertices that are 
-    // on the positive side of the plane, has a larger maximal distance than the
-    // vertices on the negative side of the plane. Thus we regard that `dir`
-    // points into the polytope. Hence we flip `dir`. 
-    if (max_projection > std::abs(min_projection)) {
+    // If max_distance_to_plane > |min_distance_to_plane|, it means that the
+    // vertices that are on the positive side of the plane, has a larger maximal
+    // distance than the vertices on the negative side of the plane. Thus we
+    // regard that `dir` points into the polytope. Hence we flip `dir`.
+    if (max_distance_to_plane > std::abs(min_distance_to_plane)) {
       ccdVec3Scale(&dir, ccd_real_t(-1));
     }
   }
