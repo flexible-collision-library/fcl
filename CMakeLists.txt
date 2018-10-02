@@ -22,6 +22,8 @@ endif()
 
 project(fcl CXX C)
 
+include(CTest)
+
 option(FCL_ENABLE_PROFILING "Enable profiling" OFF)
 option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 # Option for some bundle-like build system in order not to expose
@@ -45,7 +47,7 @@ include(FCLMacros)
 include(CompilerSettings)
 include(FCLVersion)
 include(GNUInstallDirs)
-include(GenerateExportHeader) 
+include(GenerateExportHeader)
 
 if(MSVC OR IS_ICPC)
   option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" ON)
@@ -263,9 +265,20 @@ configure_file(
 add_custom_target(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/CMakeModules/cmake_uninstall.cmake")
 
-option(FCL_BUILD_TESTS "Build FCL tests" ON)
-if(FCL_BUILD_TESTS AND NOT FCL_HIDE_ALL_SYMBOLS)
-    enable_testing()
+set(FCL_BUILD_TESTS "DEFAULT" CACHE INTERNAL "Deprecated; use BUILD_TESTING instead.")
+
+if(NOT FCL_BUILD_TESTS STREQUAL "DEFAULT")
+  message(DEPRECATION "FCL_BUILD_TESTS is deprecated; use BUILD_TESTING instead.")
+  if(FCL_BUILD_TESTS)
+    set(_BUILD_TESTING ON)
+  else()
+    set(_BUILD_TESTING OFF)
+  endif()
+  set(BUILD_TESTING ${_BUILD_TESTING} CACHE BOOL "Build the testing tree." FORCE)
+  unset(_BUILD_TESTING)
+endif()
+
+if(BUILD_TESTING AND NOT FCL_HIDE_ALL_SYMBOLS)
     add_subdirectory(test)
 endif()
 
