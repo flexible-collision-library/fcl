@@ -88,7 +88,7 @@ public:
   /// @brief Constructor
   ///
   /// @note: The %Convex geometry assumes that the input data %vertices and
-  /// %faces do not change through the life of the object.
+  /// %faces does not change through the life of the object.
   ///
   /// @warning: The %Convex class does *not* validate the input; it trusts that
   /// the inputs truly represent a coherent convex polytope.
@@ -112,10 +112,8 @@ public:
   /// @brief Get node type: a convex polytope.
   NODE_TYPE getNodeType() const override;
 
-  /// @brief Get the vertex positions in the geometry's frame G.
-  const std::shared_ptr<const std::vector<Vector3<S>>>& getVertices() const {
-    return vertices_;
-  }
+  /// @brief Gets the vertex positions in the geometry's frame G.
+  const std::vector<Vector3<S>>& getVertices() const { return *vertices_; }
 
   /// @brief Get the total number of faces in the convex mesh.
   int getFaceCount() const { return num_faces_; }
@@ -141,15 +139,11 @@ public:
   ///    1. vertices are not coincident and
   ///    3. the indices of the face correspond to a proper counter-clockwise
   ///       ordering.
-  const std::shared_ptr<const std::vector<int>>& getFaces() const {
-    return faces_;
-  }
-
+  const std::vector<int>& getFaces() const { return *faces_; }
 
   /// @brief A point guaranteed to be on the interior of the convex polytope,
   /// used for collision.
   const Vector3<S>& getInteriorPoint() const { return interior_point_; }
-
 
   // Documentation inherited.
   Matrix3<S> computeMomentofInertia() const override;
@@ -166,7 +160,7 @@ public:
 
 private:
   const std::shared_ptr<const std::vector<Vector3<S>>> vertices_;
-  int num_faces_;
+  const int num_faces_;
   const std::shared_ptr<const std::vector<int>> faces_;
   Vector3<S> interior_point_;
 };

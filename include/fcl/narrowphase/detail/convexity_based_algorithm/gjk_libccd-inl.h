@@ -1695,7 +1695,7 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
                                       &closest_p);
       dist = CCD_SQRT(dist);
     }
-    else if(ccdSimplexSize(simplex) == 3)
+    else if (ccdSimplexSize(simplex) == 3)
     {
       dist = ccdVec3PointTriDist2(ccd_vec3_origin,
                                   &ccdSimplexPoint(simplex, 0)->v,
@@ -1815,7 +1815,9 @@ static int penEPAPosClosest(const ccd_pt_el_t* nearest, ccd_vec3_t* p1,
   }
 }
 
-static inline ccd_real_t ccdGJKSignedDist(const void* obj1, const void* obj2, const ccd_t* ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)
+static inline ccd_real_t ccdGJKSignedDist(const void* obj1, const void* obj2,
+                                          const ccd_t* ccd, ccd_vec3_t* p1,
+                                          ccd_vec3_t* p2)
 {
   ccd_simplex_t simplex;
 
@@ -1876,7 +1878,9 @@ static inline ccd_real_t ccdGJKSignedDist(const void* obj1, const void* obj2, co
 // penetrating, -1 is returned.
 // @note Unlike _ccdDist function, this function does not need a warm-started
 // simplex as the input argument.
-static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)
+static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2,
+                                     const ccd_t *ccd, ccd_vec3_t* p1,
+                                     ccd_vec3_t* p2)
 {
   ccd_simplex_t simplex;
   // first find an intersection
@@ -1890,7 +1894,8 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
 
 /** Basic shape to ccd shape */
 template <typename S>
-static void shapeToGJK(const ShapeBase<S>& s, const Transform3<S>& tf, ccd_obj_t* o)
+static void shapeToGJK(const ShapeBase<S>& s, const Transform3<S>& tf,
+                       ccd_obj_t* o)
 {
   FCL_UNUSED(s);
 
@@ -1911,7 +1916,8 @@ static void boxToGJK(const Box<S>& s, const Transform3<S>& tf, ccd_box_t* box)
 }
 
 template <typename S>
-static void capToGJK(const Capsule<S>& s, const Transform3<S>& tf, ccd_cap_t* cap)
+static void capToGJK(const Capsule<S>& s, const Transform3<S>& tf,
+                     ccd_cap_t* cap)
 {
   shapeToGJK(s, tf, cap);
   cap->radius = s.radius;
@@ -1919,7 +1925,8 @@ static void capToGJK(const Capsule<S>& s, const Transform3<S>& tf, ccd_cap_t* ca
 }
 
 template <typename S>
-static void cylToGJK(const Cylinder<S>& s, const Transform3<S>& tf, ccd_cyl_t* cyl)
+static void cylToGJK(const Cylinder<S>& s, const Transform3<S>& tf,
+                     ccd_cyl_t* cyl)
 {
   shapeToGJK(s, tf, cyl);
   cyl->radius = s.radius;
@@ -1927,7 +1934,8 @@ static void cylToGJK(const Cylinder<S>& s, const Transform3<S>& tf, ccd_cyl_t* c
 }
 
 template <typename S>
-static void coneToGJK(const Cone<S>& s, const Transform3<S>& tf, ccd_cone_t* cone)
+static void coneToGJK(const Cone<S>& s, const Transform3<S>& tf,
+                      ccd_cone_t* cone)
 {
   shapeToGJK(s, tf, cone);
   cone->radius = s.radius;
@@ -1935,14 +1943,16 @@ static void coneToGJK(const Cone<S>& s, const Transform3<S>& tf, ccd_cone_t* con
 }
 
 template <typename S>
-static void sphereToGJK(const Sphere<S>& s, const Transform3<S>& tf, ccd_sphere_t* sph)
+static void sphereToGJK(const Sphere<S>& s, const Transform3<S>& tf,
+                        ccd_sphere_t* sph)
 {
   shapeToGJK(s, tf, sph);
   sph->radius = s.radius;
 }
 
 template <typename S>
-static void ellipsoidToGJK(const Ellipsoid<S>& s, const Transform3<S>& tf, ccd_ellipsoid_t* ellipsoid)
+static void ellipsoidToGJK(const Ellipsoid<S>& s, const Transform3<S>& tf,
+                           ccd_ellipsoid_t* ellipsoid)
 {
   shapeToGJK(s, tf, ellipsoid);
   ellipsoid->radii[0] = s.radii[0];
@@ -1951,14 +1961,16 @@ static void ellipsoidToGJK(const Ellipsoid<S>& s, const Transform3<S>& tf, ccd_e
 }
 
 template <typename S>
-static void convexToGJK(const Convex<S>& s, const Transform3<S>& tf, ccd_convex_t<S>* conv)
+static void convexToGJK(const Convex<S>& s, const Transform3<S>& tf,
+                        ccd_convex_t<S>* conv)
 {
   shapeToGJK(s, tf, conv);
   conv->convex = &s;
 }
 
 /** Support functions */
-static inline void supportBox(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportBox(const void* obj, const ccd_vec3_t* dir_,
+                              ccd_vec3_t* v)
 {
   const ccd_box_t* o = static_cast<const ccd_box_t*>(obj);
   ccd_vec3_t dir;
@@ -1971,7 +1983,8 @@ static inline void supportBox(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_
   ccdVec3Add(v, &o->pos);
 }
 
-static inline void supportCap(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportCap(const void* obj, const ccd_vec3_t* dir_,
+                              ccd_vec3_t* v)
 {
   const ccd_cap_t* o = static_cast<const ccd_cap_t*>(obj);
   ccd_vec3_t dir, pos1, pos2;
@@ -1988,7 +2001,7 @@ static inline void supportCap(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_
   ccdVec3Add(&pos1, v);
   ccdVec3Add(&pos2, v);
 
-  if(ccdVec3Z (&dir) > 0)
+  if (ccdVec3Z (&dir) > 0)
     ccdVec3Copy(v, &pos1);
   else
     ccdVec3Copy(v, &pos2);
@@ -1998,7 +2011,8 @@ static inline void supportCap(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_
   ccdVec3Add(v, &o->pos);
 }
 
-static inline void supportCyl(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportCyl(const void* obj, const ccd_vec3_t* dir_,
+                              ccd_vec3_t* v)
 {
   const ccd_cyl_t* cyl = static_cast<const ccd_cyl_t*>(obj);
   ccd_vec3_t dir;
@@ -2009,7 +2023,7 @@ static inline void supportCyl(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_
 
   zdist = dir.v[0] * dir.v[0] + dir.v[1] * dir.v[1];
   zdist = sqrt(zdist);
-  if(ccdIsZero(zdist))
+  if (ccdIsZero(zdist))
     ccdVec3Set(v, 0., 0., ccdSign(ccdVec3Z(&dir)) * cyl->height);
   else
   {
@@ -2025,7 +2039,8 @@ static inline void supportCyl(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_
   ccdVec3Add(v, &cyl->pos);
 }
 
-static inline void supportCone(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportCone(const void* obj, const ccd_vec3_t* dir_,
+                               ccd_vec3_t* v)
 {
   const ccd_cone_t* cone = static_cast<const ccd_cone_t*>(obj);
   ccd_vec3_t dir;
@@ -2041,9 +2056,9 @@ static inline void supportCone(const void* obj, const ccd_vec3_t* dir_, ccd_vec3
 
   double sin_a = cone->radius / sqrt(cone->radius * cone->radius + 4 * cone->height * cone->height);
 
-  if(dir.v[2] > len * sin_a)
+  if (dir.v[2] > len * sin_a)
     ccdVec3Set(v, 0., 0., cone->height);
-  else if(zdist > 0)
+  else if (zdist > 0)
   {
     rad = cone->radius / zdist;
     ccdVec3Set(v, rad * ccdVec3X(&dir), rad * ccdVec3Y(&dir), -cone->height);
@@ -2056,7 +2071,8 @@ static inline void supportCone(const void* obj, const ccd_vec3_t* dir_, ccd_vec3
   ccdVec3Add(v, &cone->pos);
 }
 
-static inline void supportSphere(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportSphere(const void* obj, const ccd_vec3_t* dir_,
+                                 ccd_vec3_t* v)
 {
   const ccd_sphere_t* s = static_cast<const ccd_sphere_t*>(obj);
   ccd_vec3_t dir;
@@ -2073,7 +2089,8 @@ static inline void supportSphere(const void* obj, const ccd_vec3_t* dir_, ccd_ve
   ccdVec3Add(v, &s->pos);
 }
 
-static inline void supportEllipsoid(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportEllipsoid(const void* obj, const ccd_vec3_t* dir_,
+                                    ccd_vec3_t* v)
 {
   const ccd_ellipsoid_t* s = static_cast<const ccd_ellipsoid_t*>(obj);
   ccd_vec3_t dir;
@@ -2098,7 +2115,8 @@ static inline void supportEllipsoid(const void* obj, const ccd_vec3_t* dir_, ccd
 }
 
 template <typename S>
-static void supportConvex(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static void supportConvex(const void* obj, const ccd_vec3_t* dir_,
+                          ccd_vec3_t* v)
 {
   const auto* c = (const ccd_convex_t<S>*)obj;
   ccd_vec3_t dir, p;
@@ -2110,11 +2128,12 @@ static void supportConvex(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v
 
   maxdot = -CCD_REAL_MAX;
 
-  for(const auto& vertex : *(c->convex->getVertices()))
+  for (const auto& vertex : c->convex->getVertices())
   {
-    ccdVec3Set(&p, vertex[0] - center[0], vertex[1] - center[1], vertex[2] - center[2]);
+    ccdVec3Set(&p, vertex[0] - center[0], vertex[1] - center[1],
+        vertex[2] - center[2]);
     dot = ccdVec3Dot(&dir, &p);
-    if(dot > maxdot)
+    if (dot > maxdot)
     {
       ccdVec3Set(v, vertex[0], vertex[1], vertex[2]);
       maxdot = dot;
@@ -2126,7 +2145,8 @@ static void supportConvex(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v
   ccdVec3Add(v, &c->pos);
 }
 
-static void supportTriangle(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static void supportTriangle(const void* obj, const ccd_vec3_t* dir_,
+                            ccd_vec3_t* v)
 {
   const ccd_triangle_t* tri = static_cast<const ccd_triangle_t*>(obj);
   ccd_vec3_t dir, p;
@@ -2138,11 +2158,12 @@ static void supportTriangle(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t*
 
   maxdot = -CCD_REAL_MAX;
 
-  for(i = 0; i < 3; ++i)
+  for (i = 0; i < 3; ++i)
   {
-    ccdVec3Set(&p, tri->p[i].v[0] - tri->c.v[0], tri->p[i].v[1] - tri->c.v[1], tri->p[i].v[2] - tri->c.v[2]);
+    ccdVec3Set(&p, tri->p[i].v[0] - tri->c.v[0], tri->p[i].v[1] - tri->c.v[1],
+        tri->p[i].v[2] - tri->c.v[2]);
     dot = ccdVec3Dot(&dir, &p);
-    if(dot > maxdot)
+    if (dot > maxdot)
     {
       ccdVec3Copy(v, &tri->p[i]);
       maxdot = dot;
@@ -2182,7 +2203,8 @@ template <typename S>
 bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                 void* obj2, ccd_support_fn supp2, ccd_center_fn cen2,
                 unsigned int max_iterations, S tolerance,
-                Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal)
+                Vector3<S>* contact_points, S* penetration_depth,
+                Vector3<S>* normal)
 {
   ccd_t ccd;
   int res;
@@ -2198,15 +2220,16 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
   ccd.max_iterations = max_iterations;
   ccd.mpr_tolerance = tolerance;
 
-  if(!contact_points)
+  if (!contact_points)
   {
     return ccdMPRIntersect(obj1, obj2, &ccd);
   }
 
 
-  /// libccd returns dir and pos in world space and dir is pointing from object 1 to object 2
+  /// libccd returns dir and pos in world space and dir is pointing from
+  /// object 1 to object 2
   res = ccdMPRPenetration(obj1, obj2, &ccd, &depth, &dir, &pos);
-  if(res == 0)
+  if (res == 0)
   {
     *contact_points << ccdVec3X(&pos), ccdVec3Y(&pos), ccdVec3Z(&pos);
     *penetration_depth = depth;
@@ -2327,7 +2350,8 @@ GJKCenterFunction GJKInitializer<S, Cylinder<S>>::getCenterFunction()
 }
 
 template <typename S>
-void* GJKInitializer<S, Cylinder<S>>::createGJKObject(const Cylinder<S>& s, const Transform3<S>& tf)
+void* GJKInitializer<S, Cylinder<S>>::createGJKObject(const Cylinder<S>& s,
+                                                      const Transform3<S>& tf)
 {
   ccd_cyl_t* o = new ccd_cyl_t;
   cylToGJK(s, tf, o);
@@ -2354,7 +2378,8 @@ GJKCenterFunction GJKInitializer<S, Sphere<S>>::getCenterFunction()
 }
 
 template <typename S>
-void* GJKInitializer<S, Sphere<S>>::createGJKObject(const Sphere<S>& s, const Transform3<S>& tf)
+void* GJKInitializer<S, Sphere<S>>::createGJKObject(const Sphere<S>& s,
+                                                    const Transform3<S>& tf)
 {
   ccd_sphere_t* o = new ccd_sphere_t;
   sphereToGJK(s, tf, o);
@@ -2381,7 +2406,8 @@ GJKCenterFunction GJKInitializer<S, Ellipsoid<S>>::getCenterFunction()
 }
 
 template <typename S>
-void* GJKInitializer<S, Ellipsoid<S>>::createGJKObject(const Ellipsoid<S>& s, const Transform3<S>& tf)
+void* GJKInitializer<S, Ellipsoid<S>>::createGJKObject(const Ellipsoid<S>& s,
+                                                       const Transform3<S>& tf)
 {
   ccd_ellipsoid_t* o = new ccd_ellipsoid_t;
   ellipsoidToGJK(s, tf, o);
@@ -2408,7 +2434,8 @@ GJKCenterFunction GJKInitializer<S, Box<S>>::getCenterFunction()
 }
 
 template <typename S>
-void* GJKInitializer<S, Box<S>>::createGJKObject(const Box<S>& s, const Transform3<S>& tf)
+void* GJKInitializer<S, Box<S>>::createGJKObject(const Box<S>& s,
+                                                 const Transform3<S>& tf)
 {
   ccd_box_t* o = new ccd_box_t;
   boxToGJK(s, tf, o);
@@ -2435,7 +2462,8 @@ GJKCenterFunction GJKInitializer<S, Capsule<S>>::getCenterFunction()
 }
 
 template <typename S>
-void* GJKInitializer<S, Capsule<S>>::createGJKObject(const Capsule<S>& s, const Transform3<S>& tf)
+void* GJKInitializer<S, Capsule<S>>::createGJKObject(const Capsule<S>& s,
+                                                     const Transform3<S>& tf)
 {
   ccd_cap_t* o = new ccd_cap_t;
   capToGJK(s, tf, o);
@@ -2462,7 +2490,8 @@ GJKCenterFunction GJKInitializer<S, Cone<S>>::getCenterFunction()
 }
 
 template <typename S>
-void* GJKInitializer<S, Cone<S>>::createGJKObject(const Cone<S>& s, const Transform3<S>& tf)
+void* GJKInitializer<S, Cone<S>>::createGJKObject(const Cone<S>& s,
+                                                  const Transform3<S>& tf)
 {
   ccd_cone_t* o = new ccd_cone_t;
   coneToGJK(s, tf, o);
@@ -2489,7 +2518,8 @@ GJKCenterFunction GJKInitializer<S, Convex<S>>::getCenterFunction()
 }
 
 template <typename S>
-void* GJKInitializer<S, Convex<S>>::createGJKObject(const Convex<S>& s, const Transform3<S>& tf)
+void* GJKInitializer<S, Convex<S>>::createGJKObject(const Convex<S>& s,
+                                                    const Transform3<S>& tf)
 {
   auto* o = new ccd_convex_t<S>;
   convexToGJK(s, tf, o);
@@ -2514,10 +2544,12 @@ inline GJKCenterFunction triGetCenterFunction()
 }
 
 template <typename S>
-void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3)
+void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2,
+                         const Vector3<S>& P3)
 {
   ccd_triangle_t* o = new ccd_triangle_t;
-  Vector3<S> center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3, (P1[2] + P2[2] + P3[2]) / 3);
+  Vector3<S> center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3,
+      (P1[2] + P2[2] + P3[2]) / 3);
 
   ccdVec3Set(&o->p[0], P1[0], P1[1], P1[2]);
   ccdVec3Set(&o->p[1], P2[0], P2[1], P2[2]);
@@ -2531,10 +2563,12 @@ void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vecto
 }
 
 template <typename S>
-void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf)
+void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2,
+                         const Vector3<S>& P3, const Transform3<S>& tf)
 {
   ccd_triangle_t* o = new ccd_triangle_t;
-  Vector3<S> center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3, (P1[2] + P2[2] + P3[2]) / 3);
+  Vector3<S> center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3,
+      (P1[2] + P2[2] + P3[2]) / 3);
 
   ccdVec3Set(&o->p[0], P1[0], P1[1], P1[2]);
   ccdVec3Set(&o->p[1], P2[0], P2[1], P2[2]);
