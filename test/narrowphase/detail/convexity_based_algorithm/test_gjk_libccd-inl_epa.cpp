@@ -237,7 +237,8 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace1) {
   vertices[1] << 0, 1, face0_origin_distance;
   vertices[2] << -0.5, -0.5, face0_origin_distance;
   vertices[3] << 0, 0, -1;
-  Eigen::AngleAxisd rotation(0.05 * M_PI, Eigen::Vector3d::UnitX());
+  Eigen::AngleAxis<ccd_real_t> rotation(0.05 * M_PI,
+                                        Vector3<ccd_real_t>::UnitX());
   for (int i = 0; i < 4; ++i) {
     vertices[i] = rotation * vertices[i];
   }
@@ -1378,8 +1379,8 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   // Now make sure non_simplex_vertex has the largest support
   // p_B1V1 are the position of the box 1 vertices in box1 frame B1.
   // p_B2V1 are the position of the box 2 vertices in box2 frame B2.
-  const Eigen::Vector3d box1_size{2, 2, 2};
-  const Eigen::Vector3d box2_size{1, 1, 2};
+  const Vector3<S> box1_size{2, 2, 2};
+  const Vector3<S> box2_size{1, 1, 2};
   Eigen::Matrix<S, 3, 8> p_B1V1, p_B2V2;
   p_B1V1 << -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1,
       1, -1, 1, -1, 1;
