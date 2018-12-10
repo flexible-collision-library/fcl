@@ -120,18 +120,10 @@ Matrix3<S> Convex<S>::computeMomentofInertia() const {
     // Compute the volume of tetrahedron formed by the vertices on one of the
     // polygon's edges, the center point, and the shape's frame's origin.
     const Vector3<S>& v3 = face_center;
-    for (int j = 1; j <= vertex_count; ++j) {
-      // Each edge of the polygon is defined where faces[face_index + j] is
-      // the first edge vertex and faces[face_index + (j % vertex_count) + 1]
-      // is the second edge vertex. The use of (j % vertex_count) is required
-      // to handle the last polygon edge which is defined by the last polygon
-      // vertex and the first vertex. When j < vertex_count then
-      // (j % vertex_count) == j resulting in faces[face_index + j + 1] which
-      // is the next polygon vertex. When j == vertex_count then
-      // (j % vertex_count) == 0 resulting in faces[face_index + 1] which is
-      // the first vertex of the polygon.
-      int e_first = faces[face_index + j];
-      int e_second = faces[face_index + (j % vertex_count) + 1];
+    const int vertex_base = face_index + 1;
+    for (int j = 0; j < vertex_count; ++j) {
+      int e_first = faces[vertex_base + j];
+      int e_second = faces[vertex_base + (j + 1) % vertex_count];
       const Vector3<S>& v1 = vertices[e_first];
       const Vector3<S>& v2 = vertices[e_second];
       S d_six_vol = (v1.cross(v2)).dot(v3);

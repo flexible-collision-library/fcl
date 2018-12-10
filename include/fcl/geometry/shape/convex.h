@@ -88,7 +88,7 @@ public:
   /// @brief Constructor
   ///
   /// @note: The %Convex geometry assumes that the input data %vertices and
-  /// %faces does not change through the life of the object.
+  /// %faces do not change through the life of the object.
   ///
   /// @warning: The %Convex class does *not* validate the input; it trusts that
   /// the inputs truly represent a coherent convex polytope.
@@ -106,19 +106,19 @@ public:
 
   ~Convex() = default;
 
-  /// @brief Compute AABB<S> in the geometry's canonical frame.
+  /// @brief Computes AABB<S> in the geometry's canonical frame.
   void computeLocalAABB() override;
 
-  /// @brief Get node type: a convex polytope.
+  /// @brief Gets node type: a convex polytope.
   NODE_TYPE getNodeType() const override;
 
   /// @brief Gets the vertex positions in the geometry's frame G.
   const std::vector<Vector3<S>>& getVertices() const { return *vertices_; }
 
-  /// @brief Get the total number of faces in the convex mesh.
+  /// @brief Gets the total number of faces in the convex mesh.
   int getFaceCount() const { return num_faces_; }
 
-  /// @brief Get the representation of the *faces* of the convex hull.
+  /// @brief Gets the representation of the *faces* of the convex hull.
   ///
   /// The array is the concatenation of an integer-based representations of each
   /// face. A single face is encoded as a sub-array of ints where the first int
@@ -154,7 +154,7 @@ public:
   // Documentation inherited.
   S computeVolume() const override;
 
-  /// @brief get the vertices of some convex shape which can bound this shape in
+  /// @brief Gets the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
 

@@ -2144,10 +2144,9 @@ static void supportConvex(const void* obj, const ccd_vec3_t* dir_,
   for (const auto& vertex : c->convex->getVertices())
   {
     ccdVec3Set(&p, vertex[0] - center[0], vertex[1] - center[1],
-        vertex[2] - center[2]);
+               vertex[2] - center[2]);
     dot = ccdVec3Dot(&dir, &p);
-    if (dot > maxdot)
-    {
+    if (dot > maxdot) {
       ccdVec3Set(v, vertex[0], vertex[1], vertex[2]);
       maxdot = dot;
     }
