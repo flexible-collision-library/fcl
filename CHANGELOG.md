@@ -15,7 +15,10 @@
 
 * Geometry
 
-  * Simplified Convex class, deprecating old constructor in favor of simpler, documented constructor: [#325](https://github.com/flexible-collision-library/fcl/pull/325)
+  * Simplified Convex class, deprecating old constructor in favor of
+    simpler, documented constructor:
+     [#325](https://github.com/flexible-collision-library/fcl/pull/325),
+     [#338](https://github.com/flexible-collision-library/fcl/pull/338)
 
 * Broadphase
 
