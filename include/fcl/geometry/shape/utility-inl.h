@@ -127,7 +127,8 @@ struct FCL_EXPORT ComputeBVImpl
   static void run(const Shape& s, const Transform3<S>& tf, BV& bv)
   {
     std::vector<Vector3<S>> convex_bound_vertices = s.getBoundVertices(tf);
-    fit(&convex_bound_vertices[0], (int)convex_bound_vertices.size(), bv);
+    fit(convex_bound_vertices.data(),
+        static_cast<int>(convex_bound_vertices.size()), bv);
   }
 };
 
@@ -234,9 +235,9 @@ struct FCL_EXPORT ComputeBVImpl<S, AABB<S>, Convex<S>>
     const Vector3<S>& T = tf.translation();
 
     AABB<S> bv_;
-    for(int i = 0; i < s.num_vertices; ++i)
+    for (const auto& vertex : s.getVertices())
     {
-      Vector3<S> new_p = R * s.vertices[i] + T;
+      Vector3<S> new_p = R * vertex + T;
       bv_ += new_p;
     }
 
@@ -250,7 +251,7 @@ struct FCL_EXPORT ComputeBVImpl<S, OBB<S>, Convex<S>>
 {
   static void run(const Convex<S>& s, const Transform3<S>& tf, OBB<S>& bv)
   {
-    fit(s.vertices, s.num_vertices, bv);
+    fit(s.getVertices().data(), static_cast<int>(s.getVertices().size()), bv);
 
     bv.axis = tf.linear();
     bv.To = tf * bv.To;
