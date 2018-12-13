@@ -24,6 +24,8 @@ project(fcl CXX C)
 
 include(CTest)
 
+configure_file(CTestCustom.cmake.in CTestCustom.cmake @ONLY)
+
 option(FCL_ENABLE_PROFILING "Enable profiling" OFF)
 option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 # Option for some bundle-like build system in order not to expose
