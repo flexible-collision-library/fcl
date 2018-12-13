@@ -33,8 +33,12 @@ option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 option(FCL_HIDE_ALL_SYMBOLS "Hide all binary symbols" OFF)
 
 # set the default build type
-if (NOT MSVC AND NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING
+    "Choose the type of build; options are Debug Release RelWithDebInfo MinSizeRel."
+    FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY
+    STRINGS Debug Release RelWithDebInfo MinSizeRel)
 endif()
 
 # This shouldn't be necessary, but there has been trouble
