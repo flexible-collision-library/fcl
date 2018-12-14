@@ -1,4 +1,7 @@
-# Copyright (c) 2016, Open Source Robotics Foundation.
+# -*- mode: cmake -*-
+# vi: set ft=cmake :
+
+# Copyright (c) 2018, Toyota Research Institute, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,8 +30,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Jeongseok Lee <jslee02@gmail.com>
+# Author: Jamie Snape, Kitware, Inc.
 
-/build
-/build-*
-/doc/doxygen
+set(CTEST_PROJECT_NAME fcl)
+set(CTEST_NIGHTLY_START_TIME "00:00:00 EST")
+set(CTEST_DROP_METHOD https)
+set(CTEST_DROP_SITE drake-cdash.csail.mit.edu)
+set(CTEST_DROP_LOCATION "/submit.php?project=${CTEST_PROJECT_NAME}")
+set(CTEST_DROP_SITE_CDASH ON)

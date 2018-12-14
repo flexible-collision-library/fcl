@@ -1,4 +1,7 @@
-# Copyright (c) 2016, Open Source Robotics Foundation.
+# -*- mode: cmake -*-
+# vi: set ft=cmake :
+
+# Copyright (c) 2018, Toyota Research Institute, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,8 +30,9 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Jeongseok Lee <jslee02@gmail.com>
+# Author: Jamie Snape, Kitware, Inc.
 
-/build
-/build-*
-/doc/doxygen
+list(APPEND CTEST_CUSTOM_COVERAGE_EXCLUDE ".*/test/.*")
+
+set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_ERRORS 128)
+set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 128)
