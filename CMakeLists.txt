@@ -39,7 +39,7 @@ else()
   cmake_minimum_required(VERSION 2.8.12)
 endif()
 
-project(fcl C CXX)
+project(fcl CXX)
 
 # Compiler ID for Apple Clang is now AppleClang.
 if(POLICY CMP0025)
