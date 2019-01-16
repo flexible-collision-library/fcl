@@ -124,6 +124,3 @@ if(FCL_NO_DEFAULT_RPATH)
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 endif()
-
-# no prefix needed for python modules
-set(CMAKE_SHARED_MODULE_PREFIX "")
