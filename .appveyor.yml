@@ -57,4 +57,4 @@ build:
   parallel: true
 
 test_script:
-  - cmd: ctest -C %Configuration%
+  - cmd: ctest -C %Configuration% --output-on-failure

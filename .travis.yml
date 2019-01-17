@@ -46,13 +46,8 @@ script:
   - if [ $COVERALLS = ON ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then make coveralls; fi
 
   # Run unit tests
-  - make test
+  - ctest -j4 --output-on-failure
 
   # Make sure we can install and uninstall with no issues
   - sudo make -j4 install
   - sudo make -j4 uninstall
-
-after_failure: 
-  - cat Testing/Temporary/LastTest.log
-  - cat Testing/Temporary/LastTestsFailed.log
-
