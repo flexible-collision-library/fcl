@@ -373,16 +373,20 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
 
   // check if origin lies on some of tetrahedron's face - if so objects
   // intersect
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
+  dist = std::sqrt(
+      ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr));
   if (ccdIsZero(dist))
     return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v, nullptr);
+  dist = std::sqrt(
+      ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v, nullptr));
   if (ccdIsZero(dist))
     return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v, nullptr);
+  dist = std::sqrt(
+      ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v, nullptr));
   if (ccdIsZero(dist))
     return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v, nullptr);
+  dist = std::sqrt(
+      ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v, nullptr));
   if (ccdIsZero(dist))
     return 1;
 
