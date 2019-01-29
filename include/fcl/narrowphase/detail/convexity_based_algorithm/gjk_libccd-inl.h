@@ -348,13 +348,18 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   return 0;
 }
 
+static bool isAbsValueLessThanEpsSquared(ccd_real_t val) {
+  return std::abs(val) < std::numeric_limits<ccd_real_t>::epsilon() *
+                             std::numeric_limits<ccd_real_t>::epsilon();
+}
+
 static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
 {
   const ccd_support_t *A, *B, *C, *D;
   ccd_vec3_t AO, AB, AC, AD, ABC, ACD, ADB;
   int B_on_ACD, C_on_ADB, D_on_ABC;
   int AB_O, AC_O, AD_O;
-  ccd_real_t dist;
+  ccd_real_t dist_squared;
 
   // get last added as A
   A = ccdSimplexLast(simplex);
@@ -366,25 +371,25 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   // check if tetrahedron is really tetrahedron (has volume > 0)
   // if it is not simplex can't be expanded and thus no intersection is
   // found
-  dist = ccdVec3PointTriDist2(&A->v, &B->v, &C->v, &D->v, nullptr);
-  if (ccdIsZero(dist)){
+  dist_squared = ccdVec3PointTriDist2(&A->v, &B->v, &C->v, &D->v, nullptr);
+  if (isAbsValueLessThanEpsSquared(dist_squared)) {
     return -1;
   }
 
   // check if origin lies on some of tetrahedron's face - if so objects
   // intersect
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
-  if (ccdIsZero(dist))
-    return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v, nullptr);
-  if (ccdIsZero(dist))
-    return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v, nullptr);
-  if (ccdIsZero(dist))
-    return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v, nullptr);
-  if (ccdIsZero(dist))
-    return 1;
+  dist_squared =
+      ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
+  if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
+  dist_squared =
+      ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v, nullptr);
+  if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
+  dist_squared =
+      ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v, nullptr);
+  if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
+  dist_squared =
+      ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v, nullptr);
+  if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
 
   // compute AO, AB, AC, AD segments and ABC, ACD, ADB normal vectors
   ccdVec3Copy(&AO, &A->v);
