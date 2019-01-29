@@ -372,7 +372,7 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   // if it is not simplex can't be expanded and thus no intersection is
   // found
   dist_squared = ccdVec3PointTriDist2(&A->v, &B->v, &C->v, &D->v, nullptr);
-  if (ccdIsZero(dist_squared)) {
+  if (isAbsValueLessThanEpsSquared(dist_squared)) {
     return -1;
   }
 
