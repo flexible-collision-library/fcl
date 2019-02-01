@@ -226,48 +226,121 @@ _ccd_inline void tripleCross(const ccd_vec3_t *a, const ccd_vec3_t *b,
   ccdVec3Cross(d, &e, c);
 }
 
-static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir)
-{
-  const ccd_support_t *A, *B;
-  ccd_vec3_t AB, AO, tmp;
-  ccd_real_t dot;
+/* This is *not* an implementation of the general function: what's the nearest
+ point on the line segment AB to the origin O? It is not intended to be.
+ This is a limited, special case which exploits the known (or at least
+ expected) construction history of AB. The history is as follows:
 
-  // get last added as A
-  A = ccdSimplexLast(simplex);
-  // get the other point
-  B = ccdSimplexPoint(simplex, 0);
-  // compute AB oriented segment
-  ccdVec3Sub2(&AB, &B->v, &A->v);
-  // compute AO vector
-  ccdVec3Copy(&AO, &A->v);
-  ccdVec3Scale(&AO, -CCD_ONE);
+   1. We originally started with the Minkowski support vertex B (p_OB), which
+      was *not* the origin.
+   2. We define a support direction as p_BO = -p_OB and use that to get the
+      Minkowski support vector A.
+   3. We confirm that O is not strictly beyond A in the direction p_BO.
+   4. Then, and only then, do we invoke this method.
 
-  // dot product AB . AO
-  dot = ccdVec3Dot(&AB, &AO);
+ The method will do one of two things:
 
-  // check if origin doesn't lie on AB segment
-  ccdVec3Cross(&tmp, &AB, &AO);
-  if (ccdIsZero(ccdVec3Len2(&tmp)) && dot > CCD_ZERO){
-    return 1;
-  }
+   - determine if the origin lies within the simplex (i.e. lies on the line
+     segment) and reports if this is the case, otherwise
+   - it computes a new support direction: a vector pointing to the origin from
+     the nearest point on the segment AB.
 
-  // check if origin is in area where AB segment is
-  if (ccdIsZero(dot) || dot < CCD_ZERO){
-    // origin is in outside are of A
-    ccdSimplexSet(simplex, 0, A);
-    ccdSimplexSetSize(simplex, 1);
-    ccdVec3Copy(dir, &AO);
-  }else{
-    // origin is in area where AB segment is
+ The algorithm exploits the construction history as outlined below. Without
+ loss of generality, we place B some non-zero distance away from the origin
+ along the î direction (all other orientations can be rigidly transformed to
+ this canonical example). The diagram below shows the origin O and the vertex
+ B. It also shows three regions: 1, 2, and 3.
 
-    // keep simplex untouched and set direction to
-    // AB x AO x AB
-    tripleCross(&AB, &AO, &AB, dir);
-  }
+                     ĵ
+              1      ⯅    2        3
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+          ───────────O──────────B────⯈  î
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
 
+ The point A cannot lie in region 3.
+   - B is a support vertex of the Minkowski difference. p_BO defines the
+     support vector that produces the support vertex A. Vertex A must lie at
+     least as far in the p_BO as B otherwise A is not actually a valid support
+     vertex for that direction. It could lie on the boundary of regions 2 & 3
+     and still be a valid support vertex.
+ The point cannot lie in region 2 (or on the boundary between 2 & 3).
+   - We confirm that O is not strictly beyond A in the direction p_BO. For all
+     A in region 2, O lies beyond A (when projected onto the p_BO vector).
+ The point _must_ lie in region 1 (including the boundary between regions 1 &
+ 2) by the process of elimination.
+
+ The implication of this is that the O must project onto the _interior_ of the
+ line segment AB (with one notable exception). If A = O, then the projection of
+ O is at the end point and, is in fact, itself.
+
+ Therefore, this function can only have two possible outcomes:
+
+   1. In the case where p_BA = k⋅p_BO (i.e., they are co-linear), we know the
+      origin lies "in" the simplex. If A = O, it lies on the simplex's surface
+      and the objects are touching, otherwise, the objects are penetrating.
+      Either way, we can report that they are definitely *not* separated.
+   2. p_BA ≠ k⋅p_BO, we define the new support direction as perpendicular to the
+      line segment AB, pointing to O from the nearest point on the segment to O.
+
+ Return value indicates concrete knowledge that the origin lies "in" the
+ 2-simplex (encoded as a 1), or indication that computation should continue (0).
+
+ @note: doSimplex2 should _only_ be called with the construction history
+ outlined above: promotion of a 1-simplex. doSimplex2() is only invoked by
+ doSimplex(). This follows the computation of A and the promotion of the
+ simplex. Therefore, the history is always valid. Even though doSimplex3() can
+ demote itself to a 2-simplex, that 2-simplex immediately gets promoted back to
+ a 3-simplex via the same construction process. Therefore, as long as
+ doSimplex2() is only called from doSimplex() its region 1 assumption _should_
+ remain valid.
+*/
+static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir) {
+  const ccd_real_t eps = constants<ccd_real_t>::eps();
+
+  const Vector3<ccd_real_t> p_OA(simplex->ps[simplex->last].v.v);
+  const Vector3<ccd_real_t> p_OB(simplex->ps[0].v.v);
+
+  // Confirm that A is in region 1.
+  assert(p_OA.normalized().dot(p_OB.normalized()) <= 0);
+
+  // Test for co-linearity. Given A is in region 1, co-linearity --> O is "in"
+  // the simplex.
+
+  // |A × B| = |A||B|sin(θ). If they are co-linear then theta will be zero -->
+  // sin(θ) = 0. So, |A × B| = 0. Equivalently, |A × B|² = 0 and since
+  // |A| = |B| = 1 we get |A × B|² = 0 is our test or, numerically,
+  // |A × B|² < ε².
+  //
+  // We normalize the vectors p_AB and p_OB so that the evaluation of the angle
+  // between them is *not* sensitive to the length of those vectors. Otherwise,
+  // disparity in length would lead to noise, or large vectors would make the
+  // epsilon meaningless. It's not enough to simply scale epsilon by |p_AB| and
+  // |p_OB| because it doesn't address the issue of |p_OB| << |p_AB| (or vice
+  // versa); the imprecision would be introduced in the cross-product operation.
+  const Vector3<ccd_real_t> phat_AB = (p_OB - p_OA).normalized();
+  const Vector3<ccd_real_t> norm = p_OB.normalized().cross(phat_AB);
+  if (norm.squaredNorm() < eps * eps) return 1;
+
+  // Otherwise the direction lies perpendicular to the segment, pointing towards
+  // O. Note: we don't normalize norm because we've already decided that it's
+  // magnitude is large enough (> ε) to provide a meaningful direction.
+  const Vector3<ccd_real_t> new_dir = norm.cross(phat_AB);
+  ccdVec3Set(dir, new_dir(0), new_dir(1), new_dir(2));
   return 0;
 }
 
+// TODO(SeanCurtis-TRI): Define the return value:
+//   1: (like doSimplex2) --> origin is "in" the simplex.
+//   0:
+//  -1: If the 3-simplex is degenerate. How is this intepreted?
 static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
 {
   const ccd_support_t *A, *B, *C;
@@ -281,14 +354,21 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   C = ccdSimplexPoint(simplex, 0);
 
   // check touching contact
+  // TODO(SeanCurtis-TRI): This is dist2 (i.e., dist_squared) and should be
+  // tested to be zero within a tolerance of ε² (and not just ε).
   dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
   if (ccdIsZero(dist)){
     return 1;
   }
 
   // check if triangle is really triangle (has area > 0)
-  // if not simplex can't be expanded and thus no itersection is found
+  // if not simplex can't be expanded and thus no intersection is found
+  // TODO(SeanCurtis-TRI): Coincident points is sufficient but not necessary
+  // for a zero-area triangle. What about co-linearity? Can we guarantee that
+  // co-linearity can't happen?  See the `triangle_area_is_zero()` method in
+  // this same file.
   if (ccdVec3Eq(&A->v, &B->v) || ccdVec3Eq(&A->v, &C->v)){
+    // TODO(SeanCurtis-TRI): Why do we simply quit if the simplex is degenerate?
     return -1;
   }
 
