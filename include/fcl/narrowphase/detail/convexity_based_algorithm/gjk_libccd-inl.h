@@ -40,8 +40,8 @@
 
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 
-#include <unordered_set>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "fcl/common/unused.h"
 #include "fcl/common/warning.h"
@@ -226,48 +226,152 @@ _ccd_inline void tripleCross(const ccd_vec3_t *a, const ccd_vec3_t *b,
   ccdVec3Cross(d, &e, c);
 }
 
-static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir)
-{
-  const ccd_support_t *A, *B;
-  ccd_vec3_t AB, AO, tmp;
-  ccd_real_t dot;
+/* This is *not* an implementation of the general function: what's the nearest
+ point on the line segment AB to the origin O? It is not intended to be.
+ This is a limited, special case which exploits the known (or at least
+ expected) construction history of AB. The history is as follows:
 
-  // get last added as A
-  A = ccdSimplexLast(simplex);
-  // get the other point
-  B = ccdSimplexPoint(simplex, 0);
-  // compute AB oriented segment
-  ccdVec3Sub2(&AB, &B->v, &A->v);
-  // compute AO vector
-  ccdVec3Copy(&AO, &A->v);
-  ccdVec3Scale(&AO, -CCD_ONE);
+   1. We originally started with the Minkowski support point B (p_OB), which
+      was *not* the origin.
+   2. We define a support direction as p_BO = -p_OB and use that to get the
+      Minkowski support point A.
+   3. We confirm that O is not strictly beyond A in the direction p_BO
+      (confirming separation).
+   4. Then, and only then, do we invoke this method.
 
-  // dot product AB . AO
-  dot = ccdVec3Dot(&AB, &AO);
+ The method will do one of two things:
 
-  // check if origin doesn't lie on AB segment
-  ccdVec3Cross(&tmp, &AB, &AO);
-  if (ccdIsZero(ccdVec3Len2(&tmp)) && dot > CCD_ZERO){
+   - determine if the origin lies within the simplex (i.e. lies on the line
+     segment, confirming non-separation) and reports if this is the case,
+   - otherwise it computes a new support direction: a vector pointing to the
+     origin from the nearest point on the segment AB. The direction is
+     guaranteed; the only guarantee about the magnitude is that it is
+     numerically viable (i.e. greater than epsilon).
+
+ The algorithm exploits the construction history as outlined below. Without
+ loss of generality, we place B some non-zero distance away from the origin
+ along the î direction (all other orientations can be rigidly transformed to
+ this canonical example). The diagram below shows the origin O and the point
+ B. It also shows three regions: 1, 2, and 3.
+
+                     ĵ
+              1      ⯅    2        3
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+          ───────────O──────────B────⯈  î
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+                     │░░░░░░░░░░┆▒▒▒▒▒
+
+ The point A cannot lie in region 3.
+
+   - B is a support point of the Minkowski difference. p_BO defines the
+     support vector that produces the support point A. Vertex A must lie at
+     least as far in the p_BO as B otherwise A is not actually a valid support
+     point for that direction. It could lie on the boundary of regions 2 & 3
+     and still be a valid support point.
+
+ The point A cannot lie in region 2 (or on the boundary between 2 & 3).
+   - We confirm that O is not strictly beyond A in the direction p_BO. For all
+     A in region 2, O lies beyond A (when projected onto the p_BO vector).
+
+ The point A _must_ lie in region 1 (including the boundary between regions 1 &
+ 2) by process of elimination.
+
+ The implication of this is that the O must project onto the _interior_ of the
+ line segment AB (with one notable exception). If A = O, then the projection of
+ O is at the end point and, is in fact, itself.
+
+ Therefore, this function can only have two possible outcomes:
+
+   1. In the case where p_BA = k⋅p_BO (i.e., they are co-linear), we know the
+      origin lies "in" the simplex. If A = O, it lies on the simplex's surface
+      and the objects are touching, otherwise, the objects are penetrating.
+      Either way, we can report that they are definitely *not* separated.
+   2. p_BA ≠ k⋅p_BO, we define the new support direction as perpendicular to the
+      line segment AB, pointing to O from the nearest point on the segment to O.
+
+ Return value indicates concrete knowledge that the origin lies "in" the
+ 2-simplex (encoded as a 1), or indication that computation should continue (0).
+
+ @note: doSimplex2 should _only_ be called with the construction history
+ outlined above: promotion of a 1-simplex. doSimplex2() is only invoked by
+ doSimplex(). This follows the computation of A and the promotion of the
+ simplex. Therefore, the history is always valid. Even though doSimplex3() can
+ demote itself to a 2-simplex, that 2-simplex immediately gets promoted back to
+ a 3-simplex via the same construction process. Therefore, as long as
+ doSimplex2() is only called from doSimplex() its region 1 assumption _should_
+ remain valid.
+*/
+static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir) {
+  // Used to define numerical thresholds near zero; typically scaled to the size
+  // of the quantities being tested.
+  const ccd_real_t eps = constants<ccd_real_t>::eps();
+
+  const Vector3<ccd_real_t> p_OA(simplex->ps[simplex->last].v.v);
+  const Vector3<ccd_real_t> p_OB(simplex->ps[0].v.v);
+
+  // Confirm that A is in region 1. Given that A may be very near to the origin,
+  // we must avoid normalizing p_OA. So, we use this instead.
+  //  let A' be the projection of A onto the line defined by O and B.
+  //  |A'B| >= |OB| iff A is in region 1.
+  // Numerically, we can express it as follows (allowing for |A'B| to be ever
+  // so slightly *less* than |OB|):
+  //             p_AB ⋅ phat_OB >= |p_OB| - |p_OB| * ε = |p_OB| * (1 - ε)
+  //    p_AB ⋅ phat_OB ⋅ |p_OB| >= |p_OB|⋅|p_OB| * (1 - ε)
+  //                p_AB ⋅ p_OB >= |p_OB|² * (1 - ε)
+  //       (p_OB - p_OA) ⋅ p_OB >= |p_OB|² * (1 - ε)
+  //  p_OB ⋅ p_OB - p_OA ⋅ p_OB >= |p_OB|² * (1 - ε)
+  //      |p_OB|² - p_OA ⋅ p_OB >= |p_OB|² * (1 - ε)
+  //               -p_OA ⋅ p_OB >= -|p_OB|²ε
+  //                p_OA ⋅ p_OB <= |p_OB|²ε
+  assert(p_OA.dot(p_OB) <= p_OB.squaredNorm() * eps && "A is not in region 1");
+
+  // Test for co-linearity. Given A is in region 1, co-linearity --> O is "in"
+  // the simplex.
+  // We'll use the angle between two vectors to determine co-linearity: p_AB
+  // and p_OB. If they are co-linear, then the angle between them (θ) is zero.
+  // Similarly, sin(θ) is zero. Ideally, it can be expressed as:
+  //   |p_AB × p_OB| = |p_AB||p_OB||sin(θ)| = 0
+  // Numerically, we allow θ (and sin(θ)) to be slightly larger than zero
+  // leading to a numerical formulation as:
+  //   |p_AB × p_OB| = |p_AB||p_OB||sin(θ)| < |p_AB||p_OB|ε
+  // Finally, to reduce the computational cost, we eliminate the square roots by
+  // evaluating the equivalently discriminating test:
+  //   |p_AB × p_OB|² < |p_AB|²|p_OB|²ε²
+  //
+  // In addition to providing a measure of co-linearity, the cross product gives
+  // us the normal to the plane on which points A, B, and O lie (which we will
+  // use later to compute a new support direction, as necessary).
+  const Vector3<ccd_real_t> p_AB = p_OB - p_OA;
+  const Vector3<ccd_real_t> plane_normal = p_OB.cross(p_AB);
+  if (plane_normal.squaredNorm() <
+      p_AB.squaredNorm() * p_OB.squaredNorm() * eps * eps) {
     return 1;
   }
 
-  // check if origin is in area where AB segment is
-  if (ccdIsZero(dot) || dot < CCD_ZERO){
-    // origin is in outside are of A
-    ccdSimplexSet(simplex, 0, A);
-    ccdSimplexSetSize(simplex, 1);
-    ccdVec3Copy(dir, &AO);
-  }else{
-    // origin is in area where AB segment is
-
-    // keep simplex untouched and set direction to
-    // AB x AO x AB
-    tripleCross(&AB, &AO, &AB, dir);
-  }
-
+  // O is not co-linear with AB, so dist(O, AB) > ε. Define `dir` as the
+  // direction to O from the nearest point on AB.
+  // Note: We use the normalized `plane_normal` (n̂) because we've already
+  // concluded that the origin is farther from AB than ε. We want to make sure
+  // `dir` likewise has a magnitude larger than ε. With normalization, we know
+  // |dir| = |n̂ × AB| = |AB| > dist(O, AB) > ε.
+  // Without normalizing, if |OA| and |OB| were smaller than ³√ε but
+  // sufficiently larger than ε, dist(O, AB) > ε, but |dir| < ε.
+  const Vector3<ccd_real_t> new_dir = plane_normal.normalized().cross(p_AB);
+  ccdVec3Set(dir, new_dir(0), new_dir(1), new_dir(2));
   return 0;
 }
 
+// TODO(SeanCurtis-TRI): Define the return value:
+//   1: (like doSimplex2) --> origin is "in" the simplex.
+//   0:
+//  -1: If the 3-simplex is degenerate. How is this intepreted?
 static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
 {
   const ccd_support_t *A, *B, *C;
@@ -281,14 +385,21 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   C = ccdSimplexPoint(simplex, 0);
 
   // check touching contact
+  // TODO(SeanCurtis-TRI): This is dist2 (i.e., dist_squared) and should be
+  // tested to be zero within a tolerance of ε² (and not just ε).
   dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
   if (ccdIsZero(dist)){
     return 1;
   }
 
   // check if triangle is really triangle (has area > 0)
-  // if not simplex can't be expanded and thus no itersection is found
+  // if not simplex can't be expanded and thus no intersection is found
+  // TODO(SeanCurtis-TRI): Coincident points is sufficient but not necessary
+  // for a zero-area triangle. What about co-linearity? Can we guarantee that
+  // co-linearity can't happen?  See the `triangle_area_is_zero()` method in
+  // this same file.
   if (ccdVec3Eq(&A->v, &B->v) || ccdVec3Eq(&A->v, &C->v)){
+    // TODO(SeanCurtis-TRI): Why do we simply quit if the simplex is degenerate?
     return -1;
   }
 
