@@ -102,7 +102,7 @@ public:
          int num_faces, const std::shared_ptr<const std::vector<int>>& faces);
 
   /// @brief Copy constructor 
-  Convex(const Convex& other) = default;
+  Convex(const Convex& other);
 
   ~Convex() = default;
 
@@ -164,6 +164,12 @@ private:
   const std::shared_ptr<const std::vector<int>> faces_;
   Vector3<S> interior_point_;
 };
+
+// Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57728 which
+// should be moved back into the class definition once we no longer need to
+// support GCC versions prior to 6.3.
+template <typename S>
+Convex<S>::Convex(const Convex<S>& other) = default;
 
 using Convexf = Convex<float>;
 using Convexd = Convex<double>;
