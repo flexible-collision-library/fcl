@@ -316,14 +316,11 @@ void NearestPointFromDegenerateSimplex() {
   // line segment. As a result, nearest points were populated with NaN values.
   // See https://github.com/flexible-collision-library/fcl/issues/293 for
   // more discussion.
-  // This test is only relevant if box-box distance is computed via GJK. If
-  // a custom test is created, this may no longer be relevant.
-  // TODO(SeanCurtis-TRI): Provide some mechanism where we can assert what the
-  // solving algorithm is (i.e., default convex vs. custom).
+  // This test is only relevant if box-box distance is computed via GJK. We
+  // intentionally short-circuit the mechanism for dispatching custom methods
+  // to guarantee GJK is evaluated on these two boxes.
   DistanceResult<S> result;
   DistanceRequest<S> request;
-  request.enable_nearest_points = true;
-  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
 
   // These values were extracted from a real-world scenario that produced NaNs.
   std::shared_ptr<CollisionGeometry<S>> box_geometry_1(
@@ -335,15 +332,35 @@ void NearestPointFromDegenerateSimplex() {
       Eigen::Vector3d(1.625000, 0.000000, 0.500000));
   CollisionObject<S> box_object_2(
       box_geometry_2,
-      Eigen::Quaterniond(0.672811, 0.340674, 0.155066, 0.638138).matrix(),
+      Eigen::Quaterniond(0.672811, 0.340674, 0.155066, 0.638138)
+          .normalized()
+          .matrix(),
       Eigen::Vector3d(0.192074, -0.277870, 0.273546));
 
-  EXPECT_NO_THROW(fcl::distance(&box_object_1, &box_object_2, request, result));
+  // Direct invocation.
+  // NOTE: This code is basically lifted from ShapeDistanceLibccdImpl::run() in
+  // gjk_solver_libbd-inl.h.
+  Box<S>* box1 = static_cast<Box<S>*>(box_geometry_1.get());
+  Box<S>* box2 = static_cast<Box<S>*>(box_geometry_2.get());
+  detail::GJKSolver_libccd<S> solver;
+  void* o1 = detail::GJKInitializer<S, Box<S>>::createGJKObject(
+      *box1, box_object_1.getTransform());
+  void* o2 = detail::GJKInitializer<S, Box<S>>::createGJKObject(
+      *box2, box_object_2.getTransform());
+  detail::GJKDistance(
+      o1, detail::GJKInitializer<S, Box<S>>::getSupportFunction(), o2,
+      detail::GJKInitializer<S, Box<S>>::getSupportFunction(),
+      solver.max_distance_iterations, request.distance_tolerance,
+      &result.min_distance, &result.nearest_points[0],
+      &result.nearest_points[1]);
+
+  detail::GJKInitializer<S, Box<S>>::deleteGJKObject(o1);
+  detail::GJKInitializer<S, Box<S>>::deleteGJKObject(o2);
 
   // These hard-coded values have been previously computed and visually
   // inspected and considered to be the ground truth for this very specific
   // test configuration.
-  S expected_dist{0.053516322172152138};
+  S expected_dist{0.053516162824549};
   // The "nearest" points (N1 and N2) measured and expressed in box 1's and
   // box 2's frames (B1 and B2, respectively).
   const Vector3<S> expected_p_B1N1{-1.375, -0.098881502700918666,
@@ -360,7 +377,7 @@ void NearestPointFromDegenerateSimplex() {
   EXPECT_TRUE(CompareMatrices(result.nearest_points[1], expected_p_WN2,
                               DELTA<S>(), MatrixCompareType::absolute));
   EXPECT_NEAR(expected_dist, result.min_distance,
-              constants<ccd_real_t>::eps_34());
+              constants<ccd_real_t>::eps_78());
 }
 
 GTEST_TEST(FCL_DISTANCE, NearestPointFromDegenerateSimplex) {
