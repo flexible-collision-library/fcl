@@ -1,6 +1,7 @@
 set(tests
     test_gjk_libccd-inl_epa.cpp
     test_gjk_libccd-inl_extractClosestPoints.cpp
+    test_gjk_libccd-inl_gjk_doSimplex2.cpp
     test_gjk_libccd-inl_signed_distance.cpp
 )
 
