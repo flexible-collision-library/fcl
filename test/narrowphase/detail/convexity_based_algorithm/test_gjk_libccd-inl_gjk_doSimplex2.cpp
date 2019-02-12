@@ -178,7 +178,8 @@ TEST_F(DoSimplex2Test, NeedMoreComputing) {
                          const Vector3Ccd& dir) {
     // If p_OA or p_OB are large vectors, we need to scale EPS up to be able
     // to recognize a valid direction to machine precision.
-    const ccd_real_t eps = std::max({1., p_OA.norm(), p_OB.norm()}) * kEps;
+    const ccd_real_t eps =
+        std::max({ccd_real_t(1), p_OA.norm(), p_OB.norm()}) * kEps;
     const Vector3Ccd phat_AB = (p_OB - p_OA).normalized();
     const Vector3Ccd dir_hat = dir.normalized();
     if (std::abs(dir_hat.dot(phat_AB)) > eps) {
