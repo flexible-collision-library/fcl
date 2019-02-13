@@ -39,6 +39,10 @@
 #include <iostream>
 #include <memory>
 
+// Avoid alignment-assertion failure on Win32. See:
+// http://eigen.tuxfamily.org/dox-devel/group__TopicStlContainers.html
+#include <Eigen/StdVector>
+
 #include <gtest/gtest.h>
 
 #include "fcl/common/types.h"
@@ -46,6 +50,10 @@
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 
 using Vector3d = fcl::Vector3d;
+
+// Avoid alignment-assertion failure on Win32. See:
+// http://eigen.tuxfamily.org/dox-devel/group__TopicStlContainers.html
+using PositionList = std::vector<Vector3d, Eigen::aligned_allocator<Vector3d>>;
 
 // Tests repeatability of a dynamic tree of two spheres when we call update()
 // and distance() again and again without changing the poses of the objects.
@@ -68,17 +76,14 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   // declared as a const vector here.
   std::vector<fcl::CollisionObjectd> objects{fcl::CollisionObjectd(sphere1),
                                              fcl::CollisionObjectd(sphere2)};
-  // I suspect Vector3d = Eigen::Matrix<double, 3, 1> doesn't work well with
-  // std::vector<> on Win32. Here I use array instead of std::vector.
-  // Previously std::vector<> caused unaligned-assertion failure explained in:
+  // Previously std::vector<Vector3d> caused alignment-assertion failure on
+  // Win32. See:
   // http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html
-  // const std::vector<Vector3d> positions{Vector3d(0.1, 0.2, 0.3),
-  //                                      Vector3d(0.11, 0.21, 0.31)};
-  const Vector3d positions[2] = {Vector3d(0.1, 0.2, 0.3),
-                                 Vector3d(0.11, 0.21, 0.31)};
+  const PositionList positions {Vector3d(0.1, 0.2, 0.3),
+                                Vector3d(0.11, 0.21, 0.31)};
   fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree;
   auto o = objects.begin();
-  const Vector3d* p = positions;
+  auto p = positions.begin();
   for (; o != objects.end(); ++o, ++p) {
     o->setTranslation(*p);
     o->computeAABB();
