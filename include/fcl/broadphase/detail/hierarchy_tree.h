@@ -86,7 +86,12 @@ public:
   /// @brief Whether the tree is empty 
   bool empty() const;
 
-  /// @brief update one leaf node 
+  /// @brief Updates a `leaf` node. A use case is when the bounding volume
+  /// of an object changes. Ensure every parent node has its bounding volume
+  /// expands or shrinks to fit the bounding volumes of its children.
+  /// @note Strangely the structure of the tree may change even though the
+  //        bounding volume of the `leaf` node does not change. It is just
+  //        another valid tree of the same set of objects.
   void update(NodeType* leaf, int lookahead_level = -1);
 
   /// @brief update the tree when the bounding volume of a given leaf has changed
@@ -192,11 +197,20 @@ private:
   /// @brief sort node n and its parent according to their memory position 
   NodeType* sort(NodeType* n, NodeType*& r);
   
-  /// @brief Insert a leaf node and also update its ancestors 
+  /// @brief Insert a leaf node and also update its ancestors. Maintain the
+  /// tree as a full binary tree (every interior node has exactly two children).
+  /// Furthermore, adjust the BV of interior nodes so that each parent's BV
+  /// fits its children's BVs.
   void insertLeaf(NodeType* root, NodeType* leaf);
 
-  /// @brief Remove a leaf. The leaf node itself is not deleted yet, but all the unnecessary internal nodes are deleted.
-  /// return the node with the smallest depth and is influenced by the remove operation 
+  /// @brief Remove a leaf. Maintain the tree as a full binary tree (every
+  /// interior node has exactly two children). Furthermore, adjust the BV of
+  /// interior nodes so that each parent's BV fits its children's BVs.
+  /// @note The leaf node itself is not deleted yet, but all the unnecessary
+  ///       internal nodes are deleted.
+  /// @returns the node with the smallest depth and is influenced by the
+  ///          remove operation.  It is the closest ancestor node whose
+  ///          bounding volume stays the same.
   NodeType* removeLeaf(NodeType* leaf);
 
   /// @brief Delete all internal nodes and return all leaves nodes with given depth from root 

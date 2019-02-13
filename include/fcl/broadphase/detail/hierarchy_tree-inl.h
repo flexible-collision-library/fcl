@@ -132,6 +132,11 @@ bool HierarchyTree<BV>::empty() const
 template<typename BV>
 void HierarchyTree<BV>::update(NodeType* leaf, int lookahead_level)
 {
+  // TODO(DamrongGuoy): Since we update a leaf node by removing and
+  //  inserting the same leaf node, it is likely to change the structure of
+  //  the tree despite no change in the poses of all objects. In the future,
+  //  find a way to preserve the structure of the tree to solve this issue:
+  //  https://github.com/flexible-collision-library/fcl/issues/368
   typename HierarchyTree<BV>::NodeType* root = removeLeaf(leaf);
   if(root)
   {
@@ -141,6 +146,8 @@ void HierarchyTree<BV>::update(NodeType* leaf, int lookahead_level)
         root = root->parent;
     }
     else
+      // By default lookahead_level = -1, and we will re-insert the leaf node
+      // from the root of the entire tree.
       root = root_node;
   }
   insertLeaf(root, leaf);
@@ -780,27 +787,52 @@ void HierarchyTree<BV>::insertLeaf(NodeType* root, NodeType* leaf)
 {
   if(!root_node)
   {
+    // If the tree is empty, the `leaf` will become the root node.
     root_node = leaf;
     leaf->parent = nullptr;
   }
   else
   {
+    // Traverse the tree from the given `root` down to an existing leaf node.
+    // The `root` will become a leaf node, and eventually it will become the
+    // sibling of the given `leaf` node.
     if(!root->isLeaf())
     {
       do
       {
         root = root->children[select(*leaf, *(root->children[0]), *(root->children[1]))];
       }
+      // TODO (DamrongGuoy): Consider using another variable named `sibling`
+      //  instead of overloading the `root` variable.  The name `root` is
+      //  confusing because it will become a leaf.
       while(!root->isLeaf());
     }
-
+    // The `prev` is the current parent of the `root` leaf.
+    //           ...
+    //           /
+    //        prev
+    //        /  |
+    //     root  ...
     NodeType* prev = root->parent;
+    // Create a new `node` that later will become the new parent of the `root`
+    // leaf and the given `leaf`.
     NodeType* node = createNode(prev, leaf->bv, root->bv, nullptr);
     if(prev)
+    // If the parent `prev` of the `root` leaf is an interior node, we will
+    // replace the `root` leaf with the subtree {node {`root`, leaf}} like this:
+    //           ...
+    //           /
+    //        prev
+    //        /  |
+    //     node  ...
+    //     /  |
+    //   root leaf
     {
       prev->children[indexOf(root)] = node;
       node->children[0] = root; root->parent = node;
       node->children[1] = leaf; leaf->parent = node;
+      // Adjust the bounding volumes so that each parent's bounding volume
+      // fits its children's bounding volumes.
       do
       {
         if(!prev->bv.contain(node->bv))
@@ -811,12 +843,23 @@ void HierarchyTree<BV>::insertLeaf(NodeType* root, NodeType* leaf)
       } while (nullptr != (prev = node->parent));
     }
     else
+    // If the `root` leaf has no parent, i.e., the tree is a singleton,
+    // we will replace it with the 3-node tree {node {`root`, leaf}} like this:
+    //
+    //         node
+    //        /   |
+    //      root  leaf
     {
       node->children[0] = root; root->parent = node;
       node->children[1] = leaf; leaf->parent = node;
       root_node = node;
     }
   }
+  // Note that the above algorithm always add the new `leaf` node as the right
+  // child, i.e., children[1].  Calling removeLeaf(l) followed by calling
+  // this function insertLeaf(l) where l is a left child will result in
+  // switching l and its sibling despite no change in the poses of all
+  // objects in the tree.
 }
 
 //==============================================================================
@@ -825,6 +868,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::removeLeaf(NodeType* le
 {
   if(leaf == root_node)
   {
+    // If the leaf node is the only node in the tree, the tree becomes empty.
     root_node = nullptr;
     return nullptr;
   }
@@ -833,11 +877,31 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::removeLeaf(NodeType* le
     NodeType* parent = leaf->parent;
     NodeType* prev = parent->parent;
     NodeType* sibling = parent->children[1-indexOf(leaf)];
+    //             ...
+    //             /
+    //           prev
+    //          /   |
+    //     parent  ...
+    //      /  |
+    //  leaf  sibling
+    //           /|
+    //          ...
     if(prev)
     {
+      // If the parent node is not the root node, the sibling node will
+      // replace the parent node. Afterwards the tree will look like this:
+      //             ...
+      //             /
+      //           prev
+      //          /   |
+      //    sibling  ...
+      //       /|
+      //      ...
       prev->children[indexOf(parent)] = sibling;
       sibling->parent = prev;
       deleteNode(parent);
+      // Adjust the bounding volumes so that each parent's bounding volume
+      // fits its children's bounding volumes.
       while(prev)
       {
         BV new_bv = prev->children[0]->bv + prev->children[1]->bv;
@@ -853,6 +917,18 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::removeLeaf(NodeType* le
     }
     else
     {
+      // If the parent node is the root node like this:
+      //
+      //     parent
+      //      /  |
+      //  leaf  sibling
+      //           /|
+      //          ...
+      //The sibling node will become the root node like this:
+      //
+      //           sibling
+      //             /|
+      //            ...
       root_node = sibling;
       sibling->parent = nullptr;
       deleteNode(parent);
