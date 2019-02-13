@@ -68,11 +68,17 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   // declared as a const vector here.
   std::vector<fcl::CollisionObjectd> objects{fcl::CollisionObjectd(sphere1),
                                              fcl::CollisionObjectd(sphere2)};
-  const std::vector<Vector3d> positions{Vector3d(0.1, 0.2, 0.3),
-                                        Vector3d(0.11, 0.21, 0.31)};
+  // I suspect Vector3d = Eigen::Matrix<double, 3, 1> doesn't work well with
+  // std::vector<> on Win32. Here I use array instead of std::vector.
+  // Previously std::vector<> caused unaligned-assertion failure explained in:
+  // http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html
+  // const std::vector<Vector3d> positions{Vector3d(0.1, 0.2, 0.3),
+  //                                      Vector3d(0.11, 0.21, 0.31)};
+  const Vector3d positions[2] = {Vector3d(0.1, 0.2, 0.3),
+                                 Vector3d(0.11, 0.21, 0.31)};
   fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree;
   auto o = objects.begin();
-  auto p = positions.begin();
+  const Vector3d* p = positions;
   for (; o != objects.end(); ++o, ++p) {
     o->setTranslation(*p);
     o->computeAABB();
