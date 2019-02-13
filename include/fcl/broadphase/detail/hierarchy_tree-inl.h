@@ -132,17 +132,31 @@ bool HierarchyTree<BV>::empty() const
 template<typename BV>
 void HierarchyTree<BV>::update(NodeType* leaf, int lookahead_level)
 {
+  // TODO(DamrongGuoy): Since we update a leaf node by removing and
+  //  inserting the same leaf node, it is likely to change the structure of
+  //  the tree even if no object's pose has changed. In the future,
+  //  find a way to preserve the structure of the tree to solve this issue:
+  //  https://github.com/flexible-collision-library/fcl/issues/368
+  
+  // First we remove the leaf node pointed by `leaf` variable from the tree. 
+  // The returned `root` variable is the root of the subtree containing nodes 
+  // whose BVs were adjusted due to node removal.
   typename HierarchyTree<BV>::NodeType* root = removeLeaf(leaf);
   if(root)
   {
     if(lookahead_level > 0)
     {
+      // For positive `lookahead_level`, we move the `root` variable up.
       for(int i = 0; (i < lookahead_level) && root->parent; ++i)
         root = root->parent;
     }
     else
+      // By default, lookahead_level = -1, and we reset the `root` variable
+      // to the root of the entire tree.
       root = root_node;
   }
+  // Then we insert the node pointed by `leaf` variable back into the 
+  // subtree rooted at `root` variable.
   insertLeaf(root, leaf);
 }
 
@@ -776,88 +790,151 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::sort(NodeType* n, NodeT
 
 //==============================================================================
 template<typename BV>
-void HierarchyTree<BV>::insertLeaf(NodeType* root, NodeType* leaf)
+void HierarchyTree<BV>::insertLeaf(NodeType* const sub_root,
+                                   NodeType* const leaf)
+// Attempts to insert `leaf` into a subtree rooted at `sub_root`.
+// 1. If the whole tree is empty, then `leaf` simply becomes the tree.
+// 2. Otherwise, a leaf node called `sibling` of the subtree rooted at
+//    `sub_root` is selected (the selection criteria is a black box for this
+//    algorithm), and the `sibling` leaf is replaced by an internal node with
+//    two children, `sibling` and `leaf`. The bounding volumes are updated as
+//    necessary.
 {
   if(!root_node)
   {
+    // If the entire tree is empty, the node pointed by `leaf` variable will
+    // become the root of the tree.
     root_node = leaf;
     leaf->parent = nullptr;
+    return;
+  }
+  // Traverse the tree from the given `sub_root` down to an existing leaf
+  // node that we call `sibling`. The `sibling` node will eventually become
+  // the sibling of the given `leaf` node.
+  NodeType* sibling = sub_root;
+  while(!sibling->isLeaf())
+  {
+      sibling = sibling->children[select(*leaf, *(sibling->children[0]), *(sibling->children[1]))];
+  }
+  NodeType* prev = sibling->parent;
+  // Create a new `node` that later will become the new parent of both the
+  // `sibling` and the given `leaf`.
+  NodeType* node = createNode(prev, leaf->bv, sibling->bv, nullptr);
+  if(prev)
+  // If the parent `prev` of the `sibling` is an interior node, we will
+  // replace the `sibling` with the subtree {node {`sibling`, leaf}} like
+  // this:
+  //        Before                After
+  //
+  //          ╱                     ╱
+  //        prev                  prev
+  //        ╱  ╲        ─>        ╱  ╲
+  //  sibling  ...             node  ...
+  //                           ╱  ╲
+  //                     sibling  leaf
+  {
+    prev->children[indexOf(sibling)] = node;
+    node->children[0] = sibling; sibling->parent = node;
+    node->children[1] = leaf; leaf->parent = node;
+    // Adjust the bounding volumes so that each parent's bounding volume
+    // tightly fits its children's bounding volumes.
+    do
+    {
+      if(!prev->bv.contain(node->bv))
+        prev->bv = prev->children[0]->bv + prev->children[1]->bv;
+      else
+        break;
+      node = prev;
+    } while (nullptr != (prev = node->parent));
   }
   else
+  // If the `sibling` has no parent, i.e., the tree is a singleton,
+  // we will replace it with the 3-node tree {node {`sibling`, `leaf`}} like
+  // this:
+  //
+  //        node
+  //        ╱  ╲
+  //  sibling  leaf
   {
-    if(!root->isLeaf())
-    {
-      do
-      {
-        root = root->children[select(*leaf, *(root->children[0]), *(root->children[1]))];
-      }
-      while(!root->isLeaf());
-    }
-
-    NodeType* prev = root->parent;
-    NodeType* node = createNode(prev, leaf->bv, root->bv, nullptr);
-    if(prev)
-    {
-      prev->children[indexOf(root)] = node;
-      node->children[0] = root; root->parent = node;
-      node->children[1] = leaf; leaf->parent = node;
-      do
-      {
-        if(!prev->bv.contain(node->bv))
-          prev->bv = prev->children[0]->bv + prev->children[1]->bv;
-        else
-          break;
-        node = prev;
-      } while (nullptr != (prev = node->parent));
-    }
-    else
-    {
-      node->children[0] = root; root->parent = node;
-      node->children[1] = leaf; leaf->parent = node;
-      root_node = node;
-    }
+    node->children[0] = sibling; sibling->parent = node;
+    node->children[1] = leaf; leaf->parent = node;
+    root_node = node;
   }
+
+  // Note that the above algorithm always add the new `leaf` node as the right
+  // child, i.e., children[1].  Calling removeLeaf(l) followed by calling
+  // this function insertLeaf(l) where l is a left child will result in
+  // switching l and its sibling even if no object's pose has changed.
 }
 
 //==============================================================================
-template<typename BV>
-typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::removeLeaf(NodeType* leaf)
-{
+template <typename BV>
+typename HierarchyTree<BV>::NodeType*
+HierarchyTree<BV>::removeLeaf(NodeType* const leaf) {
+// Deletes `leaf` by replacing the subtree consisting of `leaf`, its sibling,
+// and its parent with just its sibling. It then "tightens" the ancestor
+// bounding volumes. Returns a pointer to the parent of the highest node whose
+// BV changed due to the removal.
   if(leaf == root_node)
   {
+    // If the `leaf` node is the only node in the tree, the tree becomes empty.
     root_node = nullptr;
     return nullptr;
   }
+  NodeType* parent = leaf->parent;
+  NodeType* prev = parent->parent;
+  NodeType* sibling = parent->children[1-indexOf(leaf)];
+  if(prev)
+  {
+    // If the parent node is not the root node, the sibling node will
+    // replace the parent node like this:
+    //
+    //            Before              After
+    //             ...                 ...
+    //             ╱                   ╱
+    //           prev                prev
+    //          ╱   ╲               ╱   ╲
+    //     parent   ...    ─>  sibling  ...
+    //      ╱  ╲                 ╱╲
+    //  leaf  sibling           ...
+    //           ╱╲
+    //          ...
+    //
+    // Step 1: replace the subtree {parent {leaf, sibling {...}}} with
+    // {sibling {...}}.
+    prev->children[indexOf(parent)] = sibling;
+    sibling->parent = prev;
+    deleteNode(parent);
+    // Step 2: tighten up the BVs of the ancestor nodes.
+    while(prev)
+    {
+      BV new_bv = prev->children[0]->bv + prev->children[1]->bv;
+      if(!new_bv.equal(prev->bv))
+      {
+        prev->bv = new_bv;
+        prev = prev->parent;
+      }
+      else break;
+    }
+
+    return prev ? prev : root_node;
+  }
   else
   {
-    NodeType* parent = leaf->parent;
-    NodeType* prev = parent->parent;
-    NodeType* sibling = parent->children[1-indexOf(leaf)];
-    if(prev)
-    {
-      prev->children[indexOf(parent)] = sibling;
-      sibling->parent = prev;
-      deleteNode(parent);
-      while(prev)
-      {
-        BV new_bv = prev->children[0]->bv + prev->children[1]->bv;
-        if(!new_bv.equal(prev->bv))
-        {
-          prev->bv = new_bv;
-          prev = prev->parent;
-        }
-        else break;
-      }
-
-      return prev ? prev : root_node;
-    }
-    else
-    {
-      root_node = sibling;
-      sibling->parent = nullptr;
-      deleteNode(parent);
-      return root_node;
-    }
+    // If the parent node is the root node, the sibling node will become the
+    // root of the whole tree like this:
+    //
+    //     Before                   After
+    //
+    //     parent
+    //      ╱  ╲
+    //  leaf  sibling     ─>       sibling
+    //           ╱╲                  ╱╲
+    //          ...                 ...
+    root_node = sibling;
+    sibling->parent = nullptr;
+    deleteNode(parent);
+    return root_node;
   }
 }
 
