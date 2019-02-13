@@ -99,3 +99,4 @@ endforeach(test)
 
 add_subdirectory(geometry)
 add_subdirectory(narrowphase)
+add_subdirectory(broadphase)
