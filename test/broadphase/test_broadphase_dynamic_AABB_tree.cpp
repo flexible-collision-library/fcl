@@ -39,9 +39,11 @@
 #include <iostream>
 #include <memory>
 
+#include <Eigen/StdVector>
 #include <gtest/gtest.h>
 
 #include "fcl/common/types.h"
+
 #include "fcl/geometry/shape/sphere.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 
