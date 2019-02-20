@@ -68,8 +68,9 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   // our callback function. The distance() only accepts "void*" but not
   // "const void*" as the callback data.  That's why `objects` is not
   // declared as a const vector here.
-  std::vector<fcl::CollisionObjectd> objects{fcl::CollisionObjectd(sphere1),
-                                             fcl::CollisionObjectd(sphere2)};
+  std::vector<fcl::CollisionObjectd,
+              Eigen::aligned_allocator<fcl::CollisionObjectd>>
+      objects {fcl::CollisionObjectd(sphere1), fcl::CollisionObjectd(sphere2)};
   fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree;
   for (auto o = objects.begin(); o != objects.end(); ++o) {
     o->computeAABB();
