@@ -39,7 +39,7 @@
 #include <iostream>
 #include <memory>
 
-#include <Eigen/StdVector>
+// #include <Eigen/StdVector>
 #include <gtest/gtest.h>
 
 #include "fcl/common/types.h"
@@ -68,11 +68,30 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   // our callback function. The distance() only accepts "void*" but not
   // "const void*" as the callback data.  That's why `objects` is not
   // declared as a const vector here.
-  std::vector<fcl::CollisionObjectd,
-              Eigen::aligned_allocator<fcl::CollisionObjectd>>
+  //
+  // Using Eigen custom allocator:
+  // std::vector<fcl::CollisionObjectd,
+  //     Eigen::aligned_allocator<fcl::CollisionObjectd>>
+  // seems to cause:-
+  // - Travis CI
+  //   - build failure on Linux gcc 4.8.4
+  //     - StdVector.h:75:3: error: no matching function for call to
+  //   - build failure on Linux clang 5.0.0
+  //     - StdVector.h:75:3: error: no matching constructor for
+  //       initialization of
+  //   - run ok on Apple clang
+  // - AppVeyor CI
+  //   - build failure on Win32
+  //     - StdVector.h(75): error C2719: 'first': formal parameter with
+  //       requested alignment of 16 won't be aligned
+  //     - StdVector.h(75): error C2664: cannot convert argument 1 from
+  //       'fcl::CollisionObject<double>' to 'unsigned int'
+  //   - run ok on x64
+  std::vector<fcl::CollisionObjectd>
       objects {fcl::CollisionObjectd(sphere1), fcl::CollisionObjectd(sphere2)};
   fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree;
   for (auto o = objects.begin(); o != objects.end(); ++o) {
+    std::cout << "About to computeAABB()" << std::endl;
     o->computeAABB();
     dynamic_tree.registerObject(&(*o));
   }
@@ -98,6 +117,7 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   // We repeat update() and distance() many times.  Each time, in the
   // callback, we check the order of the two objects.
   for (int count = 0; count < 8; ++count) {
+    std::cout << "About to update() and distance()" << std::endl;
     dynamic_tree.update();
     dynamic_tree.distance(&objects, distance_callback);
   }
