@@ -66,7 +66,7 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
 
   auto sphere1 = std::make_shared<fcl::Sphered>(0.1);
   auto sphere2 = std::make_shared<fcl::Sphered>(0.2);
-/*
+
   // We will use `objects` to check the order of the two collision objects in
   // our callback function. The distance() only accepts "void*" but not
   // "const void*" as the callback data.  That's why `objects` is not
@@ -98,6 +98,7 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
     o->computeAABB();
     dynamic_tree.registerObject(&(*o));
   }
+/*
   // This callback function tests the order of the two collision objects from
   // the dynamic tree against the `callback_data`. We do not use the last
   // double& parameter. It specifies the minimum distance beyond which the pair
