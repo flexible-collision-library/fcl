@@ -63,9 +63,10 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   //  CollisionObject can take "shared_ptr<const CollisionGeometry>". Right
   //  now it doesn't accept the const version.
   std::cout << "Begin test DynamicAABBTreeCollisionManager.update" <<std::endl;
-/*
+
   auto sphere1 = std::make_shared<fcl::Sphered>(0.1);
   auto sphere2 = std::make_shared<fcl::Sphered>(0.2);
+/*
   // We will use `objects` to check the order of the two collision objects in
   // our callback function. The distance() only accepts "void*" but not
   // "const void*" as the callback data.  That's why `objects` is not
