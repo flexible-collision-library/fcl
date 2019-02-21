@@ -63,12 +63,12 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   //  CollisionObject can take "shared_ptr<const CollisionGeometry>". Right
   //  now it doesn't accept the const version.
   std::cout << "Begin test DynamicAABBTreeCollisionManager.update" <<std::endl;
-// Start commen-out here, and it passed.
+// Started comment-out here, and it passed.
 
   auto sphere1 = std::make_shared<fcl::Sphered>(0.1);
   auto sphere2 = std::make_shared<fcl::Sphered>(0.2);
 
-// Start commen-out here, and it passed.
+// Started comment-out here, and it passed.
 
   // We will use `objects` to check the order of the two collision objects in
   // our callback function. The distance() only accepts "void*" but not
@@ -95,10 +95,13 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   //   - run ok on x64
   std::vector<fcl::CollisionObjectd>
       objects {fcl::CollisionObjectd(sphere1), fcl::CollisionObjectd(sphere2)};
-  fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree;
-  
-// Start comment-out here, and see what would happen.
+
+// Start comment-out here, and see what happens.
 /*
+  fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree;
+
+// Started comment-out here, and it failed alignment assertion.
+
   for (auto o = objects.begin(); o != objects.end(); ++o) {
     std::cout << "About to computeAABB()" << std::endl;
     o->computeAABB();
