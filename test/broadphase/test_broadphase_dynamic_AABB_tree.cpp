@@ -42,7 +42,6 @@
 #include <gtest/gtest.h>
 
 #include "fcl/common/types.h"
-
 #include "fcl/geometry/shape/sphere.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 
@@ -73,10 +72,10 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   // "const void*" as the callback data.  That's why `objects` is not
   // declared as a const vector here.
   //
-  // Previously using std::vector<fcl::CollisionObjectd> failed the Eigen
-  // alignment assertion on Win32, so we switch from a vector of objects to
-  // a vector of pointers to objects.  Previously we also tried the custom
-  // allocator:
+  // We use std::vector that contains pointers to objects, instead of
+  // std::vector that contains the objects. Previously we used
+  // std::vector<fcl::CollisionObjectd>, and it failed the Eigen alignment
+  // assertion on Win32. We also tried, without success, the custom allocator:
   //     std::vector<fcl::CollisionObjectd,
   //                 Eigen::aligned_allocator<fcl::CollisionObjectd>>,
   // but some platforms failed to build.
