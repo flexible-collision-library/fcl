@@ -93,10 +93,17 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   //     - StdVector.h(75): error C2664: cannot convert argument 1 from
   //       'fcl::CollisionObject<double>' to 'unsigned int'
   //   - run ok on x64
-  std::vector<fcl::CollisionObjectd>
-      objects {fcl::CollisionObjectd(sphere1), fcl::CollisionObjectd(sphere2)};
+  //
+  // This definition of `objects` using std::vector failed alignment assertion.
+  // std::vector<fcl::CollisionObjectd>
+  //    objects {fcl::CollisionObjectd(sphere1),
+  //             fcl::CollisionObjectd(sphere2)};
+  // Is the following one ok?
+  fcl::CollisionObjectd object1(sphere1);
+  fcl::CollisionObjectd object2(sphere2);
+  fcl::CollisionObjectd* objects[2] = {&object1, &object2};
 
-// Start comment-out here, and see what happens.
+// Start comment-out here, and it failed alignment assertion.
 /*
   fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree;
 
