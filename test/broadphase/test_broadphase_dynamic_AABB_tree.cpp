@@ -94,7 +94,8 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   //       'fcl::CollisionObject<double>' to 'unsigned int'
   //   - run ok on x64
   //
-  // This definition of `objects` using std::vector failed alignment assertion.
+  // This definition of `objects` using std::vector failed alignment
+  // assertion on Win32.
   // std::vector<fcl::CollisionObjectd>
   //    objects {fcl::CollisionObjectd(sphere1),
   //             fcl::CollisionObjectd(sphere2)};
