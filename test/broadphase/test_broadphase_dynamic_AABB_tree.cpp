@@ -102,20 +102,14 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   // Is the following one ok?
   fcl::CollisionObjectd object1(sphere1);
   fcl::CollisionObjectd object2(sphere2);
-  fcl::CollisionObjectd* objects[2] = {&object1, &object2};
+  std::vector<fcl::CollisionObjectd*> objects = {&object1, &object2};
 
-// Start comment-out here, and it failed alignment assertion.
-/*
   fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree;
-
-// Started comment-out here, and it failed alignment assertion.
-
-  for (auto o = objects.begin(); o != objects.end(); ++o) {
+  for (auto o : objects) {
     std::cout << "About to computeAABB()" << std::endl;
     o->computeAABB();
-    dynamic_tree.registerObject(&(*o));
+    dynamic_tree.registerObject(o);
   }
-// Start comment-out here, and it failed alignment assertion.
 
   // This callback function tests the order of the two collision objects from
   // the dynamic tree against the `callback_data`. We do not use the last
@@ -125,9 +119,9 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
                               fcl::CollisionObjectd* b, void* callback_data,
                               double&) -> bool {
     const auto& objects =
-        *static_cast<std::vector<fcl::CollisionObjectd>*>(callback_data);
-    bool object0_then_object1 = (a == &(objects[0]) && b == &(objects[1]));
-    bool object1_then_object0 = (a == &(objects[1]) && b == &(objects[0]));
+        *static_cast<std::vector<fcl::CollisionObjectd*>*>(callback_data);
+    bool object0_then_object1 = (a == objects[0] && b == objects[1]);
+    bool object1_then_object0 = (a == objects[1] && b == objects[0]);
     // TODO(DamrongGuoy): When update() can preserve the tree, change the
     //  expectation to EXPECT_TRUE(object0_then_object1)
     EXPECT_TRUE(object0_then_object1 || object1_then_object0)
@@ -143,7 +137,6 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
     dynamic_tree.update();
     dynamic_tree.distance(&objects, distance_callback);
   }
-*/
 }
 
 //==============================================================================
