@@ -39,7 +39,6 @@
 #include <iostream>
 #include <memory>
 
-// #include <Eigen/StdVector>
 #include <gtest/gtest.h>
 
 #include "fcl/common/types.h"
@@ -62,53 +61,35 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   // TODO(DamrongGuoy): Change "fcl::Sphered" to "const fcl::Sphered" when
   //  CollisionObject can take "shared_ptr<const CollisionGeometry>". Right
   //  now it doesn't accept the const version.
-  std::cout << "Begin test DynamicAABBTreeCollisionManager.update" <<std::endl;
-// Started comment-out here, and it passed.
-
   auto sphere1 = std::make_shared<fcl::Sphered>(0.1);
   auto sphere2 = std::make_shared<fcl::Sphered>(0.2);
-
-// Started comment-out here, and it passed.
+  fcl::CollisionObjectd object1(sphere1);
+  fcl::CollisionObjectd object2(sphere2);
+  const Vector3d position1(0.1, 0.2, 0.3);
+  const Vector3d position2(0.11, 0.21, 0.31);
 
   // We will use `objects` to check the order of the two collision objects in
   // our callback function. The distance() only accepts "void*" but not
   // "const void*" as the callback data.  That's why `objects` is not
   // declared as a const vector here.
   //
-  // Using Eigen custom allocator:
-  // std::vector<fcl::CollisionObjectd,
-  //     Eigen::aligned_allocator<fcl::CollisionObjectd>>
-  // seems to cause:-
-  // - Travis CI
-  //   - build failure on Linux gcc 4.8.4
-  //     - StdVector.h:75:3: error: no matching function for call to
-  //   - build failure on Linux clang 5.0.0
-  //     - StdVector.h:75:3: error: no matching constructor for
-  //       initialization of
-  //   - run ok on Apple clang
-  // - AppVeyor CI
-  //   - build failure on Win32
-  //     - StdVector.h(75): error C2719: 'first': formal parameter with
-  //       requested alignment of 16 won't be aligned
-  //     - StdVector.h(75): error C2664: cannot convert argument 1 from
-  //       'fcl::CollisionObject<double>' to 'unsigned int'
-  //   - run ok on x64
-  //
-  // This definition of `objects` using std::vector failed alignment
-  // assertion on Win32.
-  // std::vector<fcl::CollisionObjectd>
-  //    objects {fcl::CollisionObjectd(sphere1),
-  //             fcl::CollisionObjectd(sphere2)};
-  // Is the following one ok?
-  fcl::CollisionObjectd object1(sphere1);
-  fcl::CollisionObjectd object2(sphere2);
+  // Previously using std::vector<fcl::CollisionObjectd> failed the Eigen
+  // alignment assertion on Win32, so we switch from a vector of objects to
+  // a vector of pointers to objects.  Previously we also tried the custom
+  // allocator:
+  //     std::vector<fcl::CollisionObjectd,
+  //                 Eigen::aligned_allocator<fcl::CollisionObjectd>>,
+  // but some platforms failed to build.
   std::vector<fcl::CollisionObjectd*> objects = {&object1, &object2};
+  std::vector<const Vector3d*> positions = {&position1, &position2};
 
   fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree;
-  for (auto o : objects) {
-    std::cout << "About to computeAABB()" << std::endl;
-    o->computeAABB();
-    dynamic_tree.registerObject(o);
+  auto o = objects.begin();
+  auto p = positions.begin();
+  for (; o != objects.end(); ++o, ++p) {
+    (*o)->setTranslation(**p);
+    (*o)->computeAABB();
+    dynamic_tree.registerObject(*o);
   }
 
   // This callback function tests the order of the two collision objects from
@@ -133,7 +114,6 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
   // We repeat update() and distance() many times.  Each time, in the
   // callback, we check the order of the two objects.
   for (int count = 0; count < 8; ++count) {
-    std::cout << "About to update() and distance()" << std::endl;
     dynamic_tree.update();
     dynamic_tree.distance(&objects, distance_callback);
   }
