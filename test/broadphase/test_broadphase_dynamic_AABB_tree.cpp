@@ -49,9 +49,10 @@ using Vector3d = fcl::Vector3d;
 
 // Tests repeatability of a dynamic tree of two spheres when we call update()
 // and distance() again and again without changing the poses of the objects.
+// The distance-callback function in this test does not compute the signed
+// distance between the two objects; it only checks their order.
 //
-// Currently every call to update() switches the order of the two objects, and I
-// use this simple test to check how update() works.
+// Currently every call to update() switches the order of the two objects.
 // TODO(DamrongGuoy): Remove the above comment when we solve the
 //  repeatability problem as mentioned in:
 //  https://github.com/flexible-collision-library/fcl/issues/368
