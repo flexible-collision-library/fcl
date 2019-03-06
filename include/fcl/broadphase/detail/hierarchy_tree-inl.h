@@ -134,7 +134,7 @@ void HierarchyTree<BV>::update(NodeType* leaf, int lookahead_level)
 {
   // TODO(DamrongGuoy): Since we update a leaf node by removing and
   //  inserting the same leaf node, it is likely to change the structure of
-  //  the tree even though no object's pose has changed. In the future,
+  //  the tree even if no object's pose has changed. In the future,
   //  find a way to preserve the structure of the tree to solve this issue:
   //  https://github.com/flexible-collision-library/fcl/issues/368
   
@@ -796,8 +796,9 @@ void HierarchyTree<BV>::insertLeaf(NodeType* const sub_root,
 // 1. If the whole tree is empty, then `leaf` simply becomes the tree.
 // 2. Otherwise, a leaf node called `sibling` of the subtree rooted at
 //    `sub_root` is selected (the selection criteria is a black box for this
-//    algorithm). The leaf node `sibling` will become the sibling of `leaf`.
-//    The bounding volumes are updated as necessary.
+//    algorithm), and the `sibling` leaf is replaced by an internal node with
+//    two children, `sibling` and `leaf`. The bounding volumes are updated as
+//    necessary.
 {
   if(!root_node)
   {
@@ -815,12 +816,6 @@ void HierarchyTree<BV>::insertLeaf(NodeType* const sub_root,
   {
       sibling = sibling->children[select(*leaf, *(sibling->children[0]), *(sibling->children[1]))];
   }
-  // The `prev` is the current parent of the `sibling`.
-  //              ...
-  //              /
-  //           prev
-  //           /  |
-  //     sibling  ...
   NodeType* prev = sibling->parent;
   // Create a new `node` that later will become the new parent of both the
   // `sibling` and the given `leaf`.
@@ -829,13 +824,14 @@ void HierarchyTree<BV>::insertLeaf(NodeType* const sub_root,
   // If the parent `prev` of the `sibling` is an interior node, we will
   // replace the `sibling` with the subtree {node {`sibling`, leaf}} like
   // this:
-  //              ...
-  //              /
-  //           prev
-  //           /  |
-  //        node  ...
-  //        /  |
-  //  sibling  leaf
+  //        Before                After
+  //
+  //          ╱                     ╱
+  //        prev                  prev
+  //        ╱  ╲        ─>        ╱  ╲
+  //  sibling  ...             node  ...
+  //                           ╱  ╲
+  //                     sibling  leaf
   {
     prev->children[indexOf(sibling)] = node;
     node->children[0] = sibling; sibling->parent = node;
@@ -857,7 +853,7 @@ void HierarchyTree<BV>::insertLeaf(NodeType* const sub_root,
   // this:
   //
   //        node
-  //        /  |
+  //        /  ╲
   //  sibling  leaf
   {
     node->children[0] = sibling; sibling->parent = node;
@@ -868,7 +864,7 @@ void HierarchyTree<BV>::insertLeaf(NodeType* const sub_root,
   // Note that the above algorithm always add the new `leaf` node as the right
   // child, i.e., children[1].  Calling removeLeaf(l) followed by calling
   // this function insertLeaf(l) where l is a left child will result in
-  // switching l and its sibling even though no object's pose has changed.
+  // switching l and its sibling even if no object's pose has changed.
 }
 
 //==============================================================================
@@ -888,26 +884,21 @@ HierarchyTree<BV>::removeLeaf(NodeType* const leaf) {
   NodeType* parent = leaf->parent;
   NodeType* prev = parent->parent;
   NodeType* sibling = parent->children[1-indexOf(leaf)];
-  //             ...
-  //             /
-  //           prev
-  //          /   |
-  //     parent  ...
-  //      /  |
-  //  leaf  sibling
-  //           /|
-  //          ...
   if(prev)
   {
     // If the parent node is not the root node, the sibling node will
-    // replace the parent node. Afterwards the tree will look like this:
-    //             ...
-    //             /
-    //           prev
-    //          /   |
-    //    sibling  ...
-    //       /|
-    //      ...
+    // replace the parent node like this:
+    //
+    //            Before              After
+    //             ...                 ...
+    //             /                   /
+    //           prev                prev
+    //          /   ╲               /   ╲
+    //     parent   ...    ─>  sibling  ...
+    //      /  ╲                 /╲
+    //  leaf  sibling           ...
+    //           /╲
+    //          ...
     //
     // Step 1: replace the subtree {parent {leaf, sibling {...}}} with
     // {sibling {...}}.
@@ -930,18 +921,16 @@ HierarchyTree<BV>::removeLeaf(NodeType* const leaf) {
   }
   else
   {
-    // If the parent node is the root node like this:
+    // If the parent node is the root node, the sibling node will become the
+    // root of the whole tree like this:
+    //
+    //     Before                   After
     //
     //     parent
-    //      /  |
-    //  leaf  sibling
-    //           /|
-    //          ...
-    //The sibling node will become the root of the whole tree like this:
-    //
-    //           sibling
-    //             /|
-    //            ...
+    //      /  ╲
+    //  leaf  sibling     ─>       sibling
+    //           /╲                  /╲
+    //          ...                 ...
     root_node = sibling;
     sibling->parent = nullptr;
     deleteNode(parent);
