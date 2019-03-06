@@ -118,7 +118,7 @@ GTEST_TEST(DynamicAABBTreeCollisionManager, update) {
     data->expect_object0_then_object1 =
         data->expect_object0_then_object1 ? false : true;
     // Return true to stop the tree traversal.
-    return false;
+    return true;
   };
   // We repeat update() and distance() many times.  Each time, in the
   // callback function, we check the order of the two objects.
