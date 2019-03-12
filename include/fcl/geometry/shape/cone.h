@@ -77,6 +77,12 @@ public:
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+
+  friend
+  std::ostream& operator<<(std::ostream& out, const Cone& cone) {
+    out << "Capsule(r: " << cone.radius << ", lz: " << cone.lz << ")";
+    return out;
+  }
 };
 
 using Conef = Cone<float>;

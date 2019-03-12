@@ -158,6 +158,13 @@ public:
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
 
+  friend
+  std::ostream& operator<<(std::ostream& out, const Convex& convex) {
+    out << "Convex(v count: " << convex.vertices_->size() << ", f count: "
+        << convex.getFaceCount() << ")";
+    return out;
+  }
+
 private:
   const std::shared_ptr<const std::vector<Vector3<S>>> vertices_;
   const int num_faces_;

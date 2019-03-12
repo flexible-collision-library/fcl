@@ -75,6 +75,12 @@ public:
   /// @brief Plane offset 
   S d;
 
+  friend
+  std::ostream& operator<<(std::ostream& out, const Plane& plane) {
+    out << "Plane(n: " << plane.n.transpose() << ", d: " << plane.d << ")";
+    return out;
+  }
+
 protected:
   
   /// @brief Turn non-unit normal into unit 

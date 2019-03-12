@@ -82,6 +82,13 @@ public:
   /// @brief Planed offset
   S d;
 
+  friend
+  std::ostream& operator<<(std::ostream& out, const Halfspace& halfspace) {
+    out << "Halfspace(n: " << halfspace.n.transpose() << ", d: "
+        << halfspace.d << ")";
+    return out;
+  }
+
 protected:
 
   /// @brief Turn non-unit normal into unit

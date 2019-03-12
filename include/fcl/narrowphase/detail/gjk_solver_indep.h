@@ -179,6 +179,20 @@ struct FCL_EXPORT GJKSolver_indep
 
   /// @brief smart guess
   mutable Vector3<S> cached_guess;
+
+  friend
+  std::ostream& operator<<(std::ostream& out, const GJKSolver_indep& solver) {
+    out << "GjkSolver_indep"
+        << "\n    gjk tolerance: " << solver.gjk_tolerance
+        << "\n    gjk max iterations: " << solver.gjk_max_iterations
+        << "\n    epa tolerance: " << solver.epa_tolerance
+        << "\n    epa max face num: " << solver.epa_max_face_num
+        << "\n    epa max vertex num: " << solver.epa_max_vertex_num
+        << "\n    epa max iterations: " << solver.epa_max_iterations
+        << "\n    enable cahced guess: " << solver.enable_cached_guess;
+    if (solver.enable_cached_guess) out << solver.cached_guess.transpose();
+    return out;
+  }
 };
 
 using GJKSolver_indepf = GJKSolver_indep<float>;

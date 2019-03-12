@@ -39,6 +39,7 @@
 #define FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
 
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
+#include "fcl/narrowphase/detail/unexpected_configuration_exception.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -949,6 +950,8 @@ static bool triangle_area_is_zero(const ccd_vec3_t& a, const ccd_vec3_t& b,
  * @retval dir The vector normal to the face, and points outward from the
  * polytope. `dir` is unnormalized, that it does not necessarily have a unit
  * length.
+ * @throws UnexpectedConfigurationException if built in debug mode _and_ the
+ * triangle has zero area (either by being too small, or being co-linear).
  */
 static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
                                             const ccd_pt_face_t* face) {
@@ -961,7 +964,11 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
   const ccd_vec3_t& test_v = face->edge[1]->vertex[0]->v.v;
   const ccd_vec3_t& c = are_coincident(test_v, a) || are_coincident(test_v, b) ?
                         face->edge[1]->vertex[1]->v.v : test_v;
-  assert(!triangle_area_is_zero(a, b, c));
+  if (triangle_area_is_zero(a, b, c)) {
+    FCL_THROW_UNEXPECTED_CONFIGURATION_EXCEPTION(
+        "Cannot compute face normal for a degenerate (zero-area) triangle",
+        "faceNormalPointingOutward");
+  }
 #endif
   // We find two edges of the triangle as e1 and e2, and the normal vector
   // of the face is e1.cross(e2).
@@ -1076,7 +1083,7 @@ static bool isOutsidePolytopeFace(const ccd_pt_t* polytope,
  * The invariant for computing the visible patch is that for each edge in the
  * polytope, if both neighbouring faces are visible, then the edge is an
  * internal edge; if only one neighbouring face is visible, then the edge
- * is a border edge. 
+ * is a border edge.
  * For each face, if one of its edges is an internal edge, then the face is
  * visible.
  */
@@ -1194,7 +1201,7 @@ static void ComputeVisiblePatchRecursive(
  * @pre Output parameters are non-null.
  * TODO(hongkai.dai@tri.global) Replace patch computation with patch deletion
  * and return border edges as an optimization.
- * TODO(hongkai.dai@tri.global) Consider caching results of per-face visiblity
+ * TODO(hongkai.dai@tri.global) Consider caching results of per-face visibility
  * status to prevent redundant recalculation -- or by associating the face
  * normal with the face.
  */
@@ -1216,8 +1223,13 @@ static void ComputeVisiblePatch(
     ComputeVisiblePatchRecursive(polytope, f, edge_index, query_point,
                                  border_edges, visible_faces, internal_edges);
   }
-  assert(ComputeVisiblePatchRecursiveSanityCheck(
-      polytope, *border_edges, *visible_faces, *internal_edges));
+#ifndef NDEBUG
+  if (!ComputeVisiblePatchRecursiveSanityCheck(
+          polytope, *border_edges, *visible_faces, *internal_edges)) {
+    FCL_THROW_UNEXPECTED_CONFIGURATION_EXCEPTION(
+        "The visible patch failed its sanity check", "ComputeVisiblePatch");
+  }
+#endif
 }
 
 /** Expands the polytope by adding a new vertex `newv` to the polytope. The
@@ -1241,6 +1253,9 @@ static void ComputeVisiblePatch(
  * expandPolytope() function.
  * @param[in] newv The new vertex add to the polytope.
  * @retval status Returns 0 on success. Returns -2 otherwise.
+ * @throws UnexpectedConfigurationException if expanding is meaningless either
+ * because 1) the nearest feature is a vertex, 2) the new vertex lies on
+ * an edge of the current polytope, or 3) the polytope has zero-area triangles.
  */
 static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
                           const ccd_support_t *newv)
@@ -1255,7 +1270,7 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   // face on which the closest point lives, and then do a depth-first search on
   // its neighbouring triangles, until the triangle cannot be seen from the new
   // vertex.
-  // TODO(hongkai.dai@tri.global): it is inefficient to store visible 
+  // TODO(hongkai.dai@tri.global): it is inefficient to store visible
   // faces/edges. A better implementation should remove visible faces and
   // internal edges inside ComputeVisiblePatch() function, when traversing the
   // faces on the polytope. We focus on the correctness in the first place.
@@ -1263,10 +1278,13 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   // will improve the performance.
 
   ccd_pt_face_t* start_face = NULL;
-  // If the feature is a point, in the EPA algorithm, this means that the two
-  // objects are in touching contact. The EPA should terminate before calling
-  // this expandPolytope function, when it detects touching contact.
-  assert(el->type != CCD_PT_VERTEX);
+
+  if (el->type == CCD_PT_VERTEX) {
+    FCL_THROW_UNEXPECTED_CONFIGURATION_EXCEPTION(
+        "The visible feature is a vertex. This should already have been "
+        "identified as a touching contact", "expandPolytope");
+  }
+
   // Start with the face on which the closest point lives
   if (el->type == CCD_PT_FACE) {
     start_face = reinterpret_cast<ccd_pt_face_t*>(el);
@@ -1279,11 +1297,10 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
     } else if (isOutsidePolytopeFace(polytope, f[1], &newv->v)) {
       start_face = f[1];
     } else {
-      throw std::logic_error(
-          "FCL expandPolytope(): This should not happen. Both the nearest "
-          "point and the new vertex are on an edge, thus the nearest distance "
-          "should be 0. This is touching contact, and we should not expand the "
-          "polytope for touching contact.");
+      FCL_THROW_UNEXPECTED_CONFIGURATION_EXCEPTION(
+          "Both the nearest point and the new vertex are on an edge, thus the "
+          "nearest distance should be 0. This is touching contact, and should "
+          "already have been identified", "expandPolytope");
     }
   }
 
@@ -1312,7 +1329,7 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   // TODO(hongkai.dai@tri.global): as a sanity check, we should make sure that
   // all vertices has at least one face/edge invisible from the new vertex
   // `newv`.
-  
+
   // Now add the new vertex.
   ccd_pt_vertex_t* new_vertex = ccdPtAddVertex(polytope, newv);
 
@@ -1351,6 +1368,7 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
  * boundary of the polytope to the origin.
  * @retval dir The support direction along which to expand the polytope. Notice
  * that dir is a normalized vector.
+ * @throws UnexpectedConfigurationException if the nearest feature is a vertex.
  */
 static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
                                       const ccd_pt_el_t* nearest_feature) {
@@ -1365,10 +1383,9 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
     // nearest point is the origin.
     switch (nearest_feature->type) {
       case CCD_PT_VERTEX: {
-        throw std::logic_error(
-            "FCL supportEPADirection(): The nearest point to the origin is a "
-            "vertex of the polytope. This should be identified as a touching "
-            "contact, before calling function supportEPADirection()");
+        FCL_THROW_UNEXPECTED_CONFIGURATION_EXCEPTION(
+            "The nearest point to the origin is a vertex of the polytope. This "
+            "should be identified as a touching contact", "supportEPADirection");
       }
       case CCD_PT_EDGE: {
         // When the nearest point is on an edge, the origin must be on that

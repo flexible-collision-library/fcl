@@ -47,6 +47,7 @@
 #include <gtest/gtest.h>
 
 #include "fcl/narrowphase/detail/convexity_based_algorithm/polytope.h"
+#include "expect_throws_message.h"
 
 namespace fcl {
 namespace detail {
@@ -137,6 +138,15 @@ std::array<fcl::Vector3<ccd_real_t>, 4> EquilateralTetrahedronVertices(
   compute_vertex(-0.5, -0.5 / std::sqrt(3), 0, &vertices[1]);
   compute_vertex(0, 1 / std::sqrt(3), 0, &vertices[2]);
   compute_vertex(0, 0, std::sqrt(2.0 / 3.0), &vertices[3]);
+  return vertices;
+}
+
+// Produces an equilateral tetrahedron, but moves the top vertex to be one
+// one of the bottom face's edges.
+std::array<Vector3<ccd_real_t>, 4> DegenerateTetrahedronVertices() {
+  std::array<Vector3<ccd_real_t>, 4> vertices = EquilateralTetrahedronVertices(
+      0, 0, 0, 1);
+  vertices[3] = (vertices[0] + vertices[1]) / 2;
   return vertices;
 }
 
@@ -275,6 +285,19 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace2) {
   CheckTetrahedronFaceNormal(p);
 }
 
+// Tests the error condition for this operation -- i.e., a degenerate triangle.
+GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardError) {
+  Tetrahedron bad_tet(DegenerateTetrahedronVertices());
+
+  // Degenerate triangle (in this case, co-linear vertices) in polytope.
+  // By construction, face 1 is the triangle that has been made degenerate.
+  FCL_EXPECT_THROWS_MESSAGE_IF_DEBUG(
+      libccd_extension::faceNormalPointingOutward(&bad_tet.polytope(),
+                                                  &bad_tet.f(1)),
+      UnexpectedConfigurationException,
+      ".*faceNormalPointingOutward.*zero-area.*");
+}
+
 GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
   auto CheckSupportEPADirection = [](
       const ccd_pt_t* polytope, const ccd_pt_el_t* nearest_pt,
@@ -317,7 +340,7 @@ GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
   EXPECT_THROW(
       libccd_extension::supportEPADirection(
           &p3.polytope(), reinterpret_cast<const ccd_pt_el_t*>(&p3.v(0))),
-      std::logic_error);
+      UnexpectedConfigurationException);
 
   // Origin is an internal point of the bottom triangle
   EquilateralTetrahedron p4(0, 0, 0);
@@ -331,6 +354,18 @@ GTEST_TEST(FCL_GJK_EPA, supportEPADirection) {
   CheckSupportEPADirection(
       &p5.polytope(), reinterpret_cast<const ccd_pt_el_t*>(&p5.f(1)),
       Vector3<ccd_real_t>(0, -2 * std::sqrt(2) / 3, 1.0 / 3), tol);
+}
+
+GTEST_TEST(FCL_GJK_EPA, supportEPADirectionError) {
+  EquilateralTetrahedron tet;
+  // Note: the exception is only thrown if the nearest feature's disatance is
+  // zero.
+  tet.v(1).dist = 0;
+  FCL_EXPECT_THROWS_MESSAGE(
+      libccd_extension::supportEPADirection(
+          &tet.polytope(), reinterpret_cast<ccd_pt_el_t*>(&tet.v(1))),
+      UnexpectedConfigurationException,
+      ".+supportEPADirection.+nearest point to the origin is a vertex.+");
 }
 
 GTEST_TEST(FCL_GJK_EPA, isOutsidePolytopeFace) {
@@ -735,6 +770,70 @@ GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch_2FacesVisible) {
                            {0, 1}, {0});
 }
 
+// Tests that the sanity check causes `ComputeVisiblePatch()` to throw in
+// debug builds.
+GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatchSanityCheck) {
+#ifndef NDEBUG
+  EquilateralTetrahedron tet;
+  std::unordered_set<ccd_pt_edge_t*> border_edges;
+  std::unordered_set<ccd_pt_face_t*> visible_faces;
+  std::unordered_set<ccd_pt_edge_t*> internal_edges;
+
+  //   Top view labels of vertices, edges and faces.
+  //                                                                    .
+  //          v2                                                        .
+  //          /\                   /\                                   .
+  //         / |\                 / |\                                  .
+  //        /e5| \               /  | \                                 .
+  //    e2 /   |  \             /   |f2\                                .
+  //      /   ╱╲v3 \e1         /f3 ╱╲   \  // f0 is the bottom face.    .
+  //     /  ╱    ╲  \         /  ╱    ╲  \                              .
+  //    / ╱e3    e4╲ \       / ╱   f1   ╲ \                             .
+  //   /╱____________╲\     /╱____________╲\                            .
+  //  v0    e0    v1  v0                                                .
+  //
+  // The tet is centered on the origin, pointing upwards (seen from above in
+  // the diagram above. We define a point above this to define the visible patch
+  // The *correct* patch should have the following:
+  //  visible faces: f1, f2, f3
+  //  internal edges: e3, e4, e5
+  //  border edges: e0, e1, e2
+  auto set_ideal = [&border_edges, &internal_edges, &visible_faces, &tet]() {
+    border_edges =
+        std::unordered_set<ccd_pt_edge_t*>{&tet.e(0), &tet.e(1), &tet.e(2)};
+    internal_edges =
+        std::unordered_set<ccd_pt_edge_t*>{&tet.e(3), &tet.e(4), &tet.e(5)};
+    visible_faces =
+        std::unordered_set<ccd_pt_face_t*>{&tet.f(1), &tet.f(2), &tet.f(3)};
+  };
+
+  set_ideal();
+  EXPECT_TRUE(libccd_extension::ComputeVisiblePatchRecursiveSanityCheck(
+      tet.polytope(), border_edges, visible_faces, internal_edges));
+
+  // Failure conditions:
+  //  Two adjacent faces have edge e --> e is internal edge.
+  set_ideal();
+  internal_edges.erase(&tet.e(5));
+  EXPECT_FALSE(libccd_extension::ComputeVisiblePatchRecursiveSanityCheck(
+      tet.polytope(), border_edges, visible_faces, internal_edges));
+
+  //  Edge in internal edge --> two adjacent faces visible.
+  set_ideal();
+  visible_faces.erase(&tet.f(3));
+  EXPECT_FALSE(libccd_extension::ComputeVisiblePatchRecursiveSanityCheck(
+      tet.polytope(), border_edges, visible_faces, internal_edges));
+
+  //  Edge in border_edges --> one (and only one) visible face.
+  set_ideal();
+  internal_edges.erase(&tet.e(5));
+  border_edges.insert(&tet.e(5));
+  EXPECT_FALSE(libccd_extension::ComputeVisiblePatchRecursiveSanityCheck(
+      tet.polytope(), border_edges, visible_faces, internal_edges));
+
+#endif
+}
+
 // Returns true if the the distance difference between the two vertices are
 // below tol.
 bool VertexPositionCoincide(const ccd_pt_vertex_t* v1,
@@ -1100,6 +1199,30 @@ GTEST_TEST(FCL_GJK_EPA, expandPolytope_hexagram_4_visible_faces) {
   }
   ComparePolytope(&hex.polytope(), &polytope_expected,
                   constants<ccd_real_t>::eps_34());
+}
+
+GTEST_TEST(FCL_GJK_EPA, expandPolytope_error) {
+  EquilateralTetrahedron tet;
+  ccd_support_t newv;
+
+  // Error condition 1: expanding with the nearest feature being a vertex.
+  FCL_EXPECT_THROWS_MESSAGE(
+      libccd_extension::expandPolytope(
+          &tet.polytope(), reinterpret_cast<ccd_pt_el_t*>(&tet.v(0)), &newv),
+      UnexpectedConfigurationException,
+      ".*expandPolytope.*The visible feature is a vertex.*");
+
+  // Error condition 2: feature is edge, and vertex lies on the edge.
+  ccd_vec3_t nearest;
+  ccdVec3Copy(&tet.v(0).v.v, &nearest);
+  ccdVec3Add(&nearest, &tet.v(1).v.v);
+  ccdVec3Scale(&nearest, 0.5);
+  newv.v = nearest;
+  FCL_EXPECT_THROWS_MESSAGE(
+      libccd_extension::expandPolytope(
+          &tet.polytope(), reinterpret_cast<ccd_pt_el_t*>(&tet.e(0)), &newv),
+      UnexpectedConfigurationException,
+      ".*expandPolytope.* nearest point and the new vertex are on an edge.*");
 }
 
 void CompareCcdVec3(const ccd_vec3_t& v, const ccd_vec3_t& v_expected,
