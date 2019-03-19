@@ -38,6 +38,8 @@
 #ifndef FCL_SHAPE_TRIANGLE_P_H
 #define FCL_SHAPE_TRIANGLE_P_H
 
+#include <iostream>
+
 #include "fcl/geometry/shape/shape_base.h"
 
 namespace fcl
@@ -68,6 +70,13 @@ public:
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+
+  friend
+  std::ostream& operator<<(std::ostream& out, const TriangleP& tri) {
+    out << "TriangleP(a: " << tri.a.transpose()
+        << ", b: " << tri.b.transpose() << ", c: " << tri.c.transpose() << ")";
+    return out;
+  }
 };
 
 using TrianglePf = TriangleP<float>;

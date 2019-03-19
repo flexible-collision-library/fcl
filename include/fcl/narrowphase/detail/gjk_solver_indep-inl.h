@@ -57,6 +57,7 @@
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/box_box.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/halfspace.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/plane.h"
+#include "fcl/narrowphase/detail/failed_at_this_configuration.h"
 
 namespace fcl
 {
@@ -669,8 +670,14 @@ bool GJKSolver_indep<S>::shapeSignedDistance(
     Vector3<S>* p2) const
 {
   // TODO: should implement the signed distance version
-  return ShapeDistanceIndepImpl<S, Shape1, Shape2>::run(
+  bool result = false;
+  try {
+    result = ShapeDistanceIndepImpl<S, Shape1, Shape2>::run(
         *this, s1, tf1, s2, tf2, dist, p1, p2);
+  } catch (const FailedAtThisConfiguration& e) {
+    ThrowDetailedConfiguration(s1, tf1, s2, tf2, *this, e);
+  }
+  return result;
 }
 
 // Shape distance algorithms not using built-in GJK algorithm
