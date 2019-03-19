@@ -38,6 +38,8 @@
 #ifndef FCL_SHAPE_CYLINDER_H
 #define FCL_SHAPE_CYLINDER_H
 
+#include <iostream>
+
 #include "fcl/geometry/shape/shape_base.h"
 
 namespace fcl
@@ -75,6 +77,12 @@ public:
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+
+  friend
+  std::ostream& operator<<(std::ostream& out, const Cylinder& cylinder) {
+    out << "Cylinder(r: " << cylinder.radius << ", lz: " << cylinder.lz << ")";
+    return out;
+  }
 };
 
 using Cylinderf = Cylinder<float>;

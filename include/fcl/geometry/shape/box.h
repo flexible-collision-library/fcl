@@ -40,6 +40,8 @@
 
 #include "fcl/geometry/shape/shape_base.h"
 
+#include <iostream>
+
 namespace fcl
 {
 
@@ -78,6 +80,12 @@ public:
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+
+  friend
+  std::ostream& operator<<(std::ostream& out, const Box& box) {
+    out << "Box" << box.side.transpose();
+    return out;
+  }
 };
 
 using Boxf = Box<float>;

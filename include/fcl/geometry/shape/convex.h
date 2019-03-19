@@ -39,6 +39,8 @@
 #ifndef FCL_SHAPE_CONVEX_H
 #define FCL_SHAPE_CONVEX_H
 
+#include <iostream>
+
 #include "fcl/geometry/shape/shape_base.h"
 
 namespace fcl
@@ -157,6 +159,13 @@ public:
   /// @brief Gets the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+
+  friend
+  std::ostream& operator<<(std::ostream& out, const Convex& convex) {
+    out << "Convex(v count: " << convex.vertices_->size() << ", f count: "
+        << convex.getFaceCount() << ")";
+    return out;
+  }
 
 private:
   const std::shared_ptr<const std::vector<Vector3<S>>> vertices_;

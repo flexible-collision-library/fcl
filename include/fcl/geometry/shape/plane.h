@@ -38,6 +38,8 @@
 #ifndef FCL_SHAPE_PLANE_H
 #define FCL_SHAPE_PLANE_H
 
+#include <iostream>
+
 #include "fcl/geometry/shape/shape_base.h"
 
 namespace fcl
@@ -74,6 +76,12 @@ public:
 
   /// @brief Plane offset 
   S d;
+
+  friend
+  std::ostream& operator<<(std::ostream& out, const Plane& plane) {
+    out << "Plane(n: " << plane.n.transpose() << ", d: " << plane.d << ")";
+    return out;
+  }
 
 protected:
   

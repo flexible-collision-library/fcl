@@ -54,6 +54,7 @@
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/box_box.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/halfspace.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/plane.h"
+#include "fcl/narrowphase/detail/failed_at_this_configuration.h"
 
 namespace fcl
 {
@@ -556,7 +557,7 @@ struct ShapeSignedDistanceLibccdImpl
     void* o1 = detail::GJKInitializer<S, Shape1>::createGJKObject(s1, tf1);
     void* o2 = detail::GJKInitializer<S, Shape2>::createGJKObject(s2, tf2);
 
-    bool res =  detail::GJKSignedDistance(
+    bool res = detail::GJKSignedDistance(
           o1,
           detail::GJKInitializer<S, Shape1>::getSupportFunction(),
           o2,
@@ -585,8 +586,14 @@ bool GJKSolver_libccd<S>::shapeSignedDistance(
     Vector3<S>* p1,
     Vector3<S>* p2) const
 {
-  return ShapeSignedDistanceLibccdImpl<S, Shape1, Shape2>::run(
+  bool result = false;
+  try {
+    result = ShapeSignedDistanceLibccdImpl<S, Shape1, Shape2>::run(
         *this, s1, tf1, s2, tf2, dist, p1, p2);
+  } catch (const FailedAtThisConfiguration& e) {
+    ThrowDetailedConfiguration(s1, tf1, s2, tf2, *this, e);
+  }
+  return result;
 }
 
 
