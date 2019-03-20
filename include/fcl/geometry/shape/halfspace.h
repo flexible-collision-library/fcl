@@ -38,6 +38,8 @@
 #ifndef FCL_SHAPE_HALFSPACE_H
 #define FCL_SHAPE_HALFSPACE_H
 
+#include <iostream>
+
 #include "fcl/geometry/shape/shape_base.h"
 #include "fcl/math/bv/OBB.h"
 #include "fcl/math/bv/RSS.h"
@@ -81,6 +83,13 @@ public:
   
   /// @brief Planed offset
   S d;
+
+  friend
+  std::ostream& operator<<(std::ostream& out, const Halfspace& halfspace) {
+    out << "Halfspace(n: " << halfspace.n.transpose() << ", d: "
+        << halfspace.d << ")";
+    return out;
+  }
 
 protected:
 
