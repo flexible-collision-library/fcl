@@ -41,6 +41,7 @@
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 #include "fcl/narrowphase/detail/failed_at_this_configuration.h"
 
+#include <array>
 #include <unordered_map>
 #include <unordered_set>
 
