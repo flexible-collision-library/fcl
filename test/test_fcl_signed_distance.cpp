@@ -216,6 +216,8 @@ void test_distance_cylinder_sphere1() {
 // This is a *specific* case that has cropped up in the wild that reaches the
 // unexpected `expandPolytope()` error. This error was reported in
 // https://github.com/flexible-collision-library/fcl/issues/319
+// This test would fail in Debug mode without the function
+// validateNearestFeatureOfPolytopeBeingEdge in PR #388.
 template <typename S>
 void test_distance_cylinder_box1() {
   using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
@@ -286,14 +288,17 @@ void test_distance_box_box1() {
   CollisionGeometryPtr_t box2_geo(
       new fcl::Box<S>(box2_size(0), box2_size(1), box2_size(2)));
   Transform3<S> X_WB2 = Transform3<S>::Identity();
-  X_WB2.matrix() << 6.1232339957367660359e-17, -1, 0, 0.80000000000000004441, 1,
-      6.1232339957367660359e-17, 0, -0.45750000000000001776, 0, 0, 1,
-      1.0224999999999999645, 0, 0, 0, 1;
+  // clang-format off
+  X_WB2.matrix() << 0, -1, 0, 0.8,
+                    1, 0, 0, -0.4575,
+                    0, 0, 1, 1.0225, 
+                    0, 0, 0, 1;
+  // clang-format on
   fcl::CollisionObject<S> box2(box2_geo, X_WB2);
 
   fcl::DistanceRequest<S> request;
   request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
-  request.distance_tolerance = 9.9999999999999995475e-07;
+  request.distance_tolerance = 1e-6;
   request.enable_signed_distance = true;
   fcl::DistanceResult<S> result;
 

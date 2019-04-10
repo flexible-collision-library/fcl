@@ -395,9 +395,9 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   // Compute origin_projection as well. Without computing the origin projection,
   // libccd could give inaccurate result. See
   // https://github.com/danfis/libccd/issues/55.
-  ccd_vec3_t origin_projection;
+  ccd_vec3_t origin_projection_unused;
   dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v,
-                              &origin_projection);
+                              &origin_projection_unused);
   if (isAbsValueLessThanEpsSquared(dist)){
     return 1;
   }
@@ -486,10 +486,14 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
 
   // check if tetrahedron is really tetrahedron (has volume > 0)
   // if it is not simplex can't be expanded and thus no intersection is
-  // found
-  ccd_vec3_t point_projection_on_triangle;
+  // found.
+  // point_projection_on_triangle_unused is not used. We ask
+  // ccdVec3PointTriDist2 to compute this witness point, so as to get a
+  // numerical robust dist_squared. See
+  // https://github.com/danfis/libccd/issues/55 for an explanation.
+  ccd_vec3_t point_projection_on_triangle_unused;
   dist_squared = ccdVec3PointTriDist2(&A->v, &B->v, &C->v, &D->v,
-                                      &point_projection_on_triangle);
+                                      &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared(dist_squared)) {
     return -1;
   }
@@ -497,16 +501,16 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   // check if origin lies on some of tetrahedron's face - if so objects
   // intersect
   dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v,
-                                      &point_projection_on_triangle);
+                                      &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
   dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v,
-                                      &point_projection_on_triangle);
+                                      &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
   dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v,
-                                      &point_projection_on_triangle);
+                                      &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
   dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v,
-                                      &point_projection_on_triangle);
+                                      &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
 
   // compute AO, AB, AC, AD segments and ABC, ACD, ADB normal vectors
@@ -748,15 +752,15 @@ static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
   ccdVec3Sub2(&ac, &c->v, &a->v);
   ccdVec3Cross(&dir, &ab, &ac);
   __ccdSupport(obj1, obj2, &dir, ccd, &d);
-  ccd_vec3_t point_projection_on_triangle;
+  ccd_vec3_t point_projection_on_triangle_unused;
   dist = ccdVec3PointTriDist2(&d.v, &a->v, &b->v, &c->v,
-                              &point_projection_on_triangle);
+                              &point_projection_on_triangle_unused);
 
   // and second one take in opposite direction
   ccdVec3Scale(&dir, -CCD_ONE);
   __ccdSupport(obj1, obj2, &dir, ccd, &d2);
   dist2 = ccdVec3PointTriDist2(&d2.v, &a->v, &b->v, &c->v,
-                               &point_projection_on_triangle);
+                               &point_projection_on_triangle_unused);
 
   // check if face isn't already on edge of minkowski sum and thus we
   // have touching contact
@@ -1499,9 +1503,9 @@ static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
     ccdPtFaceVec3(reinterpret_cast<const ccd_pt_face_t*>(el), &a, &b, &c);
 
     // check if new point can significantly expand polytope
-    ccd_vec3_t point_projection_on_triangle;
-    dist =
-        ccdVec3PointTriDist2(&out->v, a, b, c, &point_projection_on_triangle);
+    ccd_vec3_t point_projection_on_triangle_unused;
+    dist = ccdVec3PointTriDist2(&out->v, a, b, c,
+                                &point_projection_on_triangle_unused);
   }
 
   if (std::sqrt(dist) < ccd->epa_tolerance) return -1;
@@ -1573,9 +1577,9 @@ static int __ccdGJK(const void *obj1, const void *obj2,
  * of the origin onto that plane is on the edge.
  * Inside this function, we will verify if one of these two conditions are true.
  * If not, we will modify the nearest feature stored inside @p polytope, such
- * that it stores the right nearest feature and distance.
- * @note we assume that even if the edge is not the right nearest feature, the
- * right one should be one of the neighbouring faces of that edge. Namely the
+ * that it stores the correct nearest feature and distance.
+ * @note we assume that even if the edge is not the correct nearest feature, the
+ * correct one should be one of the neighbouring faces of that edge. Namely the
  * libccd solution is just slightly wrong.
  * @param polytope The polytope whose nearest feature is being verified (and
  * corrected if the edge should not be nearest feature).
@@ -1612,13 +1616,11 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
   // -face_normals[i] * origin_to_face_distance[i]
   // If the projection to both faces are on the edge, the the edge is the
   // closest feature.
-  std::array<ccd_vec3_t, 2> origin_projection_to_planes;
   bool is_edge_closest_feature = true;
   for (int i = 0; i < 2; ++i) {
-    origin_projection_to_planes[i] = face_normals[i];
-    ccdVec3Scale(&(origin_projection_to_planes[i]),
-                 -origin_to_face_distance[i]);
-    if (!is_point_on_line_segment(origin_projection_to_planes[i],
+    ccd_vec3_t origin_projection_to_plane = face_normals[i];
+    ccdVec3Scale(&(origin_projection_to_plane), -origin_to_face_distance[i]);
+    if (!is_point_on_line_segment(origin_projection_to_plane,
                                   nearest_edge->vertex[0]->v.v,
                                   nearest_edge->vertex[1]->v.v)) {
       is_edge_closest_feature = false;
