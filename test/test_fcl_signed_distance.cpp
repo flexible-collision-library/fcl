@@ -172,6 +172,8 @@ void test_distance_cylinder_sphere1() {
   // that the edge is the nearest feature, while actually one of the
   // neighbouring faces is. This test confirms that the bug is fixed, by the
   // function validateNearestFeatureOfPolytopeBeingEdge().
+  // This case was reported in
+  // https://github.com/flexible-collision-library/fcl/issues/391.
   using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
   const S cylinder_radius = 0.03;
   const S cylinder_length = 0.65;
@@ -213,34 +215,18 @@ void test_distance_cylinder_sphere1() {
   EXPECT_LE(p_SPs.norm(), sphere_radius);
 }
 
-// This is a *specific* case that has cropped up in the wild that reaches the
-// unexpected `expandPolytope()` error. This error was reported in
-// https://github.com/flexible-collision-library/fcl/issues/319
-// This test would fail in Debug mode without the function
-// validateNearestFeatureOfPolytopeBeingEdge in PR #388.
 template <typename S>
-void test_distance_cylinder_box1() {
+void test_distance_cylinder_box_helper(S cylinder_radius, S cylinder_length,
+                                       const Transform3<S>& X_WC,
+                                       const Vector3<S>& box_size,
+                                       const Transform3<S>& X_WB) {
   using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
-  const S cylinder_radius = 0.05;
-  const S cylinder_length = 0.06;
   CollisionGeometryPtr_t cylinder_geo(
       new fcl::Cylinder<S>(cylinder_radius, cylinder_length));
-  Transform3<S> X_WC = Transform3<S>::Identity();
-  X_WC.matrix() << -0.99999999997999022838, 6.2572835802045040178e-10,
-      6.3260669852976095481e-06, 0.57500009756757608503,
-      6.3260669851683709551e-06, -6.3943303429958554955e-10,
-      0.99999999997999056145, -0.42711963046787942977,
-      6.2573180158128459924e-10, 1, 6.3942912945996747041e-10,
-      1.1867093358746836351, 0, 0, 0, 1;
   fcl::CollisionObject<S> cylinder(cylinder_geo, X_WC);
 
-  const Vector3<S> box_size(0.025, 0.35, 1.845);
   CollisionGeometryPtr_t box_geo(
       new fcl::Box<S>(box_size(0), box_size(1), box_size(2)));
-  Transform3<S> X_WB = Transform3<S>::Identity();
-  X_WB.matrix() << 6.1232339957367660359e-17, -1, 0, 0.80000000000000004441, 1,
-      6.1232339957367660359e-17, 0, -0.45750000000000001776, 0, 0, 1,
-      1.0224999999999999645, 0, 0, 0, 1;
   fcl::CollisionObject<S> box(box_geo, X_WB);
 
   fcl::DistanceRequest<S> request;
@@ -250,7 +236,7 @@ void test_distance_cylinder_box1() {
   fcl::DistanceResult<S> result;
 
   ASSERT_NO_THROW(fcl::distance(&cylinder, &box, request, result));
-  EXPECT_NEAR(result.min_distance,
+  EXPECT_NEAR(std::abs(result.min_distance),
               (result.nearest_points[0] - result.nearest_points[1]).norm(),
               request.distance_tolerance);
   // p_CPc is the position of the witness point Pc on the cylinder, measured
@@ -264,6 +250,50 @@ void test_distance_cylinder_box1() {
   EXPECT_TRUE((p_BPb.array().abs() <=
                box_size.array() / 2 + 10 * std::numeric_limits<S>::epsilon())
                   .all());
+}
+
+template <typename S>
+void test_distance_cylinder_box() {
+  // This is a *specific* case that has cropped up in the wild that reaches the
+  // unexpected `expandPolytope()` error. This error was reported in
+  // https://github.com/flexible-collision-library/fcl/issues/319
+  // This test would fail in Debug mode without the function
+  // validateNearestFeatureOfPolytopeBeingEdge in PR #388.
+  S cylinder_radius = 0.05;
+  S cylinder_length = 0.06;
+
+  Transform3<S> X_WC = Transform3<S>::Identity();
+  X_WC.matrix() << -0.99999999997999022838, 6.2572835802045040178e-10,
+      6.3260669852976095481e-06, 0.57500009756757608503,
+      6.3260669851683709551e-06, -6.3943303429958554955e-10,
+      0.99999999997999056145, -0.42711963046787942977,
+      6.2573180158128459924e-10, 1, 6.3942912945996747041e-10,
+      1.1867093358746836351, 0, 0, 0, 1;
+  Vector3<S> box_size(0.025, 0.35, 1.845);
+  Transform3<S> X_WB = Transform3<S>::Identity();
+  // clang-format off
+  X_WB.matrix() << 0, -1, 0, 0.8,
+                   1, 0, 0, -0.4575,
+                   0, 0, 1, 1.0225,
+                   0, 0, 0, 1;
+  // clang-format on
+  test_distance_cylinder_box_helper(cylinder_radius, cylinder_length, X_WC,
+                                    box_size, X_WB);
+  // This is a specific case reported in
+  // https://github.com/flexible-collision-library/fcl/issues/390#issuecomment-481634606
+  X_WC.matrix() << -0.97313010759279283679, -0.12202804064972551379,
+      0.19526123781136842106, 0.87472781461138560122, 0.20950801135757171623,
+      -0.11745920593569325607, 0.97072639199619581429, -0.4038687881347159947,
+      -0.095520609678929752073, 0.98555187191549953329, 0.13986894183635001365,
+      1.5871328698116491385, 0, 0, 0, 1;
+  // clang-format off
+  X_WB.matrix() << 0, -1, 0, 0.8,
+                   1, 0, 0, -0.4575,
+                   0, 0, 1, 1.0225,
+                   0, 0, 0, 1;
+  // clang-format on
+  test_distance_cylinder_box_helper(cylinder_radius, cylinder_length, X_WC,
+                                    box_size, X_WB);
 }
 
 // This is a *specific* case that has cropped up in the wild that reaches the
@@ -302,7 +332,19 @@ void test_distance_box_box1() {
   request.enable_signed_distance = true;
   fcl::DistanceResult<S> result;
 
-  EXPECT_NO_THROW(fcl::distance(&box1, &box2, request, result));
+  ASSERT_NO_THROW(fcl::distance(&box1, &box2, request, result));
+  EXPECT_NEAR(std::abs(result.min_distance),
+              (result.nearest_points[0] - result.nearest_points[1]).norm(),
+              request.distance_tolerance);
+  // p_B1P1 is the position of the witness point P1 on box 1, measured
+  // and expressed in the box 1 frame B1.
+  const Vector3<S> p_B1P1 = X_WB1.inverse() * result.nearest_points[0];
+  const double tol = 10 * std::numeric_limits<S>::epsilon();
+  EXPECT_TRUE((p_B1P1.array().abs() <= (box1_size / 2).array() + tol).all());
+  // p_B2P2 is the position of the witness point P2 on box 2, measured
+  // and expressed in the box 2 frame B2.
+  const Vector3<S> p_B2P2 = X_WB2.inverse() * result.nearest_points[1];
+  EXPECT_TRUE((p_B2P2.array().abs() <= (box2_size / 2).array() + tol).all());
 }
 
 //==============================================================================
@@ -332,9 +374,8 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_sphere1_ccd)
   test_distance_cylinder_sphere1<double>();
 }
 
-GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box1_ccd)
-{
-  test_distance_cylinder_box1<double>();
+GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
+  test_distance_cylinder_box<double>();
 }
 
 GTEST_TEST(FCL_SIGNED_DISTANCE, box_box1_ccd) {
