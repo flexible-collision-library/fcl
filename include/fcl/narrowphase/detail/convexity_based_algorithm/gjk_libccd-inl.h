@@ -1632,7 +1632,9 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
     // feature is not the edge, it is near that edge. Hence we select the
     // neighboring face that is closest to the origin.
     polytope->nearest_type = CCD_PT_FACE;
-    // Note origin_to_face_distance is the signed distance.
+    // Note origin_to_face_distance is the *signed* distance and it is
+    // guaranteed to be negative if we are here, hence sense of this
+    // comparison is reversed.
     const int closest_face =
         origin_to_face_distance[0] < origin_to_face_distance[1] ? 1 : 0;
     polytope->nearest =
