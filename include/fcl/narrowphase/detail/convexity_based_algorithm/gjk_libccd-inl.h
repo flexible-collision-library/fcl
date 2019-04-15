@@ -41,6 +41,7 @@
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 #include "fcl/narrowphase/detail/failed_at_this_configuration.h"
 
+#include <array>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -369,6 +370,11 @@ static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir) {
   return 0;
 }
 
+    static bool isAbsValueLessThanEpsSquared(ccd_real_t val) {
+        return std::abs(val) < std::numeric_limits<ccd_real_t>::epsilon() *
+                               std::numeric_limits<ccd_real_t>::epsilon();
+    }
+
 // TODO(SeanCurtis-TRI): Define the return value:
 //   1: (like doSimplex2) --> origin is "in" the simplex.
 //   0:
@@ -377,7 +383,7 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
 {
   const ccd_support_t *A, *B, *C;
   ccd_vec3_t AO, AB, AC, ABC, tmp;
-  ccd_real_t dot, dist;
+  ccd_real_t dot;
 
   // get last added as A
   A = ccdSimplexLast(simplex);
@@ -386,10 +392,14 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   C = ccdSimplexPoint(simplex, 0);
 
   // check touching contact
-  // TODO(SeanCurtis-TRI): This is dist2 (i.e., dist_squared) and should be
-  // tested to be zero within a tolerance of ε² (and not just ε).
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
-  if (ccdIsZero(dist)){
+  // Compute origin_projection as well. Without computing the origin projection,
+  // libccd could give inaccurate result. See
+  // https://github.com/danfis/libccd/issues/55.
+  ccd_vec3_t origin_projection_unused;
+
+  const ccd_real_t dist_squared = ccdVec3PointTriDist2(
+      ccd_vec3_origin, &A->v, &B->v, &C->v, &origin_projection_unused);
+  if (isAbsValueLessThanEpsSquared(dist_squared)) {
     return 1;
   }
 
@@ -460,18 +470,12 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   return 0;
 }
 
-static bool isAbsValueLessThanEpsSquared(ccd_real_t val) {
-  return std::abs(val) < std::numeric_limits<ccd_real_t>::epsilon() *
-                             std::numeric_limits<ccd_real_t>::epsilon();
-}
-
 static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
 {
   const ccd_support_t *A, *B, *C, *D;
   ccd_vec3_t AO, AB, AC, AD, ABC, ACD, ADB;
   int B_on_ACD, C_on_ADB, D_on_ABC;
   int AB_O, AC_O, AD_O;
-  ccd_real_t dist_squared;
 
   // get last added as A
   A = ccdSimplexLast(simplex);
@@ -482,25 +486,31 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
 
   // check if tetrahedron is really tetrahedron (has volume > 0)
   // if it is not simplex can't be expanded and thus no intersection is
-  // found
-  dist_squared = ccdVec3PointTriDist2(&A->v, &B->v, &C->v, &D->v, nullptr);
+  // found.
+  // point_projection_on_triangle_unused is not used. We ask
+  // ccdVec3PointTriDist2 to compute this witness point, so as to get a
+  // numerical robust dist_squared. See
+  // https://github.com/danfis/libccd/issues/55 for an explanation.
+  ccd_vec3_t point_projection_on_triangle_unused;
+  ccd_real_t dist_squared = ccdVec3PointTriDist2(
+      &A->v, &B->v, &C->v, &D->v, &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared(dist_squared)) {
     return -1;
   }
 
   // check if origin lies on some of tetrahedron's face - if so objects
   // intersect
-  dist_squared =
-      ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
+  dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v,
+                                      &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
-  dist_squared =
-      ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v, nullptr);
+  dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v,
+                                      &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
-  dist_squared =
-      ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v, nullptr);
+  dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v,
+                                      &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
-  dist_squared =
-      ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v, nullptr);
+  dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v,
+                                      &point_projection_on_triangle_unused);
   if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
 
   // compute AO, AB, AC, AD segments and ABC, ACD, ADB normal vectors
@@ -727,7 +737,6 @@ static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
   ccd_vec3_t ab, ac, dir;
   ccd_pt_vertex_t* v[4];
   ccd_pt_edge_t* e[6];
-  ccd_real_t dist, dist2;
 
   *nearest = NULL;
 
@@ -742,16 +751,19 @@ static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
   ccdVec3Sub2(&ac, &c->v, &a->v);
   ccdVec3Cross(&dir, &ab, &ac);
   __ccdSupport(obj1, obj2, &dir, ccd, &d);
-  dist = ccdVec3PointTriDist2(&d.v, &a->v, &b->v, &c->v, NULL);
+  ccd_vec3_t point_projection_on_triangle_unused;
+  const ccd_real_t dist_squared = ccdVec3PointTriDist2(
+      &d.v, &a->v, &b->v, &c->v, &point_projection_on_triangle_unused);
 
   // and second one take in opposite direction
   ccdVec3Scale(&dir, -CCD_ONE);
   __ccdSupport(obj1, obj2, &dir, ccd, &d2);
-  dist2 = ccdVec3PointTriDist2(&d2.v, &a->v, &b->v, &c->v, NULL);
+  const ccd_real_t dist_squared_opposite = ccdVec3PointTriDist2(
+      &d2.v, &a->v, &b->v, &c->v, &point_projection_on_triangle_unused);
 
   // check if face isn't already on edge of minkowski sum and thus we
   // have touching contact
-  if (ccdIsZero(dist) || ccdIsZero(dist2)) {
+  if (ccdIsZero(dist_squared) || ccdIsZero(dist_squared_opposite)) {
     v[0] = ccdPtAddVertex(polytope, a);
     v[1] = ccdPtAddVertex(polytope, b);
     v[2] = ccdPtAddVertex(polytope, c);
@@ -797,7 +809,7 @@ static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
     return 0;
   };
 
-  if (std::abs(dist) > std::abs(dist2)) {
+  if (std::abs(dist_squared) > std::abs(dist_squared_opposite)) {
     return FormTetrahedron(d);
   } else {
     return FormTetrahedron(d2);
@@ -938,6 +950,28 @@ static bool triangle_area_is_zero(const ccd_vec3_t& a, const ccd_vec3_t& b,
   // Second co-linearity condition.
   if (ccdVec3Len2(&n) < eps * eps) return true;
   return false;
+}
+
+/**
+ * Determines if the point P is on the line segment AB.
+ * If A, B, P are coincident, report true.
+ */
+static bool is_point_on_line_segment(const ccd_vec3_t& p, const ccd_vec3_t& a,
+                                     const ccd_vec3_t& b) {
+  if (are_coincident(a, b)) {
+    return are_coincident(a, p);
+  }
+  // A and B are not coincident, if the triangle ABP has non-zero area, then P
+  // is not on the line adjoining AB, and hence not on the line segment AB.
+  if (!triangle_area_is_zero(a, b, p)) {
+    return false;
+  }
+  // P is on the line adjoinging AB. If P is on the line segment AB, then
+  // PA.dot(PB) <= 0.
+  ccd_vec3_t PA, PB;
+  ccdVec3Sub2(&PA, &p, &a);
+  ccdVec3Sub2(&PB, &p, &b);
+  return ccdVec3Dot(&PA, &PB) <= 0;
 }
 
 /**
@@ -1286,7 +1320,6 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
         "The visible feature is a vertex. This should already have been "
         "identified as a touching contact");
   }
-
   // Start with the face on which the closest point lives
   if (el->type == CCD_PT_FACE) {
     start_face = reinterpret_cast<ccd_pt_face_t*>(el);
@@ -1440,7 +1473,6 @@ static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
                        const void* obj2, const ccd_t* ccd,
                        const ccd_pt_el_t* el, ccd_support_t* out) {
   ccd_vec3_t *a, *b, *c;
-  ccd_real_t dist;
 
   if (el->type == CCD_PT_VERTEX) return -1;
 
@@ -1450,7 +1482,7 @@ static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
 
   // Compute distance of support point in the support direction, so we can
   // determine whether we expanded a polytope surrounding the origin a bit.
-  dist = ccdVec3Dot(&out->v, &dir);
+  const ccd_real_t dist = ccdVec3Dot(&out->v, &dir);
 
   // el->dist is the squared distance from the feature "el" to the origin..
   // dist is an upper bound on the distance from the boundary of the Minkowski
@@ -1458,21 +1490,24 @@ static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
   // distance.
   if (dist - std::sqrt(el->dist) < ccd->epa_tolerance) return -1;
 
+  ccd_real_t dist_squared{};
   if (el->type == CCD_PT_EDGE) {
     // fetch end points of edge
     ccdPtEdgeVec3(reinterpret_cast<const ccd_pt_edge_t*>(el), &a, &b);
 
     // get distance from segment
-    dist = ccdVec3PointSegmentDist2(&out->v, a, b, NULL);
+    dist_squared = ccdVec3PointSegmentDist2(&out->v, a, b, NULL);
   } else {  // el->type == CCD_PT_FACE
     // fetch vertices of triangle face
     ccdPtFaceVec3(reinterpret_cast<const ccd_pt_face_t*>(el), &a, &b, &c);
 
     // check if new point can significantly expand polytope
-    dist = ccdVec3PointTriDist2(&out->v, a, b, c, NULL);
+    ccd_vec3_t point_projection_on_triangle_unused;
+    dist_squared = ccdVec3PointTriDist2(&out->v, a, b, c,
+                                        &point_projection_on_triangle_unused);
   }
 
-  if (std::sqrt(dist) < ccd->epa_tolerance) return -1;
+  if (std::sqrt(dist_squared) < ccd->epa_tolerance) return -1;
 
   return 0;
 }
@@ -1533,6 +1568,81 @@ static int __ccdGJK(const void *obj1, const void *obj2,
   return -1;
 }
 
+/**
+ * When the nearest feature of a polytope to the origin is an edge, and the
+ * origin is inside the polytope, it implies one of the following conditions
+ * 1. The origin lies exactly on that edge
+ * 2. The two neighbouring faces of that edge are coplanar, and the projection
+ * of the origin onto that plane is on the edge.
+ * At times libccd incorrectly claims that the nearest feature is an edge.
+ * Inside this function, we will verify if one of these two conditions are true.
+ * If not, we will modify the nearest feature stored inside @p polytope, such
+ * that it stores the correct nearest feature and distance.
+ * @note we assume that even if the edge is not the correct nearest feature, the
+ * correct one should be one of the neighbouring faces of that edge. Namely the
+ * libccd solution is just slightly wrong.
+ * @param polytope The polytope whose nearest feature is being verified (and
+ * corrected if the edge should not be nearest feature).
+ * @note Only call this function in the EPA functions, where the origin should
+ * be inside the polytope.
+ */
+static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
+  assert(polytope->nearest_type == CCD_PT_EDGE);
+  // Only verify the feature if the nearest feature is an edge.
+
+  const ccd_pt_edge_t* const nearest_edge =
+      reinterpret_cast<ccd_pt_edge_t*>(polytope->nearest);
+  // Find the outward normals on the two neighbouring faces of the edge, if
+  // the origin is on the "inner" side of these two faces, then we regard the
+  // origin to be inside the polytope. Note that these face_normals are
+  // normalized.
+  std::array<ccd_vec3_t, 2> face_normals;
+  std::array<double, 2> origin_to_face_distance;
+  for (int i = 0; i < 2; ++i) {
+    face_normals[i] =
+        faceNormalPointingOutward(polytope, nearest_edge->faces[i]);
+    ccdVec3Normalize(&face_normals[i]);
+    // If the origin o is on the "inner" side of the face, then
+    // n̂ ⋅ (o - vₑ) ≤ 0 or, with simplification, -n̂ ⋅ vₑ ≤ 0 (since n̂ ⋅ o = 0).
+    origin_to_face_distance[i] =
+        -ccdVec3Dot(&face_normals[i], &nearest_edge->vertex[0]->v.v);
+    if (origin_to_face_distance[i] > 0) {
+      FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
+          "The origin is outside of the polytope. This should already have "
+          "been identified as separating.");
+    }
+  }
+  // We compute the projection of the origin onto the plane as
+  // -face_normals[i] * origin_to_face_distance[i]
+  // If the projection to both faces are on the edge, the the edge is the
+  // closest feature.
+  bool is_edge_closest_feature = true;
+  for (int i = 0; i < 2; ++i) {
+    ccd_vec3_t origin_projection_to_plane = face_normals[i];
+    ccdVec3Scale(&(origin_projection_to_plane), -origin_to_face_distance[i]);
+    if (!is_point_on_line_segment(origin_projection_to_plane,
+                                  nearest_edge->vertex[0]->v.v,
+                                  nearest_edge->vertex[1]->v.v)) {
+      is_edge_closest_feature = false;
+      break;
+    }
+  }
+  if (!is_edge_closest_feature) {
+    // We assume that libccd is not crazily wrong. Although the closest
+    // feature is not the edge, it is near that edge. Hence we select the
+    // neighboring face that is closest to the origin.
+    polytope->nearest_type = CCD_PT_FACE;
+    // Note origin_to_face_distance is the *signed* distance and it is
+    // guaranteed to be negative if we are here, hence sense of this
+    // comparison is reversed.
+    const int closest_face =
+        origin_to_face_distance[0] < origin_to_face_distance[1] ? 1 : 0;
+    polytope->nearest =
+        reinterpret_cast<ccd_pt_el_t*>(nearest_edge->faces[closest_face]);
+    // polytope->nearest_dist stores the SQUARED distance.
+    polytope->nearest_dist = pow(origin_to_face_distance[closest_face], 2);
+  }
+}
 
 static int __ccdEPA(const void *obj1, const void *obj2,
                     const ccd_t *ccd,
@@ -1557,6 +1667,7 @@ static int __ccdEPA(const void *obj1, const void *obj2,
         ret = simplexToPolytope2(obj1, obj2, ccd, simplex, polytope, nearest);
     }
 
+
     if (ret == -1){
         // touching contact
         return 0;
@@ -1566,12 +1677,21 @@ static int __ccdEPA(const void *obj1, const void *obj2,
     }
 
     while (1){
-        // get triangle nearest to origin
+      // get triangle nearest to origin
+      *nearest = ccdPtNearest(polytope);
+      if (polytope->nearest_type == CCD_PT_EDGE) {
+        // When libccd thinks the nearest feature is an edge, that is often
+        // wrong, hence we validate the nearest feature by ourselves.
+        // TODO remove this validation step when we can reliably compute the
+        // nearest feature of a polytope.
+        validateNearestFeatureOfPolytopeBeingEdge(polytope);
         *nearest = ccdPtNearest(polytope);
+      }
 
         // get next support point
-        if (nextSupport(polytope, obj1, obj2, ccd, *nearest, &supp) != 0)
+        if (nextSupport(polytope, obj1, obj2, ccd, *nearest, &supp) != 0) {
             break;
+        }
 
         // expand nearest triangle using new point - supp
         if (expandPolytope(polytope, *nearest, &supp) != 0)
