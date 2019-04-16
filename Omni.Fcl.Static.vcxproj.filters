@@ -1,0 +1,1347 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\broadphase\broadphase_SSaP.cpp">
+      <Filter>broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\broadphase_bruteforce.cpp">
+      <Filter>broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\broadphase_collision_manager.cpp">
+      <Filter>broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\broadphase_continuous_collision_manager.cpp">
+      <Filter>broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\broadphase_dynamic_AABB_tree.cpp">
+      <Filter>broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\broadphase_dynamic_AABB_tree_array.cpp">
+      <Filter>broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\broadphase_interval_tree.cpp">
+      <Filter>broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\broadphase_SaP.cpp">
+      <Filter>broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\broadphase_spatialhash.cpp">
+      <Filter>broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\detail\interval_tree.cpp">
+      <Filter>broadphase\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\detail\interval_tree_node.cpp">
+      <Filter>broadphase\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\detail\morton.cpp">
+      <Filter>broadphase\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\detail\simple_interval.cpp">
+      <Filter>broadphase\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\broadphase\detail\spatial_hash.cpp">
+      <Filter>broadphase\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\detail\profiler.cpp">
+      <Filter>common\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\exception.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\time.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\bvh\detail\BVH_front.cpp">
+      <Filter>geometry\bvh\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\bvh\BV_node_base.cpp">
+      <Filter>geometry\bvh</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\bvh\BVH_utility.cpp">
+      <Filter>geometry\bvh</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\collision_geometry.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\octree\octree.cpp">
+      <Filter>geometry\octree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\box.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\capsule.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\cone.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\convex.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\cylinder.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\ellipsoid.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\halfspace.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\plane.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\shape_base.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\sphere.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\triangle_p.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometry\shape\utility.cpp">
+      <Filter>geometry\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\bv\AABB.cpp">
+      <Filter>math\bv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\bv\kDOP.cpp">
+      <Filter>math\bv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\bv\kIOS.cpp">
+      <Filter>math\bv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\bv\OBB.cpp">
+      <Filter>math\bv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\bv\OBBRSS.cpp">
+      <Filter>math\bv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\bv\RSS.cpp">
+      <Filter>math\bv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\bv\utility.cpp">
+      <Filter>math\bv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\detail\polysolver.cpp">
+      <Filter>math\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\detail\project.cpp">
+      <Filter>math\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\detail\seed.cpp">
+      <Filter>math\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\interp_motion.cpp">
+      <Filter>math\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\motion_base.cpp">
+      <Filter>math\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\screw_motion.cpp">
+      <Filter>math\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\spline_motion.cpp">
+      <Filter>math\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\translation_motion.cpp">
+      <Filter>math\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\triangle_motion_bound_visitor.cpp">
+      <Filter>math\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\taylor_model\interval.cpp">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\taylor_model\interval_matrix.cpp">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\taylor_model\interval_vector.cpp">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\taylor_model\taylor_matrix.cpp">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\taylor_model\taylor_model.cpp">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\taylor_model\taylor_vector.cpp">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\motion\taylor_model\time_interval.cpp">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\sampler\sampler_base.cpp">
+      <Filter>math\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\sampler\sampler_se2.cpp">
+      <Filter>math\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\sampler\sampler_se2_disk.cpp">
+      <Filter>math\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\sampler\sampler_se3_euler.cpp">
+      <Filter>math\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\sampler\sampler_se3_euler_ball.cpp">
+      <Filter>math\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\sampler\sampler_se3_quat.cpp">
+      <Filter>math\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\sampler\sampler_se3_quat_ball.cpp">
+      <Filter>math\sampler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\constants.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\geometry.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\rng.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\triangle.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\variance3.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\convexity_based_algorithm\epa.cpp">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\convexity_based_algorithm\gjk.cpp">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\convexity_based_algorithm\gjk_libccd.cpp">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\convexity_based_algorithm\minkowski_diff.cpp">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\box_box.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\capsule_capsule.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\halfspace.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\intersect.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\plane.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_capsule.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_sphere.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_triangle.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\triangle_distance.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\collision\collision_traversal_node_base.cpp">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\collision\mesh_collision_traversal_node.cpp">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\collision\mesh_continuous_collision_traversal_node.cpp">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\distance\conservative_advancement_stack_data.cpp">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\distance\distance_traversal_node_base.cpp">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\distance\mesh_conservative_advancement_traversal_node.cpp">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\distance\mesh_distance_traversal_node.cpp">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\collision_node.cpp">
+      <Filter>narrowphase\detail\traversal</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\traversal_node_base.cpp">
+      <Filter>narrowphase\detail\traversal</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\traversal\traversal_recurse.cpp">
+      <Filter>narrowphase\detail\traversal</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\gjk_solver_indep.cpp">
+      <Filter>narrowphase\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\gjk_solver_libccd.cpp">
+      <Filter>narrowphase\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\collision.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\collision_object.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\collision_request.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\collision_result.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\contact.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\contact_point.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\continuous_collision.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\continuous_collision_object.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\continuous_collision_request.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\continuous_collision_result.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\cost_source.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\distance.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\distance_request.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\distance_result.cpp">
+      <Filter>narrowphase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_box.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_cylinder.cpp">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="broadphase">
+      <UniqueIdentifier>{a712e45d-a75c-4b5f-89a7-28503c9bd1e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="broadphase\detail">
+      <UniqueIdentifier>{504b00c4-7f79-4534-8ebd-0d4960a5ad8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{5440782d-c5ca-4602-b78d-1de49877664e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\detail">
+      <UniqueIdentifier>{4ae94059-73ca-4c2c-b4d4-a4a4a717fdab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry">
+      <UniqueIdentifier>{2d8ac15e-cb80-4842-b0b7-02d94f5c601d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry\bvh">
+      <UniqueIdentifier>{6b3d53ed-712b-4bdb-a0a8-2639623c5171}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry\bvh\detail">
+      <UniqueIdentifier>{8244bcc1-b93b-4550-b809-1ac272bec09a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry\octree">
+      <UniqueIdentifier>{b2bb2319-0c89-4e7d-9377-3d2694d90f26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry\shape">
+      <UniqueIdentifier>{ae749552-f88a-430c-9c9d-f26ce6322590}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{bf700c12-40c0-4c87-b6d8-495c9376fc0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\bv">
+      <UniqueIdentifier>{418d7ec9-f0ee-45a1-ada7-0e6d86cfa865}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\detail">
+      <UniqueIdentifier>{e95f62d4-1ec4-444d-91cc-d75dc215da2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\motion">
+      <UniqueIdentifier>{c130d322-b090-4458-976f-50e756521b7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\sampler">
+      <UniqueIdentifier>{a728d42d-fb37-439a-a7a3-30274d7ca2a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\motion\taylor_model">
+      <UniqueIdentifier>{b126ab3d-c86b-46e8-93d6-6a86450836fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase">
+      <UniqueIdentifier>{4c0205e2-5dad-4630-bbce-653dacf6440a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase\detail">
+      <UniqueIdentifier>{b2cac06f-0e23-4703-9653-8c152a527736}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase\detail\convexity_based_algorithm">
+      <UniqueIdentifier>{e9721910-b966-4835-a0d2-5741218310e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase\detail\primitive_shape_algorithm">
+      <UniqueIdentifier>{e0233d2b-5de2-4286-92f7-450eec6eea62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase\detail\traversal">
+      <UniqueIdentifier>{16681247-73fa-4d02-8f41-e614aa771997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase\detail\traversal\collision">
+      <UniqueIdentifier>{b91b4f53-d3f6-4491-bb18-08f69eeebb78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase\detail\traversal\distance">
+      <UniqueIdentifier>{2a3022a6-0a76-4cf0-aca4-cb33a35e6e59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase\detail\traversal\octree">
+      <UniqueIdentifier>{6d8d4a81-8f70-46de-b90d-8a696febf721}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase\detail\traversal\octree\collision">
+      <UniqueIdentifier>{219f7554-95ec-4c9d-a342-4a62e1c8aff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="narrowphase\detail\traversal\octree\distance">
+      <UniqueIdentifier>{7c5d952a-1b21-4e86-8690-6899dee0845c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="config.h" />
+    <ClInclude Include="export.h" />
+    <ClInclude Include="fcl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\hierarchy_tree.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\hierarchy_tree_array.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\hierarchy_tree_array-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\hierarchy_tree-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\interval_tree.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\interval_tree_node.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\interval_tree_node-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\interval_tree-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\morton.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\morton-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\node_base.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\node_base_array.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\node_base_array-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\node_base-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\simple_hash_table.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\simple_hash_table-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\simple_interval.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\simple_interval-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\sparse_hash_table.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\sparse_hash_table-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\spatial_hash.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\detail\spatial_hash-inl.h">
+      <Filter>broadphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_bruteforce.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_bruteforce-inl.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_collision_manager.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_collision_manager-inl.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_continuous_collision_manager.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_continuous_collision_manager-inl.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_dynamic_AABB_tree.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_dynamic_AABB_tree_array.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_dynamic_AABB_tree_array-inl.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_dynamic_AABB_tree-inl.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_interval_tree.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_interval_tree-inl.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_SaP.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_SaP-inl.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_spatialhash.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_spatialhash-inl.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_SSaP.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\broadphase\broadphase_SSaP-inl.h">
+      <Filter>broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\common\detail\profiler.h">
+      <Filter>common\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\common\exception.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\common\profiler.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\common\time.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\common\types.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\common\unused.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\common\warning.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_fitter.h">
+      <Filter>geometry\bvh\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_fitter_base.h">
+      <Filter>geometry\bvh\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_fitter-inl.h">
+      <Filter>geometry\bvh\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_splitter.h">
+      <Filter>geometry\bvh\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_splitter_base.h">
+      <Filter>geometry\bvh\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_splitter-inl.h">
+      <Filter>geometry\bvh\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BVH_front.h">
+      <Filter>geometry\bvh\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\BV_node.h">
+      <Filter>geometry\bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\BV_node_base.h">
+      <Filter>geometry\bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\BV_node-inl.h">
+      <Filter>geometry\bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_internal.h">
+      <Filter>geometry\bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_model.h">
+      <Filter>geometry\bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_model-inl.h">
+      <Filter>geometry\bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_utility.h">
+      <Filter>geometry\bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_utility-inl.h">
+      <Filter>geometry\bvh</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\box.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\box-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\capsule.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\capsule-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\cone.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\cone-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\convex.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\convex-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\cylinder.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\cylinder-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\ellipsoid.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\ellipsoid-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\halfspace.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\halfspace-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\plane.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\plane-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\shape_base.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\shape_base-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\sphere.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\sphere-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\triangle_p.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\triangle_p-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\utility.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\shape\utility-inl.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\octree\octree.h">
+      <Filter>geometry\octree</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\octree\octree-inl.h">
+      <Filter>geometry\octree</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\collision_geometry.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\collision_geometry-inl.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\geometric_shape_to_BVH_model.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\geometry\geometric_shape_to_BVH_model-inl.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\AABB.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\AABB-inl.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\kDOP.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\kDOP-inl.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\kIOS.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\kIOS-inl.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\OBB.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\OBB-inl.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\OBBRSS.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\OBBRSS-inl.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\RSS.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\RSS-inl.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\utility.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\bv\utility-inl.h">
+      <Filter>math\bv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\detail\polysolver.h">
+      <Filter>math\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\detail\polysolver-inl.h">
+      <Filter>math\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\detail\project.h">
+      <Filter>math\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\detail\project-inl.h">
+      <Filter>math\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\detail\seed.h">
+      <Filter>math\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval_matrix.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval_matrix-inl.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval_vector.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval_vector-inl.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval-inl.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_matrix.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_matrix-inl.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_model.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_model-inl.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_vector.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_vector-inl.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\time_interval.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\taylor_model\time_interval-inl.h">
+      <Filter>math\motion\taylor_model</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\bv_motion_bound_visitor.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\interp_motion.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\interp_motion-inl.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\motion_base.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\motion_base-inl.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\screw_motion.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\screw_motion-inl.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\spline_motion.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\spline_motion-inl.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\tbv_motion_bound_visitor.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\tbv_motion_bound_visitor-inl.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\translation_motion.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\translation_motion-inl.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\triangle_motion_bound_visitor.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\motion\triangle_motion_bound_visitor-inl.h">
+      <Filter>math\motion</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_base.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_r.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_r-inl.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se2.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se2_disk.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se2_disk-inl.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se2-inl.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_euler.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_euler_ball.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_euler_ball-inl.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_euler-inl.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_quat.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_quat_ball.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_quat_ball-inl.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_quat-inl.h">
+      <Filter>math\sampler</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\constants.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\geometry.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\geometry-inl.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\rng.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\rng-inl.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\triangle.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\variance3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\math\variance3-inl.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\alloc.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\epa.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\epa-inl.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\gjk.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\gjk_libccd.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\gjk_libccd-inl.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\gjk-inl.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\list.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\minkowski_diff.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\minkowski_diff-inl.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\polytope.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\simplex.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\support.h">
+      <Filter>narrowphase\detail\convexity_based_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\bvh_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\bvh_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\bvh_shape_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\bvh_shape_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\collision_traversal_node_base.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\collision_traversal_node_base-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\intersect.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\intersect-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_continuous_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_continuous_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_shape_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_shape_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_bvh_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_bvh_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_mesh_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_mesh_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\bvh_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\bvh_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\bvh_shape_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\bvh_shape_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\conservative_advancement_stack_data.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\conservative_advancement_stack_data-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\distance_traversal_node_base.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\distance_traversal_node_base-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_conservative_advancement_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_conservative_advancement_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_shape_conservative_advancement_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_shape_conservative_advancement_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_shape_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_shape_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_bvh_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_bvh_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_conservative_advancement_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_conservative_advancement_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_mesh_conservative_advancement_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_mesh_conservative_advancement_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_mesh_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_mesh_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\mesh_octree_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\mesh_octree_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_mesh_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_mesh_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_shape_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_shape_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\shape_octree_collision_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\shape_octree_collision_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\mesh_octree_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\mesh_octree_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_mesh_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_mesh_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_shape_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_shape_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\shape_octree_distance_traversal_node.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\shape_octree_distance_traversal_node-inl.h">
+      <Filter>narrowphase\detail\traversal\octree\distance</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\octree_solver.h">
+      <Filter>narrowphase\detail\traversal\octree</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\octree_solver-inl.h">
+      <Filter>narrowphase\detail\traversal\octree</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision_node.h">
+      <Filter>narrowphase\detail\traversal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision_node-inl.h">
+      <Filter>narrowphase\detail\traversal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\traversal_node_base.h">
+      <Filter>narrowphase\detail\traversal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\traversal_node_base-inl.h">
+      <Filter>narrowphase\detail\traversal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\traversal_recurse.h">
+      <Filter>narrowphase\detail\traversal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\traversal_recurse-inl.h">
+      <Filter>narrowphase\detail\traversal</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\box_box.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\box_box-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\capsule_capsule.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\capsule_capsule-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\halfspace.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\halfspace-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\plane.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\plane-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_capsule.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_capsule-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_sphere.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_sphere-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_triangle.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_triangle-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\triangle_distance.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\triangle_distance-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\collision_func_matrix.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\collision_func_matrix-inl.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\conservative_advancement_func_matrix.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\conservative_advancement_func_matrix-inl.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\distance_func_matrix.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\distance_func_matrix-inl.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\gjk_solver_indep.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\gjk_solver_indep-inl.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\gjk_solver_libccd.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\gjk_solver_libccd-inl.h">
+      <Filter>narrowphase\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\collision.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\collision_object.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\collision_object-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\collision_request.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\collision_request-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\collision_result.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\collision_result-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\collision-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\contact.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\contact_point.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\contact_point-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\contact-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_object.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_object-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_request.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_request-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_result.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_result-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\cost_source.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\cost_source-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\distance.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\distance_request.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\distance_request-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\distance_result.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\distance_result-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\distance-inl.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\gjk_solver_type.h">
+      <Filter>narrowphase</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_box.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_box-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_cylinder.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_cylinder-inl.h">
+      <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,516 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\broadphase\broadphase_bruteforce.cpp" />
+    <ClCompile Include="src\broadphase\broadphase_collision_manager.cpp" />
+    <ClCompile Include="src\broadphase\broadphase_continuous_collision_manager.cpp" />
+    <ClCompile Include="src\broadphase\broadphase_dynamic_AABB_tree.cpp" />
+    <ClCompile Include="src\broadphase\broadphase_dynamic_AABB_tree_array.cpp" />
+    <ClCompile Include="src\broadphase\broadphase_interval_tree.cpp" />
+    <ClCompile Include="src\broadphase\broadphase_SaP.cpp" />
+    <ClCompile Include="src\broadphase\broadphase_spatialhash.cpp" />
+    <ClCompile Include="src\broadphase\broadphase_SSaP.cpp" />
+    <ClCompile Include="src\broadphase\detail\interval_tree.cpp" />
+    <ClCompile Include="src\broadphase\detail\interval_tree_node.cpp" />
+    <ClCompile Include="src\broadphase\detail\morton.cpp" />
+    <ClCompile Include="src\broadphase\detail\simple_interval.cpp" />
+    <ClCompile Include="src\broadphase\detail\spatial_hash.cpp" />
+    <ClCompile Include="src\common\detail\profiler.cpp" />
+    <ClCompile Include="src\common\exception.cpp" />
+    <ClCompile Include="src\common\time.cpp" />
+    <ClCompile Include="src\geometry\bvh\BVH_utility.cpp" />
+    <ClCompile Include="src\geometry\bvh\BV_node_base.cpp" />
+    <ClCompile Include="src\geometry\bvh\detail\BVH_front.cpp" />
+    <ClCompile Include="src\geometry\collision_geometry.cpp" />
+    <ClCompile Include="src\geometry\octree\octree.cpp" />
+    <ClCompile Include="src\geometry\shape\box.cpp" />
+    <ClCompile Include="src\geometry\shape\capsule.cpp" />
+    <ClCompile Include="src\geometry\shape\cone.cpp" />
+    <ClCompile Include="src\geometry\shape\convex.cpp" />
+    <ClCompile Include="src\geometry\shape\cylinder.cpp" />
+    <ClCompile Include="src\geometry\shape\ellipsoid.cpp" />
+    <ClCompile Include="src\geometry\shape\halfspace.cpp" />
+    <ClCompile Include="src\geometry\shape\plane.cpp" />
+    <ClCompile Include="src\geometry\shape\shape_base.cpp" />
+    <ClCompile Include="src\geometry\shape\sphere.cpp" />
+    <ClCompile Include="src\geometry\shape\triangle_p.cpp" />
+    <ClCompile Include="src\geometry\shape\utility.cpp" />
+    <ClCompile Include="src\math\bv\AABB.cpp" />
+    <ClCompile Include="src\math\bv\kDOP.cpp" />
+    <ClCompile Include="src\math\bv\kIOS.cpp" />
+    <ClCompile Include="src\math\bv\OBB.cpp" />
+    <ClCompile Include="src\math\bv\OBBRSS.cpp" />
+    <ClCompile Include="src\math\bv\RSS.cpp" />
+    <ClCompile Include="src\math\bv\utility.cpp" />
+    <ClCompile Include="src\math\constants.cpp" />
+    <ClCompile Include="src\math\detail\polysolver.cpp" />
+    <ClCompile Include="src\math\detail\project.cpp" />
+    <ClCompile Include="src\math\detail\seed.cpp" />
+    <ClCompile Include="src\math\geometry.cpp" />
+    <ClCompile Include="src\math\motion\interp_motion.cpp" />
+    <ClCompile Include="src\math\motion\motion_base.cpp" />
+    <ClCompile Include="src\math\motion\screw_motion.cpp" />
+    <ClCompile Include="src\math\motion\spline_motion.cpp" />
+    <ClCompile Include="src\math\motion\taylor_model\interval.cpp" />
+    <ClCompile Include="src\math\motion\taylor_model\interval_matrix.cpp" />
+    <ClCompile Include="src\math\motion\taylor_model\interval_vector.cpp" />
+    <ClCompile Include="src\math\motion\taylor_model\taylor_matrix.cpp" />
+    <ClCompile Include="src\math\motion\taylor_model\taylor_model.cpp" />
+    <ClCompile Include="src\math\motion\taylor_model\taylor_vector.cpp" />
+    <ClCompile Include="src\math\motion\taylor_model\time_interval.cpp" />
+    <ClCompile Include="src\math\motion\translation_motion.cpp" />
+    <ClCompile Include="src\math\motion\triangle_motion_bound_visitor.cpp" />
+    <ClCompile Include="src\math\rng.cpp" />
+    <ClCompile Include="src\math\sampler\sampler_base.cpp" />
+    <ClCompile Include="src\math\sampler\sampler_se2.cpp" />
+    <ClCompile Include="src\math\sampler\sampler_se2_disk.cpp" />
+    <ClCompile Include="src\math\sampler\sampler_se3_euler.cpp" />
+    <ClCompile Include="src\math\sampler\sampler_se3_euler_ball.cpp" />
+    <ClCompile Include="src\math\sampler\sampler_se3_quat.cpp" />
+    <ClCompile Include="src\math\sampler\sampler_se3_quat_ball.cpp" />
+    <ClCompile Include="src\math\triangle.cpp" />
+    <ClCompile Include="src\math\variance3.cpp" />
+    <ClCompile Include="src\narrowphase\collision.cpp" />
+    <ClCompile Include="src\narrowphase\collision_object.cpp" />
+    <ClCompile Include="src\narrowphase\collision_request.cpp" />
+    <ClCompile Include="src\narrowphase\collision_result.cpp" />
+    <ClCompile Include="src\narrowphase\contact.cpp" />
+    <ClCompile Include="src\narrowphase\contact_point.cpp" />
+    <ClCompile Include="src\narrowphase\continuous_collision.cpp" />
+    <ClCompile Include="src\narrowphase\continuous_collision_object.cpp" />
+    <ClCompile Include="src\narrowphase\continuous_collision_request.cpp" />
+    <ClCompile Include="src\narrowphase\continuous_collision_result.cpp" />
+    <ClCompile Include="src\narrowphase\cost_source.cpp" />
+    <ClCompile Include="src\narrowphase\detail\convexity_based_algorithm\epa.cpp" />
+    <ClCompile Include="src\narrowphase\detail\convexity_based_algorithm\gjk.cpp" />
+    <ClCompile Include="src\narrowphase\detail\convexity_based_algorithm\gjk_libccd.cpp" />
+    <ClCompile Include="src\narrowphase\detail\convexity_based_algorithm\minkowski_diff.cpp" />
+    <ClCompile Include="src\narrowphase\detail\gjk_solver_indep.cpp" />
+    <ClCompile Include="src\narrowphase\detail\gjk_solver_libccd.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\box_box.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\capsule_capsule.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\halfspace.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\intersect.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\plane.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_box.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_capsule.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_cylinder.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_sphere.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\sphere_triangle.cpp" />
+    <ClCompile Include="src\narrowphase\detail\primitive_shape_algorithm\triangle_distance.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\collision\collision_traversal_node_base.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\collision\mesh_collision_traversal_node.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\collision\mesh_continuous_collision_traversal_node.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\collision_node.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\distance\conservative_advancement_stack_data.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\distance\distance_traversal_node_base.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\distance\mesh_conservative_advancement_traversal_node.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\distance\mesh_distance_traversal_node.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\traversal_node_base.cpp" />
+    <ClCompile Include="src\narrowphase\detail\traversal\traversal_recurse.cpp" />
+    <ClCompile Include="src\narrowphase\distance.cpp" />
+    <ClCompile Include="src\narrowphase\distance_request.cpp" />
+    <ClCompile Include="src\narrowphase\distance_result.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\fcl\broadphase\broadphase_bruteforce-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_bruteforce.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_collision_manager-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_collision_manager.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_continuous_collision_manager-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_continuous_collision_manager.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_dynamic_AABB_tree-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_dynamic_AABB_tree.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_dynamic_AABB_tree_array-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_dynamic_AABB_tree_array.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_interval_tree-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_interval_tree.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_SaP-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_SaP.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_spatialhash-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_spatialhash.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_SSaP-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\broadphase_SSaP.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\hierarchy_tree-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\hierarchy_tree.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\hierarchy_tree_array-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\hierarchy_tree_array.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\interval_tree-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\interval_tree.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\interval_tree_node-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\interval_tree_node.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\morton-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\morton.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\node_base-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\node_base.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\node_base_array-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\node_base_array.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\simple_hash_table-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\simple_hash_table.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\simple_interval-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\simple_interval.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\sparse_hash_table-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\sparse_hash_table.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\spatial_hash-inl.h" />
+    <ClInclude Include="include\fcl\broadphase\detail\spatial_hash.h" />
+    <ClInclude Include="include\fcl\common\detail\profiler.h" />
+    <ClInclude Include="include\fcl\common\exception.h" />
+    <ClInclude Include="include\fcl\common\profiler.h" />
+    <ClInclude Include="include\fcl\common\time.h" />
+    <ClInclude Include="include\fcl\common\types.h" />
+    <ClInclude Include="include\fcl\common\unused.h" />
+    <ClInclude Include="include\fcl\common\warning.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_internal.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_model-inl.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_model.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_utility-inl.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\BVH_utility.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\BV_node-inl.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\BV_node.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\BV_node_base.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BVH_front.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_fitter-inl.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_fitter.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_fitter_base.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_splitter-inl.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_splitter.h" />
+    <ClInclude Include="include\fcl\geometry\bvh\detail\BV_splitter_base.h" />
+    <ClInclude Include="include\fcl\geometry\collision_geometry-inl.h" />
+    <ClInclude Include="include\fcl\geometry\collision_geometry.h" />
+    <ClInclude Include="include\fcl\geometry\geometric_shape_to_BVH_model-inl.h" />
+    <ClInclude Include="include\fcl\geometry\geometric_shape_to_BVH_model.h" />
+    <ClInclude Include="include\fcl\geometry\octree\octree-inl.h" />
+    <ClInclude Include="include\fcl\geometry\octree\octree.h" />
+    <ClInclude Include="include\fcl\geometry\shape\box-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\box.h" />
+    <ClInclude Include="include\fcl\geometry\shape\capsule-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\capsule.h" />
+    <ClInclude Include="include\fcl\geometry\shape\cone-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\cone.h" />
+    <ClInclude Include="include\fcl\geometry\shape\convex-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\convex.h" />
+    <ClInclude Include="include\fcl\geometry\shape\cylinder-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\cylinder.h" />
+    <ClInclude Include="include\fcl\geometry\shape\ellipsoid-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\ellipsoid.h" />
+    <ClInclude Include="include\fcl\geometry\shape\halfspace-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\halfspace.h" />
+    <ClInclude Include="include\fcl\geometry\shape\plane-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\plane.h" />
+    <ClInclude Include="include\fcl\geometry\shape\shape_base-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\shape_base.h" />
+    <ClInclude Include="include\fcl\geometry\shape\sphere-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\sphere.h" />
+    <ClInclude Include="include\fcl\geometry\shape\triangle_p-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\triangle_p.h" />
+    <ClInclude Include="include\fcl\geometry\shape\utility-inl.h" />
+    <ClInclude Include="include\fcl\geometry\shape\utility.h" />
+    <ClInclude Include="include\fcl\math\bv\AABB-inl.h" />
+    <ClInclude Include="include\fcl\math\bv\AABB.h" />
+    <ClInclude Include="include\fcl\math\bv\kDOP-inl.h" />
+    <ClInclude Include="include\fcl\math\bv\kDOP.h" />
+    <ClInclude Include="include\fcl\math\bv\kIOS-inl.h" />
+    <ClInclude Include="include\fcl\math\bv\kIOS.h" />
+    <ClInclude Include="include\fcl\math\bv\OBB-inl.h" />
+    <ClInclude Include="include\fcl\math\bv\OBB.h" />
+    <ClInclude Include="include\fcl\math\bv\OBBRSS-inl.h" />
+    <ClInclude Include="include\fcl\math\bv\OBBRSS.h" />
+    <ClInclude Include="include\fcl\math\bv\RSS-inl.h" />
+    <ClInclude Include="include\fcl\math\bv\RSS.h" />
+    <ClInclude Include="include\fcl\math\bv\utility-inl.h" />
+    <ClInclude Include="include\fcl\math\bv\utility.h" />
+    <ClInclude Include="include\fcl\math\constants.h" />
+    <ClInclude Include="include\fcl\math\detail\polysolver-inl.h" />
+    <ClInclude Include="include\fcl\math\detail\polysolver.h" />
+    <ClInclude Include="include\fcl\math\detail\project-inl.h" />
+    <ClInclude Include="include\fcl\math\detail\project.h" />
+    <ClInclude Include="include\fcl\math\detail\seed.h" />
+    <ClInclude Include="include\fcl\math\geometry-inl.h" />
+    <ClInclude Include="include\fcl\math\geometry.h" />
+    <ClInclude Include="include\fcl\math\motion\bv_motion_bound_visitor.h" />
+    <ClInclude Include="include\fcl\math\motion\interp_motion-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\interp_motion.h" />
+    <ClInclude Include="include\fcl\math\motion\motion_base-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\motion_base.h" />
+    <ClInclude Include="include\fcl\math\motion\screw_motion-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\screw_motion.h" />
+    <ClInclude Include="include\fcl\math\motion\spline_motion-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\spline_motion.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval_matrix-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval_matrix.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval_vector-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\interval_vector.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_matrix-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_matrix.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_model-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_model.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_vector-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\taylor_vector.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\time_interval-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\taylor_model\time_interval.h" />
+    <ClInclude Include="include\fcl\math\motion\tbv_motion_bound_visitor-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\tbv_motion_bound_visitor.h" />
+    <ClInclude Include="include\fcl\math\motion\translation_motion-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\translation_motion.h" />
+    <ClInclude Include="include\fcl\math\motion\triangle_motion_bound_visitor-inl.h" />
+    <ClInclude Include="include\fcl\math\motion\triangle_motion_bound_visitor.h" />
+    <ClInclude Include="include\fcl\math\rng-inl.h" />
+    <ClInclude Include="include\fcl\math\rng.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_base.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_r-inl.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_r.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se2-inl.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se2.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se2_disk-inl.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se2_disk.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_euler-inl.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_euler.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_euler_ball-inl.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_euler_ball.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_quat-inl.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_quat.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_quat_ball-inl.h" />
+    <ClInclude Include="include\fcl\math\sampler\sampler_se3_quat_ball.h" />
+    <ClInclude Include="include\fcl\math\triangle.h" />
+    <ClInclude Include="include\fcl\math\variance3-inl.h" />
+    <ClInclude Include="include\fcl\math\variance3.h" />
+    <ClInclude Include="include\fcl\narrowphase\collision-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\collision.h" />
+    <ClInclude Include="include\fcl\narrowphase\collision_object-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\collision_object.h" />
+    <ClInclude Include="include\fcl\narrowphase\collision_request-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\collision_request.h" />
+    <ClInclude Include="include\fcl\narrowphase\collision_result-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\collision_result.h" />
+    <ClInclude Include="include\fcl\narrowphase\contact-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\contact.h" />
+    <ClInclude Include="include\fcl\narrowphase\contact_point-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\contact_point.h" />
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision.h" />
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_object-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_object.h" />
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_request-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_request.h" />
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_result-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\continuous_collision_result.h" />
+    <ClInclude Include="include\fcl\narrowphase\cost_source-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\cost_source.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\collision_func_matrix-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\collision_func_matrix.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\conservative_advancement_func_matrix-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\conservative_advancement_func_matrix.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\alloc.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\epa-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\epa.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\gjk-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\gjk.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\gjk_libccd-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\gjk_libccd.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\list.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\minkowski_diff-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\minkowski_diff.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\polytope.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\simplex.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\convexity_based_algorithm\support.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\distance_func_matrix-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\distance_func_matrix.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\gjk_solver_indep-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\gjk_solver_indep.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\gjk_solver_libccd-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\gjk_solver_libccd.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\box_box-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\box_box.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\capsule_capsule-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\capsule_capsule.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\halfspace-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\halfspace.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\plane-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\plane.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_box-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_box.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_capsule-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_capsule.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_cylinder-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_cylinder.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_sphere-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_sphere.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_triangle-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_triangle.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\triangle_distance-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\triangle_distance.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\bvh_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\bvh_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\bvh_shape_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\bvh_shape_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\collision_traversal_node_base-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\collision_traversal_node_base.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\intersect-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\intersect.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_continuous_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_continuous_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_shape_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\mesh_shape_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_bvh_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_bvh_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_mesh_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision\shape_mesh_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\collision_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\bvh_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\bvh_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\bvh_shape_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\bvh_shape_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\conservative_advancement_stack_data-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\conservative_advancement_stack_data.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\distance_traversal_node_base-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\distance_traversal_node_base.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_conservative_advancement_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_conservative_advancement_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_shape_conservative_advancement_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_shape_conservative_advancement_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_shape_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\mesh_shape_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_bvh_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_bvh_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_conservative_advancement_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_conservative_advancement_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_mesh_conservative_advancement_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_mesh_conservative_advancement_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_mesh_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\distance\shape_mesh_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\mesh_octree_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\mesh_octree_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_mesh_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_mesh_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_shape_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\octree_shape_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\shape_octree_collision_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\collision\shape_octree_collision_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\mesh_octree_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\mesh_octree_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_mesh_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_mesh_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_shape_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\octree_shape_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\shape_octree_distance_traversal_node-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\distance\shape_octree_distance_traversal_node.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\octree_solver-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\octree\octree_solver.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\traversal_node_base-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\traversal_node_base.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\traversal_recurse-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\detail\traversal\traversal_recurse.h" />
+    <ClInclude Include="include\fcl\narrowphase\distance-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\distance.h" />
+    <ClInclude Include="include\fcl\narrowphase\distance_request-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\distance_request.h" />
+    <ClInclude Include="include\fcl\narrowphase\distance_result-inl.h" />
+    <ClInclude Include="include\fcl\narrowphase\distance_result.h" />
+    <ClInclude Include="include\fcl\narrowphase\gjk_solver_type.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="export.h" />
+    <ClInclude Include="fcl.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DF9E9C2F-BD7D-4003-A81A-CCA2D7993812}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>OmniFclStatic</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\VSProjectProperties\Workspace.props" />
+    <Import Project="..\VSProjectProperties\Eigen.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\VSProjectProperties\Workspace.props" />
+    <Import Project="..\VSProjectProperties\Eigen.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>FCL_STATIC_DEFINE;CCD_STATIC_DEFINE;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\fcl\include;$(ProjectDir)..\libccd\src;$(ProjectDir)..\Omni.Ccd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>FCL_STATIC_DEFINE;CCD_STATIC_DEFINE;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\fcl\include;$(ProjectDir)..\libccd\src;$(ProjectDir)..\Omni.Ccd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
