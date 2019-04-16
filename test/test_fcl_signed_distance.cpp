@@ -347,6 +347,52 @@ void test_distance_box_box1() {
   EXPECT_TRUE((p_B2P2.array().abs() <= (box2_size / 2).array() + tol).all());
 }
 
+template <typename S>
+void test_distance_box_box2() {
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
+  const Vector3<S> box1_size(0.46, 0.48, 0.01);
+  CollisionGeometryPtr_t box1_geo(
+      new fcl::Box<S>(box1_size(0), box1_size(1), box1_size(2)));
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  X_WB1.matrix() <<  1,0,0, -0.72099999999999997424,
+                      0,1,0, -0.77200000000000001954,
+                      0,0,1,  0.81000000000000005329,
+                      0,0,0,1;
+  fcl::CollisionObject<S> box1(box1_geo, X_WB1);
+
+  const Vector3<S> box2_size(0.049521, 0.146, 0.0725);
+  CollisionGeometryPtr_t box2_geo(
+      new fcl::Box<S>(box2_size(0), box2_size(1), box2_size(2)));
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB2.matrix() << 0.10758262492983036718,  -0.6624881850015212903, -0.74130653817877356637, -0.42677133002999478872,
+ 0.22682184885125472595,   -0.709614040775253474,   0.6670830248314786326, -0.76596851247746788882,
+-0.96797615037608542021, -0.23991106241273435495,  0.07392465377049164954,  0.80746731400091054098,
+                      0,                       0,                       0,                       1;
+  // clang-format on
+  fcl::CollisionObject<S> box2(box2_geo, X_WB2);
+
+  fcl::DistanceRequest<S> request;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+  request.distance_tolerance = 1e-6;
+  request.enable_signed_distance = true;
+  fcl::DistanceResult<S> result;
+
+  ASSERT_NO_THROW(fcl::distance(&box1, &box2, request, result));
+  EXPECT_NEAR(abs(result.min_distance),
+              (result.nearest_points[0] - result.nearest_points[1]).norm(),
+              request.distance_tolerance);
+  // p_B1P1 is the position of the witness point P1 on box 1, measured
+  // and expressed in the box 1 frame B1.
+  const Vector3<S> p_B1P1 = X_WB1.inverse() * result.nearest_points[0];
+  const double tol = 10 * std::numeric_limits<S>::epsilon();
+  EXPECT_TRUE((p_B1P1.array().abs() <= (box1_size / 2).array() + tol).all());
+  // p_B2P2 is the position of the witness point P2 on box 2, measured
+  // and expressed in the box 2 frame B2.
+  const Vector3<S> p_B2P2 = X_WB2.inverse() * result.nearest_points[1];
+  EXPECT_TRUE((p_B2P2.array().abs() <= (box2_size / 2).array() + tol).all());
+}
+
 //==============================================================================
 
 GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd)
@@ -380,6 +426,7 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
 
 GTEST_TEST(FCL_SIGNED_DISTANCE, box_box1_ccd) {
   test_distance_box_box1<double>();
+  test_distance_box_box2<double>();
 }
 
 //==============================================================================
