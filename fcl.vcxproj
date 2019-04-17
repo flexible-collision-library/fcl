@@ -435,9 +435,9 @@
     <ClInclude Include="include\fcl\narrowphase\distance_result-inl.h" />
     <ClInclude Include="include\fcl\narrowphase\distance_result.h" />
     <ClInclude Include="include\fcl\narrowphase\gjk_solver_type.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="export.h" />
-    <ClInclude Include="fcl.h" />
+    <ClInclude Include="fcl\config.h" />
+    <ClInclude Include="fcl\export.h" />
+    <ClInclude Include="fcl\fcl.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DF9E9C2F-BD7D-4003-A81A-CCA2D7993812}</ProjectGuid>
@@ -482,7 +482,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>FCL_STATIC_DEFINE;CCD_STATIC_DEFINE;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)src;$(SolutionDir)libccd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)src;$(SolutionDir)libccd\src;$(SolutionDir)libccd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
@@ -499,7 +499,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>FCL_STATIC_DEFINE;CCD_STATIC_DEFINE;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)src;$(SolutionDir)ccd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)src;$(SolutionDir)libccd\src;$(SolutionDir)libccd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
