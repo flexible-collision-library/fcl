@@ -32,3 +32,5 @@
 /build
 /build-*
 /doc/doxygen
+
+*.user
