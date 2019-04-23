@@ -413,9 +413,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="config.h" />
-    <ClInclude Include="export.h" />
-    <ClInclude Include="fcl.h" />
     <ClInclude Include="include\fcl\broadphase\detail\hierarchy_tree.h">
       <Filter>broadphase\detail</Filter>
     </ClInclude>
@@ -1343,5 +1340,8 @@
     <ClInclude Include="include\fcl\narrowphase\detail\primitive_shape_algorithm\sphere_cylinder-inl.h">
       <Filter>narrowphase\detail\primitive_shape_algorithm</Filter>
     </ClInclude>
+    <ClInclude Include="fcl\config.h" />
+    <ClInclude Include="fcl\export.h" />
+    <ClInclude Include="fcl\fcl.h" />
   </ItemGroup>
 </Project>
