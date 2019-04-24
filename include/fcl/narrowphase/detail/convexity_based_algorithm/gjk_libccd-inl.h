@@ -1387,6 +1387,16 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
         e[i] = it->second;
       }
     }
+    // TODO(hongkai.dai@tri.global): when the new vertex is colinear with a
+    // border edge, we should remove the degenerate triangle. We could remove
+    // the middle vertex on that line from the polytope, and then reconnect
+    // the polytope.
+    if (triangle_area_is_zero(new_vertex->v.v, border_edge->vertex[0]->v.v,
+                              border_edge->vertex[1]->v.v)) {
+      FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
+          "The new vertex is colinear with an existing edge. The added "
+          "triangle would be degenerate.");
+    }
     // Now add the face.
     ccdPtAddFace(polytope, border_edge, e[0], e[1]);
   }
@@ -2241,13 +2251,16 @@ static void convexToGJK(const Convex<S>& s, const Transform3<S>& tf,
 static inline void supportBox(const void* obj, const ccd_vec3_t* dir_,
                               ccd_vec3_t* v)
 {
+  auto sign = [](ccd_real_t x) -> ccd_real_t {
+    return x >= 0 ? ccd_real_t(1.0) : ccd_real_t(-1.0);
+  };
   const ccd_box_t* o = static_cast<const ccd_box_t*>(obj);
   ccd_vec3_t dir;
   ccdVec3Copy(&dir, dir_);
   ccdQuatRotVec(&dir, &o->rot_inv);
-  ccdVec3Set(v, ccdSign(ccdVec3X(&dir)) * o->dim[0],
-             ccdSign(ccdVec3Y(&dir)) * o->dim[1],
-             ccdSign(ccdVec3Z(&dir)) * o->dim[2]);
+  ccdVec3Set(v, sign(ccdVec3X(&dir)) * o->dim[0],
+             sign(ccdVec3Y(&dir)) * o->dim[1],
+             sign(ccdVec3Z(&dir)) * o->dim[2]);
   ccdQuatRotVec(v, &o->rot);
   ccdVec3Add(v, &o->pos);
 }
