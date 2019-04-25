@@ -296,34 +296,18 @@ void test_distance_cylinder_box() {
                                     box_size, X_WB);
 }
 
-// This is a *specific* case that has cropped up in the wild that reaches the
-// unexpected `validateNearestFeatureOfPolytopeBeingEdge` error. This error was
-// reported in https://github.com/flexible-collision-library/fcl/issues/388
 template <typename S>
-void test_distance_box_box1() {
+void test_distance_box_box_helper(const Vector3<S>& box1_size,
+                                  const Transform3<S>& X_WB1,
+                                  const Vector3<S>& box2_size,
+                                  const Transform3<S>& X_WB2) {
   using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
-  const Vector3<S> box1_size(0.03, 0.12, 0.1);
   CollisionGeometryPtr_t box1_geo(
       new fcl::Box<S>(box1_size(0), box1_size(1), box1_size(2)));
-  Transform3<S> X_WB1 = Transform3<S>::Identity();
-  X_WB1.matrix() << -3.0627937852578681533e-08, -0.99999999999999888978,
-      -2.8893865161583314238e-08, 0.63499979627350811029, 0.9999999999999980016,
-      -3.0627939739957803544e-08, 6.4729926918527511769e-08,
-      -0.48500002215636439651, -6.4729927722963847085e-08,
-      -2.8893863029448751323e-08, 0.99999999999999711342, 1.0778146458339641356,
-      0, 0, 0, 1;
   fcl::CollisionObject<S> box1(box1_geo, X_WB1);
 
-  const Vector3<S> box2_size(0.025, 0.35, 1.845);
   CollisionGeometryPtr_t box2_geo(
       new fcl::Box<S>(box2_size(0), box2_size(1), box2_size(2)));
-  Transform3<S> X_WB2 = Transform3<S>::Identity();
-  // clang-format off
-  X_WB2.matrix() << 0, -1, 0, 0.8,
-                    1, 0, 0, -0.4575,
-                    0, 0, 1, 1.0225, 
-                    0, 0, 0, 1;
-  // clang-format on
   fcl::CollisionObject<S> box2(box2_geo, X_WB2);
 
   fcl::DistanceRequest<S> request;
@@ -347,22 +331,44 @@ void test_distance_box_box1() {
   EXPECT_TRUE((p_B2P2.array().abs() <= (box2_size / 2).array() + tol).all());
 }
 
+// This is a *specific* case that has cropped up in the wild that reaches the
+// unexpected `validateNearestFeatureOfPolytopeBeingEdge` error. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/388
+template <typename S>
+void test_distance_box_box1() {
+  const Vector3<S> box1_size(0.03, 0.12, 0.1);
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  X_WB1.matrix() << -3.0627937852578681533e-08, -0.99999999999999888978,
+      -2.8893865161583314238e-08, 0.63499979627350811029, 0.9999999999999980016,
+      -3.0627939739957803544e-08, 6.4729926918527511769e-08,
+      -0.48500002215636439651, -6.4729927722963847085e-08,
+      -2.8893863029448751323e-08, 0.99999999999999711342, 1.0778146458339641356,
+      0, 0, 0, 1;
+
+  const Vector3<S> box2_size(0.025, 0.35, 1.845);
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB2.matrix() << 0, -1, 0, 0.8,
+                    1, 0, 0, -0.4575,
+                    0, 0, 1, 1.0225, 
+                    0, 0, 0, 1;
+  // clang-format on
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
+}
+
+// This is a *specific* case that has cropped up in the wild that reaches the
+// unexpected `triangle_size_is_zero` error. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/395
 template <typename S>
 void test_distance_box_box2() {
-  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
   const Vector3<S> box1_size(0.46, 0.48, 0.01);
-  CollisionGeometryPtr_t box1_geo(
-      new fcl::Box<S>(box1_size(0), box1_size(1), box1_size(2)));
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   X_WB1.matrix() <<  1,0,0, -0.72099999999999997424,
                       0,1,0, -0.77200000000000001954,
                       0,0,1,  0.81000000000000005329,
                       0,0,0,1;
-  fcl::CollisionObject<S> box1(box1_geo, X_WB1);
 
   const Vector3<S> box2_size(0.049521, 0.146, 0.0725);
-  CollisionGeometryPtr_t box2_geo(
-      new fcl::Box<S>(box2_size(0), box2_size(1), box2_size(2)));
   Transform3<S> X_WB2 = Transform3<S>::Identity();
   // clang-format off
   X_WB2.matrix() << 0.10758262492983036718,  -0.6624881850015212903, -0.74130653817877356637, -0.42677133002999478872,
@@ -370,27 +376,7 @@ void test_distance_box_box2() {
 -0.96797615037608542021, -0.23991106241273435495,  0.07392465377049164954,  0.80746731400091054098,
                       0,                       0,                       0,                       1;
   // clang-format on
-  fcl::CollisionObject<S> box2(box2_geo, X_WB2);
-
-  fcl::DistanceRequest<S> request;
-  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
-  request.distance_tolerance = 1e-6;
-  request.enable_signed_distance = true;
-  fcl::DistanceResult<S> result;
-
-  ASSERT_NO_THROW(fcl::distance(&box1, &box2, request, result));
-  EXPECT_NEAR(abs(result.min_distance),
-              (result.nearest_points[0] - result.nearest_points[1]).norm(),
-              request.distance_tolerance);
-  // p_B1P1 is the position of the witness point P1 on box 1, measured
-  // and expressed in the box 1 frame B1.
-  const Vector3<S> p_B1P1 = X_WB1.inverse() * result.nearest_points[0];
-  const double tol = 10 * std::numeric_limits<S>::epsilon();
-  EXPECT_TRUE((p_B1P1.array().abs() <= (box1_size / 2).array() + tol).all());
-  // p_B2P2 is the position of the witness point P2 on box 2, measured
-  // and expressed in the box 2 frame B2.
-  const Vector3<S> p_B2P2 = X_WB2.inverse() * result.nearest_points[1];
-  EXPECT_TRUE((p_B2P2.array().abs() <= (box2_size / 2).array() + tol).all());
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
 }
 
 //==============================================================================

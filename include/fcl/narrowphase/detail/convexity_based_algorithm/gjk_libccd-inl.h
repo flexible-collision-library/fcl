@@ -2251,6 +2251,8 @@ static void convexToGJK(const Convex<S>& s, const Transform3<S>& tf,
 static inline void supportBox(const void* obj, const ccd_vec3_t* dir_,
                               ccd_vec3_t* v)
 {
+  // Use a customized sign function, so that the support of the box always
+  // appears in one of the box vertices.
   auto sign = [](ccd_real_t x) -> ccd_real_t {
     return x >= 0 ? ccd_real_t(1.0) : ccd_real_t(-1.0);
   };
