@@ -117,7 +117,7 @@ void test_distance_capsule_box(fcl::GJKSolverType solver_type, S solver_toleranc
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box_ccd)
 {
-  test_distance_capsule_box<double>(fcl::GJKSolverType::GST_LIBCCD, 1e-6, 1e-4);
+  test_distance_capsule_box<double>(fcl::GJKSolverType::GST_LIBCCD, 1e-8, 4e-4);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box_indep)

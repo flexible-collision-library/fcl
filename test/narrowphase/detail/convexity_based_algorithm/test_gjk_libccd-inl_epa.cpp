@@ -1289,7 +1289,7 @@ void SetUpBoxToBox(const Transform3<S>& X_WF, void** o1, void** o2, ccd_t* ccd,
   fcl::Box<S> box1(box1_size);
   fcl::Box<S> box2(box2_size);
   *o1 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box1, X_WB1);
-  *o2 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box1, X_WB2);
+  *o2 = GJKInitializer<S, fcl::Box<S>>::createGJKObject(box2, X_WB2);
 
   // Set up ccd solver.
   CCD_INIT(ccd);
@@ -1329,20 +1329,20 @@ void TestSimplexToPolytope3InGivenFrame(const Transform3<S>& X_WF) {
   // We find three points Pa1, Pb1, Pc1 on box 1, and three points Pa2, Pb2, Pc2
   // on box 2, such that the 2-simplex with vertices (Pa1 - Pa2, Pb1 - Pb2,
   // Pc1 - Pc2) contains the origin.
-  const Vector3<S> p_FPa1(-1, -1, -1);
-  const Vector3<S> p_FPa2(-0.1, 0.5, -1);
+  const Vector3<S> p_FPa1(-1, -1, 0.1);
+  const Vector3<S> p_FPa2(-0.1, 0.5, 0.1);
   pts[0].v = ToCcdVec3<S>(p_FPa1 - p_FPa2);
   pts[0].v1 = ToCcdVec3<S>(p_FPa1);
   pts[0].v2 = ToCcdVec3<S>(p_FPa2);
 
-  const Vector3<S> p_FPb1(-1, 1, -1);
-  const Vector3<S> p_FPb2(-0.1, 0.5, -1);
+  const Vector3<S> p_FPb1(-1, 1, 0.1);
+  const Vector3<S> p_FPb2(-0.1, 0.5, 0.1);
   pts[1].v = ToCcdVec3<S>(p_FPb1 - p_FPb2);
   pts[1].v1 = ToCcdVec3<S>(p_FPb1);
   pts[1].v2 = ToCcdVec3<S>(p_FPb2);
 
-  const Vector3<S> p_FPc1(1, 1, -1);
-  const Vector3<S> p_FPc2(-0.1, 0.5, -1);
+  const Vector3<S> p_FPc1(1, 1, 0.1);
+  const Vector3<S> p_FPc2(-0.1, 0.5, 0.1);
   pts[2].v = ToCcdVec3<S>(p_FPc1 - p_FPc2);
   pts[2].v1 = ToCcdVec3<S>(p_FPc1);
   pts[2].v2 = ToCcdVec3<S>(p_FPc2);

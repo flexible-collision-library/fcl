@@ -1186,6 +1186,17 @@ static void ComputeVisiblePatchRecursive(
     // g is not a visible face
     if (!isOutsidePolytopeFace(&polytope, g, &query_point)) {
       // Cannot see the neighbouring face from the new vertex.
+
+      // TODO(hongkai.dai@tri.global): when the new vertex is colinear with a
+      // border edge, we should remove the degenerate triangle. We could remove
+      // the middle vertex on that line from the polytope, and then reconnect
+      // the polytope.
+      if (triangle_area_is_zero(query_point, f.edge[edge_index]->vertex[0]->v.v,
+                                f.edge[edge_index]->vertex[1]->v.v)) {
+        FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
+            "The new vertex is colinear with an existing edge. The added "
+            "triangle would be degenerate.");
+      }
       border_edges->insert(f.edge[edge_index]);
       return;
     }
@@ -2241,13 +2252,21 @@ static void convexToGJK(const Convex<S>& s, const Transform3<S>& tf,
 static inline void supportBox(const void* obj, const ccd_vec3_t* dir_,
                               ccd_vec3_t* v)
 {
+  // Use a customized sign function, so that the support of the box always
+  // appears in one of the box vertices.
+  // Picking support vertices on the interior of faces/edges can lead to
+  // degenerate triangles in the EPA algorithm and are no more correct than just
+  // picking box corners.
+  auto sign = [](ccd_real_t x) -> ccd_real_t {
+    return x >= 0 ? ccd_real_t(1.0) : ccd_real_t(-1.0);
+  };
   const ccd_box_t* o = static_cast<const ccd_box_t*>(obj);
   ccd_vec3_t dir;
   ccdVec3Copy(&dir, dir_);
   ccdQuatRotVec(&dir, &o->rot_inv);
-  ccdVec3Set(v, ccdSign(ccdVec3X(&dir)) * o->dim[0],
-             ccdSign(ccdVec3Y(&dir)) * o->dim[1],
-             ccdSign(ccdVec3Z(&dir)) * o->dim[2]);
+  ccdVec3Set(v, sign(ccdVec3X(&dir)) * o->dim[0],
+             sign(ccdVec3Y(&dir)) * o->dim[1],
+             sign(ccdVec3Z(&dir)) * o->dim[2]);
   ccdQuatRotVec(v, &o->rot);
   ccdVec3Add(v, &o->pos);
 }
