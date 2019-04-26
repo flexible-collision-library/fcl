@@ -1186,6 +1186,17 @@ static void ComputeVisiblePatchRecursive(
     // g is not a visible face
     if (!isOutsidePolytopeFace(&polytope, g, &query_point)) {
       // Cannot see the neighbouring face from the new vertex.
+
+      // TODO(hongkai.dai@tri.global): when the new vertex is colinear with a
+      // border edge, we should remove the degenerate triangle. We could remove
+      // the middle vertex on that line from the polytope, and then reconnect
+      // the polytope.
+      if (triangle_area_is_zero(query_point, f.edge[edge_index]->vertex[0]->v.v,
+                                f.edge[edge_index]->vertex[1]->v.v)) {
+        FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
+            "The new vertex is colinear with an existing edge. The added "
+            "triangle would be degenerate.");
+      }
       border_edges->insert(f.edge[edge_index]);
       return;
     }
@@ -1386,16 +1397,6 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
       } else {
         e[i] = it->second;
       }
-    }
-    // TODO(hongkai.dai@tri.global): when the new vertex is colinear with a
-    // border edge, we should remove the degenerate triangle. We could remove
-    // the middle vertex on that line from the polytope, and then reconnect
-    // the polytope.
-    if (triangle_area_is_zero(new_vertex->v.v, border_edge->vertex[0]->v.v,
-                              border_edge->vertex[1]->v.v)) {
-      FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
-          "The new vertex is colinear with an existing edge. The added "
-          "triangle would be degenerate.");
     }
     // Now add the face.
     ccdPtAddFace(polytope, border_edge, e[0], e[1]);
@@ -2253,6 +2254,9 @@ static inline void supportBox(const void* obj, const ccd_vec3_t* dir_,
 {
   // Use a customized sign function, so that the support of the box always
   // appears in one of the box vertices.
+  // Picking support vertices on the interior of faces/edges can lead to
+  // degenerate triangles in the EPA algorithm and are no more correct than just
+  // picking box corners.
   auto sign = [](ccd_real_t x) -> ccd_real_t {
     return x >= 0 ? ccd_real_t(1.0) : ccd_real_t(-1.0);
   };
