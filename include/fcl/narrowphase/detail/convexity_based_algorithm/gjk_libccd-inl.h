@@ -523,19 +523,30 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   ccdVec3Cross(&ACD, &AC, &AD);
   ccdVec3Cross(&ADB, &AD, &AB);
 
+  ccd_vec3_t BO;
+  ccdVec3Copy(&BO, &B->v);
+  ccdVec3Scale(&BO, -CCD_ONE);
+  ccd_vec3_t BC, BD;
+  ccdVec3Sub2(&BC, &C->v, &B->v);
+  ccdVec3Sub2(&BD, &D->v, &B->v);
+  ccd_vec3_t BCD;
+  ccdVec3Cross(&BCD, &BC, &BD);
+
   // side (positive or negative) of B, C, D relative to planes ACD, ADB
   // and ABC respectively
   B_on_ACD = ccdSign(ccdVec3Dot(&ACD, &AB));
   C_on_ADB = ccdSign(ccdVec3Dot(&ADB, &AC));
   D_on_ABC = ccdSign(ccdVec3Dot(&ABC, &AD));
+  const int A_on_BCD = ccdSign(-ccdVec3Dot(&BCD, &AB));
 
   // whether origin is on same side of ACD, ADB, ABC as B, C, D
   // respectively
   AB_O = ccdSign(ccdVec3Dot(&ACD, &AO)) == B_on_ACD;
   AC_O = ccdSign(ccdVec3Dot(&ADB, &AO)) == C_on_ADB;
   AD_O = ccdSign(ccdVec3Dot(&ABC, &AO)) == D_on_ABC;
+  const bool BA_O = ccdSign(ccdVec3Dot(&BCD, &BO)) == A_on_BCD;
 
-  if (AB_O && AC_O && AD_O){
+  if (AB_O && AC_O && AD_O && BA_O) {
     // origin is in tetrahedron
     return 1;
 
@@ -554,11 +565,16 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
     ccdSimplexSet(simplex, 0, B);
     ccdSimplexSet(simplex, 2, A);
     ccdSimplexSetSize(simplex, 3);
-  }else{ // (!AD_O)
+  } else if (!AD_O) {  // (!AD_O)
     ccdSimplexSet(simplex, 0, C);
     ccdSimplexSet(simplex, 1, B);
     ccdSimplexSet(simplex, 2, A);
     ccdSimplexSetSize(simplex, 3);
+  } else if (!BA_O) {
+    ccdSimplexSet(simplex, 0, C);
+    ccdSimplexSet(simplex, 1, D);
+    ccdSimplexSet(simplex, 2, B);
+    ccdSimplexSetSize(simplex, 4);
   }
 
   return doSimplex3(simplex, dir);
