@@ -1,0 +1,16 @@
+<package format="2">
+  <name>fcl</name>
+  <version>0.6.0</version>
+  <description>FCL: the Flexible Collision Library</description>
+  <maintainer email="fcl@tri.global">TRI Geometry Team</maintainer>
+  <license>BSD</license>
+  <buildtool_depend>cmake</buildtool_depend>
+  <depend>libccd-dev</depend>
+  <depend>eigen</depend>
+  <depend>octomap</depend>
+  <!-- Following recommendations of REP 136 -->
+  <exec_depend>catkin</exec_depend>
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>
