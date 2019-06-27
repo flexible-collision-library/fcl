@@ -50,45 +50,47 @@ Before starting the proximity computation, we need first to set the geometry and
 
 ```cpp
 // set mesh triangles and vertice indices
-std::vector<Vec3f> vertices;
+std::vector<Vector3f> vertices;
 std::vector<Triangle> triangles;
 // code to set the vertices and triangles
 ...
 // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
-typedef BVHModel<OBBRSS> Model;
-Model* model = new Model();
+typedef BVHModel<OBBRSSf> Model;
+std::shared_ptr<Model> geom = std::make_shared<Model>();
 // add the mesh data into the BVHModel structure
-model->beginModel();
-model->addSubModel(vertices, triangles);
-model->endModel();
+geom->beginModel();
+geom->addSubModel(vertices, triangles);
+geom->endModel();
 ```
 
 The transform of an object includes the rotation and translation:
 ```cpp
 // R and T are the rotation matrix and translation vector
 Matrix3f R;
-Vec3f T;
+Vector3f T;
 // code for setting R and T
 ...
 // transform is configured according to R and T
-Transform3f pose(R, T);
+Transform3f pose = Transform3f::Identity();
+pose.linear() = R;
+pose.translation() = T;
 ```
 
 
 Given the geometry and the transform, we can also combine them together to obtain a collision object instance and here is an example:
 ```cpp
 //geom and tf are the geometry and the transform of the object
-BVHModel<OBBRSS>* geom = ...
+std::shared_ptr<BVHModel<OBBRSSf>> geom = ...
 Transform3f tf = ...
 //Combine them together
-CollisionObject* obj = new CollisionObject(geom, tf);
+CollisionObjectf* obj = new CollisionObjectf(geom, tf);
 ```
 
 Once the objects are set, we can perform the proximity computation between them. All the proximity queries in FCL follow a common pipeline: first, set the query request data structure and then run the query function by using request as the input. The result is returned in a query result data structure. For example, for collision checking, we first set the CollisionRequest data structure, and then run the collision function:
 ```cpp
 // Given two objects o1 and o2
-CollisionObject* o1 = ...
-CollisionObject* o2 = ...
+CollisionObjectf* o1 = ...
+CollisionObjectf* o2 = ...
 // set the collision request structure, here we just use the default setting
 CollisionRequest request;
 // result will be returned via the collision result structure
@@ -104,8 +106,8 @@ For distance computation, the pipeline is almost the same:
 
 ```cpp
 // Given two objects o1 and o2
-CollisionObject* o1 = ...
-CollisionObject* o2 = ...
+CollisionObjectf* o1 = ...
+CollisionObjectf* o2 = ...
 // set the distance request structure, here we just use the default setting
 DistanceRequest request;
 // result will be returned via the collision result structure
@@ -118,8 +120,8 @@ For continuous collision, FCL requires the goal transform to be provided (the in
 
 ```cpp
 // Given two objects o1 and o2
-CollisionObject* o1 = ...
-CollisionObject* o2 = ...
+CollisionObjectf* o1 = ...
+CollisionObjectf* o2 = ...
 // The goal transforms for o1 and o2
 Transform3f tf_goal_o1 = ...
 Transform3f tf_goal_o2 = ...
@@ -136,21 +138,23 @@ FCL supports broadphase collision/distance between two groups of objects and can
 // Initialize the collision manager for the first group of objects. 
 // FCL provides various different implementations of CollisionManager.
 // Generally, the DynamicAABBTreeCollisionManager would provide the best performance.
-BroadPhaseCollisionManager* manager1 = new DynamicAABBTreeCollisionManager(); 
+BroadPhaseCollisionManagerf* manager1 = new DynamicAABBTreeCollisionManagerf(); 
 // Initialize the collision manager for the second group of objects.
-BroadPhaseCollisionManager* manager2 = new DynamicAABBTreeCollisionManager();
+BroadPhaseCollisionManagerf* manager2 = new DynamicAABBTreeCollisionManagerf();
 // To add objects into the collision manager, using BroadPhaseCollisionManager::registerObject() function to add one object
-std::vector<CollisionObject*> objects1 = ...
+std::vector<CollisionObjectf*> objects1 = ...
 for(std::size_t i = 0; i < objects1.size(); ++i)
 manager1->registerObject(objects1[i]);
 // Another choose is to use BroadPhaseCollisionManager::registerObjects() function to add a set of objects
-std::vector<CollisionObject*> objects2 = ...
+std::vector<CollisionObjectf*> objects2 = ...
 manager2->registerObjects(objects2);
 // In order to collect the information during broadphase, CollisionManager requires two settings: 
 // a) a callback to collision or distance; 
 // b) an intermediate data to store the information generated during the broadphase computation
-// For a), FCL provides the default callbacks for both collision and distance.
-// For b), FCL uses the CollisionData structure for collision and DistanceData structure for distance. CollisionData/DistanceData is just a container including both the CollisionRequest/DistanceRequest and CollisionResult/DistanceResult structures mentioned above.
+// For a), FCL's test framework provides default callbacks for both collision and distance.
+// For b), FCL uses the CollisionData structure for collision and DistanceData structure for distance. 
+// CollisionData/DistanceData is just a container from the test framework including both the 
+// CollisionRequest/DistanceRequest and CollisionResult/DistanceResult structures mentioned above.
 CollisionData collision_data;
 DistanceData distance_data;
 // Setup the managers, which is related with initializing the broadphase acceleration structure according to objects input
@@ -158,19 +162,19 @@ manager1->setup();
 manager2->setup();
 // Examples for various queries
 // 1. Collision query between two object groups and get collision numbers
-manager2->collide(manager1, &collision_data, defaultCollisionFunction);
+manager2->collide(manager1, &collision_data, test::defaultCollisionFunction);
 int n_contact_num = collision_data.result.numContacts(); 
 // 2. Distance query between two object groups and get the minimum distance
-manager2->distance(manager1, &distance_data, defaultDistanceFunction);
+manager2->distance(manager1, &distance_data, test::defaultDistanceFunction);
 double min_distance = distance_data.result.min_distance;
 // 3. Self collision query for group 1
-manager1->collide(&collision_data, defaultCollisionFunction);
+manager1->collide(&collision_data, test::defaultCollisionFunction);
 // 4. Self distance query for group 1
-manager1->distance(&distance_data, defaultDistanceFunction);
+manager1->distance(&distance_data, test::defaultDistanceFunction);
 // 5. Collision query between one object in group 1 and the entire group 2
-manager2->collide(objects1[0], &collision_data, defaultCollisionFunction);
+manager2->collide(objects1[0], &collision_data, test::defaultCollisionFunction);
 // 6. Distance query between one object in group 1 and the entire group 2
-manager2->distance(objects1[0], &distance_data, defaultDistanceFunction); 
+manager2->distance(objects1[0], &distance_data, test::defaultDistanceFunction); 
 ```
 
 
