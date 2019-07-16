@@ -379,6 +379,62 @@ void test_distance_box_box2() {
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
 }
 
+// This is a *specific* case that has cropped up in the wild that reaches the
+// unexpected `validateNearestFeatureOfPolytopeBeingEdge` error. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/399
+template <typename S>
+void test_distance_box_box3() {
+  const Vector3<S> box1_size(0.23768037557601928711, 0.15702305734157562256,
+                             0.25);
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB1.matrix() << -0.099432387353076273628,   0.99504432079443971837,                        0,   0.29526406526565551758,
+                     -0.99504432079443971837, -0.099432387353076273628,                        0, -0.013230856508016586304,
+                             0,                        0,                        1,                        0,
+                         0,                        0,                        0,                        1;
+  // clang-format on
+
+  const Vector3<S> box2_size(0.010000000000000000208, 0.78165709972381591797,
+                             0.25);
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB2.matrix() << 0.99506598442099225554,  0.099215354901756730444,                        0,   0.22759585694545214629,
+-0.099215354901756730444,   0.99506598442099225554,                        0,   0.14974093549228112421,
+                       0,                        0,                        1,                        0,
+                       0,                        0,                        0,                        1;
+  // clang-format on
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
+}
+
+// This is a *specific* case that has cropped up in the wild that reaches the
+// unexpected `validateNearestFeatureOfPolytopeBeingEdge` error. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/399
+template <typename S>
+void test_distance_box_box4() {
+  const Vector3<S> box1_size(0.23431687057018280029, 0.16946108639240264893,
+                             0.25);
+
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB1.matrix() << 0.1612859416241739785,  0.98690771860108761349,                       0, -0.20553381741046905518,
+-0.98690771860108761349,   0.1612859416241739785,                       0,  0.25915133953094482422,
+                      0,                       0,                       1,                       0,
+                      0,                       0,                       0,                       1;
+  // clang-format on
+
+  const Vector3<S> box2_size(0.010000000000000000208, 1.4315791130065917969,
+                             0.25);
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB2.matrix() << 
+-0.16128686395059221859, -0.98690756786893829577,                       0, -0.38020379396316156262,
+ 0.98690756786893829577, -0.16128686395059221859,                       0,  0.10682664338807786042,
+                      0,                       0,                       1,                       0,
+                      0,                       0,                       0,                       1;
+  // clang-format on
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
+}
+
 //==============================================================================
 
 GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd)
@@ -413,6 +469,8 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
 GTEST_TEST(FCL_SIGNED_DISTANCE, box_box1_ccd) {
   test_distance_box_box1<double>();
   test_distance_box_box2<double>();
+  test_distance_box_box3<double>();
+  test_distance_box_box4<double>();
 }
 
 //==============================================================================
