@@ -228,6 +228,35 @@ _ccd_inline void tripleCross(const ccd_vec3_t *a, const ccd_vec3_t *b,
   ccdVec3Cross(d, &e, c);
 }
 
+_ccd_inline ccd_real_t PointToTriangleDistanceSquared(const ccd_vec3_t& P,
+                                                      const ccd_vec3_t& A,
+                                                      const ccd_vec3_t& B,
+                                                      const ccd_vec3_t& C,
+                                                      ccd_vec3_t* witness) {
+  const Vector3<ccd_real_t> a(A.v[0], A.v[1], A.v[2]);
+  const Vector3<ccd_real_t> b(B.v[0], B.v[1], B.v[2]);
+  const Vector3<ccd_real_t> c(C.v[0], C.v[1], C.v[2]);
+  const Vector3<ccd_real_t> p(P.v[0], P.v[1], P.v[2]);
+  // n is the normal vector of the plane on which A, B, C live.
+  const Vector3<ccd_real_t> n = ((b - a).cross(c - a)).normalized();
+  // q is the projection point from P to the plane on which A, B, C live.
+  const Vector3<ccd_real_t> q = p - n.dot(p - a) * n;
+  // Now determine if q is within the triangle ABC.
+  if ((n.cross(b - a)).dot(q - a) < 0 || (n.cross(c - b)).dot(q - b) < 0 ||
+      (n.cross(a - c)).dot(q - c) < 0) {
+    // q is not inside the triangle.
+    return ccdVec3PointTriDist2(&P, &A, &B, &C, witness);
+  } else {
+    // q is inside the triangle.
+    if (witness) {
+      witness->v[0] = q(0);
+      witness->v[1] = q(1);
+      witness->v[2] = q(2);
+    }
+    return (p - q).squaredNorm();
+  }
+}
+
 /* This is *not* an implementation of the general function: what's the nearest
  point on the line segment AB to the origin O? It is not intended to be.
  This is a limited, special case which exploits the known (or at least
@@ -397,8 +426,8 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   // https://github.com/danfis/libccd/issues/55.
   ccd_vec3_t origin_projection_unused;
 
-  const ccd_real_t dist_squared = ccdVec3PointTriDist2(
-      ccd_vec3_origin, &A->v, &B->v, &C->v, &origin_projection_unused);
+  const ccd_real_t dist_squared = PointToTriangleDistanceSquared(
+      *ccd_vec3_origin, A->v, B->v, C->v, &origin_projection_unused);
   if (isAbsValueLessThanEpsSquared(dist_squared)) {
     return 1;
   }
