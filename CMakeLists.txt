@@ -87,7 +87,27 @@ endif()
 
 # Whether to enable SSE
 set(SSE_FLAGS "")
+option(FCL_USE_AVX "Whether FCL should use AVX instructions" OFF)
+option(FCL_USE_SSE4 "Whether FCL should use SSE4 instructions" OFF)
 option(FCL_USE_X64_SSE "Whether FCL should x64 SSE instructions" ON)
+
+if(FCL_USE_AVX)
+  set(FCL_USE_SSE4 OFF)
+  set(FCL_USE_X64_SSE OFF)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(AVX_FLAGS -mavx)
+  endif()
+  add_compile_options(${AVX_FLAGS})
+endif()
+
+if(FCL_USE_SSE4)
+  set(FCL_USE_X64_SSE OFF)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(SSE_FLAGS -mfpmath=sse -msse4)
+  endif()
+  add_compile_options(${SSE_FLAGS})
+endif()
+
 if(FCL_USE_X64_SSE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(SSE_FLAGS -mfpmath=sse -msse -msse2 -msse3 -mssse3)
