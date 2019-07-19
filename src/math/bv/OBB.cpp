@@ -71,4 +71,54 @@ bool obbDisjoint(
     const Vector3<double>& a,
     const Vector3<double>& b);
 
+//==============================================================================
+template <>
+bool obbDisjoint(const Matrix3<float>& B, const Vector3<float>& T,
+                 const Vector3<float>& a, const Vector3<float>& b)
+{
+  const float reps = 1e-6;
+
+  Matrix3<float> Bf = B.cwiseAbs();
+  Bf.array() += reps;
+
+  // Test the three major axes of the OBB a.
+  if (((T.cwiseAbs() - (a + Bf * b)).array() > 0).any()) {
+    return true;
+  }
+
+  // Test the three major axes of the OBB b.
+  if ((((B.transpose() * T).cwiseAbs() - (b + Bf.transpose() * a)).array() > 0).any()) {
+    return true;
+  }
+
+  // Test the 9 different cross-axes.
+  Matrix3<float> symmetric_matrix;
+  symmetric_matrix <<    0, b[2], b[1],
+                      b[2],    0, b[0],
+                      b[1], b[0],    0;
+
+  // A0 x B0
+  // A0 x B1
+  // A0 x B2
+  if ((((T[2] * B.row(1) - T[1] * B.row(2)).cwiseAbs() - (Bf.row(2) * a[1] + Bf.row(1) * a[2] + Bf.row(0) * symmetric_matrix)).array() > 0).any()) {
+    return true;
+  }
+
+  // A1 x B0
+  // A1 x B1
+  // A1 x B2
+  if ((((T[0] * B.row(2) - T[2] * B.row(0)).cwiseAbs() - (Bf.row(2) * a[0] + Bf.row(0) * a[2] + Bf.row(1) * symmetric_matrix)).array() > 0).any()) {
+    return true;
+  }
+
+  // A2 x B0
+  // A2 x B1
+  // A2 x B2
+  if ((((T[1] * B.row(0) - T[0] * B.row(1)).cwiseAbs() - (Bf.row(1) * a[0] + Bf.row(0) * a[1] + Bf.row(2) * symmetric_matrix)).array() > 0).any()) {
+    return true;
+  }
+
+  return false;
+}
+
 } // namespace fcl
