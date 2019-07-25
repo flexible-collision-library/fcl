@@ -42,12 +42,12 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_TREAT_WARNINGS_AS_ERRORS=ON -DFCL_COVERALLS=$COVERALLS ..
 
   # Build
-  - make -j4
+  - travis_wait 30 make -j $(nproc)
   - if [ $COVERALLS = ON ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then make coveralls; fi
 
   # Run unit tests
-  - ctest -j4 --output-on-failure
+  - travis_wait 30 ctest -j $(nproc) --output-on-failure
 
   # Make sure we can install and uninstall with no issues
-  - sudo make -j4 install
-  - sudo make -j4 uninstall
+  - sudo make -j $(nproc) install
+  - sudo make -j $(nproc) uninstall
