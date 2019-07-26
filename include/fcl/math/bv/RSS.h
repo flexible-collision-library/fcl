@@ -59,7 +59,8 @@ public:
   /// shortest one.
   Matrix3<S> axis;
 
-  /// @brief Origin of the rectangle in RSS
+  /// @brief Origin of the rectangle in RSS.
+  /// Note that the origin is the minimum corner, not the center!
   Vector3<S> To;
 
   /// @brief Side lengths of rectangle
@@ -108,6 +109,12 @@ public:
 
   /// @brief The RSS center
   const Vector3<S> center() const;
+
+  /// @brief Set the To of the RSS from the center coordinates
+  ///
+  /// Useful because To of an RSS is the minimum corner of the rectangle, not the center.
+  /// Note: only works correctly if axis and l[] are set.
+  void setToFromCenter(const Vector3<S>& center);
 
   /// @brief the distance between two RSS; P and Q, if not nullptr, return the nearest points
   S distance(const RSS<S>& other,

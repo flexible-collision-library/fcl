@@ -415,7 +415,18 @@ S RSS<S>::size() const
 template <typename S>
 const Vector3<S> RSS<S>::center() const
 {
-  return To;
+  // To is the origin of the rectangle, which is the minimum corner, not the center.
+  Vector3<S> l_vector;
+  l_vector << l[0] * 0.5, l[1] * 0.5, 0.0;
+  return To + axis * l_vector;
+}
+
+template <typename S>
+void RSS<S>::setToFromCenter(const Vector3<S>& center)
+{
+  Vector3<S> l_vector;
+  l_vector << l[0] * 0.5, l[1] * 0.5, 0.0;
+  To = center - axis * l_vector;
 }
 
 //==============================================================================

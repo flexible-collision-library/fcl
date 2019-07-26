@@ -797,7 +797,7 @@ public:
   static void run(const RSS<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2)
   {
     bv2.extent << bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r;
-    bv2.To.noalias() = tf1 * bv1.To;
+    bv2.To.noalias() = tf1 * bv1.center();
     bv2.axis.noalias() = tf1.linear() * bv1.axis;
   }
 };
@@ -838,12 +838,13 @@ class FCL_EXPORT ConvertBVImpl<S, OBB<S>, RSS<S>>
 public:
   static void run(const OBB<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2)
   {
-    bv2.To.noalias() = tf1 * bv1.To;
     bv2.axis.noalias() = tf1.linear() * bv1.axis;
 
     bv2.r = bv1.extent[2];
-    bv2.l[0] = 2 * (bv1.extent[0] - bv2.r);
-    bv2.l[1] = 2 * (bv1.extent[1] - bv2.r);
+    bv2.l[0] = 2 * (bv1.extent[0]);
+    bv2.l[1] = 2 * (bv1.extent[1]);
+
+    bv2.setToFromCenter(tf1 * bv1.To);
   }
 };
 
@@ -881,8 +882,6 @@ class FCL_EXPORT ConvertBVImpl<S, AABB<S>, RSS<S>>
 public:
   static void run(const AABB<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2)
   {
-    bv2.To.noalias() = tf1 * bv1.center();
-
     /// Sort the AABB edges so that AABB extents are ordered.
     S d[3] = {bv1.width(), bv1.height(), bv1.depth() };
     std::size_t id[3] = {0, 1, 2};
@@ -909,8 +908,8 @@ public:
 
     Vector3<S> extent = (bv1.max_ - bv1.min_) * 0.5;
     bv2.r = extent[id[2]];
-    bv2.l[0] = (extent[id[0]] - bv2.r) * 2;
-    bv2.l[1] = (extent[id[1]] - bv2.r) * 2;
+    bv2.l[0] = (extent[id[0]]) * 2;
+    bv2.l[1] = (extent[id[1]]) * 2;
 
     const Matrix3<S>& R = tf1.linear();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
@@ -920,6 +919,7 @@ public:
       bv2.axis.col(0) = R.col(id[0]);
     bv2.axis.col(1) = R.col(id[1]);
     bv2.axis.col(2) = R.col(id[2]);
+    bv2.setToFromCenter(tf1 * bv1.center());
   }
 };
 
