@@ -39,6 +39,8 @@
 #include "fcl/broadphase/detail/morton.h"
 #include "fcl/config.h"
 #include "fcl/math/bv/AABB.h"
+#include "fcl/math/bv/RSS.h"
+#include "fcl/math/bv/utility.h"
 
 using namespace fcl;
 
@@ -128,6 +130,136 @@ GTEST_TEST(FCL_MATH, morton)
 //  test_morton<float>();
   test_morton<double>();
 }
+
+template <typename S>
+void test_rss()
+{
+  RSS<S> rss;
+  Vector3<S> pn[8];
+  pn[0] << 0, 0, 0;
+  pn[1] << 1, 0, 0;
+  fit(pn, 1, rss);
+  EXPECT_TRUE(rss.center() == pn[0]);
+  EXPECT_TRUE(rss.width() == 0.0);
+  EXPECT_TRUE(rss.height() == 0.0);
+  EXPECT_TRUE(rss.depth() == 0.0);
+  EXPECT_TRUE(rss.axis.isApprox(Matrix3<S>::Identity()));
+  fit(pn, 2, rss);
+  EXPECT_TRUE(rss.center().isApprox(Vector3<S>(0.5, 0, 0)));
+  EXPECT_TRUE(rss.width() == 1.0);
+  EXPECT_TRUE(rss.height() == 0.0);
+  EXPECT_TRUE(rss.depth() == 0.0);
+  EXPECT_TRUE(rss.axis.col(0).isApprox(Vector3<S>(1, 0, 0)) ||
+              rss.axis.col(0).isApprox(Vector3<S>(-1, 0, 0)));
+  pn[1] << 0, 1, 0;
+  fit(pn, 2, rss);
+  EXPECT_TRUE(rss.center().isApprox(Vector3<S>(0, 0.5, 0)));
+  EXPECT_TRUE(rss.width() == 1.0);
+  EXPECT_TRUE(rss.height() == 0.0);
+  EXPECT_TRUE(rss.depth() == 0.0);
+  EXPECT_TRUE(rss.axis.col(0).isApprox(Vector3<S>(0, 1, 0)) ||
+              rss.axis.col(0).isApprox(Vector3<S>(0, -1, 0)));
+  pn[1] << 0, 0, 1;
+  fit(pn, 2, rss);
+  EXPECT_TRUE(rss.center().isApprox(Vector3<S>(0, 0, 0.5)));
+  EXPECT_TRUE(rss.width() == 1.0);
+  EXPECT_TRUE(rss.height() == 0.0);
+  EXPECT_TRUE(rss.depth() == 0.0);
+  EXPECT_TRUE(rss.axis.col(0).isApprox(Vector3<S>(0, 0, 1)) ||
+              rss.axis.col(0).isApprox(Vector3<S>(0, 0, -1)));
+  pn[0] << 0, 0, 1;
+  pn[1] << 0, 0, 0;
+  fit(pn, 2, rss);
+  EXPECT_TRUE(rss.center().isApprox(Vector3<S>(0, 0, 0.5)));
+  EXPECT_TRUE(rss.width() == 1.0);
+  EXPECT_TRUE(rss.height() == 0.0);
+  EXPECT_TRUE(rss.depth() == 0.0);
+  EXPECT_TRUE(rss.axis.col(0).isApprox(Vector3<S>(0, 0, 1)) ||
+              rss.axis.col(0).isApprox(Vector3<S>(0, 0, -1)));
+  pn[0] << -1, 1, 0;
+  pn[1] << 0, 0, 0;
+  fit(pn, 2, rss);
+  EXPECT_TRUE(rss.center().isApprox(Vector3<S>(-0.5, 0.5, 0)));
+  EXPECT_TRUE(std::abs(rss.width() - sqrt(2.0)) < 1e-6);
+  EXPECT_TRUE(rss.height() == 0.0);
+  EXPECT_TRUE(rss.depth() == 0.0);
+  EXPECT_TRUE(rss.axis.col(0).isApprox(Vector3<S>(-sqrt(2.0)/2.0, sqrt(2.0)/2.0, 0)) ||
+              rss.axis.col(0).isApprox(Vector3<S>(sqrt(2.0)/2.0, -sqrt(2.0)/2.0, 0)));
+  pn[0] << 0, 0, 0;
+  pn[1] << 1, 0, 0;
+  pn[2] << 0, 1, 0;
+  fit(pn, 3, rss);
+  Vector3<S> c3(0.25, 0.25, 0);
+  EXPECT_TRUE(c3.isApprox(rss.center()));
+  EXPECT_TRUE(std::abs(rss.width() - sqrt(2.0)) < 1e-5);
+  EXPECT_TRUE(std::abs(rss.height() - sqrt(2.0) / 2.0) < 1e-5);
+  EXPECT_TRUE(rss.depth() == 0.0);
+  pn[3] << 0, 0, 1;
+  pn[4] << 1, 0, 0;
+  pn[5] << 1, 0, 1;
+  pn[6] << 1, 1, 0;
+  pn[7] << 1, 1, 1;
+  fit(pn, 8, rss);
+  EXPECT_TRUE(rss.depth() >= 0.5);
+  AABB<S> aabb;
+  convertBV(rss, Transform3<S>::Identity(), aabb);
+  EXPECT_TRUE(aabb.width() >= rss.width());
+  EXPECT_TRUE(aabb.height() >= rss.height());
+  EXPECT_TRUE(aabb.depth() >= rss.depth());
+  EXPECT_TRUE(aabb.center().isApprox(rss.center()));
+  convertBV(aabb, Transform3<S>::Identity(), rss);
+  // The resulting RSS must be bigger than the AABB for it to contain it
+  EXPECT_TRUE(rss.width() - rss.depth() + 1e-6 >= aabb.width());
+  EXPECT_TRUE(rss.height() - rss.depth() + 1e-6 >= aabb.height());
+  EXPECT_TRUE(rss.depth() >= aabb.depth());
+  EXPECT_TRUE(aabb.center().isApprox(rss.center()));
+  OBB<S> obb;
+  convertBV(rss, Transform3<S>::Identity(), obb);
+  EXPECT_TRUE(obb.width() >= rss.width());
+  EXPECT_TRUE(obb.height() >= rss.height());
+  EXPECT_TRUE(obb.depth() >= rss.depth());
+  EXPECT_TRUE(obb.center().isApprox(rss.center()));
+  // Test RSS to RSS distance for correctness
+  pn[0] << 1, 1, 1;
+  pn[1] << 1, 1, -1;
+  pn[2] << 0, 1, -1;
+  pn[3] << 1, -1, 1;
+  pn[4] << 1, -1, -1;
+  pn[5] << 0, -1, -1;
+  RSS<S> rss2;
+  fit(pn, 3, rss);
+  fit(pn+3, 3, rss2);
+  EXPECT_TRUE(std::abs(rss.distance(rss2) - 2.0) < 1e-6);
+  rss.To << 0, 0, 0.5;
+  rss.axis = Matrix3<S>::Identity();
+  rss.l[0] = 1;
+  rss.l[1] = 1;
+  rss.r = 0.5;
+  rss2.To << -1, -1, 2.5;
+  rss2.axis = Matrix3<S>::Identity();
+  rss2.l[0] = 1;
+  rss2.l[1] = 1;
+  rss2.r = 0.5;
+  EXPECT_TRUE(std::abs(rss.distance(rss2) - 1.0) < 1e-6);
+  rss2.axis << -1, 0, 0,
+                0, -1, 0,
+                0, 0, -1;
+  EXPECT_TRUE(std::abs(rss.distance(rss2) - (sqrt(6) - 1.0)) < 1e-6);
+  rss2.To << 0, 0, 2.5;
+  EXPECT_TRUE(std::abs(rss.distance(rss2) - 1.0) < 1e-6);
+  // Now verify setting To via the center works correctly.
+  rss.setToFromCenter(Vector3<S>(0.5, 0.5, 0.5));
+  EXPECT_TRUE(rss.To.isApprox(Vector3<S>(0.0, 0.0, 0.5)));
+  rss2.setToFromCenter(Vector3<S>(-0.5, -0.5, 2.5));
+  EXPECT_TRUE(rss2.To.isApprox(Vector3<S>(0.0, 0.0, 2.5)));
+}
+
+GTEST_TEST(FCL_MATH, rss)
+{
+//  test_rss<float>();
+  test_rss<double>();
+}
+
 
 //==============================================================================
 int main(int argc, char* argv[])
