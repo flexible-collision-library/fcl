@@ -77,12 +77,10 @@ void fit2(const Vector3<S>* const ps, OBB<S>& bv)
 {
   const Vector3<S>& p1 = ps[0];
   const Vector3<S>& p2 = ps[1];
-  Vector3<S> p1p2 = p1 - p2;
-  S len_p1p2 = p1p2.norm();
-  p1p2.normalize();
+  const Vector3<S> p1p2 = p1 - p2;
+  const S len_p1p2 = p1p2.norm();
 
-  bv.axis.col(0) = p1p2;
-  generateCoordinateSystem(bv.axis);
+  bv.axis = generateCoordinateSystem(p1p2);
 
   bv.extent << len_p1p2 * 0.5, 0, 0;
   bv.To.noalias() = 0.5 * (p1 + p2);
@@ -193,12 +191,10 @@ void fit2(const Vector3<S>* const ps, RSS<S>& bv)
 {
   const Vector3<S>& p1 = ps[0];
   const Vector3<S>& p2 = ps[1];
-  Vector3<S> p1p2 = p1 - p2;
-  S len_p1p2 = p1p2.norm();
-  p1p2.normalize();
+  const Vector3<S> p1p2 = p1 - p2;
+  const S len_p1p2 = p1p2.norm();
 
-  bv.axis.col(0) = p1p2;
-  generateCoordinateSystem(bv.axis);
+  bv.axis = generateCoordinateSystem(p1p2);
   bv.l[0] = len_p1p2;
   bv.l[1] = 0;
 
@@ -318,12 +314,10 @@ void fit2(const Vector3<S>* const ps, kIOS<S>& bv)
 
   const Vector3<S>& p1 = ps[0];
   const Vector3<S>& p2 = ps[1];
-  Vector3<S> p1p2 = p1 - p2;
-  S len_p1p2 = p1p2.norm();
-  p1p2.normalize();
+  const Vector3<S> p1p2 = p1 - p2;
+  const S len_p1p2 = p1p2.norm();
 
-  bv.obb.axis.col(0) = p1p2;
-  generateCoordinateSystem(bv.obb.axis);
+  bv.obb.axis = generateCoordinateSystem(p1p2);
 
   S r0 = len_p1p2 * 0.5;
   bv.obb.extent << r0, 0, 0;
