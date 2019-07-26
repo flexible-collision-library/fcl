@@ -415,7 +415,17 @@ S RSS<S>::size() const
 template <typename S>
 const Vector3<S> RSS<S>::center() const
 {
-  return To;
+  Vector3<S> p_ToCenter_T;
+  p_ToCenter_T << l[0] * 0.5, l[1] * 0.5, 0.0;
+  return p_FoTo_F() + R_FT() * p_ToCenter_T;
+}
+
+template <typename S>
+void RSS<S>::setToFromCenter(const Vector3<S>& p_FoCenter_F)
+{
+  Vector3<S> p_ToCenter_T;
+  p_ToCenter_T << l[0] * 0.5, l[1] * 0.5, 0.0;
+  p_FoTo_F() = p_FoCenter_F - R_FT() * p_ToCenter_T;
 }
 
 //==============================================================================
