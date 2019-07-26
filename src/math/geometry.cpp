@@ -68,11 +68,7 @@ void axisFromEigen(const Matrix3d& eigenV,
 
 //==============================================================================
 template
-void generateCoordinateSystem(Matrix3d& axis);
-
-//==============================================================================
-template
-void generateCoordinateSystem(Transform3d& tf);
+void generateCoordinateSystem(const Vector3d& v, Matrix3d* axis_ptr);
 
 //==============================================================================
 template
