@@ -44,7 +44,16 @@
 namespace fcl
 {
 
-/// @brief A class for rectangle sphere-swept bounding volume
+/// @brief A class for rectangle swept sphere bounding volume
+///
+/// RSS defines a rectangle swept sphere. The rectangle is defined in the frame
+/// T. It has one corner positioned at the origin of frame T. It lies on T's
+/// z = 0 plane. Its longest dimension extends in the +x direction, and its
+/// shorter dimension in the +y direction.
+///
+/// The RSS is then posed in another frame F. R_FT() / #axis is the relative
+/// orientation between frame T and F and p_FoTo_F() / #To is the position of
+/// T's origin in Frame F.
 template <typename S_>
 class FCL_EXPORT RSS
 {
@@ -52,17 +61,35 @@ public:
 
   using S = S_;
 
-  /// @brief Orientation of RSS. The axes of the rotation matrix are the
-  /// principle directions of the box. We assume that the first column
-  /// corresponds to the axis with the longest box edge, second column
-  /// corresponds to the shorter one and the third coulumn corresponds to the
-  /// shortest one.
+  /// @brief Frame T's orientation in frame F.
+  ///
+  /// The axes of the rotation matrix are the principle directions of the
+  /// rectangle. The first column corresponds to a unit vector along the
+  /// longest edge and the second column the shortest edge. The third column is
+  /// the rectangle's unit normal vector.
   Matrix3<S> axis;
 
-  /// @brief Origin of the rectangle in RSS
+  /// @brief Monogram notation alias of #axis.
+  inline Matrix3<S>& R_FT() { return axis; }
+
+  /// @brief Monogram notation const alias of #axis.
+  inline const Matrix3<S>& R_FT() const { return axis; }
+
+  /// @brief Origin of frame T in frame F.
+  ///
+  /// Note this is the translation in frame F to the origin of frame T.
+  /// The rectangle's minimum corner in frame T is at the origin of frame T.
+  /// At one point in the past, some code treated #To as the center
+  /// of the rectangle and other code as the corner.
   Vector3<S> To;
 
-  /// @brief Side lengths of rectangle
+  /// @brief Monogram notation alias of #To
+  inline Vector3<S>& p_FoTo_F() { return To; }
+
+  /// @brief Monogram notation alias of #To
+  inline const Vector3<S>& p_FoTo_F() const { return To; }
+
+  /// @brief Side lengths of rectangle in frame T.
   S l[2];
 
   /// @brief Radius of sphere summed with rectangle to form RSS
@@ -108,6 +135,11 @@ public:
 
   /// @brief The RSS center
   const Vector3<S> center() const;
+
+  /// @brief Set #To of the RSS from the center coordinates in frame F.
+  ///
+  /// Note: only works correctly if #axis and #l[] are set.
+  void setToFromCenter(const Vector3<S>& p_FoCenter_F);
 
   /// @brief the distance between two RSS; P and Q, if not nullptr, return the nearest points
   S distance(const RSS<S>& other,
