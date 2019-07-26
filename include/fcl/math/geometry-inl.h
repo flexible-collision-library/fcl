@@ -75,10 +75,6 @@ void generateCoordinateSystem(Matrix3d& axis);
 
 //==============================================================================
 extern template
-void generateCoordinateSystem(Transform3d& tf);
-
-//==============================================================================
-extern template
 void getRadiusAndOriginAndRectangleSize(
     const Vector3d* const ps,
     const Vector3d* const ps2,
@@ -439,38 +435,6 @@ typename Derived::RealScalar triple(const Eigen::MatrixBase<Derived>& x,
 }
 
 //==============================================================================
-template <typename Derived>
-FCL_EXPORT
-void generateCoordinateSystem(
-    const Eigen::MatrixBase<Derived>& w,
-    Eigen::MatrixBase<Derived>& u,
-    Eigen::MatrixBase<Derived>& v)
-{
-  typename Derived::RealScalar inv_length;
-
-  if(std::abs(w[0]) >= std::abs(w[1]))
-  {
-    inv_length = 1.0 / std::sqrt(w[0] * w[0] + w[2] * w[2]);
-    u[0] = -w[2] * inv_length;
-    u[1] = 0;
-    u[2] =  w[0] * inv_length;
-    v[0] =  w[1] * u[2];
-    v[1] =  w[2] * u[0] - w[0] * u[2];
-    v[2] = -w[1] * u[0];
-  }
-  else
-  {
-    inv_length = 1.0 / std::sqrt(w[1] * w[1] + w[2] * w[2]);
-    u[0] = 0;
-    u[1] =  w[2] * inv_length;
-    u[2] = -w[1] * inv_length;
-    v[0] =  w[1] * u[2] - w[2] * u[1];
-    v[1] = -w[0] * u[2];
-    v[2] =  w[0] * u[1];
-  }
-}
-
-//==============================================================================
 template <typename S, int M, int N>
 FCL_EXPORT
 VectorN<S, M+N> combine(
@@ -681,91 +645,28 @@ template <typename S>
 FCL_EXPORT
 void generateCoordinateSystem(Matrix3<S>& axis)
 {
-  // Assum axis.col(0) is closest to z-axis
-  assert(axis.col(0).maxCoeff() == 2);
-
-  if(std::abs(axis(0, 0)) >= std::abs(axis(1, 0)))
+  // Axis column 0 should be passed already normalized.
+  assert(std::abs(1.0 - axis.col(0).squaredNorm()) < 1e-3);
+  // Find orthogonal axis by projecting onto axis-aligned plane with the two largest components.
+  unsigned int min_coeff;
+  axis.col(0).array().abs().minCoeff(&min_coeff);
+  switch (min_coeff)
   {
-    // let axis.col(0) = (x, y, z)
-    // axis.col(1) = (-z, 0, x) / length((-z, 0, x)) // so that axis.col(0) and
-    //                                               // axis.col(1) are
-    //                                               // othorgonal
-    // axis.col(2) = axis.col(0).cross(axis.col(1))
-
-    S inv_length = 1.0 / sqrt(std::pow(axis(0, 0), 2) + std::pow(axis(2, 0), 2));
-
-    axis(0, 1) = -axis(2, 0) * inv_length;
-    axis(1, 1) = 0;
-    axis(2, 1) =  axis(0, 0) * inv_length;
-
-    axis(0, 2) =  axis(1, 0) * axis(2, 1);
-    axis(1, 2) =  axis(2, 0) * axis(0, 1) - axis(0, 0) * axis(2, 1);
-    axis(2, 2) = -axis(1, 0) * axis(0, 1);
+    case 0:
+      axis.col(1) << 0.0, axis(2, 0), -axis(1, 0);
+      break;
+    case 1:
+      axis.col(1) << -axis(2, 0), 0.0, axis(0, 0);
+      break;
+    case 2:
+      axis.col(1) << -axis(1, 0), axis(0, 0), 0.0;
+      break;
+    default:
+      assert(false);
+      break;
   }
-  else
-  {
-    // let axis.col(0) = (x, y, z)
-    // axis.col(1) = (0, z, -y) / length((0, z, -y)) // so that axis.col(0) and
-    //                                               // axis.col(1) are
-    //                                               // othorgonal
-    // axis.col(2) = axis.col(0).cross(axis.col(1))
-
-    S inv_length = 1.0 / sqrt(std::pow(axis(1, 0), 2) + std::pow(axis(2, 0), 2));
-
-    axis(0, 1) = 0;
-    axis(1, 1) =  axis(2, 0) * inv_length;
-    axis(2, 1) = -axis(1, 0) * inv_length;
-
-    axis(0, 2) =  axis(1, 0) * axis(2, 1) - axis(2, 0) * axis(1, 1);
-    axis(1, 2) = -axis(0, 0) * axis(2, 1);
-    axis(2, 2) =  axis(0, 0) * axis(1, 1);
-  }
-}
-
-//==============================================================================
-template <typename S>
-FCL_EXPORT
-void generateCoordinateSystem(Transform3<S>& tf)
-{
-  // Assum axis.col(0) is closest to z-axis
-  assert(tf.linear().col(0).maxCoeff() == 2);
-
-  if(std::abs(tf.linear()(0, 0)) >= std::abs(tf.linear()(1, 0)))
-  {
-    // let axis.col(0) = (x, y, z)
-    // axis.col(1) = (-z, 0, x) / length((-z, 0, x)) // so that axis.col(0) and
-    //                                               // axis.col(1) are
-    //                                               // othorgonal
-    // axis.col(2) = axis.col(0).cross(axis.col(1))
-
-    S inv_length = 1.0 / sqrt(std::pow(tf.linear()(0, 0), 2) + std::pow(tf.linear()(2, 0), 2));
-
-    tf.linear()(0, 1) = -tf.linear()(2, 0) * inv_length;
-    tf.linear()(1, 1) = 0;
-    tf.linear()(2, 1) =  tf.linear()(0, 0) * inv_length;
-
-    tf.linear()(0, 2) =  tf.linear()(1, 0) * tf.linear()(2, 1);
-    tf.linear()(1, 2) =  tf.linear()(2, 0) * tf.linear()(0, 1) - tf.linear()(0, 0) * tf.linear()(2, 1);
-    tf.linear()(2, 2) = -tf.linear()(1, 0) * tf.linear()(0, 1);
-  }
-  else
-  {
-    // let axis.col(0) = (x, y, z)
-    // axis.col(1) = (0, z, -y) / length((0, z, -y)) // so that axis.col(0) and
-    //                                               // axis.col(1) are
-    //                                               // othorgonal
-    // axis.col(2) = axis.col(0).cross(axis.col(1))
-
-    S inv_length = 1.0 / sqrt(std::pow(tf.linear()(1, 0), 2) + std::pow(tf.linear()(2, 0), 2));
-
-    tf.linear()(0, 1) = 0;
-    tf.linear()(1, 1) =  tf.linear()(2, 0) * inv_length;
-    tf.linear()(2, 1) = -tf.linear()(1, 0) * inv_length;
-
-    tf.linear()(0, 2) =  tf.linear()(1, 0) * tf.linear()(2, 1) - tf.linear()(2, 0) * tf.linear()(1, 1);
-    tf.linear()(1, 2) = -tf.linear()(0, 0) * tf.linear()(2, 1);
-    tf.linear()(2, 2) =  tf.linear()(0, 0) * tf.linear()(1, 1);
-  }
+  axis.col(1).normalize();
+  axis.col(2).noalias() = axis.col(0).cross(axis.col(1));
 }
 
 //==============================================================================

@@ -58,13 +58,6 @@ typename Derived::RealScalar triple(const Eigen::MatrixBase<Derived>& x,
                                     const Eigen::MatrixBase<Derived>& y,
                                     const Eigen::MatrixBase<Derived>& z);
 
-template <typename Derived>
-FCL_EXPORT
-void generateCoordinateSystem(
-    const Eigen::MatrixBase<Derived>& w,
-    Eigen::MatrixBase<Derived>& u,
-    Eigen::MatrixBase<Derived>& v);
-
 template <typename S, int M, int N>
 FCL_EXPORT
 VectorN<S, M+N> combine(
@@ -101,10 +94,6 @@ void axisFromEigen(const Matrix3<S>& eigenV,
 template <typename S>
 FCL_EXPORT
 void generateCoordinateSystem(Matrix3<S>& axis);
-
-template <typename S>
-FCL_EXPORT
-void generateCoordinateSystem(Transform3<S>& tf);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
 FCL_EXPORT

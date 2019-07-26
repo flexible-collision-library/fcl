@@ -72,10 +72,6 @@ void generateCoordinateSystem(Matrix3d& axis);
 
 //==============================================================================
 template
-void generateCoordinateSystem(Transform3d& tf);
-
-//==============================================================================
-template
 void getRadiusAndOriginAndRectangleSize(
     const Vector3d* const ps,
     const Vector3d* const ps2,
