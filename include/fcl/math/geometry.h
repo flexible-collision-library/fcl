@@ -58,13 +58,6 @@ typename Derived::RealScalar triple(const Eigen::MatrixBase<Derived>& x,
                                     const Eigen::MatrixBase<Derived>& y,
                                     const Eigen::MatrixBase<Derived>& z);
 
-template <typename Derived>
-FCL_EXPORT
-void generateCoordinateSystem(
-    const Eigen::MatrixBase<Derived>& w,
-    Eigen::MatrixBase<Derived>& u,
-    Eigen::MatrixBase<Derived>& v);
-
 template <typename S, int M, int N>
 FCL_EXPORT
 VectorN<S, M+N> combine(
@@ -98,13 +91,16 @@ void axisFromEigen(const Matrix3<S>& eigenV,
                    const Vector3<S>& eigenS,
                    Transform3<S>& tf);
 
+/// @brief compute orthogonal coordinate system basis with given x-axis.
+///
+/// @param[in,out] axis_ptr Must point to a valid Matrix3<S> with a normalized
+///                         axis in column 0. Columns 1 and 2 are created
+///                         orthogonal to column 0, and orthogonal to each
+///                         other. Otherwise, the orientation of the other axes
+///                         to column 0 is arbitrary.
 template <typename S>
 FCL_EXPORT
-void generateCoordinateSystem(Matrix3<S>& axis);
-
-template <typename S>
-FCL_EXPORT
-void generateCoordinateSystem(Transform3<S>& tf);
+void generateCoordinateSystem(Matrix3<S>* axis_ptr);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
 FCL_EXPORT

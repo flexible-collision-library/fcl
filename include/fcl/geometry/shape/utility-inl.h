@@ -660,7 +660,7 @@ struct FCL_EXPORT ComputeBVImpl<S, OBB<S>, Plane<S>>
   {
     Vector3<S> n = tf.linear() * s.n;
     bv.axis.col(0) = n;
-    generateCoordinateSystem(bv.axis);
+    generateCoordinateSystem(&bv.axis);
 
     bv.extent << 0, std::numeric_limits<S>::max(), std::numeric_limits<S>::max();
 
@@ -678,7 +678,7 @@ struct FCL_EXPORT ComputeBVImpl<S, RSS<S>, Plane<S>>
     Vector3<S> n = tf.linear() * s.n;
 
     bv.axis.col(0) = n;
-    generateCoordinateSystem(bv.axis);
+    generateCoordinateSystem(&bv.axis);
 
     bv.l[0] = std::numeric_limits<S>::max();
     bv.l[1] = std::numeric_limits<S>::max();
