@@ -123,7 +123,7 @@ void test_octomap_bvh_rss_d_distance_rss()
 #ifdef NDEBUG
   octomap_distance_test_BVH<RSS<S>>(5);
 #else
-  octomap_distance_test_BVH<RSS<S>>(1, 1.0);
+  octomap_distance_test_BVH<RSS<S>>(5, 1.0);
 #endif
 }
 
@@ -139,7 +139,7 @@ void test_octomap_bvh_obb_d_distance_obb()
 #ifdef NDEBUG
   octomap_distance_test_BVH<OBBRSS<S>>(5);
 #else
-  octomap_distance_test_BVH<OBBRSS<S>>(1, 1.0);
+  octomap_distance_test_BVH<OBBRSS<S>>(5, 1.0);
 #endif
 }
 
@@ -155,7 +155,7 @@ void test_octomap_bvh_kios_d_distance_kios()
 #ifdef NDEBUG
   octomap_distance_test_BVH<kIOS<S>>(5);
 #else
-  octomap_distance_test_BVH<kIOS<S>>(1, 1.0);
+  octomap_distance_test_BVH<kIOS<S>>(5, 1.0);
 #endif
 }
 
@@ -182,32 +182,41 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<octomap::OcTree>(test::generateOcTree(resolution)));
+  OcTree<S>* tree = new OcTree<S>(
+      std::shared_ptr<octomap::OcTree>(test::generateOcTree(resolution)));
   std::shared_ptr<CollisionGeometry<S>> tree_ptr(tree);
 
   aligned_vector<Transform3<S>> transforms;
-  S extents[] = {-10, -10, 10, 10, 10, 10};
+  S extents[] = {-5, -5, -5, 5, 5, 5};
 
   test::generateRandomTransforms(extents, transforms, n);
 
   for(std::size_t i = 0; i < n; ++i)
   {
-    Transform3<S> tf(transforms[i]);
+    Transform3<S> tf1(transforms[i]);
+    Transform3<S> tf2(transforms[n-1-i]);
 
-    CollisionObject<S> obj1(m1_ptr, tf);
-    CollisionObject<S> obj2(tree_ptr, tf);
+    CollisionObject<S> obj1(m1_ptr, tf1);
+    CollisionObject<S> obj2(tree_ptr, tf2);
     DefaultDistanceData<S> cdata;
+    DefaultDistanceData<S> cdata1b;
     cdata.request.enable_nearest_points = true;
+    cdata1b.request.enable_nearest_points = true;
     S dist1 = std::numeric_limits<S>::max();
+    S dist1b = std::numeric_limits<S>::max();
+    // Verify that the order of geometry objects does not matter
     DefaultDistanceFunction(&obj1, &obj2, &cdata, dist1);
+    DefaultDistanceFunction(&obj2, &obj1, &cdata1b, dist1b);
+    EXPECT_NEAR(dist1, dist1b, constants<S>::eps());
 
 
     std::vector<CollisionObject<S>*> boxes;
     test::generateBoxesFromOctomap(boxes, *tree);
     for(std::size_t j = 0; j < boxes.size(); ++j)
-      boxes[j]->setTransform(tf * boxes[j]->getTransform());
+      boxes[j]->setTransform(tf2 * boxes[j]->getTransform());
 
-    DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
+    DynamicAABBTreeCollisionManager<S>* manager =
+        new DynamicAABBTreeCollisionManager<S>();
     manager->registerObjects(boxes);
     manager->setup();
 
@@ -219,15 +228,21 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
       delete boxes[j];
     delete manager;
 
-    std::cout << dist1 << " " << dist2 << std::endl;
-    EXPECT_TRUE(std::abs(dist1 - dist2) < 0.001);
+    EXPECT_NEAR(dist1, dist2, 0.001);
 
     // Check that the nearest points are consistent with the distance
     // Note that we cannot compare the result with the "boxes" approximation,
     // since the problem is ill-posed (i.e. the nearest points may differ widely
     // for slightly different geometries)
-    Vector3<S> nearestPointDistance = cdata.result.nearest_points[0] - cdata.result.nearest_points[1];
-    EXPECT_NEAR(nearestPointDistance.norm(), dist1, 0.001);
+    Vector3<S> nearestPointDistance =
+        cdata.result.nearest_points[0] - cdata.result.nearest_points[1];
+    // Only check the nearest point distance for a non-collision.
+    // For a collision, the nearest points may be tangential and not equal to
+    // the (potentially fake) signed distance returned by the distance check.
+    if (dist1 > 0.0)
+    {
+      EXPECT_NEAR(nearestPointDistance.norm(), dist1, 0.001);
+    }
   }
 }
 
@@ -299,9 +314,9 @@ void octomap_distance_test(S env_scale, std::size_t env_size, bool use_mesh, boo
   std::cout << cdata.result.min_distance << " " << cdata3.result.min_distance << " " << cdata2.result.min_distance << std::endl;
 
   if(cdata.result.min_distance < 0)
-    EXPECT_TRUE(cdata2.result.min_distance <= 0);
+    EXPECT_LE(cdata2.result.min_distance, 0);
   else
-    EXPECT_TRUE(std::abs(cdata.result.min_distance - cdata2.result.min_distance) < 1e-3);
+    EXPECT_NEAR(cdata.result.min_distance, cdata2.result.min_distance, 1e-3);
 
   delete manager;
   delete manager2;
