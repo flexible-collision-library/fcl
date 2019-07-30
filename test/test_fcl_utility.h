@@ -602,7 +602,7 @@ inline octomap::OcTree* generateOcTree(double resolution)
     {
       for(int z = -20; z < 20; z++)
       {
-        tree->updateNode(octomap::point3d(x * 0.05, y * 0.05, z * 0.05), true);
+        tree->setNodeValue(octomap::point3d(x * 0.05, y * 0.05, z * 0.05), tree->getClampingThresMaxLog());
       }
     }
   }
@@ -614,7 +614,7 @@ inline octomap::OcTree* generateOcTree(double resolution)
     {
       for(int z = -30; z < 30; z++)
       {
-        tree->updateNode(octomap::point3d(x*0.02 -1.0, y*0.02-1.0, z*0.02-1.0), false);
+        tree->setNodeValue(octomap::point3d(x*0.02 -1.0, y*0.02-1.0, z*0.02-1.0), tree->getClampingThresMinLog());
       }
     }
   }
