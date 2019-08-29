@@ -183,8 +183,26 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(test::generateOcTree(resolution)));
+  auto octree = std::shared_ptr<const octomap::OcTree>(
+      test::generateOcTree(resolution));
+  OcTree<S>* tree = new OcTree<S>(octree);
   std::shared_ptr<CollisionGeometry<S>> tree_ptr(tree);
+
+  // Check and make sure that the generated tree contains both free and
+  // occupied space. There was a time when it was impossible to represent free
+  // space, this part of the collision tests that both free and occupied space
+  // are correctly represented.
+  size_t free_nodes = 0;
+  size_t occupied_nodes = 0;
+  for (auto it = octree->begin(), end = octree->end(); it != end; ++it)
+  {
+    if (tree->isNodeFree(&*it))
+      ++free_nodes;
+    if (tree->isNodeOccupied(&*it))
+      ++occupied_nodes;
+  }
+  EXPECT_GT(free_nodes, 0UL);
+  EXPECT_GT(occupied_nodes, 0UL);
 
   aligned_vector<Transform3<S>> transforms;
   S extents[] = {-10, -10, 10, 10, 10, 10};
