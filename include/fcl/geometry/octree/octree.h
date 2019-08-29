@@ -68,8 +68,8 @@ private:
 
   S default_occupancy;
 
-  S occupancy_threshold;
-  S free_threshold;
+  S occupancy_threshold_log_odds;
+  S free_threshold_log_odds;
 
 public:
 
