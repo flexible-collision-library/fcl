@@ -379,40 +379,62 @@ void test_distance_box_box2() {
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
 }
 
+template <typename S>
+void test_distance_box_box3() {
+  const Vector3<S> box1_size(0.6, 0.6, 0.1);
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  X_WB1.matrix() << 0.99991900264432043155,   -0.012705114136322817608,  0.00075380738289000973843,                          0,
+   0.012706303685710157447,     0.99991799982123408252,  -0.0015948291911753885355,  0.00026625771951151698536,
+-0.00073348308364803505629,    0.001604278119755673691,     0.99999844414592997666,      2.0000000607751289294,
+                         0,                          0,                          0,                          1;
+
+  const Vector3<S> box2_size(0.5, 10, 2);
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB2.matrix() << 1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 1,
+                    0, 0, 0, 1;
+  // clang-format on
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
+
+}
+
 //==============================================================================
 
-GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd)
-{
-  test_distance_spheresphere<double>(GST_LIBCCD);
-}
-
-GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_indep)
-{
-  test_distance_spheresphere<double>(GST_INDEP);
-}
-
-GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_ccd)
-{
-  test_distance_spherecapsule<double>(GST_LIBCCD);
-}
-
-GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_indep)
-{
-  test_distance_spherecapsule<double>(GST_INDEP);
-}
-
-GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_sphere1_ccd)
-{
-  test_distance_cylinder_sphere1<double>();
-}
-
-GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
-  test_distance_cylinder_box<double>();
-}
+//GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd)
+//{
+//  test_distance_spheresphere<double>(GST_LIBCCD);
+//}
+//
+//GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_indep)
+//{
+//  test_distance_spheresphere<double>(GST_INDEP);
+//}
+//
+//GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_ccd)
+//{
+//  test_distance_spherecapsule<double>(GST_LIBCCD);
+//}
+//
+//GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_indep)
+//{
+//  test_distance_spherecapsule<double>(GST_INDEP);
+//}
+//
+//GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_sphere1_ccd)
+//{
+//  test_distance_cylinder_sphere1<double>();
+//}
+//
+//GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
+//  test_distance_cylinder_box<double>();
+//}
 
 GTEST_TEST(FCL_SIGNED_DISTANCE, box_box1_ccd) {
-  test_distance_box_box1<double>();
-  test_distance_box_box2<double>();
+//  test_distance_box_box1<double>();
+//  test_distance_box_box2<double>();
+  test_distance_box_box3<double>();
 }
 
 //==============================================================================
