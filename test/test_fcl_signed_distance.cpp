@@ -316,7 +316,7 @@ void test_distance_box_box_helper(const Vector3<S>& box1_size,
   request.enable_signed_distance = true;
   fcl::DistanceResult<S> result;
 
-  ASSERT_NO_THROW(fcl::distance(&box1, &box2, request, result));
+  fcl::distance(&box1, &box2, request, result);
   EXPECT_NEAR(abs(result.min_distance),
               (result.nearest_points[0] - result.nearest_points[1]).norm(),
               request.distance_tolerance);
@@ -381,20 +381,21 @@ void test_distance_box_box2() {
 
 template <typename S>
 void test_distance_box_box3() {
-  const Vector3<S> box1_size(0.6, 0.6, 0.1);
+  const Vector3<S> box1_size(0.49, 0.05, 0.21);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
-  X_WB1.matrix() << 0.99991900264432043155,   -0.012705114136322817608,  0.00075380738289000973843,                          0,
-   0.012706303685710157447,     0.99991799982123408252,  -0.0015948291911753885355,  0.00026625771951151698536,
--0.00073348308364803505629,    0.001604278119755673691,     0.99999844414592997666,      2.0000000607751289294,
-                         0,                          0,                          0,                          1;
-
-  const Vector3<S> box2_size(0.5, 10, 2);
+  // clang-format off
+  X_WB1.matrix() << 4.8966386501092529215e-12, -1,0,-0.43999999999999994671,
+                       1, 4.8966386501092529215e-12,0,-0.61499999999858001587,
+                       0,0,1,0.35499999999999998224,
+                       0,0,0,1;
+  // clang-format on
+  const Vector3<S> box2_size(0.035, 0.12, 0.03);
   Transform3<S> X_WB2 = Transform3<S>::Identity();
   // clang-format off
-  X_WB2.matrix() << 1, 0, 0, 0,
-                    0, 1, 0, 0,
-                    0, 0, 1, 1,
-                    0, 0, 0, 1;
+  X_WB2.matrix() << 0.83512153565236335595,    -0.55006546945762568868, -9.4542360608233572896e-16,    -0.40653441507331000704,
+   0.55006546945762568868,     0.83512153565236313391,  1.1787444236552387666e-15,    -0.69166166923735727945,
+1.2902271444330665572e-16, -1.4878153530113264589e-15,                          1,     0.43057093858718892276,
+                        0,                          0,                          0,                          1;
   // clang-format on
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
 
@@ -402,38 +403,33 @@ void test_distance_box_box3() {
 
 //==============================================================================
 
-//GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd)
-//{
-//  test_distance_spheresphere<double>(GST_LIBCCD);
-//}
-//
-//GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_indep)
-//{
-//  test_distance_spheresphere<double>(GST_INDEP);
-//}
-//
-//GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_ccd)
-//{
-//  test_distance_spherecapsule<double>(GST_LIBCCD);
-//}
-//
-//GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_indep)
-//{
-//  test_distance_spherecapsule<double>(GST_INDEP);
-//}
-//
-//GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_sphere1_ccd)
-//{
-//  test_distance_cylinder_sphere1<double>();
-//}
-//
-//GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
-//  test_distance_cylinder_box<double>();
-//}
+GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd) {
+  test_distance_spheresphere<double>(GST_LIBCCD);
+}
+
+GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_indep) {
+  test_distance_spheresphere<double>(GST_INDEP);
+}
+
+GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_ccd) {
+  test_distance_spherecapsule<double>(GST_LIBCCD);
+}
+
+GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_indep) {
+  test_distance_spherecapsule<double>(GST_INDEP);
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_sphere1_ccd) {
+  test_distance_cylinder_sphere1<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
+  test_distance_cylinder_box<double>();
+}
 
 GTEST_TEST(FCL_SIGNED_DISTANCE, box_box1_ccd) {
-//  test_distance_box_box1<double>();
-//  test_distance_box_box2<double>();
+  test_distance_box_box1<double>();
+  test_distance_box_box2<double>();
   test_distance_box_box3<double>();
 }
 

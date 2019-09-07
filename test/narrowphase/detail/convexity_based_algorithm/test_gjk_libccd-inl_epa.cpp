@@ -690,6 +690,40 @@ GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch_2FacesVisible) {
                            {0, 1}, {0});
 }
 
+void CheckComputeVisiblePatchColinearNewVertex(EquilateralTetrahedron& tet,
+                                               double rho) {
+  // A new vertex is colinear with an edge e[0] of the tetrahedron. The border
+  // edges should be  e[1], e[4], e[5]. The visible faces should be f[0], f[1],
+  // f[3], and the internal edges should be e[0], e[2], e[3].
+  ccd_vec3_t query_point;
+  for (int i = 0; i < 3; ++i) {
+    query_point.v[i] = (1 + rho) * tet.v(0).v.v.v[i] - rho * tet.v(1).v.v.v[i];
+  }
+  std::unordered_set<ccd_pt_edge_t*> border_edges;
+  std::unordered_set<ccd_pt_face_t*> visible_faces;
+  std::unordered_set<ccd_pt_edge_t*> internal_edges;
+  libccd_extension::ComputeVisiblePatch(tet.polytope(), tet.f(3), query_point,
+                                        &border_edges, &visible_faces,
+                                        &internal_edges);
+
+  EXPECT_EQ(border_edges.size(), 3u);
+  EXPECT_EQ(border_edges, std::unordered_set<ccd_pt_edge_t*>(
+                              {&(tet.e(1)), &(tet.e(4)), &(tet.e(5))}));
+  EXPECT_EQ(visible_faces.size(), 3u);
+  EXPECT_EQ(visible_faces, std::unordered_set<ccd_pt_face_t*>(
+                               {&(tet.f(0)), &(tet.f(1)), &(tet.f(3))}));
+  EXPECT_EQ(internal_edges.size(), 3u);
+  EXPECT_EQ(internal_edges, std::unordered_set<ccd_pt_edge_t*>(
+                                {&(tet.e(0)), &(tet.e(2)), &(tet.e(3))}));
+}
+
+GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatchColinearNewVertex) {
+  EquilateralTetrahedron tet1(-0.05, -0.13, 0.12);
+  CheckComputeVisiblePatchColinearNewVertex(tet1, 1.9);
+  EquilateralTetrahedron tet2(0.1, 0.2, 0.3);
+  CheckComputeVisiblePatchColinearNewVertex(tet2, 0.3);
+}
+
 // Tests that the sanity check causes `ComputeVisiblePatch()` to throw in
 // debug builds.
 GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatchSanityCheck) {
