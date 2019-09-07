@@ -1160,7 +1160,6 @@ static bool ComputeVisiblePatchRecursiveSanityCheck(
   return true;
 }
 #endif
-
 /**
  * This function contains the implementation detail of ComputeVisiblePatch()
  * function. It should not be called by any function other than
@@ -1187,18 +1186,15 @@ static void ComputeVisiblePatchRecursive(
     if (!isOutsidePolytopeFace(&polytope, g, &query_point)) {
       // Cannot see the neighbouring face from the new vertex.
 
-      // TODO(hongkai.dai@tri.global): when the new vertex is colinear with a
-      // border edge, we should remove the degenerate triangle. We could remove
-      // the middle vertex on that line from the polytope, and then reconnect
-      // the polytope.
-      if (triangle_area_is_zero(query_point, f.edge[edge_index]->vertex[0]->v.v,
-                                f.edge[edge_index]->vertex[1]->v.v)) {
-        FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
-            "The new vertex is colinear with an existing edge. The added "
-            "triangle would be degenerate.");
+      // If the query point is colinear with the edge, then both neighbouring
+      // faces of this edge (namely face f and g) should be visible. This edge
+      // is an internal edge. Othewise, this edge is a border edge.
+      if (!triangle_area_is_zero(query_point,
+                                 f.edge[edge_index]->vertex[0]->v.v,
+                                 f.edge[edge_index]->vertex[1]->v.v)) {
+        border_edges->insert(f.edge[edge_index]);
+        return;
       }
-      border_edges->insert(f.edge[edge_index]);
-      return;
     }
     visible_faces->insert(g);
     internal_edges->insert(f.edge[edge_index]);
