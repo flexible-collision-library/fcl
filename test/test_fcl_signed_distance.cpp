@@ -316,7 +316,7 @@ void test_distance_box_box_helper(const Vector3<S>& box1_size,
   request.enable_signed_distance = true;
   fcl::DistanceResult<S> result;
 
-  fcl::distance(&box1, &box2, request, result);
+  ASSERT_NO_THROW(fcl::distance(&box1, &box2, request, result));
   EXPECT_NEAR(abs(result.min_distance),
               (result.nearest_points[0] - result.nearest_points[1]).norm(),
               request.distance_tolerance);
@@ -335,7 +335,7 @@ void test_distance_box_box_helper(const Vector3<S>& box1_size,
 // unexpected `validateNearestFeatureOfPolytopeBeingEdge` error. This error was
 // reported in https://github.com/flexible-collision-library/fcl/issues/388
 template <typename S>
-void test_distance_box_box1() {
+void test_distance_box_box_regression1() {
   const Vector3<S> box1_size(0.03, 0.12, 0.1);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   X_WB1.matrix() << -3.0627937852578681533e-08, -0.99999999999999888978,
@@ -360,7 +360,7 @@ void test_distance_box_box1() {
 // unexpected `triangle_size_is_zero` error. This error was
 // reported in https://github.com/flexible-collision-library/fcl/issues/395
 template <typename S>
-void test_distance_box_box2() {
+void test_distance_box_box_regression2() {
   const Vector3<S> box1_size(0.46, 0.48, 0.01);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   X_WB1.matrix() <<  1,0,0, -0.72099999999999997424,
@@ -380,7 +380,7 @@ void test_distance_box_box2() {
 }
 
 template <typename S>
-void test_distance_box_box3() {
+void test_distance_box_box_regression3() {
   const Vector3<S> box1_size(0.49, 0.05, 0.21);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   // clang-format off
@@ -427,10 +427,12 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
   test_distance_cylinder_box<double>();
 }
 
-GTEST_TEST(FCL_SIGNED_DISTANCE, box_box1_ccd) {
-  test_distance_box_box1<double>();
-  test_distance_box_box2<double>();
-  test_distance_box_box3<double>();
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression) {
+  // A collection of scnarios observed in practice that have created error
+  // conditions in previous commits of the code. Each test is a unique instance.
+  test_distance_box_box_regression1<double>();
+  test_distance_box_box_regression2<double>();
+  test_distance_box_box_regression3<double>();
 }
 
 //==============================================================================

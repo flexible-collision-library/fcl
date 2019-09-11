@@ -690,10 +690,22 @@ GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatch_2FacesVisible) {
                            {0, 1}, {0});
 }
 
+/*
+ * Given an equilateral tetrahedron, create a query point that is co-linear with
+ * edge 0 as q = v₀ + ρ(v₀ - v₁), confirms that the correct tetrahedra faces are
+ * included in the visible patch. Point q is co-linear with edge 0 which is
+ * adjacent to faces f0 and f1. Face f3 is trivially visible from q.
+ *
+ * If the query point is co-linear with a tet edge, then both adjacent faces
+ * should be visible. The behavior is sensitive to numerical accuracy issues and
+ * we expose rho (ρ) as a parameter so that different scenarios can easily be
+ * authored which exercise different code paths to determine visibility. (In the
+ * code, "visibility" may be determined by multiple tests.)
+ */
 void CheckComputeVisiblePatchColinearNewVertex(EquilateralTetrahedron& tet,
                                                double rho) {
   // A new vertex is colinear with an edge e[0] of the tetrahedron. The border
-  // edges should be  e[1], e[4], e[5]. The visible faces should be f[0], f[1],
+  // edges should be e[1], e[4], e[5]. The visible faces should be f[0], f[1],
   // f[3], and the internal edges should be e[0], e[2], e[3].
   ccd_vec3_t query_point;
   for (int i = 0; i < 3; ++i) {
@@ -718,8 +730,12 @@ void CheckComputeVisiblePatchColinearNewVertex(EquilateralTetrahedron& tet,
 }
 
 GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatchColinearNewVertex) {
+  // Case 1: Visibility of faces f0 and f1 is not immediately apparent --
+  // requires recognition that q, v0, and v1 are colinear.
   EquilateralTetrahedron tet1(-0.05, -0.13, 0.12);
   CheckComputeVisiblePatchColinearNewVertex(tet1, 1.9);
+  // Case 2: Visibility of faces f0 and f1 are indpendently confirmed --
+  // colinearity doesn't matter.
   EquilateralTetrahedron tet2(0.1, 0.2, 0.3);
   CheckComputeVisiblePatchColinearNewVertex(tet2, 0.3);
 }
