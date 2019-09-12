@@ -1189,27 +1189,37 @@ static void ComputeVisiblePatchRecursive(
       if (!triangle_area_is_zero(query_point,
                                  f.edge[edge_index]->vertex[0]->v.v,
                                  f.edge[edge_index]->vertex[1]->v.v)) {
-        // For this triangle to have no area, the query point must be co-linear
-        // with a candidate border edge. That means it is simultaneously
-        // co-planar with the two faces adjacent to that edge. But to be in this
-        // branch, one face was considered to be visible and the other to not be
-        // visible -- an inconsistent classification.
-
-        // The solution is to unify that classification. We can consider both
-        // faces as being visible or not. If we were to consider them not
-        // visible, we would shrink the size of the visible patch (making this
-        // slightly faster), but would risk introducing co-planar faces into the
-        // polytope. We choose to consider both faces as being visible. At the
-        // cost of a patch boundary with more edges, we guarantee that we don't
-        // add co-planar faces.
-
-        // It may be that co-planar faces are permissible and a smaller
-        // patch is preferred. This is still an open problem.For now, we go with
-        // the "safe" choice.
+        // If query point is outside of the face g, and the triangle
+        // (query_point, v[0], v[1]) has non-zero area, then the edge
+        // f.edge[edge_index] is a border edge, and we will connect the query
+        // point with this border edge to form a triangle. Otherwise, this edge
+        // is not a border edge.
         border_edges->insert(f.edge[edge_index]);
         return;
       }
     }
+    // We regard the edge f.edge[edge_index] not as an internal edge (not a
+    // border edge), if it satisfies one of the following two conditions
+    // 1. The face g is visible to the query point.
+    // 2. The triangle formed by the edge and the query point has zero area.
+    // The first condition is obvious. Here we explain the second condition:
+    // For this triangle to have no area, the query point must be co-linear with
+    // a candidate border edge. That means it is simultaneously co-planar with
+    // the two faces adjacent to that edge. But to be in this branch, one face
+    // was considered to be visible and the other to not be visible -- an
+    // inconsistent classification.
+
+    // The solution is to unify that classification. We can consider both
+    // faces as being visible or not. If we were to consider them not
+    // visible, we would shrink the size of the visible patch (making this
+    // slightly faster), but would risk introducing co-planar faces into the
+    // polytope. We choose to consider both faces as being visible. At the
+    // cost of a patch boundary with more edges, we guarantee that we don't
+    // add co-planar faces.
+
+    // It may be that co-planar faces are permissible and a smaller
+    // patch is preferred. This is still an open problem.For now, we go with
+    // the "safe" choice.
     visible_faces->insert(g);
     internal_edges->insert(f.edge[edge_index]);
     for (int i = 0; i < 3; ++i) {

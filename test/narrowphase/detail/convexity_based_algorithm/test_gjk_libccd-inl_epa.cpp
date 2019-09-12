@@ -707,6 +707,8 @@ void CheckComputeVisiblePatchColinearNewVertex(EquilateralTetrahedron& tet,
   // A new vertex is colinear with an edge e[0] of the tetrahedron. The border
   // edges should be e[1], e[4], e[5]. The visible faces should be f[0], f[1],
   // f[3], and the internal edges should be e[0], e[2], e[3].
+  // For the numbering of the edges/vertices/faces in the equilateral
+  // tetrahedron, please refer to the documentation of EquilateralTetrahedron.
   ccd_vec3_t query_point;
   for (int i = 0; i < 3; ++i) {
     query_point.v[i] = (1 + rho) * tet.v(0).v.v.v[i] - rho * tet.v(1).v.v.v[i];
@@ -734,7 +736,7 @@ GTEST_TEST(FCL_GJK_EPA, ComputeVisiblePatchColinearNewVertex) {
   // requires recognition that q, v0, and v1 are colinear.
   EquilateralTetrahedron tet1(-0.05, -0.13, 0.12);
   CheckComputeVisiblePatchColinearNewVertex(tet1, 1.9);
-  // Case 2: Visibility of faces f0 and f1 are indpendently confirmed --
+  // Case 2: Visibility of faces f0 and f1 are independently confirmed --
   // colinearity doesn't matter.
   EquilateralTetrahedron tet2(0.1, 0.2, 0.3);
   CheckComputeVisiblePatchColinearNewVertex(tet2, 0.3);

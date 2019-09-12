@@ -379,6 +379,9 @@ void test_distance_box_box_regression2() {
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
 }
 
+// This is a *specific* case that has cropped up in the wild that reaches the
+// unexpected `query point colinear with the edge` error. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/415
 template <typename S>
 void test_distance_box_box_regression3() {
   const Vector3<S> box1_size(0.49, 0.05, 0.21);
