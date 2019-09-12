@@ -335,7 +335,7 @@ void test_distance_box_box_helper(const Vector3<S>& box1_size,
 // unexpected `validateNearestFeatureOfPolytopeBeingEdge` error. This error was
 // reported in https://github.com/flexible-collision-library/fcl/issues/388
 template <typename S>
-void test_distance_box_box1() {
+void test_distance_box_box_regression1() {
   const Vector3<S> box1_size(0.03, 0.12, 0.1);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   X_WB1.matrix() << -3.0627937852578681533e-08, -0.99999999999999888978,
@@ -360,7 +360,7 @@ void test_distance_box_box1() {
 // unexpected `triangle_size_is_zero` error. This error was
 // reported in https://github.com/flexible-collision-library/fcl/issues/395
 template <typename S>
-void test_distance_box_box2() {
+void test_distance_box_box_regression2() {
   const Vector3<S> box1_size(0.46, 0.48, 0.01);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   X_WB1.matrix() <<  1,0,0, -0.72099999999999997424,
@@ -379,30 +379,50 @@ void test_distance_box_box2() {
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
 }
 
+// This is a *specific* case that has cropped up in the wild that reaches the
+// unexpected `query point colinear with the edge` error. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/415
+template <typename S>
+void test_distance_box_box_regression3() {
+  const Vector3<S> box1_size(0.49, 0.05, 0.21);
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB1.matrix() << 4.8966386501092529215e-12, -1,0,-0.43999999999999994671,
+                       1, 4.8966386501092529215e-12,0,-0.61499999999858001587,
+                       0,0,1,0.35499999999999998224,
+                       0,0,0,1;
+  // clang-format on
+  const Vector3<S> box2_size(0.035, 0.12, 0.03);
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB2.matrix() << 0.83512153565236335595,    -0.55006546945762568868, -9.4542360608233572896e-16,    -0.40653441507331000704,
+   0.55006546945762568868,     0.83512153565236313391,  1.1787444236552387666e-15,    -0.69166166923735727945,
+1.2902271444330665572e-16, -1.4878153530113264589e-15,                          1,     0.43057093858718892276,
+                        0,                          0,                          0,                          1;
+  // clang-format on
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
+
+}
+
 //==============================================================================
 
-GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd)
-{
+GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd) {
   test_distance_spheresphere<double>(GST_LIBCCD);
 }
 
-GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_indep)
-{
+GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_indep) {
   test_distance_spheresphere<double>(GST_INDEP);
 }
 
-GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_ccd)
-{
+GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_ccd) {
   test_distance_spherecapsule<double>(GST_LIBCCD);
 }
 
-GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_indep)
-{
+GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_capsule_indep) {
   test_distance_spherecapsule<double>(GST_INDEP);
 }
 
-GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_sphere1_ccd)
-{
+GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_sphere1_ccd) {
   test_distance_cylinder_sphere1<double>();
 }
 
@@ -410,9 +430,12 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
   test_distance_cylinder_box<double>();
 }
 
-GTEST_TEST(FCL_SIGNED_DISTANCE, box_box1_ccd) {
-  test_distance_box_box1<double>();
-  test_distance_box_box2<double>();
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression) {
+  // A collection of scnarios observed in practice that have created error
+  // conditions in previous commits of the code. Each test is a unique instance.
+  test_distance_box_box_regression1<double>();
+  test_distance_box_box_regression2<double>();
+  test_distance_box_box_regression3<double>();
 }
 
 //==============================================================================
