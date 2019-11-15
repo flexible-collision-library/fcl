@@ -85,11 +85,14 @@ S Capsule<S>::computeVolume() const
 template <typename S>
 Matrix3<S> Capsule<S>::computeMomentofInertia() const
 {
-  S v_cyl = radius * radius * lz * constants<S>::pi();
-  S v_sph = radius * radius * radius * constants<S>::pi() * 4 / 3.0;
+  S l2 = lz * lz;
+  S r2 = radius * radius;
 
-  S ix = v_cyl * lz * lz / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * lz * lz;
-  S iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
+  S v_cyl = r2 * lz * constants<S>::pi();
+  S v_sph = r2 * radius * constants<S>::pi() * 4 / 3.0;
+
+  S ix = v_cyl * (l2 / 12. + r2 / 4.) + v_sph * (0.4 * r2 + 0.25 * l2 + 3. * radius * lz / 8.);
+  S iz = (0.5 * v_cyl + 0.4 * v_sph) * r2;
 
   return Vector3<S>(ix, ix, iz).asDiagonal();
 }
