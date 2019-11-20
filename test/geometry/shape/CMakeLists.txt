@@ -1,5 +1,6 @@
 set(tests
         test_convex.cpp
+        test_capsule.cpp
         )
 
 # Build all the tests
