@@ -32,11 +32,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Sean Curtis (sean@tri.global) (2018) */
+/** @author Gabriele Buondonno (gbuondon@laas.fr) (2019) */
 
-// Tests the implementation of a convex polytope geometry.
+// Tests the implementation of a capsule object.
 
-#include "fcl/geometry/shape/convex.h"
+#include "fcl/geometry/shape/capsule.h"
 
 #include <vector>
 
@@ -44,7 +44,6 @@
 #include <gtest/gtest.h>
 
 #include "eigen_matrix_compare.h"
-#include "fcl/geometry/shape/capsule.h"
 
 namespace fcl {
 namespace {
@@ -88,14 +87,15 @@ void testMomentOfInertiaComputation(const Capsule<S>& shape, S tol) {
   S Iz_sph = S(2./5.) * v_sph * r * r; // inertia of a sphere around z
   S Iz = Iz_cyl + Iz_sph;              // total inertia around z
 
-  S Ix_cyl = v_cyl * (S(3.) * r * r + l * l) / S(12.); // inertia of a cylinder around x
+  // inertia of a cylinder around x
+  S Ix_cyl = v_cyl * (S(3.) * r * r + l * l) / S(12.);
 
-  S v_hemi = v_sph / S(2.);                             // volume of a hemisphere
-  S com_hemi = S(3.) * r / S(8.);                       // CoM of a hemisphere from base
-  S Ix0_hemi = Iz_sph / S(2.);                          // inertia of a hemisphere around x
+  S v_hemi = v_sph / S(2.);                  // volume of a hemisphere
+  S com_hemi = S(3.) * r / S(8.);            // CoM of a hemisphere from base
+  S Ix0_hemi = Iz_sph / S(2.);               // inertia of a hemisphere around x
   S Ixc_hemi = Ix0_hemi - v_hemi * com_hemi * com_hemi; // inertia around CoM
-  S dz = l / S(2.) + com_hemi;                          // CoM translation along z-axis
-  S Ix_hemi = Ixc_hemi + v_hemi * dz * dz;              // translated inertia around x
+  S dz = l / S(2.) + com_hemi;               // CoM translation along z-axis
+  S Ix_hemi = Ixc_hemi + v_hemi * dz * dz;   // translated inertia around x
 
   S Ix = Ix_cyl + S(2.) * Ix_hemi;  // total inertia around x
   S Iy = Ix;                        // total inertia around y
@@ -105,7 +105,6 @@ void testMomentOfInertiaComputation(const Capsule<S>& shape, S tol) {
            S(0.),    Iy, S(0.),
            S(0.), S(0.),    Iz;
 
-  //EXPECT_TRUE(CompareMatrices(shape.computeMomentofInertia(), I_cap, tol));
   EXPECT_TRUE(shape.computeMomentofInertia().isApprox(I_cap, tol));
 }
 
@@ -114,7 +113,7 @@ GTEST_TEST(Capsule, Volume_Capsule) {
     double rd = pair.first;
     double ld = pair.second;
     Capsuled capsule_d(rd, ld);
-    testVolumeComputation(capsule_d, 1e-9);
+    testVolumeComputation(capsule_d, 1e-10);
 
     double rf = static_cast<float>(pair.first);
     double lf = static_cast<float>(pair.second);
@@ -144,7 +143,7 @@ GTEST_TEST(Capsule, MomentOfInertia_Capsule) {
     double rd = pair.first;
     double ld = pair.second;
     Capsuled capsule_d(rd, ld);
-    testMomentOfInertiaComputation(capsule_d, 1e-6);
+    testMomentOfInertiaComputation(capsule_d, 1e-14);
 
     double rf = static_cast<float>(pair.first);
     double lf = static_cast<float>(pair.second);
