@@ -82,6 +82,7 @@ S Capsule<S>::computeVolume() const
 }
 
 //==============================================================================
+// Compare https://www.gamedev.net/articles/programming/math-and-physics/capsule-inertia-tensor-r3856/
 template <typename S>
 Matrix3<S> Capsule<S>::computeMomentofInertia() const
 {
