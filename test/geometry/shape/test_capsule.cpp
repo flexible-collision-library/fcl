@@ -70,7 +70,7 @@ void testVolumeComputation(const Capsule<S>& shape, S tol) {
   S v_sph = 4./3.*pi*r*r*r; // volume of a sphere
   S v_cap = v_cyl + v_sph;  // total volume
 
-  EXPECT_NEAR(shape.computeVolume(), v_cap, tol);
+  EXPECT_TRUE(Eigen::internal::isApprox(shape.computeVolume(), v_cap, tol));
 }
 
 template <typename S>
@@ -113,12 +113,12 @@ GTEST_TEST(Capsule, Volume_Capsule) {
     double rd = pair.first;
     double ld = pair.second;
     Capsuled capsule_d(rd, ld);
-    testVolumeComputation(capsule_d, 1e-10);
+    testVolumeComputation(capsule_d, 1e-15);
 
     double rf = static_cast<float>(pair.first);
     double lf = static_cast<float>(pair.second);
     Capsulef capsule_f(rf, lf);
-    testVolumeComputation(capsule_f, 1e-9f);
+    testVolumeComputation(capsule_f, 1e-15f);
   }
 }
 
