@@ -60,6 +60,16 @@ std::vector<paird> get_test_sizes() {
 }
 
 template <typename S>
+void testLocalAABBComputation(Capsule<S>& shape, S tol) {
+  shape.computeLocalAABB();
+
+  S r = shape.radius;
+  S l = shape.lz;
+  EXPECT_NEAR(shape.aabb_radius, Vector3<S>(r, r, 0.5 * l + r).norm(), tol);
+  EXPECT_TRUE(CompareMatrices(shape.aabb_center, Vector3<S>(0, 0, 0), tol));
+}
+
+template <typename S>
 void testVolumeComputation(const Capsule<S>& shape, S tol) {
   S r = shape.radius;
   S l = shape.lz;
@@ -106,6 +116,19 @@ void testMomentOfInertiaComputation(const Capsule<S>& shape, S tol) {
            S(0.), S(0.),    Iz;
 
   EXPECT_TRUE(shape.computeMomentofInertia().isApprox(I_cap, tol));
+}
+
+GTEST_TEST(Capsule, LocalAABBComputation_Capsule) {
+  for (paird pair : get_test_sizes()) {
+    double rd = pair.first;
+    double ld = pair.second;
+    Capsuled capsule_d(rd, ld);
+    testLocalAABBComputation(capsule_d, 1e-15);
+    double rf = static_cast<float>(pair.first);
+    double lf = static_cast<float>(pair.second);
+    Capsulef capsule_f(rf, lf);
+    testLocalAABBComputation(capsule_f, 1e-8f);
+  }
 }
 
 GTEST_TEST(Capsule, Volume_Capsule) {
@@ -160,4 +183,3 @@ int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-
