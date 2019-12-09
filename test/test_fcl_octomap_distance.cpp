@@ -65,6 +65,8 @@ void octomap_distance_test_BVH(std::size_t n, double resolution = 0.1);
 template <typename S>
 void test_octomap_distance()
 {
+  // -- compares result of (manager of primitives <-> octomap)
+  //    against (manager of primitives <-> manager of box primitives from octomap)
 #ifdef NDEBUG
   octomap_distance_test<S>(200, 100, false, false);
   octomap_distance_test<S>(200, 1000, false, false);
@@ -83,6 +85,8 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_distance)
 template <typename S>
 void test_octomap_distance_mesh()
 {
+  // -- compares result of (manager of meshes <-> octomap)
+  //    against (manager of meshes <-> manager of box meshes from octomap)
 #ifdef NDEBUG
   octomap_distance_test<S>(200, 100, true, true);
   octomap_distance_test<S>(200, 1000, true, true);
@@ -101,6 +105,8 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh)
 template <typename S>
 void test_octomap_distance_mesh_octomap_box()
 {
+  // -- compares result of (manager of meshes <-> octomap)
+  //    against (manager of meshes <-> manager of box primitives from octomap)
 #ifdef NDEBUG
   octomap_distance_test<S>(200, 100, true, false);
   octomap_distance_test<S>(200, 1000, true, false);
@@ -219,6 +225,13 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
 
     std::cout << dist1 << " " << dist2 << std::endl;
     EXPECT_TRUE(std::abs(dist1 - dist2) < 0.001);
+
+    std::cout << "cdata, np0:\n" << cdata.result.nearest_points[0] << std::endl;
+    std::cout << "cdata, np1:\n" << cdata.result.nearest_points[1] << std::endl;
+    std::cout << "cdata2, np0:\n" << cdata2.result.nearest_points[0] << std::endl;
+    std::cout << "cdata2, np1:\n" << cdata2.result.nearest_points[1] << std::endl;
+    EXPECT_NEAR((cdata.result.nearest_points[0] - cdata2.result.nearest_points[1]).norm(), 0.0, 1e-6);
+    EXPECT_NEAR((cdata.result.nearest_points[1] - cdata2.result.nearest_points[0]).norm(), 0.0, 1e-6);
   }
 }
 
@@ -293,6 +306,13 @@ void octomap_distance_test(S env_scale, std::size_t env_size, bool use_mesh, boo
     EXPECT_TRUE(cdata2.result.min_distance <= 0);
   else
     EXPECT_TRUE(std::abs(cdata.result.min_distance - cdata2.result.min_distance) < 1e-3);
+
+  std::cout << "cdata, np0:\n" << cdata.result.nearest_points[0] << std::endl;
+  std::cout << "cdata, np1:\n" << cdata.result.nearest_points[1] << std::endl;
+  std::cout << "cdata2, np0:\n" << cdata2.result.nearest_points[0] << std::endl;
+  std::cout << "cdata2, np1:\n" << cdata2.result.nearest_points[1] << std::endl;
+  EXPECT_NEAR((cdata.result.nearest_points[0] - cdata2.result.nearest_points[0]).norm(), 0.0, 1e-6);
+  EXPECT_NEAR((cdata.result.nearest_points[1] - cdata2.result.nearest_points[1]).norm(), 0.0, 1e-6);
 
   delete manager;
   delete manager2;
