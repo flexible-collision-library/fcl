@@ -196,6 +196,7 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
     CollisionObject<S> obj1(m1_ptr, tf);
     CollisionObject<S> obj2(tree_ptr, tf);
     test::DistanceData<S> cdata;
+    cdata.request.enable_nearest_points = true;
     S dist1 = std::numeric_limits<S>::max();
     test::defaultDistanceFunction(&obj1, &obj2, &cdata, dist1);
 
@@ -219,6 +220,13 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
 
     std::cout << dist1 << " " << dist2 << std::endl;
     EXPECT_TRUE(std::abs(dist1 - dist2) < 0.001);
+
+    // Check that the nearest points are consistent with the distance
+    // Note that we cannot compare the result with the "boxes" approximation,
+    // since the problem is ill-posed (i.e. the nearest points may differ widely
+    // for slightly different geometries)
+    Vector3<S> nearestPointDistance = cdata.result.nearest_points[0] - cdata.result.nearest_points[1];
+    EXPECT_NEAR(nearestPointDistance.norm(), dist1, 0.001);
   }
 }
 
