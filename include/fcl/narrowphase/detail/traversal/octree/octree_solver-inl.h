@@ -506,7 +506,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshDistanceRecurse(const OcTree<S>*
       Vector3<S> closest_p1, closest_p2;
       solver->shapeTriangleDistance(box, box_tf, p1, p2, p3, tf2, &dist, &closest_p1, &closest_p2);
 
-      dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), primitive_id);
+      dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), primitive_id, closest_p1, closest_p2);
 
       return drequest->isSatisfied(*dresult);
     }
