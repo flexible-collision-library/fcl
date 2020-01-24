@@ -404,6 +404,19 @@ void test_distance_box_box_regression3() {
 
 }
 
+// This is a *specific* case that has cropped up in the wild. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/398
+template <typename S>
+void test_distance_box_box_regression4() {
+  const Vector3<S> box1_size(0.614, 3, 0.37);
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  X_WB1.translation() << -0.675, 0, 0.9115;
+  const Vector3<S> box2_size(0.494, 0.552, 0.01);
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  X_WB2.translation() << -0.692, 0, 0.935;
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
+}
+
 //==============================================================================
 
 GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd) {
@@ -436,6 +449,7 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression) {
   test_distance_box_box_regression1<double>();
   test_distance_box_box_regression2<double>();
   test_distance_box_box_regression3<double>();
+  test_distance_box_box_regression4<double>();
 }
 
 //==============================================================================
