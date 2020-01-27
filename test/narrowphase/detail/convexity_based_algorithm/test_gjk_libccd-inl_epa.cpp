@@ -590,12 +590,13 @@ void CheckComputeVisiblePatchRecursive(
     const std::unordered_set<int>& internal_edges_indices_expected) {
   std::unordered_set<ccd_pt_edge_t*> border_edges;
   std::unordered_set<ccd_pt_face_t*> visible_faces;
+  std::unordered_set<ccd_pt_face_t*> hidden_faces;
   visible_faces.insert(&face);
   std::unordered_set<ccd_pt_edge_t*> internal_edges;
   for (const int edge_index : edge_indices) {
     libccd_extension::ComputeVisiblePatchRecursive(
         polytope.polytope(), face, edge_index, new_vertex, &border_edges,
-        &visible_faces, &internal_edges);
+        &visible_faces, &hidden_faces, &internal_edges);
   }
   CheckComputeVisiblePatchCommon(polytope, border_edges, visible_faces,
                                  internal_edges, border_edge_indices_expected,

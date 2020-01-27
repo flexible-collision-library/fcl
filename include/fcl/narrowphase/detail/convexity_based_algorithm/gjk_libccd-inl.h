@@ -1126,6 +1126,8 @@ static bool ComputeVisiblePatchRecursiveSanityCheck(
     const std::unordered_set<ccd_pt_face_t*>& visible_faces,
     const std::unordered_set<ccd_pt_edge_t*>& internal_edges) {
   ccd_pt_face_t* f;
+  // TODO(SeanCurtis-TRI): Instead of returning false, have this throw the
+  //  exception itself so that it can provide additional information.
   ccdListForEachEntry(&polytope.faces, f, ccd_pt_face_t, list) {
     bool has_edge_internal = false;
     for (int i = 0; i < 3; ++i) {
@@ -1157,44 +1159,105 @@ static bool ComputeVisiblePatchRecursiveSanityCheck(
       }
     }
   }
+  for (const auto b : border_edges) {
+    if (internal_edges.find(b) != internal_edges.end()) {
+      return false;
+    }
+  }
   return true;
 }
 #endif
+
+/** Attempts to classify the given `edge` as a border edge, confirming it hasn't
+ already been classified as an internal edge.
+ @param edge              The edge to classify.
+ @param border_edges      The set of edges already classified as border.
+ @param internal_edges    The set of edges already classified as internal.
+ @throws ThrowFailedAtThisConfiguration if the edge is being re-classified.
+ */
+static void ClassifyBorderEdge(ccd_pt_edge_t* edge,
+                        std::unordered_set<ccd_pt_edge_t*>* border_edges,
+                        std::unordered_set<ccd_pt_edge_t*>* internal_edges) {
+  border_edges->insert(edge);
+  if (internal_edges->count(edge) > 0) {
+    FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
+        "An edge is being classified as border that has already been "
+        "defined as internal");
+  }
+}
+
+/** Attempts to classify the given `edge` as an internal edge, confirming it
+ hasn't already been classified as a border edge.
+ @param edge              The edge to classify.
+ @param border_edges      The set of edges already classified as border.
+ @param internal_edges    The set of edges already classified as internal.
+ @throws ThrowFailedAtThisConfiguration if the edge is being re-classified.
+ */
+static void ClassifyInternalEdge(ccd_pt_edge_t* edge,
+                          std::unordered_set<ccd_pt_edge_t*>* border_edges,
+                          std::unordered_set<ccd_pt_edge_t*>* internal_edges) {
+  internal_edges->insert(edge);
+  if (border_edges->count(edge) > 0) {
+    FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
+        "An edge is being classified as internal that has already been "
+        "defined as border");
+  }
+}
+
 /**
  * This function contains the implementation detail of ComputeVisiblePatch()
  * function. It should not be called by any function other than
  * ComputeVisiblePatch().
+ * The parameters are documented as in ComputeVisiblePatch() but has the
+ * additional parameter: hidden_faces. Every visited face will be categorized
+ * explicitly as either visible or hidden.
+ * By design, whatever classification is _first_ given to a face (visible or
+ * hidden) it can't change. This doesn't purport that the first classification
+ * is more correct than any subsequent code that might otherwise classify it
+ * differently. This simply precludes the possibility of classifying edges
+ * multiple ways.
  */
 static void ComputeVisiblePatchRecursive(
     const ccd_pt_t& polytope, ccd_pt_face_t& f, int edge_index,
     const ccd_vec3_t& query_point,
     std::unordered_set<ccd_pt_edge_t*>* border_edges,
     std::unordered_set<ccd_pt_face_t*>* visible_faces,
+    std::unordered_set<ccd_pt_face_t*>* hidden_faces,
     std::unordered_set<ccd_pt_edge_t*>* internal_edges) {
+  ccd_pt_edge_t* edge = f.edge[edge_index];
   /*
   This function will be called recursively. It first checks if the face `g`
-  neighouring face `f` along the common edge `f->edge[edge_index]` can be seen
-  from the point `query_point`. If this face g cannot be seen, then stop.
-  Otherwise, we continue to check the neighbouring faces of g, by calling this
-  function recursively.
+  neighbouring face `f` along the common `edge` can be seen from the point
+  `query_point`. If this face g cannot be seen, then the edge shared with `f`
+  must be a border edge and we do _not_ continue the search from face `g`.
+   Otherwise, the edge must be internal, and we continue the search through
+   the faces adjacent to `g`.
   */
-  ccd_pt_face_t* g = f.edge[edge_index]->faces[0] == &f
-                         ? f.edge[edge_index]->faces[1]
-                         : f.edge[edge_index]->faces[0];
+  ccd_pt_face_t* g = edge->faces[0] == &f ? edge->faces[1] : edge->faces[0];
+  // TODO(SeanCurtis-TRI): Demand that g is not null.
   if (visible_faces->count(g) == 0) {
-    // g is not a visible face
-    if (!isOutsidePolytopeFace(&polytope, g, &query_point)) {
-      // Cannot see the neighbouring face from the new vertex.
-
+    // g has not previous been classified as a visible face.
+    if (hidden_faces->count(g) > 0) {
+      // simply classify the edge.
+      ClassifyBorderEdge(edge, border_edges, internal_edges);
+      return;
+    } else if (!isOutsidePolytopeFace(&polytope, g, &query_point)) {
+      // Cannot see the neighbouring face from the query point, but we know we
+      // *can* see face f from the query point.
       if (!triangle_area_is_zero(query_point,
-                                 f.edge[edge_index]->vertex[0]->v.v,
-                                 f.edge[edge_index]->vertex[1]->v.v)) {
+                                 edge->vertex[0]->v.v,
+                                 edge->vertex[1]->v.v)) {
         // If query point is outside of the face g, and the triangle
         // (query_point, v[0], v[1]) has non-zero area, then the edge
         // f.edge[edge_index] is a border edge, and we will connect the query
         // point with this border edge to form a triangle. Otherwise, this edge
         // is not a border edge.
-        border_edges->insert(f.edge[edge_index]);
+        // TODO(SeanCurtis-TRI): If the area is zero, then the query point is
+        //  co-linear with the edge. Which means the face must be visible.
+        //  (Well, as visible as f is.) So, if f and g are visible, this is an
+        //  internal edge.
+        ClassifyBorderEdge(edge, border_edges, internal_edges);
+        hidden_faces->insert(g);
         return;
       }
     }
@@ -1221,19 +1284,20 @@ static void ComputeVisiblePatchRecursive(
     // patch is preferred. This is still an open problem.For now, we go with
     // the "safe" choice.
     visible_faces->insert(g);
-    internal_edges->insert(f.edge[edge_index]);
+    ClassifyInternalEdge(edge, border_edges, internal_edges);
     for (int i = 0; i < 3; ++i) {
-      if (g->edge[i] != f.edge[edge_index]) {
+      if (g->edge[i] != edge) {
         // One of the neighbouring face is `f`, so do not need to visit again.
         ComputeVisiblePatchRecursive(polytope, *g, i, query_point, border_edges,
-                                     visible_faces, internal_edges);
+                                     visible_faces, hidden_faces,
+                                     internal_edges);
       }
     }
   } else {
     // Face f is visible (prerequisite), and g has been previously
     // marked visible (via a different path); their shared edge should be marked
     // internal.
-    internal_edges->insert(f.edge[edge_index]);
+    ClassifyInternalEdge(edge, border_edges, internal_edges);
   }
 }
 
@@ -1284,12 +1348,15 @@ static void ComputeVisiblePatch(
   assert(visible_faces->empty());
   assert(internal_edges->empty());
   assert(isOutsidePolytopeFace(&polytope, &f, &query_point));
+  std::unordered_set<ccd_pt_face_t*> hidden_faces;
   visible_faces->insert(&f);
   for (int edge_index = 0; edge_index < 3; ++edge_index) {
     ComputeVisiblePatchRecursive(polytope, f, edge_index, query_point,
-                                 border_edges, visible_faces, internal_edges);
+                                 border_edges, visible_faces, &hidden_faces,
+                                 internal_edges);
   }
 #ifndef NDEBUG
+  // TODO(SeanCurtis-TRI): Extend the sanity check to include hidden_faces.
   if (!ComputeVisiblePatchRecursiveSanityCheck(
           polytope, *border_edges, *visible_faces, *internal_edges)) {
     FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
@@ -1308,14 +1375,14 @@ static void ComputeVisiblePatch(
  * @param[in/out] polytope The polytope.
  * @param[in] el A feature that is visible from the point `newv` and contains
  * the polytope boundary point that is closest to the origin. This feature
- * should be either a face or an edge. A face is visible from a point ouside the
- * original polytope, if the point is on the "outer" side of the face. An edge
- * is visible from that point, if one of its neighbouring faces is visible. This
- * feature contains the point that is closest to the origin on the boundary of
- * the polytope. If the feature is an edge, and the two neighbouring faces of
- * that edge are not co-planar, then the origin must lie on that edge. The
- * feature should not be a vertex, as that would imply the two objects are in
- * touching contact, causing the algorithm to exit before calling
+ * should be either a face or an edge. A face is visible from a point outside
+ * the original polytope, if the point is on the "outer" side of the face. If an
+ * edge is visible from that point, at least one of its neighbouring faces is
+ * visible.  This feature contains the point that is closest to the origin on
+ * the boundary of the polytope. If the feature is an edge, and the two
+ * neighbouring faces of that edge are not co-planar, then the origin must lie
+ * on that edge. The feature should not be a vertex, as that would imply the two
+ * objects are in touching contact, causing the algorithm to exit before calling
  * expandPolytope() function.
  * @param[in] newv The new vertex add to the polytope.
  * @retval status Returns 0 on success. Returns -2 otherwise.
@@ -1389,6 +1456,12 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   for (const auto& e : internal_edges) {
     ccdPtDelEdge(polytope, e);
   }
+
+  // Note: this does not delete any vertices that were on the interior of the
+  // deleted patch. There are no longer any faces or edges that reference it.
+  // Technically, it is still part of the polytope but has no effect (except
+  // for footprint in memory). It's just as simple to leave it, knowing the
+  // whole polytope will be destroyed when we're done with the query.
 
   // A vertex cannot be obsolete, since a vertex is always on the boundary of
   // the Minkowski difference A ⊖ B.
