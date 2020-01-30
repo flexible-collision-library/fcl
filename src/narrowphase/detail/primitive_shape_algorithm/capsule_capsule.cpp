@@ -48,10 +48,12 @@ template
 double clamp(double n, double min, double max);
 
 //==============================================================================
-template
-double closestPtSegmentSegment(
-    Vector3d p1, Vector3d q1, Vector3d p2, Vector3d q2,
-    double &s, double& t, Vector3d &c1, Vector3d &c2);
+template double closestPtSegmentSegment(const Vector3d& p_FP1,
+                                        const Vector3d& p_FQ1,
+                                        const Vector3d& p_FP2,
+                                        const Vector3d& p_FQ2, double* s,
+                                        double* t, Vector3d* p_FC1,
+                                        Vector3d* p_FC2);
 
 //==============================================================================
 template
