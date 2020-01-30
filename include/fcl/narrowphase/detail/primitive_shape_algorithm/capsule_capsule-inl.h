@@ -114,9 +114,10 @@ S closestPtSegmentSegment(
       // If segments not parallel, compute closest point on L1 to L2 and
       // clamp to segment S1. Else pick arbitrary s (here 0)
       if (denom != 0.0) {
-        std::cerr << "denominator equals zero, using 0 as reference" << std::endl;
         s = clamp((b*f - c*e) / denom, (S)0.0, (S)1.0);
-      } else s = 0.0;
+      } else {
+        s = 0.0;
+      }
       // Compute point on L2 closest to S1(s) using
       // t = Dot((P1 + D1*s) - P2,D2) / Dot(D2,D2) = (b*s + f) / e
       t = (b*s + f) / e;
@@ -143,41 +144,81 @@ S closestPtSegmentSegment(
 
 //==============================================================================
 template <typename S>
-bool capsuleCapsuleDistance(const Capsule<S>& s1, const Transform3<S>& tf1,
-          const Capsule<S>& s2, const Transform3<S>& tf2,
-          S* dist, Vector3<S>* p1_res, Vector3<S>* p2_res)
+bool capsuleCapsuleDistance(const Capsule<S>& s1, const Transform3<S>& X_FC1,
+          const Capsule<S>& s2, const Transform3<S>& X_FC2,
+          S* dist, Vector3<S>* p_FW1, Vector3<S>* p_FW2)
 {
+  assert(dist != nullptr);
+  assert(p_FW1 != nullptr);
+  assert(p_FW2 != nullptr);
 
-  Vector3<S> p1(tf1.translation());
-  Vector3<S> p2(tf2.translation());
+  // Origin' of the capsules' frames relative to F's origin.
+  Vector3<S> p_FC1o = X_FC1.translation();
+  Vector3<S> p_FC2o = X_FC2.translation();
 
-  // line segment composes two points. First point is given by the origin, second point is computed by the origin transformed along z.
-  // extension along z-axis means transformation with identity matrix and translation vector z pos
-  Transform3<S> transformQ1 = tf1 * Translation3<S>(Vector3<S>(0,0,s1.lz));
-  Vector3<S> q1 = transformQ1.translation();
+  // The capsules are defined centered on the origin of their canonical frame C
+  // and with the central line aligned with Cz. So, the two end points are at
+  // z = lz / 2 * Cz and -lz / 2 * Cz, respectively. v_Cz_F is simply the third
+  // column of the rotation matrix.
+  auto calc_half_arm = [](const Capsule<S>& c,
+                          const Transform3<S>& X_FC) -> Vector3<S> {
+    const S half_length = c.lz / 2;
+    const Vector3<S> v_Cz_F = X_FC.matrix().template block<3, 1>(0, 2);
+    return v_Cz_F * half_length;
+  };
 
-  Transform3<S> transformQ2 = tf2 * Translation3<S>(Vector3<S>(0,0,s2.lz));
-  Vector3<S> q2 = transformQ2.translation();
+  const Vector3<S> half_arm_1_F = calc_half_arm(s1, X_FC1);
+  Vector3<S> p_FC1a = p_FC1o + half_arm_1_F;
+  Vector3<S> p_FC1b = p_FC1o - half_arm_1_F;
 
-  // s and t correspont to the length of the line segment
+  const Vector3<S> half_arm_2_F = calc_half_arm(s2, X_FC2);
+  Vector3<S> p_FC2a = p_FC2o + half_arm_2_F;
+  Vector3<S> p_FC2b = p_FC2o - half_arm_2_F;
+
+  // s and t correspond to the length of each line segment; should be s1.lz and
+  // s2.lz, respectively.
   S s, t;
-  Vector3<S> c1, c2;
+  // The points on the line segments closest to each other.
+  Vector3<S> p_FN1, p_FN2;
+  // TODO(SeanCurtis-TRI): This query isn't well tailored for this problem.
+  //  By construction, we know the unit-length vectors for the two segments (and
+  //  their lengths), but closestPtSegmentSegment() infers the segment direction
+  //  from the end point. Furthermore, it returns the values for s and t,
+  //  neither of which is required by this function. The API should be
+  //  streamlined so there is less waste.
+  S squared_dist = closestPtSegmentSegment(p_FC1a, p_FC1b, p_FC2a, p_FC2b, s, t,
+                                           p_FN1, p_FN2);
 
-  S result = closestPtSegmentSegment(p1, q1, p2, q2, s, t, c1, c2);
-  *dist = sqrt(result)-s1.radius-s2.radius;
-
-  // getting directional unit vector
-  Vector3<S> distVec = c2 -c1;
-  distVec.normalize();
-
-  // extend the point to be border of the capsule.
-  // Done by following the directional unit vector for the length of the capsule radius
-  *p1_res = c1 + distVec*s1.radius;
-
-  distVec = c1-c2;
-  distVec.normalize();
-
-  *p2_res = c2 + distVec*s2.radius;
+  const S segment_dist = sqrt(squared_dist);
+  *dist = segment_dist - s1.radius - s2.radius;
+  Vector3<S> vhat_C1C2_F;
+  const auto eps = constants<S>::eps_78();
+  // We can only use the vector between the center-line nearest points to find
+  // the witness points if they are sufficiently far apart.
+  if (segment_dist > eps) {
+    vhat_C1C2_F = (p_FN2 - p_FN1) / segment_dist;
+  } else {
+    // The points are too close. The center lines intersect. We have to cases:
+    //   1. They intersect at a single point (non-parallel center lines).
+    //      - The center lines span a plane and the witness points should lie
+    //        above and below that plane the corresponding radius amount.
+    //   2. They intersect at multiple points (parallel, overlapping center
+    //      lies).
+    //      - Any direction on the plane perpendicular to the common center line
+    //        will suffice. We arbitrarily pick the Cx direction.
+    const Vector3<S>& v_C1z_F = X_FC1.matrix().template block<3, 1>(0, 2);
+    const Vector3<S>& v_C2z_F = X_FC2.matrix().template block<3, 1>(0, 2);
+    using std::abs;
+    if (abs(v_C1z_F.dot(v_C2z_F)) < 1 - eps) {
+      // Vectors are sufficiently perpendicular to use cross product.
+      vhat_C1C2_F = v_C1z_F.cross(v_C2z_F).normalized();
+    } else {
+      // Vectors are parallel, simply use v_Cx_F as the vector.
+      vhat_C1C2_F = X_FC1.matrix().template block<3, 1>(0, 0);
+    }
+  }
+  *p_FW1 = p_FN1 + vhat_C1C2_F * s1.radius;
+  *p_FW2 = p_FN2 - vhat_C1C2_F * s2.radius;
 
   return true;
 }
