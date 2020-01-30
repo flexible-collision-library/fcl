@@ -1225,63 +1225,47 @@ static void ComputeVisiblePatchRecursive(
     std::unordered_set<ccd_pt_face_t*>* hidden_faces,
     std::unordered_set<ccd_pt_edge_t*>* internal_edges) {
   ccd_pt_edge_t* edge = f.edge[edge_index];
-  /*
-  This function will be called recursively. It first checks if the face `g`
-  neighbouring face `f` along the common `edge` can be seen from the point
-  `query_point`. If this face g cannot be seen, then the edge shared with `f`
-  must be a border edge and we do _not_ continue the search from face `g`.
-  Otherwise, the edge must be internal, and we continue the search through
-  the faces adjacent to `g`.
-  */
+
   ccd_pt_face_t* g = edge->faces[0] == &f ? edge->faces[1] : edge->faces[0];
-  // TODO(SeanCurtis-TRI): Demand that g is not null.
-  if (visible_faces->count(g) == 0) {
-    // g has not previously been classified as a visible face.
-    if (hidden_faces->count(g) > 0) {
-      // Face *has* already been classified as hidden; we just need to classify
-      // the edge.
-      ClassifyBorderEdge(edge, border_edges, internal_edges);
-      return;
-    } else if (!isOutsidePolytopeFace(&polytope, g, &query_point)) {
-      // The query point is _not_ outside face `g`, so `g` is not visible.
-      // But we know we *can* see face f from the query point, so the common
-      // edge is _probably_ a border edge.
-      if (!triangle_area_is_zero(query_point,
-                                 edge->vertex[0]->v.v,
-                                 edge->vertex[1]->v.v)) {
-        // If query point is outside of the face g, and the triangle
-        // (query_point, v[0], v[1]) has non-zero area, then the edge
-        // f.edge[edge_index] is a border edge, and we will connect the query
-        // point with this border edge to form a triangle. Otherwise, the face
-        // is implicitly visible and the edge should be internal (fall through
-        // to the code below).
-        ClassifyBorderEdge(edge, border_edges, internal_edges);
-        hidden_faces->insert(g);
-        return;
-      }
-    }
-    // We regard the edge f.edge[edge_index] not as an internal edge (not a
-    // border edge), if it satisfies one of the following two conditions
-    // 1. The face g is visible to the query point.
-    // 2. The triangle formed by the edge and the query point has zero area.
-    // The first condition is obvious. Here we explain the second condition:
-    // For this triangle to have no area, the query point must be co-linear with
-    // a candidate border edge. That means it is simultaneously co-planar with
-    // the two faces adjacent to that edge. But to be in this branch, one face
-    // was considered to be visible and the other to not be visible -- an
-    // inconsistent classification.
+  assert(g != nullptr);
 
-    // The solution is to unify that classification. We can consider both
-    // faces as being visible or not. If we were to consider them not
-    // visible, we would shrink the size of the visible patch (making this
-    // slightly faster), but would risk introducing co-planar faces into the
-    // polytope. We choose to consider both faces as being visible. At the
-    // cost of a patch boundary with more edges, we guarantee that we don't
-    // add co-planar faces.
+  bool is_visible = visible_faces->count(g) > 0;
+  bool is_hidden = hidden_faces->count(g) > 0;
+  assert(!(is_visible && is_hidden));
 
-    // It may be that co-planar faces are permissible and a smaller
-    // patch is preferred. This is still an open problem.For now, we go with
-    // the "safe" choice.
+  // First check to see if face `g` has been classifed already.
+  if (is_visible) {
+    // Face f is visible (prerequisite), and g has been previously
+    // marked visible (via a different path); their shared edge should be
+    // marked internal.
+    ClassifyInternalEdge(edge, border_edges, internal_edges);
+    return;
+  } else if (is_hidden) {
+    // Face *has* already been classified as hidden; we just need to classify
+    // the edge.
+    ClassifyBorderEdge(edge, border_edges, internal_edges);
+    return;
+  }
+
+  // Face `g` has not been classified yet. Try to classify it as visible (i.e.,
+  // the `query_point` lies outside of this face).
+  is_visible = isOutsidePolytopeFace(&polytope, g, &query_point);
+  if (!is_visible) {
+    // Face `g` is *apparently* not visible from the query point. However, it
+    // might _still_ be considered visible. The query point could be co-linear
+    // with `edge` which, by definition means that `g` *is* visible and
+    // numerical error led to considering it hidden. We can detect this case
+    // if the triangle formed by edge and query point has zero area.
+    //
+    // It may be that the previous designation that `f` was visible was a
+    // mistake and now face `g` is inheriting that visible status. This is a
+    // conservative resolution that will prevent us from creating co-planar
+    // faces (at the cost of a longer border).
+    is_visible = triangle_area_is_zero(query_point, edge->vertex[0]->v.v,
+                                       edge->vertex[1]->v.v);
+  }
+
+  if (is_visible) {
     visible_faces->insert(g);
     ClassifyInternalEdge(edge, border_edges, internal_edges);
     for (int i = 0; i < 3; ++i) {
@@ -1293,10 +1277,10 @@ static void ComputeVisiblePatchRecursive(
       }
     }
   } else {
-    // Face f is visible (prerequisite), and g has been previously
-    // marked visible (via a different path); their shared edge should be marked
-    // internal.
-    ClassifyInternalEdge(edge, border_edges, internal_edges);
+    // No logic could classify the face as visible, so mark it hidden and
+    // mark the edge as a border edge.
+    ClassifyBorderEdge(edge, border_edges, internal_edges);
+    hidden_faces->insert(g);
   }
 }
 
