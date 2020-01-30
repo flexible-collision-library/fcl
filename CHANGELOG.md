@@ -19,6 +19,8 @@
     simpler, documented constructor:
      [#325](https://github.com/flexible-collision-library/fcl/pull/325),
      [#338](https://github.com/flexible-collision-library/fcl/pull/338)
+  * Fixed interpretation of capsule in primitive Capsule-Capsule distance computation.
+     [#436](https://github.com/flexible-collision-library/fcl/pull/436)
 
 * Broadphase
 

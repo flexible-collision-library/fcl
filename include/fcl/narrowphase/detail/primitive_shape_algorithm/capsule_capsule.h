@@ -61,14 +61,35 @@ S closestPtSegmentSegment(
     Vector3<S> p1, Vector3<S> q1, Vector3<S> p2, Vector3<S> q2,
     S &s, S &t, Vector3<S> &c1, Vector3<S> &c2);
 
-// Computes closest points C1 and C2 of S1(s)=P1+s*(Q1-P1) and
-// S2(t)=P2+t*(Q2-P2), returning s and t. Function result is squared
-// distance between between S1(s) and S2(t)
+/** Computes the signed distance between two capsules `s1` and `s2` (with
+ given poses `X_FC1` and `X_FC2` of the two capsules in a common frame `F`).
+ Further reports the witness points to that distance (`p_FW1` and `p_FW2`).
+
+ It is guaranteed that `|p_FW1 - p_FW2| = |dist|`.
+
+ There are degenerate cases where there is no _unique_ pair of witness points.
+ If the center lines of the two capsules intersect (either once or multiple
+ times when the are co-linear) then distance will still be reported (a
+ negative value with the maximum magnitude possible between the two capsules)
+ and an arbitrary pair of witness points from the set of valid pairs.
+ @param s1      The first capsule.
+ @param X_FC1   The pose of the first capsule in a common frame `F`.
+ @param s2      The second capsule.
+ @param X_FC2   The pose of the second capsule in a common frame `F`.
+ @param dist    The signed distance between the two capsules (negative indicates
+                intersection.
+ @param p_FW1   The first witness point: a point on the surface of the first
+                capsule measured and expressed in the common frame `F`.
+ @param p_FW2   The second witness point: a point on the surface of the second
+                capsule measured and expressed in the common frame `F`.
+ @return `true`.
+ @tparam S  The scalar type for computation.
+ */
 template <typename S>
 FCL_EXPORT
-bool capsuleCapsuleDistance(const Capsule<S>& s1, const Transform3<S>& tf1,
-          const Capsule<S>& s2, const Transform3<S>& tf2,
-          S* dist, Vector3<S>* p1_res, Vector3<S>* p2_res);
+bool capsuleCapsuleDistance(const Capsule<S>& s1, const Transform3<S>& X_FC1,
+          const Capsule<S>& s2, const Transform3<S>& X_FC2,
+          S* dist, Vector3<S>* p_FW1, Vector3<S>* p_FW2);
 
 } // namespace detail
 } // namespace fcl
