@@ -47,6 +47,7 @@
 #include "fcl/broadphase/broadphase_interval_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/broadphase/default_broadphase_callbacks.h"
 #include "fcl/geometry/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
@@ -109,7 +110,7 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
   manager->registerObjects(env);
   manager->setup();
 
-  test::CollisionData<S> cdata;
+  DefaultCollisionData<S> cdata;
   cdata.request.enable_cost = true;
   cdata.request.num_max_cost_sources = num_max_cost_sources;
 
@@ -118,11 +119,11 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
   timer1.start();
   manager->octree_as_geometry_collide = false;
   manager->octree_as_geometry_distance = false;
-  manager->collide(&tree_obj, &cdata, test::defaultCollisionFunction);
+  manager->collide(&tree_obj, &cdata, DefaultCollisionFunction);
   timer1.stop();
   t1.push_back(timer1.getElapsedTime());
 
-  test::CollisionData<S> cdata3;
+  DefaultCollisionData<S> cdata3;
   cdata3.request.enable_cost = true;
   cdata3.request.num_max_cost_sources = num_max_cost_sources;
 
@@ -131,7 +132,7 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
   timer3.start();
   manager->octree_as_geometry_collide = true;
   manager->octree_as_geometry_distance = true;
-  manager->collide(&tree_obj, &cdata3, test::defaultCollisionFunction);
+  manager->collide(&tree_obj, &cdata3, DefaultCollisionFunction);
   timer3.stop();
   t3.push_back(timer3.getElapsedTime());
 
@@ -153,12 +154,12 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
-  test::CollisionData<S> cdata2;
+  DefaultCollisionData<S> cdata2;
   cdata2.request.enable_cost = true;
   cdata3.request.num_max_cost_sources = num_max_cost_sources;
 
   timer2.start();
-  manager->collide(manager2, &cdata2, test::defaultCollisionFunction);
+  manager->collide(manager2, &cdata2, DefaultCollisionFunction);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 

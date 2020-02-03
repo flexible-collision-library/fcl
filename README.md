@@ -191,34 +191,35 @@ manager2->registerObjects(objects2);
 // requires two settings:
 // a) a callback to collision or distance; 
 // b) an intermediate data to store the information generated during the
-//    broadphase computation
-// For a), FCL's test framework provides default callbacks for both collision
-// and distance. For b), FCL uses the CollisionData structure for collision and
-// DistanceData structure for distance. CollisionData/DistanceData is just a
-// container from the test framework including both the
-// CollisionRequest/DistanceRequest and CollisionResult/DistanceResult
-// structures mentioned above.
-CollisionData collision_data;
-DistanceData distance_data;
+//    broadphase computation.
+// For convenience, FCL provides default callbacks to satisfy a) and a
+// corresponding call back data to satisfy b) for both collision and distance
+// queries. For collision use DefaultCollisionCallback and DefaultCollisionData
+// and for distance use DefaultDistanceCallback and DefaultDistanceData.
+// The default collision/distance data structs are simply containers which
+// include the request and distance structures for each query type as mentioned
+// above.
+DefaultCollisionData collision_data;
+DefaultDistanceData distance_data;
 // Setup the managers, which is related with initializing the broadphase
 // acceleration structure according to objects input
 manager1->setup();
 manager2->setup();
 // Examples for various queries
 // 1. Collision query between two object groups and get collision numbers
-manager2->collide(manager1, &collision_data, test::defaultCollisionFunction);
+manager2->collide(manager1, &collision_data, DefaultCollisionFunction);
 int n_contact_num = collision_data.result.numContacts(); 
 // 2. Distance query between two object groups and get the minimum distance
-manager2->distance(manager1, &distance_data, test::defaultDistanceFunction);
+manager2->distance(manager1, &distance_data, DefaultDistanceFunction);
 double min_distance = distance_data.result.min_distance;
 // 3. Self collision query for group 1
-manager1->collide(&collision_data, test::defaultCollisionFunction);
+manager1->collide(&collision_data, DefaultCollisionFunction);
 // 4. Self distance query for group 1
-manager1->distance(&distance_data, test::defaultDistanceFunction);
+manager1->distance(&distance_data, DefaultDistanceFunction);
 // 5. Collision query between one object in group 1 and the entire group 2
-manager2->collide(objects1[0], &collision_data, test::defaultCollisionFunction);
+manager2->collide(objects1[0], &collision_data, DefaultCollisionFunction);
 // 6. Distance query between one object in group 1 and the entire group 2
-manager2->distance(objects1[0], &distance_data, test::defaultDistanceFunction); 
+manager2->distance(objects1[0], &distance_data, DefaultDistanceFunction);
 ```
 
 

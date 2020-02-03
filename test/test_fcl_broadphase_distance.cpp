@@ -45,6 +45,7 @@
 #include "fcl/broadphase/broadphase_interval_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/broadphase/default_broadphase_callbacks.h"
 #include "fcl/broadphase/detail/sparse_hash_table.h"
 #include "fcl/broadphase/detail/spatial_hash.h"
 #include "fcl/geometry/geometric_shape_to_BVH_model.h"
@@ -379,12 +380,12 @@ void broad_phase_self_distance_test(S env_scale, std::size_t env_size, bool use_
   }
 
 
-  std::vector<test::DistanceData<S>> self_data(managers.size());
+  std::vector<DefaultDistanceData<S>> self_data(managers.size());
 
   for(size_t i = 0; i < self_data.size(); ++i)
   {
     timers[i].start();
-    managers[i]->distance(&self_data[i], test::defaultDistanceFunction);
+    managers[i]->distance(&self_data[i], DefaultDistanceFunction);
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
     // std::cout << self_data[i].result.min_distance << " ";
@@ -457,8 +458,8 @@ void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t qu
 
     for(std::size_t i = 0; i < candidates.size(); ++i)
     {
-      test::CollisionData<S> query_data;
-      manager->collide(candidates[i], &query_data, test::defaultCollisionFunction);
+      DefaultCollisionData<S> query_data;
+      manager->collide(candidates[i], &query_data, DefaultCollisionFunction);
       if(query_data.result.numContacts() == 0)
         query.push_back(candidates[i]);
       else
@@ -524,11 +525,11 @@ void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t qu
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<test::DistanceData<S>> query_data(managers.size());
+    std::vector<DefaultDistanceData<S>> query_data(managers.size());
     for(size_t j = 0; j < managers.size(); ++j)
     {
       timers[j].start();
-      managers[j]->distance(query[i], &query_data[j], test::defaultDistanceFunction);
+      managers[j]->distance(query[i], &query_data[j], DefaultDistanceFunction);
       timers[j].stop();
       ts[j].push_back(timers[j].getElapsedTime());
       // std::cout << query_data[j].result.min_distance << " ";

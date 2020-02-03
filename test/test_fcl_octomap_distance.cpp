@@ -48,6 +48,7 @@
 #include "fcl/broadphase/broadphase_interval_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/broadphase/default_broadphase_callbacks.h"
 
 #include "test_fcl_utility.h"
 
@@ -195,10 +196,10 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
 
     CollisionObject<S> obj1(m1_ptr, tf);
     CollisionObject<S> obj2(tree_ptr, tf);
-    test::DistanceData<S> cdata;
+    DefaultDistanceData<S> cdata;
     cdata.request.enable_nearest_points = true;
     S dist1 = std::numeric_limits<S>::max();
-    test::defaultDistanceFunction(&obj1, &obj2, &cdata, dist1);
+    DefaultDistanceFunction(&obj1, &obj2, &cdata, dist1);
 
 
     std::vector<CollisionObject<S>*> boxes;
@@ -210,8 +211,8 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
     manager->registerObjects(boxes);
     manager->setup();
 
-    test::DistanceData<S> cdata2;
-    manager->distance(&obj1, &cdata2, test::defaultDistanceFunction);
+    DefaultDistanceData<S> cdata2;
+    manager->distance(&obj1, &cdata2, DefaultDistanceFunction);
     S dist2 = cdata2.result.min_distance;
 
     for(std::size_t j = 0; j < boxes.size(); ++j)
@@ -247,24 +248,24 @@ void octomap_distance_test(S env_scale, std::size_t env_size, bool use_mesh, boo
   manager->registerObjects(env);
   manager->setup();
 
-  test::DistanceData<S> cdata;
+  DefaultDistanceData<S> cdata;
   test::TStruct t1;
   test::Timer timer1;
   timer1.start();
   manager->octree_as_geometry_collide = false;
   manager->octree_as_geometry_distance = false;
-  manager->distance(&tree_obj, &cdata, test::defaultDistanceFunction);
+  manager->distance(&tree_obj, &cdata, DefaultDistanceFunction);
   timer1.stop();
   t1.push_back(timer1.getElapsedTime());
 
 
-  test::DistanceData<S> cdata3;
+  DefaultDistanceData<S> cdata3;
   test::TStruct t3;
   test::Timer timer3;
   timer3.start();
   manager->octree_as_geometry_collide = true;
   manager->octree_as_geometry_distance = true;
-  manager->distance(&tree_obj, &cdata3, test::defaultDistanceFunction);
+  manager->distance(&tree_obj, &cdata3, DefaultDistanceFunction);
   timer3.stop();
   t3.push_back(timer3.getElapsedTime());
 
@@ -288,10 +289,10 @@ void octomap_distance_test(S env_scale, std::size_t env_size, bool use_mesh, boo
   t2.push_back(timer2.getElapsedTime());
 
 
-  test::DistanceData<S> cdata2;
+  DefaultDistanceData<S> cdata2;
 
   timer2.start();
-  manager->distance(manager2, &cdata2, test::defaultDistanceFunction);
+  manager->distance(manager2, &cdata2, DefaultDistanceFunction);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
