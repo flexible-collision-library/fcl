@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2016, Open Source Robotics Foundation
+ *  Copyright (c) 2020, Toyota Research Institute, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -14,7 +15,7 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Open Source Robotics Foundation nor the names of its
+ *   * Neither the name of the copyright holder nor the names of its
  *     contributors may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
@@ -34,11 +35,11 @@
 
 /** @author Jeongseok Lee <jslee02@gmail.com> */
 
-// Automatically generated file by cmake
+// @GENERATED_FILE_MARKER@.
 
-#ifndef FCL_FCL_H
-#define FCL_FCL_H
+#ifndef FCL_FCL_H_
+#define FCL_FCL_H_
 
-${fcl_headers}
+@INCLUDE_DIRECTIVES@
 
-#endif
+#endif  // FCL_FCL_H_
