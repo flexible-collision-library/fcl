@@ -39,6 +39,7 @@
 
 #include "fcl/config.h"
 #include "fcl/broadphase/broadphase_bruteforce.h"
+#include "fcl/broadphase/default_broadphase_callbacks.h"
 #include "fcl/broadphase/broadphase_spatialhash.h"
 #include "fcl/broadphase/broadphase_SaP.h"
 #include "fcl/broadphase/broadphase_SSaP.h"
@@ -252,7 +253,7 @@ void broad_phase_collision_test(S env_scale, std::size_t env_size, std::size_t q
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  std::vector<test::CollisionData<S>> self_data(managers.size());
+  std::vector<DefaultCollisionData<S>> self_data(managers.size());
   for(size_t i = 0; i < managers.size(); ++i)
   {
     if(exhaustive) self_data[i].request.num_max_contacts = 100000;
@@ -262,7 +263,7 @@ void broad_phase_collision_test(S env_scale, std::size_t env_size, std::size_t q
   for(size_t i = 0; i < managers.size(); ++i)
   {
     timers[i].start();
-    managers[i]->collide(&self_data[i], test::defaultCollisionFunction);
+    managers[i]->collide(&self_data[i], DefaultCollisionFunction);
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
   }
@@ -292,7 +293,7 @@ void broad_phase_collision_test(S env_scale, std::size_t env_size, std::size_t q
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<test::CollisionData<S>> query_data(managers.size());
+    std::vector<DefaultCollisionData<S>> query_data(managers.size());
     for(size_t j = 0; j < query_data.size(); ++j)
     {
       if(exhaustive) query_data[j].request.num_max_contacts = 100000;
@@ -302,7 +303,7 @@ void broad_phase_collision_test(S env_scale, std::size_t env_size, std::size_t q
     for(size_t j = 0; j < query_data.size(); ++j)
     {
       timers[j].start();
-      managers[j]->collide(query[i], &query_data[j], test::defaultCollisionFunction);
+      managers[j]->collide(query[i], &query_data[j], DefaultCollisionFunction);
       timers[j].stop();
       ts[j].push_back(timers[j].getElapsedTime());
     }
