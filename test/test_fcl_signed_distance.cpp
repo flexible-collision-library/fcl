@@ -165,6 +165,7 @@ void test_distance_spherecapsule(GJKSolverType solver_type)
   }
 }
 
+
 template <typename S>
 void test_distance_cylinder_sphere1() {
   // This is a specific case that has cropped up in the wild that reaches the
@@ -417,6 +418,57 @@ void test_distance_box_box_regression4() {
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
 }
 
+// This is a *specific* case that has cropped up in the wild. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/428
+template <typename S>
+void test_distance_box_box_regression5() {
+  const Vector3<S> box1_size(0.2, 0.33, 0.1);
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  X_WB1.translation() << -0.071000000000000035305, -0.77200000000000001954, 0.79999999999999993339;
+  const Vector3<S> box2_size(0.452, 0.27, 0.6);
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  X_WB2.translation() << 0.12099999999999999645, -0.78769605692727695523, 0.53422044196125151316;
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
+}
+
+// This is a *specific* case that has cropped up in the wild that reaches the
+// unexpected `validateNearestFeatureOfPolytopeBeingEdge` error. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/408
+template <typename S>
+void test_distance_sphere_box_regression1() {
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
+  const S sphere_radius = 0.06;
+  CollisionGeometryPtr_t sphere_geo(new fcl::Sphere<S>(sphere_radius));
+  Transform3<S> X_WS = Transform3<S>::Identity();
+  // clang-format off
+  X_WS.matrix() << -0.99999999999999955591,     -4.4637642593504144998e-09,  0,                      1.7855056639081962376e-10,
+                    4.4637642593504144998e-09,  -0.99999999999999955591,     0,                      0.039999999999999993894,
+                    0,                           0,                          1.0000000000000008882,  0.33000000000000012657,
+                    0,                           0,                          0,                      1;
+  // clang-format on
+  fcl::CollisionObject<S> sphere(sphere_geo, X_WS);
+
+  CollisionGeometryPtr_t box_geo(new fcl::Box<S>(0.1, 0.1, 0.1));
+  Transform3<S> X_WB = Transform3<S>::Identity();
+  // clang-format off
+  X_WB.matrix() << 1, 0, 0, 0.05,
+      0, 1, 0, 0.15,
+      0, 0, 1, 0.35,
+      0, 0, 0, 1;
+  // clang-format on
+  fcl::CollisionObject<S> box(box_geo, X_WB);
+  fcl::DistanceRequest<S> request;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+  request.distance_tolerance = 1e-6;
+  request.enable_signed_distance = true;
+  fcl::DistanceResult<S> result;
+
+  ASSERT_NO_THROW(fcl::distance(&sphere, &box, request, result));
+  const S expected_distance = 0.06 - sphere_radius;
+  EXPECT_NEAR(result.min_distance, expected_distance,
+              request.distance_tolerance);
+}
+
 //==============================================================================
 
 GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd) {
@@ -444,12 +496,14 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
 }
 
 GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression) {
-  // A collection of scnarios observed in practice that have created error
+  // A collection of scenarios observed in practice that have created error
   // conditions in previous commits of the code. Each test is a unique instance.
   test_distance_box_box_regression1<double>();
   test_distance_box_box_regression2<double>();
   test_distance_box_box_regression3<double>();
   test_distance_box_box_regression4<double>();
+  test_distance_box_box_regression5<double>();
+  test_distance_sphere_box_regression1<double>();
 }
 
 //==============================================================================
