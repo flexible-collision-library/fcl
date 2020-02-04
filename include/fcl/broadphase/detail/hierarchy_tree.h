@@ -223,10 +223,6 @@ private:
 
   void recurseRefit(NodeType* node);
 
-  static BV bounds(const std::vector<NodeType*>& leaves);
-
-  static BV bounds(const NodeVecIterator lbeg, const NodeVecIterator lend);
-
 protected:
   NodeType* root_node;
 

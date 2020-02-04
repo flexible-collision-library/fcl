@@ -967,34 +967,6 @@ void HierarchyTree<BV>::recurseRefit(NodeType* node)
 
 //==============================================================================
 template<typename BV>
-BV HierarchyTree<BV>::bounds(const std::vector<NodeType*>& leaves)
-{
-  if(leaves.size() == 0) return BV();
-  BV bv = leaves[0]->bv;
-  for(size_t i = 1; i < leaves.size(); ++i)
-  {
-    bv += leaves[i]->bv;
-  }
-
-  return bv;
-}
-
-//==============================================================================
-template<typename BV>
-BV HierarchyTree<BV>::bounds(const NodeVecIterator lbeg, const NodeVecIterator lend)
-{
-  if(lbeg == lend) return BV();
-  BV bv = *lbeg;
-  for(NodeVecIterator it = lbeg + 1; it < lend; ++it)
-  {
-    bv += (*it)->bv;
-  }
-
-  return bv;
-}
-
-//==============================================================================
-template<typename BV>
 bool nodeBaseLess(NodeBase<BV>* a, NodeBase<BV>* b, int d)
 {
   if(a->bv.center()[d] < b->bv.center()[d]) return true;
@@ -1076,46 +1048,6 @@ struct SelectImpl<S, AABB<S>>
     S d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
     S d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;
-  }
-
-  static bool run(
-      const HierarchyTree<AABB<S>>& tree,
-      typename HierarchyTree<AABB<S>>::NodeType* leaf,
-      const AABB<S>& bv_,
-      const Vector3<S>& vel,
-      S margin)
-  {
-    AABB<S> bv(bv_);
-    if(leaf->bv.contain(bv)) return false;
-    Vector3<S> marginv(margin);
-    bv.min_ -= marginv;
-    bv.max_ += marginv;
-    if(vel[0] > 0) bv.max_[0] += vel[0];
-    else bv.min_[0] += vel[0];
-    if(vel[1] > 0) bv.max_[1] += vel[1];
-    else bv.min_[1] += vel[1];
-    if(vel[2] > 0) bv.max_[2] += vel[2];
-    else bv.min_[2] += vel[2];
-    tree.update(leaf, bv);
-    return true;
-  }
-
-  static bool run(
-      const HierarchyTree<AABB<S>>& tree,
-      typename HierarchyTree<AABB<S>>::NodeType* leaf,
-      const AABB<S>& bv_,
-      const Vector3<S>& vel)
-  {
-    AABB<S> bv(bv_);
-    if(leaf->bv.contain(bv)) return false;
-    if(vel[0] > 0) bv.max_[0] += vel[0];
-    else bv.min_[0] += vel[0];
-    if(vel[1] > 0) bv.max_[1] += vel[1];
-    else bv.min_[1] += vel[1];
-    if(vel[2] > 0) bv.max_[2] += vel[2];
-    else bv.min_[2] += vel[2];
-    tree.update(leaf, bv);
-    return true;
   }
 };
 
