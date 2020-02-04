@@ -75,8 +75,8 @@ TYPED_TEST(SegmentSegmentNearestPtTest, BothZeroLength) {
 
   // Keep the points near the unit sphere so that the epsilon value doesn't
   // need to be scaled.
-  const Vector3<S> p0{0.25, 0.5, 1.0};
-  const Vector3<S> p1{0.6, 1.0, -0.3};
+  const Vector3<S> p0{S(0.25), S(0.5), S(1.0)};
+  const Vector3<S> p1{S(0.6), S(1.0), S(-0.3)};
 
   // Case: Exactly zero.
   {
@@ -96,7 +96,7 @@ TYPED_TEST(SegmentSegmentNearestPtTest, BothZeroLength) {
   // Case: Zero to within epsilon.
   {
     // Just below the epsilon for squared distance.
-    const S eps = kEps * 0.99;
+    const S eps = kEps * S(0.99);
     const Vector3<S> q0(p0(0) + eps, p0(1), p0(2));
     const Vector3<S> q1(p1(0) + eps, p1(1), p1(2));
     const S squared_dist = this->ComputeNearestPoint(p0, q0, p1, q1);
@@ -111,7 +111,7 @@ TYPED_TEST(SegmentSegmentNearestPtTest, BothZeroLength) {
   // crossed the algorithm's threshold.
   {
     // Just above the epsilon for squared distance.
-    const S eps = kEps * 1.5;
+    const S eps = kEps * S(1.5);
     // Make sure the line segments are *not* parallel so we don't exercise any
     // degenerate cases.
     const Vector3<S> q0(p0(0) + eps, p0(1), p0(2));
@@ -126,8 +126,8 @@ TYPED_TEST(SegmentSegmentNearestPtTest, OneZeroLength) {
   using S = TypeParam;
 
   // Segment 2 passes through the origin.
-  Vector3<S> p1{-1, -2, -3};
-  Vector3<S> q1{1, 2, 3};
+  Vector3<S> p1{S(-1), S(-2), S(-3)};
+  Vector3<S> q1{S(1), S(2), S(3)};
 
   // Case: First zero-length segment is nearest p1.
   {
@@ -190,7 +190,7 @@ TYPED_TEST(SegmentSegmentNearestPtTest, OneZeroLength) {
     const Vector3<S> dir1 = q0 - p0;
     // Create a vector perpendicular to the second segment, closest to the
     // origin.
-    const Vector3<S> p1(dir1(1), -dir1(0), 0);
+    const Vector3<S> p1(dir1(1), -dir1(0), S(0));
     const S squared_dist = this->ComputeNearestPoint(p0, q0, p1, p1);
     EXPECT_EQ(squared_dist, p1.squaredNorm());
     EXPECT_TRUE(CompareMatrices(this->n1_, p1));
@@ -206,9 +206,9 @@ TYPED_TEST(SegmentSegmentNearestPtTest, ParallelSegments) {
   const S eps = constants<S>::eps_78();
 
   // A line to which all of the segments will be parallel.
-  const Vector3<S> dir = Vector3<S>{1, 2, 3}.normalized();
+  const Vector3<S> dir = Vector3<S>{S(1), S(2), S(3)}.normalized();
   // A direction perpendicular to the line given by `dir`.
-  const Vector3<S> dir_perp = Vector3<S>{dir(1), -dir(0), 0}.normalized();
+  const Vector3<S> dir_perp = Vector3<S>{dir(1), -dir(0), S(0)}.normalized();
   ASSERT_NEAR(dir.dot(dir_perp), 0, eps);
 
   // In the case where there are multiple possible pairs (because the solution
@@ -229,14 +229,14 @@ TYPED_TEST(SegmentSegmentNearestPtTest, ParallelSegments) {
     // Segment 1 includes the origin and passes through q1 extending a similar
     // distance beyond.
     const Vector3<S> p1(Vector3<S>::Zero());
-    const Vector3<S> q1(2 * dir);
+    const Vector3<S> q1(S(2) * dir);
     const S squared_dist = this->ComputeNearestPoint(p0, q0, p1, q1);
 
-    EXPECT_NEAR(squared_dist, 0, eps);
+    EXPECT_NEAR(squared_dist, S(0), eps);
 
     // Test pair: distance between them and that n0 lies between the origin and
     // q0.
-    EXPECT_NEAR((this->n0_ - this->n1_).norm(), 0, eps);
+    EXPECT_NEAR((this->n0_ - this->n1_).norm(), S(0), eps);
     const S nearest_dist = this->n0_.norm();
     EXPECT_NEAR(nearest_dist, dir.dot(this->n0_), eps);
     EXPECT_LE(nearest_dist, q0.norm());
@@ -249,10 +249,10 @@ TYPED_TEST(SegmentSegmentNearestPtTest, ParallelSegments) {
     // moved perpendicularly to the first segment.
     const Vector3<S> p0(-dir);
     const Vector3<S> q0(dir);
-    const S expected_dist = 0.5;
+    const S expected_dist{0.5};
     const Vector3<S> offset = dir_perp * expected_dist;
     const Vector3<S> p1 = Vector3<S>::Zero() + offset;
-    const Vector3<S> q1 = 2 * dir + offset;
+    const Vector3<S> q1 = S(2) * dir + offset;
     const S squared_dist = this->ComputeNearestPoint(p0, q0, p1, q1);
 
     EXPECT_NEAR(squared_dist, expected_dist * expected_dist, eps);
@@ -267,11 +267,11 @@ TYPED_TEST(SegmentSegmentNearestPtTest, ParallelSegments) {
   {
     const Vector3<S> p0(-dir);
     const Vector3<S> q0(dir);  // also serves as p1.
-    const Vector3<S> q1(2 * dir);
+    const Vector3<S> q1(S(2) * dir);
 
     const S squared_dist = this->ComputeNearestPoint(p0, q0, q0, q1);
 
-    EXPECT_NEAR(squared_dist, 0, eps);
+    EXPECT_NEAR(squared_dist, S(0), eps);
     EXPECT_TRUE(CompareMatrices(this->n0_, q0));
     EXPECT_TRUE(CompareMatrices(this->n1_, q0));
   }
@@ -281,8 +281,8 @@ TYPED_TEST(SegmentSegmentNearestPtTest, ParallelSegments) {
   {
     const Vector3<S> p0(-dir);
     const Vector3<S> q0(dir);
-    const Vector3<S> p1(2 * dir);
-    const Vector3<S> q1(3 * dir);
+    const Vector3<S> p1(S(2) * dir);
+    const Vector3<S> q1(S(3) * dir);
 
     const S squared_dist = this->ComputeNearestPoint(p0, q0, p1, q1);
 
@@ -296,8 +296,8 @@ TYPED_TEST(SegmentSegmentNearestPtTest, ParallelSegments) {
   {
     const Vector3<S> p0(-dir);
     const Vector3<S> q0(dir);
-    const Vector3<S> p1(2 * dir + dir_perp);
-    const Vector3<S> q1(3 * dir + dir_perp);
+    const Vector3<S> p1(S(2) * dir + dir_perp);
+    const Vector3<S> q1(S(3) * dir + dir_perp);
 
     const S squared_dist = this->ComputeNearestPoint(p0, q0, p1, q1);
 
@@ -311,8 +311,8 @@ TYPED_TEST(SegmentSegmentNearestPtTest, ParallelSegments) {
   {
     const Vector3<S> p0(-dir);
     const Vector3<S> q0(dir);
-    const Vector3<S> p1(-3 * dir);
-    const Vector3<S> q1(-2 * dir);
+    const Vector3<S> p1(S(-3) * dir);
+    const Vector3<S> q1(S(-2) * dir);
 
     const S squared_dist = this->ComputeNearestPoint(p0, q0, p1, q1);
 
@@ -326,8 +326,8 @@ TYPED_TEST(SegmentSegmentNearestPtTest, ParallelSegments) {
   {
     const Vector3<S> p0(-dir);
     const Vector3<S> q0(dir);
-    const Vector3<S> p1(-3 * dir + dir_perp);
-    const Vector3<S> q1(-2 * dir + dir_perp);
+    const Vector3<S> p1(S(-3) * dir + dir_perp);
+    const Vector3<S> q1(S(-2) * dir + dir_perp);
 
     const S squared_dist = this->ComputeNearestPoint(p0, q0, p1, q1);
 
@@ -344,27 +344,27 @@ TYPED_TEST(SegmentSegmentNearestPtTest, NominalSegments) {
   const S eps = constants<S>::eps_78();
 
   // An arbitrary direction for segment A.
-  const Vector3<S> dir_A = Vector3<S>{1, 2, 3}.normalized();
+  const Vector3<S> dir_A = Vector3<S>{S(1), S(2), S(3)}.normalized();
   // An arbitrary direction for segment B such that it is neither parallel nor
   // perpendicular to dir_A. We're excluding perpendicular as that represents
   // the _best_ conditioning for the math and we want to characterize the
   // accuracy when the numbers _aren't_ that great.
-  const Vector3<S> dir_B = Vector3<S>{-2, 1, -0.5}.normalized();
+  const Vector3<S> dir_B = Vector3<S>{S(-2), S(1), S(-0.5)}.normalized();
   using std::abs;
   GTEST_ASSERT_GE(abs(dir_A.dot(dir_B)), eps);
-  GTEST_ASSERT_LT(abs(dir_A.dot(dir_B)), 1 - eps);
+  GTEST_ASSERT_LT(abs(dir_A.dot(dir_B)), S(1) - eps);
 
   // A direction perpendicular to both A and B.
   const Vector3<S> perp = dir_A.cross(dir_B).normalized();
 
   // Configure the two segments so that they perfectly intersect at expected_n0.
-  const Vector3<S> expected_n0 = Vector3<S>{-0.5, 1.25, 0.75};
+  const Vector3<S> expected_n0 = Vector3<S>{S(-0.5), S(1.25), S(0.75)};
   const Vector3<S> p0 = expected_n0 + dir_A;
-  const Vector3<S> q0 = expected_n0 - 2 * dir_A;
+  const Vector3<S> q0 = expected_n0 - S(2) * dir_A;
   const Vector3<S> p1 = expected_n0 + dir_B;
-  const Vector3<S> q1 = expected_n0 - 2.5 * dir_B;
-  const S expected_s = 1 / 3.0;
-  const S t_expected = 1 / 3.5;
+  const Vector3<S> q1 = expected_n0 - S(2.5) * dir_B;
+  const S expected_s = 1 / S(3);
+  const S t_expected = 1 / S(3.5);
 
   // Case: literally intersecting (intersection point is *not* at the origin).
   {
@@ -381,7 +381,7 @@ TYPED_TEST(SegmentSegmentNearestPtTest, NominalSegments) {
   // intersecting lines in a direction perpendicular to segment A; n0 will still
   // be the same. And s and t will be unchanged.
   {
-    const S expected_dist = 1.25;
+    const S expected_dist{1.25};
     const Vector3<S> offset = expected_dist * perp;
     const S squared_dist =
         this->ComputeNearestPoint(p0, q0, p1 + offset, q1 + offset);
@@ -407,7 +407,7 @@ TYPED_TEST(SegmentSegmentNearestPtTest, NominalSegments) {
   // because they aren't perpendicular, the point on B that is nearest (and the
   // value of t), will depend on the distance.
   {
-    const Vector3<S> offset = 1.1 * (p0 - expected_n0);
+    const Vector3<S> offset = S(1.1) * (p0 - expected_n0);
     const Vector3<S> p1_shift = p1 + offset;
     const Vector3<S> q1_shift = q1 + offset;
     Vector3<S> expected_N1;
@@ -439,7 +439,7 @@ TYPED_TEST(SegmentSegmentNearestPtTest, NominalSegments) {
 
   // Case: q0 nearest to center of B. Now slide B the other direction.
   {
-    const Vector3<S> offset = 1.1 * (q0 - expected_n0);
+    const Vector3<S> offset = S(1.1) * (q0 - expected_n0);
     const Vector3<S> p1_shift = p1 + offset;
     const Vector3<S> q1_shift = q1 + offset;
     Vector3<S> expected_N1;
@@ -477,14 +477,15 @@ TYPED_TEST(SegmentSegmentNearestPtTest, NominalSegments) {
     // direction along segment A towards p0, but _not_ be parallel (which
     // prevents co-linearity).
     const Vector3<S> p0_dir = p0 - expected_n0;
-    const Vector3<S> offset = p0_dir.cwiseProduct(Vector3<S>{1.75, 1.5, 1.25});
+    const Vector3<S> offset =
+        p0_dir.cwiseProduct(Vector3<S>{S(1.75), S(1.5), S(1.25)});
     const Vector3<S> p1_shift = p0 + offset;
     // q1 needs to be positioned such that it's always farther from segment A
     // than p1. We know the direction from segment A to p1 (offset). If
     // offset⋅dir_B is positive, then we extend in the dir_B direction,
     // otherwise the -dir_B direction.
     const Vector3<S> q1_shift =
-        p1_shift + (offset.dot(dir_B) > 0 ? dir_B : Vector3<S>{-dir_B});
+        p1_shift + (offset.dot(dir_B) > S(0) ? dir_B : Vector3<S>{-dir_B});
 
     // p0 is nearest p1.
     S squared_dist = this->ComputeNearestPoint(p0, q0, p1_shift, q1_shift);
@@ -533,7 +534,8 @@ TYPED_TEST(SegmentSegmentNearestPtTest, NominalSegments) {
 template <typename S>
 class CapsuleCapsuleSegmentTest : public ::testing::Test {
  public:
-  CapsuleCapsuleSegmentTest() : ::testing::Test(), c1_(1.5, 2.5), c2_(2, 3) {}
+  CapsuleCapsuleSegmentTest()
+      : ::testing::Test(), c1_(S(1.5), S(2.5)), c2_(S(2), S(3)) {}
 
  protected:
   // See the note below for the explanation of these four cases.
@@ -637,10 +639,10 @@ class CapsuleCapsuleSegmentTest : public ::testing::Test {
 
     Transform3<S> X_TC1 = Transform3<S>::Identity();
     Transform3<S> X_TC2(AngleAxis<S>(pi / 2, Vector3<S>::UnitY()));
-    X_TC2.translation() << 0, 0,
+    X_TC2.translation() << S(0), S(0),
         c1_.lz / 2 + c1_.radius + c2_.radius + distance;
 
-    Vector3<S> p_TW1{0, 0, c1_.lz / 2 + c1_.radius};
+    Vector3<S> p_TW1{S(0), S(0), c1_.lz / S(2) + c1_.radius};
     expected_p_FW1_ = X_FT() * p_TW1;
     Vector3<S> p_TW2{p_TW1(0), p_TW1(1), p_TW1(2) + distance};
     expected_p_FW2_ = X_FT() * p_TW2;
@@ -654,9 +656,9 @@ class CapsuleCapsuleSegmentTest : public ::testing::Test {
 
     const auto pi = constants<S>::pi();
     Transform3<S> X_TC1 = Transform3<S>::Identity();
-    Transform3<S> X_TC2(AngleAxis<S>(pi / 2, Vector3<S>::UnitY()));
+    Transform3<S> X_TC2(AngleAxis<S>(pi / S(2), Vector3<S>::UnitY()));
     // Position C2 halfway up the upper length of C1.
-    X_TC2.translation() << 0, 0, c1_.lz / 4;
+    X_TC2.translation() << S(0), S(0), c1_.lz / S(4);
 
     // The witness points lie on a line parallel with the Ty direction that
     // passes through the point p_TC2. For each capsule there are *two* points
@@ -665,9 +667,9 @@ class CapsuleCapsuleSegmentTest : public ::testing::Test {
     // to select *one* of those two. This allows the final test to simply
     // compare witness points directly. A change in this special case in the
     // function under test will cause this configuration to fail.
-    Vector3<S> p_TW1{0, c1_.radius, c1_.lz / 4};
+    Vector3<S> p_TW1{S(0), c1_.radius, c1_.lz / S(4)};
     expected_p_FW1_ = X_FT() * p_TW1;
-    Vector3<S> p_TW2{0, -c2_.radius, c1_.lz / 4};
+    Vector3<S> p_TW2{S(0), -c2_.radius, c1_.lz / S(4)};
     expected_p_FW2_ = X_FT() * p_TW2;
 
     X_FC1_ = X_FT() * X_TC1;
@@ -681,7 +683,7 @@ class CapsuleCapsuleSegmentTest : public ::testing::Test {
     Transform3<S> X_TC2 = Transform3<S>::Identity();
     // Position C2 so that the lower end of its center lines is at the origin
     // and overlaps with the upper end of C1's center line.
-    X_TC2.translation() << 0, 0, c2_.lz / 2;
+    X_TC2.translation() << S(0), S(0), c2_.lz / S(2);
 
     // When the two center lines are aligned and overlap, there is an infinite
     // set of witness points. We exploit the knowledge of how the function under
@@ -689,9 +691,9 @@ class CapsuleCapsuleSegmentTest : public ::testing::Test {
     // pick points that line up with the Tx axis. The biggest unknown is where
     // in the range [0, L1/2] along Tz the witness point is placed. Empirically,
     // it is shown to be at p0 (the top of C1's center line).
-    Vector3<S> p_TW1{c1_.radius, 0, c1_.lz / 2};
+    Vector3<S> p_TW1{c1_.radius, S(0), c1_.lz / S(2)};
     expected_p_FW1_ = X_FT() * p_TW1;
-    Vector3<S> p_TW2{-c2_.radius, 0, c1_.lz / 2};
+    Vector3<S> p_TW2{-c2_.radius, S(0), c1_.lz / S(2)};
     expected_p_FW2_ = X_FT() * p_TW2;
 
     X_FC1_ = X_FT() * X_TC1;
@@ -702,10 +704,10 @@ class CapsuleCapsuleSegmentTest : public ::testing::Test {
     // Create some arbitrarily ugly transform; the important bit that there
     // be no identities (zeros and ones).
     Transform3<S> X_FT_ = Transform3<S>::Identity();
-    X_FT_.translation() << 10.5, 12.75, -2.5;
-    X_FT_.linear() =
-        AngleAxis<S>(constants<S>::pi() / 7, Vector3<S>{1, 2, 3}.normalized())
-            .matrix();
+    X_FT_.translation() << S(10.5), S(12.75), S(-2.5);
+    X_FT_.linear() = AngleAxis<S>(constants<S>::pi() / S(7),
+                                  Vector3<S>{S(1), S(2), S(3)}.normalized())
+                         .matrix();
     return X_FT_;
   }
 
