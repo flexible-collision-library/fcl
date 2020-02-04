@@ -534,6 +534,8 @@ TYPED_TEST(SegmentSegmentNearestPtTest, NominalSegments) {
 template <typename S>
 class CapsuleCapsuleSegmentTest : public ::testing::Test {
  public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   CapsuleCapsuleSegmentTest()
       : ::testing::Test(), c1_(S(1.5), S(2.5)), c2_(S(2), S(3)) {}
 
