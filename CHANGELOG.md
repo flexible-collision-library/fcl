@@ -40,6 +40,8 @@
   * Enabled build with SSE option by default: [#159](https://github.com/flexible-collision-library/fcl/pull/159)
   * Added missing copyright headers:  [#149](https://github.com/flexible-collision-library/fcl/pull/149)
   * Added test utility for performing equality between Eigen matrix-types (`CompareMatrices` in `test/eign_matrix_compare.h`): [#316](https://github.com/flexible-collision-library/fcl/pull/316)
+  * Unused and uncompilable private methods removed from `HierarchyTree`.
+     [#439](https://github.com/flexible-collision-library/fcl/pull/439)
 
 ### FCL 0.5.0 (2016-07-19)
 
