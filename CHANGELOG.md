@@ -36,7 +36,12 @@
   * Added distance request option for computing exact negative distance: [#172](https://github.com/flexible-collision-library/fcl/pull/172) 
 
 * Build/Test/Misc
-
+  * Default callback functions for broadphase collision managers have been moved
+    out of `fcl::test` and into `fcl` namespace (with a corresponding name
+    change, e.g., `defaultDistanceFunction` --> `DefaultDistanceFunction`).
+     [#438](https://github.com/flexible-collision-library/fcl/pull/438)
+    * This includes the removal of the stub function
+      `defaultContinuousDistanceFunction()`.
   * Added version check for Visual Studio in CMake (VS2015 or greater required): [#189](https://github.com/flexible-collision-library/fcl/pull/189)
   * Added CMake targets for generating API documentation: [#174](https://github.com/flexible-collision-library/fcl/pull/174)
   * Enabled build with SSE option by default: [#159](https://github.com/flexible-collision-library/fcl/pull/159)

@@ -47,6 +47,7 @@
 #include "fcl/broadphase/broadphase_interval_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/broadphase/default_broadphase_callbacks.h"
 #include "fcl/geometry/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
@@ -192,10 +193,10 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
 
     CollisionObject<S> obj1(m1_ptr, tf);
     CollisionObject<S> obj2(tree_ptr, tf);
-    test::CollisionData<S> cdata;
+    DefaultCollisionData<S> cdata;
     if(exhaustive) cdata.request.num_max_contacts = 100000;
 
-    test::defaultCollisionFunction(&obj1, &obj2, &cdata);
+    DefaultCollisionFunction(&obj1, &obj2, &cdata);
 
 
     std::vector<CollisionObject<S>*> boxes;
@@ -207,9 +208,9 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
     manager->registerObjects(boxes);
     manager->setup();
 
-    test::CollisionData<S> cdata2;
+    DefaultCollisionData<S> cdata2;
     if(exhaustive) cdata2.request.num_max_contacts = 100000;
-    manager->collide(&obj1, &cdata2, test::defaultCollisionFunction);
+    manager->collide(&obj1, &cdata2, DefaultCollisionFunction);
 
     for(std::size_t j = 0; j < boxes.size(); ++j)
       delete boxes[j];
@@ -245,7 +246,7 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
   manager->registerObjects(env);
   manager->setup();
 
-  test::CollisionData<S> cdata;
+  DefaultCollisionData<S> cdata;
   if(exhaustive) cdata.request.num_max_contacts = 100000;
   else cdata.request.num_max_contacts = num_max_contacts;
 
@@ -254,11 +255,11 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
   timer1.start();
   manager->octree_as_geometry_collide = false;
   manager->octree_as_geometry_distance = false;
-  manager->collide(&tree_obj, &cdata, test::defaultCollisionFunction);
+  manager->collide(&tree_obj, &cdata, DefaultCollisionFunction);
   timer1.stop();
   t1.push_back(timer1.getElapsedTime());
 
-  test::CollisionData<S> cdata3;
+  DefaultCollisionData<S> cdata3;
   if(exhaustive) cdata3.request.num_max_contacts = 100000;
   else cdata3.request.num_max_contacts = num_max_contacts;
 
@@ -267,7 +268,7 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
   timer3.start();
   manager->octree_as_geometry_collide = true;
   manager->octree_as_geometry_distance = true;
-  manager->collide(&tree_obj, &cdata3, test::defaultCollisionFunction);
+  manager->collide(&tree_obj, &cdata3, DefaultCollisionFunction);
   timer3.stop();
   t3.push_back(timer3.getElapsedTime());
 
@@ -290,12 +291,12 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
   t2.push_back(timer2.getElapsedTime());
 
 
-  test::CollisionData<S> cdata2;
+  DefaultCollisionData<S> cdata2;
   if(exhaustive) cdata2.request.num_max_contacts = 100000;
   else cdata2.request.num_max_contacts = num_max_contacts;
 
   timer2.start();
-  manager->collide(manager2, &cdata2, test::defaultCollisionFunction);
+  manager->collide(manager2, &cdata2, DefaultCollisionFunction);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
