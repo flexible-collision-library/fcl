@@ -44,20 +44,6 @@ namespace detail
 {
 
 //==============================================================================
-template <>
-double planeIntersectTolerance()
-{
-  return 0.0000001;
-}
-
-//==============================================================================
-template <>
-float planeIntersectTolerance()
-{
-  return 0.0001;
-}
-
-//==============================================================================
 template
 bool spherePlaneIntersect(const Sphere<double>& s1, const Transform3<double>& tf1,
                           const Plane<double>& s2, const Transform3<double>& tf2,

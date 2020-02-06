@@ -66,6 +66,15 @@ template <>
 FCL_EXPORT
 float planeIntersectTolerance();
 
+//==============================================================================
+template <>
+inline double planeIntersectTolerance() {    return 0.0000001;}
+
+//==============================================================================
+template <>
+inline float planeIntersectTolerance(){    return 0.0001;}
+
+
 template <typename S>
 FCL_EXPORT
 bool spherePlaneIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,

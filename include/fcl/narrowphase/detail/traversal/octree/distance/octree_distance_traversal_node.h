@@ -39,7 +39,7 @@
 #define FCL_TRAVERSAL_OCTREE_OCTREEDISTANCETRAVERSALNODE_H
 
 #include "fcl/config.h"
-#if not(FCL_HAVE_OCTOMAP)
+#if !(FCL_HAVE_OCTOMAP)
 #error "This header requires fcl to be compiled with octomap support"
 #endif
 

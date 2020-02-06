@@ -63,16 +63,24 @@ struct FCL_EXPORT BVNodeBase
   int num_primitives;
 
   /// @brief Whether current node is a leaf node (i.e. contains a primitive index
-  bool isLeaf() const;
+  bool isLeaf() const  {
+	  return first_child < 0;
+  }
 
   /// @brief Return the primitive index. The index is referred to the original data (i.e. vertices or tri_indices) in BVHModel
-  int primitiveId() const;
+  int primitiveId() const  {
+	  return -(first_child + 1);
+  }
 
   /// @brief Return the index of the first child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
-  int leftChild() const;
+  int leftChild() const {
+	  return first_child;
+  }
 
   /// @brief Return the index of the second child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
-  int rightChild() const;
+  int rightChild() const {
+	  return first_child + 1;
+  }
 };
 
 } // namespace fcl
