@@ -75,7 +75,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 include(GenerateExportHeader)
 include(GNUInstallDirs)
-include(FCLMacros)
 include(CompilerSettings)
 include(FCLVersion)
 
@@ -272,20 +271,16 @@ include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/include")
 add_subdirectory(src)
 add_subdirectory(include/fcl)
 
-set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc.in")
-set(pkg_conf_file_out "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc")
 set(PKG_DESC "Flexible Collision Library")
 if(NOT MSVC)
     set(PKG_CFLAGS "-std=c++11")
 endif()
-configure_file("${pkg_conf_file_in}" "${pkg_conf_file_out}" @ONLY)
+configure_file(fcl.pc.in fcl.pc @ONLY)
 
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  FILES_MATCHING PATTERN "*.h" PATTERN "*.hxx"
-  PATTERN ".DS_Store" EXCLUDE
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+  COMPONENT Development
 )
-
-install(FILES "${pkg_conf_file_out}" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig/ COMPONENT pkgconfig)
 
 # Install catkin package.xml
 install(FILES package.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
