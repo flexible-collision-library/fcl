@@ -301,7 +301,8 @@ template <typename S>
 void test_distance_box_box_helper(const Vector3<S>& box1_size,
                                   const Transform3<S>& X_WB1,
                                   const Vector3<S>& box2_size,
-                                  const Transform3<S>& X_WB2) {
+                                  const Transform3<S>& X_WB2,
+                                  const S* expected_distance = nullptr) {
   using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
   CollisionGeometryPtr_t box1_geo(
       new fcl::Box<S>(box1_size(0), box1_size(1), box1_size(2)));
@@ -330,6 +331,12 @@ void test_distance_box_box_helper(const Vector3<S>& box1_size,
   // and expressed in the box 2 frame B2.
   const Vector3<S> p_B2P2 = X_WB2.inverse() * result.nearest_points[1];
   EXPECT_TRUE((p_B2P2.array().abs() <= (box2_size / 2).array() + tol).all());
+
+  // An expected distance has been provided; let's test that the value is as
+  // expected.
+  if (expected_distance) {
+    EXPECT_NEAR(result.min_distance, *expected_distance, 1e-10);
+  }
 }
 
 // This is a *specific* case that has cropped up in the wild that reaches the
@@ -402,7 +409,6 @@ void test_distance_box_box_regression3() {
                         0,                          0,                          0,                          1;
   // clang-format on
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
-
 }
 
 // This is a *specific* case that has cropped up in the wild. This error was
@@ -429,6 +435,28 @@ void test_distance_box_box_regression5() {
   Transform3<S> X_WB2 = Transform3<S>::Identity();
   X_WB2.translation() << 0.12099999999999999645, -0.78769605692727695523, 0.53422044196125151316;
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
+}
+
+template <typename S>
+void test_distance_box_box_regression6() {
+  const Vector3<S> box1_size(0.31650000000000000355, 0.22759999999999999676, 0.1768000000000000127);
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB1.matrix() << 0.44540578475530234748,    0.89532881496493399442,   -8.8937407685638678971e-09, 1.2652949075960071568,
+                   -0.89532881496493377238,    0.44540578475530190339,   -2.8948680226084145336e-08, 1.4551012423210101243,
+                   -2.1957263975186326105e-08, 2.0856732016652919226e-08, 0.99999999999999955591,    0.49480006232932938204,
+                    0,                         0,                         0,                         1;
+  // clang-format on
+  const Vector3<S> box2_size(0.49430000000000001714, 0.35460000000000002629, 0.075200000000000002953);
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB2.matrix() << 0.44171122913485860728,    0.8971572827861190591,    -1.622764514865468214e-09,  1.1304016226141906376,
+                   -0.8971572827861190591,     0.44171122913485860728,   -5.1621053952306079594e-09, 1.8410802645284281009,
+                   -3.9144271413829990148e-09, 3.7360349218094348098e-09, 1,                         0.44400006232932492933,
+                    0,                         0,                         0,                         1;
+  // clang-format on;
+  const double expected_distance{0};
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2, &expected_distance);
 }
 
 // This is a *specific* case that has cropped up in the wild that reaches the
@@ -503,6 +531,7 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression) {
   test_distance_box_box_regression3<double>();
   test_distance_box_box_regression4<double>();
   test_distance_box_box_regression5<double>();
+  test_distance_box_box_regression6<double>();
   test_distance_sphere_box_regression1<double>();
 }
 
