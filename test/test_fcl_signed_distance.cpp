@@ -335,7 +335,8 @@ void test_distance_box_box_helper(const Vector3<S>& box1_size,
   // An expected distance has been provided; let's test that the value is as
   // expected.
   if (expected_distance) {
-    EXPECT_NEAR(result.min_distance, *expected_distance, 1e-10);
+    EXPECT_NEAR(result.min_distance, *expected_distance,
+                constants<S>::eps_12());
   }
 }
 
