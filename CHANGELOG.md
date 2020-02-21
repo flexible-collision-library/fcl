@@ -1,5 +1,13 @@
 ## FCL 0
 
+### FCL 0.7.0 (????-??-??)
+
+* Narrowphase
+
+  * Various corrections and clarifications of the GJK algorithm used for general
+    convex distance:
+     [#446](https://github.com/flexible-collision-library/fcl/pull/446)
+
 ### FCL 0.6.0 (2020-02-10)
 
 * Core/Common
