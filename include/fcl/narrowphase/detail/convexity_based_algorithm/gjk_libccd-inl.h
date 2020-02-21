@@ -370,10 +370,16 @@ static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir) {
   return 0;
 }
 
-    static bool isAbsValueLessThanEpsSquared(ccd_real_t val) {
-        return std::abs(val) < std::numeric_limits<ccd_real_t>::epsilon() *
-                               std::numeric_limits<ccd_real_t>::epsilon();
-    }
+// Compares the given `value` against a _squared epsilon_. This is particularly
+// important when testing some quantity (e.g., distance) to see if it
+// is _functionally_ zero but using its _squared_ value in the test. Comparing
+// _squared distance_ directly against epsilon is equivalent to comparing
+// distance to sqrt(epsilon) -- we classify the distance as zero or not using
+// only half the available precision.
+static bool isAbsValueLessThanEpsSquared(ccd_real_t val) {
+    return std::abs(val) < std::numeric_limits<ccd_real_t>::epsilon() *
+                           std::numeric_limits<ccd_real_t>::epsilon();
+}
 
 // TODO(SeanCurtis-TRI): Define the return value:
 //   1: (like doSimplex2) --> origin is "in" the simplex.
@@ -818,80 +824,88 @@ static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
 
 /** Transforms simplex to polytope. It is assumed that simplex has 4
  *  vertices! */
-static int simplexToPolytope4(const void *obj1, const void *obj2,
-                              const ccd_t *ccd,
-                              ccd_simplex_t *simplex,
-                              ccd_pt_t *pt, ccd_pt_el_t **nearest)
-{
-    const ccd_support_t *a, *b, *c, *d;
-    int use_polytope3;
-    ccd_real_t dist;
-    ccd_pt_vertex_t *v[4];
-    ccd_pt_edge_t *e[6];
-    size_t i;
+static int simplexToPolytope4(const void* obj1, const void* obj2,
+                              const ccd_t* ccd, ccd_simplex_t* simplex,
+                              ccd_pt_t* pt, ccd_pt_el_t** nearest) {
+  const ccd_support_t *a, *b, *c, *d;
+  bool use_polytope3{false};
+  ccd_pt_vertex_t* v[4];
+  ccd_pt_edge_t* e[6];
+  size_t i;
 
-    a = ccdSimplexPoint(simplex, 0);
-    b = ccdSimplexPoint(simplex, 1);
-    c = ccdSimplexPoint(simplex, 2);
-    d = ccdSimplexPoint(simplex, 3);
+  a = ccdSimplexPoint(simplex, 0);
+  b = ccdSimplexPoint(simplex, 1);
+  c = ccdSimplexPoint(simplex, 2);
+  d = ccdSimplexPoint(simplex, 3);
 
-    // check if origin lies on some of tetrahedron's face - if so use
-    // convert2SimplexToTetrahedron()
-    use_polytope3 = 0;
-    dist = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &c->v, NULL);
-    if (ccdIsZero(dist)){
-        use_polytope3 = 1;
+  // The origin can lie on any of the tetrahedra faces. In fact, for a
+  // degenerate tetrahedron, it could be considered to lie on multiple faces
+  // simultaneously. If it lies on any face, we can simply reduce the dimension
+  // of the simplex to that face and then attempt to construct the polytope from
+  // the resulting face. We simply take the first face which exhibited the
+  // trait.
+  ccd_real_t dist_squared =
+      ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &c->v, NULL);
+  if (isAbsValueLessThanEpsSquared(dist_squared)) {
+    use_polytope3 = true;
+  }
+  if (!use_polytope3) {
+    dist_squared =
+        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &c->v, &d->v, NULL);
+    if (isAbsValueLessThanEpsSquared(dist_squared)) {
+      use_polytope3 = true;
+      ccdSimplexSet(simplex, 1, c);
+      ccdSimplexSet(simplex, 2, d);
     }
-    dist = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &c->v, &d->v, NULL);
-    // TODO(hongkai.dai@tri.global) Optimize this part, check whether these
-    // "if" branches are mutually exclusive.
-    if (ccdIsZero(dist)){
-        use_polytope3 = 1;
-        ccdSimplexSet(simplex, 1, c);
-        ccdSimplexSet(simplex, 2, d);
+  }
+  if (!use_polytope3) {
+    dist_squared =
+        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &d->v, NULL);
+    if (isAbsValueLessThanEpsSquared(dist_squared)) {
+      use_polytope3 = true;
+      ccdSimplexSet(simplex, 2, d);
     }
-    dist = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &d->v, NULL);
-    if (ccdIsZero(dist)){
-        use_polytope3 = 1;
-        ccdSimplexSet(simplex, 2, d);
+  }
+  if (!use_polytope3) {
+    dist_squared =
+        ccdVec3PointTriDist2(ccd_vec3_origin, &b->v, &c->v, &d->v, NULL);
+    if (isAbsValueLessThanEpsSquared(dist_squared)) {
+      use_polytope3 = true;
+      ccdSimplexSet(simplex, 0, b);
+      ccdSimplexSet(simplex, 1, c);
+      ccdSimplexSet(simplex, 2, d);
     }
-    dist = ccdVec3PointTriDist2(ccd_vec3_origin, &b->v, &c->v, &d->v, NULL);
-    if (ccdIsZero(dist)){
-        use_polytope3 = 1;
-        ccdSimplexSet(simplex, 0, b);
-        ccdSimplexSet(simplex, 1, c);
-        ccdSimplexSet(simplex, 2, d);
-    }
+  }
 
-    if (use_polytope3){
-        ccdSimplexSetSize(simplex, 3);
-        return convert2SimplexToTetrahedron(obj1, obj2, ccd, simplex, pt, nearest);
-    }
+  if (use_polytope3) {
+    ccdSimplexSetSize(simplex, 3);
+    return convert2SimplexToTetrahedron(obj1, obj2, ccd, simplex, pt, nearest);
+  }
 
-    // no touching contact - simply create tetrahedron
-    for (i = 0; i < 4; i++){
-        v[i] = ccdPtAddVertex(pt, ccdSimplexPoint(simplex, i));
-    }
+  // no touching contact - simply create tetrahedron
+  for (i = 0; i < 4; i++) {
+    v[i] = ccdPtAddVertex(pt, ccdSimplexPoint(simplex, i));
+  }
 
-    e[0] = ccdPtAddEdge(pt, v[0], v[1]);
-    e[1] = ccdPtAddEdge(pt, v[1], v[2]);
-    e[2] = ccdPtAddEdge(pt, v[2], v[0]);
-    e[3] = ccdPtAddEdge(pt, v[3], v[0]);
-    e[4] = ccdPtAddEdge(pt, v[3], v[1]);
-    e[5] = ccdPtAddEdge(pt, v[3], v[2]);
+  e[0] = ccdPtAddEdge(pt, v[0], v[1]);
+  e[1] = ccdPtAddEdge(pt, v[1], v[2]);
+  e[2] = ccdPtAddEdge(pt, v[2], v[0]);
+  e[3] = ccdPtAddEdge(pt, v[3], v[0]);
+  e[4] = ccdPtAddEdge(pt, v[3], v[1]);
+  e[5] = ccdPtAddEdge(pt, v[3], v[2]);
 
-    // ccdPtAdd*() functions return NULL either if the memory allocation
-    // failed of if any of the input pointers are NULL, so the bad
-    // allocation can be checked by the last calls of ccdPtAddFace()
-    // because the rest of the bad allocations eventually "bubble up" here
-    if (ccdPtAddFace(pt, e[0], e[1], e[2]) == NULL
-            || ccdPtAddFace(pt, e[3], e[4], e[0]) == NULL
-            || ccdPtAddFace(pt, e[4], e[5], e[1]) == NULL
-            || ccdPtAddFace(pt, e[5], e[3], e[2]) == NULL){
-        return -2;
-    }
+  // ccdPtAdd*() functions return NULL either if the memory allocation
+  // failed of if any of the input pointers are NULL, so the bad
+  // allocation can be checked by the last calls of ccdPtAddFace()
+  // because the rest of the bad allocations eventually "bubble up" here
+  if (ccdPtAddFace(pt, e[0], e[1], e[2]) == NULL ||
+      ccdPtAddFace(pt, e[3], e[4], e[0]) == NULL ||
+      ccdPtAddFace(pt, e[4], e[5], e[1]) == NULL ||
+      ccdPtAddFace(pt, e[5], e[3], e[2]) == NULL) {
+    return -2;
+  }
 
-    return 0;
+  return 0;
 }
 
 /** Reports true if p and q are coincident. */
