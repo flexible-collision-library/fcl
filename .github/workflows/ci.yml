@@ -35,19 +35,7 @@ jobs:
         git fetch --unshallow
         git checkout 2020.01
         ./bootstrap-vcpkg.sh
-        ./vcpkg.exe --triplet x64-windows install ccd eigen3
-        
-    - name: Source-based Dependencies [Windows] 
-      if: matrix.os == 'windows-latest'
-      shell: bash
-      run: |
-        # octomap in vcpkg is quite old, so we compile it from source
-        git clone --branch v1.9.3 https://github.com/OctoMap/octomap
-        cd octomap
-        mkdir -p build
-        cd build
-        cmake -A x64 -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install ..
-        cmake --build . --config ${{ matrix.build_type }} --target INSTALL 
+        ./vcpkg.exe --triplet x64-windows install ccd eigen3 octomap
  
     # ===================
     # CMAKE-BASED PROJECT
