@@ -257,7 +257,8 @@ GTEST_TEST(FCL_GJK_EPA, faceNormalPointingOutwardOriginNearFace1) {
   vertices[1] << 0, 1, face0_origin_distance;
   vertices[2] << -0.5, -0.5, face0_origin_distance;
   vertices[3] << 0, 0, -1;
-  Eigen::AngleAxis<ccd_real_t> rotation(0.05 * M_PI,
+  const double kPi = constants<double>::pi();
+  Eigen::AngleAxis<ccd_real_t> rotation(0.05 * kPi,
                                         Vector3<ccd_real_t>::UnitX());
   for (int i = 0; i < 4; ++i) {
     vertices[i] = rotation * vertices[i];
