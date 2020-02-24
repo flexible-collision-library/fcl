@@ -73,6 +73,7 @@ endif (MSVC OR MSVC90 OR MSVC10)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
 include(GNUInstallDirs)
 include(CompilerSettings)
@@ -264,6 +265,47 @@ else()
   message(STATUS "FCL does not use OctoMap (as requested)")
 endif()
 
+if(TARGET ccd)
+  set(FIND_DEPENDENCY_CCD "find_dependency(ccd)")
+else()
+  set(FIND_DEPENDENCY_CCD)
+endif()
+
+if(TARGET Eigen3::Eigen)
+  set(FIND_DEPENDENCY_EIGEN3 "find_dependency(Eigen3)")
+else()
+  set(FIND_DEPENDENCY_EIGEN3)
+endif()
+
+if(TARGET octomap)
+  set(FIND_DEPENDENCY_OCTOMAP "find_dependency(octomap)")
+else()
+  set(FIND_DEPENDENCY_OCTOMAP)
+endif()
+
+if(WIN32 AND NOT CYGWIN)
+  set(FCL_INSTALL_CONFIGDIR CMake)
+else()
+  set(FCL_INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+endif()
+
+configure_package_config_file(fcl-config.cmake.in fcl-config.cmake
+  INSTALL_DESTINATION ${FCL_INSTALL_CONFIGDIR}
+  PATH_VARS CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_LIBDIR
+)
+
+write_basic_package_version_file(fcl-config-version.cmake
+  VERSION ${FCL_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/fcl-config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/fcl-config-version.cmake"
+  DESTINATION ${FCL_INSTALL_CONFIGDIR}
+  COMPONENT Development
+)
+
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
 include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/include")
@@ -283,7 +325,10 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc"
 )
 
 # Install catkin package.xml
-install(FILES package.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
+install(FILES package.xml
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
+  COMPONENT Development
+)
 
 # Add uninstall target
 configure_file(

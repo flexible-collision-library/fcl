@@ -13,6 +13,14 @@
     convex distance:
      [#446](https://github.com/flexible-collision-library/fcl/pull/446)
 
+### FCL 0.6.1 (????-??-??)
+
+* Build/Test/Misc
+
+  * Clean up install config files and ensure find_dependency is called as
+    appropriate:
+     [#452](https://github.com/flexible-collision-library/fcl/pull/452)
+
 ### FCL 0.6.0 (2020-02-10)
 
 * Core/Common
