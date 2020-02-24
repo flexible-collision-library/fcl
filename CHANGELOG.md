@@ -2,6 +2,11 @@
 
 ### FCL 0.7.0 (????-??-??)
 
+* Math
+
+  * Replace M_PI instance with constants::pi():
+     [#450](https://github.com/flexible-collision-library/fcl/pull/450)
+
 * Narrowphase
 
   * Various corrections and clarifications of the GJK algorithm used for general
