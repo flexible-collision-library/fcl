@@ -35,7 +35,7 @@ jobs:
         git fetch --unshallow
         git checkout 2020.01
         ./bootstrap-vcpkg.sh
-        ./vcpkg.exe --triplet x64-windows ccd eigen3
+        ./vcpkg.exe --triplet x64-windows install ccd eigen3
         
     - name: Source-based Dependencies [Windows] 
       if: matrix.os == 'windows-latest'
