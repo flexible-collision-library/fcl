@@ -32,7 +32,7 @@ jobs:
       run: |
         # To avoid regression due to GitHub Action images updated, use a fixed release of vcpkg
         cd ${VCPKG_INSTALLATION_ROOT}
-        git pull
+        git fetch --unshallow
         git checkout v2020.01
         ./bootstrap-vcpkg.sh
         ./vcpkg.exe --triplet x64-windows ccd eigen3
