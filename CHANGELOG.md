@@ -1,6 +1,6 @@
 ## FCL 0
 
-### FCL 0.7.0 (????-??-??)
+### FCL 0.6.1 (2020-02-26)
 
 * Math
 
@@ -12,8 +12,6 @@
   * Various corrections and clarifications of the GJK algorithm used for general
     convex distance:
      [#446](https://github.com/flexible-collision-library/fcl/pull/446)
-
-### FCL 0.6.1 (????-??-??)
 
 * Build/Test/Misc
 

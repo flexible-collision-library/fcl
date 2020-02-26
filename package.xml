@@ -1,6 +1,6 @@
 <package format="2">
   <name>fcl</name>
-  <version>0.6.0</version>
+  <version>0.6.1</version>
   <description>FCL: the Flexible Collision Library</description>
   <maintainer email="fcl@tri.global">TRI Geometry Team</maintainer>
   <license>BSD</license>
