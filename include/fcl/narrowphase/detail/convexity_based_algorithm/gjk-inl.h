@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-struct GJK<double>;
+struct FCL_EXTERN_TEMPLATE_API GJK<double>;
 
 //==============================================================================
 template <typename S>

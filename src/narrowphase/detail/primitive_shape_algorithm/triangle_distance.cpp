@@ -45,7 +45,7 @@ namespace detail
 
 //==============================================================================
 template
-class TriangleDistance<double>;
+class FCL_INSTANTIATION_DEF_API TriangleDistance<double>;
 
 } // namespace detail
 } // namespace fcl

@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class TranslationMotion<double>;
+class FCL_INSTANTIATION_DEF_API TranslationMotion<double>;
 
 } // namespace fcl

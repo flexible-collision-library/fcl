@@ -43,18 +43,20 @@ namespace detail
 {
 
 //==============================================================================
-template bool
-sphereBoxIntersect(const Sphere<double>& sphere, const Transform3<double>& X_FS,
-                   const Box<double>& box, const Transform3<double>& X_FB,
-                   std::vector<ContactPoint<double>>* contacts);
+template
+FCL_INSTANTIATION_DEF_API
+bool sphereBoxIntersect(const Sphere<double>& sphere, const Transform3<double>& X_FS,
+                        const Box<double>& box, const Transform3<double>& X_FB,
+                        std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 
-template bool
-sphereBoxDistance(const Sphere<double>& sphere, const Transform3<double>& X_FS,
-                  const Box<double>& box, const Transform3<double>& X_FB,
-                  double* distance, Vector3<double>* p_FSb,
-                  Vector3<double>* p_FBs);
+template
+FCL_INSTANTIATION_DEF_API
+bool sphereBoxDistance(const Sphere<double>& sphere, const Transform3<double>& X_FS,
+                       const Box<double>& box, const Transform3<double>& X_FB,
+                       double* distance, Vector3<double>* p_FSb,
+                       Vector3<double>* p_FBs);
 
 } // namespace detail
 } // namespace fcl

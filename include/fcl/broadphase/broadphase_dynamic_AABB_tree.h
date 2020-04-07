@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -51,7 +51,7 @@ namespace fcl
 {
 
 template <typename S>
-class FCL_EXPORT DynamicAABBTreeCollisionManager : public BroadPhaseCollisionManager<S>
+class DynamicAABBTreeCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
 
@@ -71,7 +71,7 @@ public:
 
   /// @brief add objects to the manager
   void registerObjects(const std::vector<CollisionObject<S>*>& other_objs);
-  
+
   /// @brief add one object to the manager
   void registerObject(CollisionObject<S>* obj);
 
@@ -113,10 +113,10 @@ public:
 
   /// @brief perform distance test with objects belonging to another manager
   void distance(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, DistanceCallBack<S> callback) const;
-  
+
   /// @brief whether the manager is empty
   bool empty() const;
-  
+
   /// @brief the number of objects managed by the manager
   size_t size() const;
 

@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct MinkowskiDiff<double>;
+struct FCL_INSTANTIATION_DEF_API MinkowskiDiff<double>;
 
 } // namespace detail
 } // namespace fcl

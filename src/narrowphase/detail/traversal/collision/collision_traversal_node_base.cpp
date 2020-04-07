@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-class CollisionTraversalNodeBase<double>;
+class FCL_INSTANTIATION_DEF_API CollisionTraversalNodeBase<double>;
 
 } // namespace detail
 } // namespace fcl

@@ -45,15 +45,17 @@ namespace fcl
 
 //==============================================================================
 extern template
-struct ContactPoint<double>;
+struct FCL_EXTERN_TEMPLATE_API ContactPoint<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool comparePenDepth(
     const ContactPoint<double>& _cp1, const ContactPoint<double>& _cp2);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void flipNormal(std::vector<ContactPoint<double>>& contacts);
 
 //==============================================================================

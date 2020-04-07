@@ -45,7 +45,7 @@ namespace fcl
 {
 
 /// @brief Triangle with 3 indices for points
-class FCL_EXPORT Triangle
+class FCL_API Triangle
 {
   /// @brief indices for each vertex of triangle
   std::size_t vids[3];

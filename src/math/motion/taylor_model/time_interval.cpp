@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-struct TimeInterval<double>;
+struct FCL_INSTANTIATION_DEF_API TimeInterval<double>;
 
 } // namespace fcl

@@ -42,11 +42,13 @@ namespace fcl
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void BVHExpand(
     BVHModel<OBB<double>>& model, const Variance3<double>* ucs, double r);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void BVHExpand(
     BVHModel<RSS<double>>& model, const Variance3<double>* ucs, double r);
 

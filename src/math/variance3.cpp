@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class Variance3<double>;
+class FCL_INSTANTIATION_DEF_API Variance3<double>;
 
 } // namespace fcl

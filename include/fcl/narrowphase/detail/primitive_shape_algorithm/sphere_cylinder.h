@@ -102,11 +102,11 @@ namespace detail {
  @return True if the objects are colliding (including touching).
  @tparam S The scalar parameter (must be a valid Eigen scalar).  */
 template <typename S>
-FCL_EXPORT bool sphereCylinderIntersect(const Sphere<S>& sphere,
-                                        const Transform3<S>& X_FS,
-                                        const Cylinder<S>& cylinder,
-                                        const Transform3<S>& X_FC,
-                                        std::vector<ContactPoint<S>>* contacts);
+bool sphereCylinderIntersect(const Sphere<S>& sphere,
+                             const Transform3<S>& X_FS,
+                             const Cylinder<S>& cylinder,
+                             const Transform3<S>& X_FC,
+                             std::vector<ContactPoint<S>>* contacts);
 
 /** Evaluate the minimum separating distance between a sphere and cylinder. If
  separated, the nearest points on each shape will be returned in frame F.
@@ -123,11 +123,11 @@ FCL_EXPORT bool sphereCylinderIntersect(const Sphere<S>& sphere,
  @return True if the objects are separated.
  @tparam S The scalar parameter (must be a valid Eigen scalar).  */
 template <typename S>
-FCL_EXPORT bool sphereCylinderDistance(const Sphere<S>& sphere,
-                                       const Transform3<S>& X_FS,
-                                       const Cylinder<S>& cylinder,
-                                       const Transform3<S>& X_FC, S* distance,
-                                       Vector3<S>* p_FSc, Vector3<S>* p_FCs);
+bool sphereCylinderDistance(const Sphere<S>& sphere,
+                            const Transform3<S>& X_FS,
+                            const Cylinder<S>& cylinder,
+                            const Transform3<S>& X_FC, S* distance,
+                            Vector3<S>* p_FSc, Vector3<S>* p_FCs);
 
 //@}
 

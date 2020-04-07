@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct ConservativeAdvancementStackData<double>;
+struct FCL_INSTANTIATION_DEF_API ConservativeAdvancementStackData<double>;
 
 } // namespace detail
 } // namespace fcl

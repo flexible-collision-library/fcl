@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class Cone<double>;
+class FCL_INSTANTIATION_DEF_API Cone<double>;
 
 } // namespace fcl

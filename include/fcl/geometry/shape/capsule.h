@@ -45,9 +45,9 @@
 namespace fcl
 {
 
-/// @brief Center at zero point capsule 
+/// @brief Center at zero point capsule
 template <typename S_>
-class FCL_EXPORT Capsule : public ShapeBase<S_>
+class Capsule : public ShapeBase<S_>
 {
 public:
 
@@ -56,16 +56,16 @@ public:
   /// @brief Constructor
   Capsule(S radius, S lz);
 
-  /// @brief Radius of capsule 
+  /// @brief Radius of capsule
   S radius;
 
-  /// @brief Length along z axis 
+  /// @brief Length along z axis
   S lz;
 
   /// @brief Compute AABB<S>
   void computeLocalAABB() override;
 
-  /// @brief Get node type: a capsule 
+  /// @brief Get node type: a capsule
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited

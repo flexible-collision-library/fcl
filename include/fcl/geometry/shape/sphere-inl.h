@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT Sphere<double>;
+class FCL_EXTERN_TEMPLATE_API Sphere<double>;
 
 //==============================================================================
 template <typename S>

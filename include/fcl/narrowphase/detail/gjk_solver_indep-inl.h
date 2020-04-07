@@ -67,7 +67,7 @@ namespace detail
 
 //==============================================================================
 extern template
-struct GJKSolver_indep<double>;
+struct FCL_EXTERN_TEMPLATE_API GJKSolver_indep<double>;
 
 //==============================================================================
 template <typename S>

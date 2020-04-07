@@ -47,7 +47,7 @@ namespace fcl
 
 /// @brief Center at zero point, axis aligned box
 template <typename S_>
-class FCL_EXPORT Box : public ShapeBase<S_>
+class Box : public ShapeBase<S_>
 {
 public:
 

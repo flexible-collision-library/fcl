@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -49,7 +49,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT DynamicAABBTreeCollisionManager_Array<double>;
+class FCL_EXTERN_TEMPLATE_API DynamicAABBTreeCollisionManager_Array<double>;
 
 namespace detail
 {
@@ -61,7 +61,6 @@ namespace dynamic_AABB_tree_array
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool collisionRecurse_(
     typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes1,
     size_t root1_id,
@@ -175,7 +174,6 @@ bool collisionRecurse_(
 
 //==============================================================================
 template <typename S, typename Derived>
-FCL_EXPORT
 bool collisionRecurse_(
     typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes1,
     size_t root1_id,
@@ -284,7 +282,6 @@ bool collisionRecurse_(
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool distanceRecurse_(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes1, size_t root1_id, const OcTree<S>* tree2, const typename OcTree<S>::OcTreeNode* root2, const AABB<S>& root2_bv, const Transform3<S>& tf2, void* cdata, DistanceCallBack<S> callback, S& min_dist)
 {
   typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* root1 = nodes1 + root1_id;
@@ -368,7 +365,6 @@ bool distanceRecurse_(typename DynamicAABBTreeCollisionManager_Array<S>::Dynamic
 
 //==============================================================================
 template <typename S, typename Derived>
-FCL_EXPORT
 bool distanceRecurse_(
     typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes1,
     size_t root1_id,
@@ -464,7 +460,6 @@ bool distanceRecurse_(
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool collisionRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes1, size_t root1_id,
                       typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes2, size_t root2_id,
                       void* cdata, CollisionCallBack<S> callback)
@@ -498,7 +493,6 @@ bool collisionRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::Dynamic
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool collisionRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes, size_t root_id, CollisionObject<S>* query, void* cdata, CollisionCallBack<S> callback)
 {
   typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* root = nodes + root_id;
@@ -523,7 +517,6 @@ bool collisionRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::Dynamic
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool selfCollisionRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes, size_t root_id, void* cdata, CollisionCallBack<S> callback)
 {
   typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* root = nodes + root_id;
@@ -543,7 +536,6 @@ bool selfCollisionRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::Dyn
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool distanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes1, size_t root1_id,
                      typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes2, size_t root2_id,
                      void* cdata, DistanceCallBack<S> callback, S& min_dist)
@@ -631,7 +623,6 @@ bool distanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicA
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool distanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes, size_t root_id, CollisionObject<S>* query, void* cdata, DistanceCallBack<S> callback, S& min_dist)
 {
   typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* root = nodes + root_id;
@@ -678,7 +669,6 @@ bool distanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicA
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool selfDistanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes, size_t root_id, void* cdata, DistanceCallBack<S> callback, S& min_dist)
 {
   typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* root = nodes + root_id;
@@ -701,7 +691,6 @@ bool selfDistanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::Dyna
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool collisionRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes1, size_t root1_id, const OcTree<S>* tree2, const typename OcTree<S>::OcTreeNode* root2, const AABB<S>& root2_bv, const Transform3<S>& tf2, void* cdata, CollisionCallBack<S> callback)
 {
   if(tf2.linear().isIdentity())
@@ -712,7 +701,6 @@ bool collisionRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::Dynamic
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool distanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBNode* nodes1, size_t root1_id, const OcTree<S>* tree2, const typename OcTree<S>::OcTreeNode* root2, const AABB<S>& root2_bv, const Transform3<S>& tf2, void* cdata, DistanceCallBack<S> callback, S& min_dist)
 {
   if(tf2.linear().isIdentity())
@@ -729,7 +717,6 @@ bool distanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicA
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBTreeCollisionManager_Array()
   : tree_topdown_balance_threshold(dtree.bu_threshold),
     tree_topdown_level(dtree.topdown_level)
@@ -748,7 +735,6 @@ DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBTreeCollisionManager_Array(
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::registerObjects(
     const std::vector<CollisionObject<S>*>& other_objs)
 {
@@ -781,7 +767,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::registerObjects(
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::registerObject(CollisionObject<S>* obj)
 {
   size_t node = dtree.insert(obj->getAABB(), obj);
@@ -790,7 +775,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::registerObject(CollisionObject<S>
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::unregisterObject(CollisionObject<S>* obj)
 {
   size_t node = table[obj];
@@ -800,7 +784,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::unregisterObject(CollisionObject<
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::setup()
 {
   if(!setup_)
@@ -826,7 +809,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::setup()
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::update()
 {
   for(auto it = table.cbegin(), end = table.cend(); it != end; ++it)
@@ -844,7 +826,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::update()
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::update_(CollisionObject<S>* updated_obj)
 {
   const auto it = table.find(updated_obj);
@@ -859,7 +840,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::update_(CollisionObject<S>* updat
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::update(CollisionObject<S>* updated_obj)
 {
   update_(updated_obj);
@@ -868,7 +848,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::update(CollisionObject<S>* update
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::update(const std::vector<CollisionObject<S>*>& updated_objs)
 {
   for(size_t i = 0, size = updated_objs.size(); i < size; ++i)
@@ -878,7 +857,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::update(const std::vector<Collisio
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::clear()
 {
   dtree.clear();
@@ -887,7 +865,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::clear()
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::getObjects(std::vector<CollisionObject<S>*>& objs) const
 {
   objs.resize(this->size());
@@ -896,7 +873,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::getObjects(std::vector<CollisionO
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
@@ -922,7 +898,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::collide(CollisionObject<S>* obj, 
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const
 {
   if(size() == 0) return;
@@ -949,7 +924,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::distance(CollisionObject<S>* obj,
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::collide(void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
@@ -958,7 +932,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::collide(void* cdata, CollisionCal
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::distance(void* cdata, DistanceCallBack<S> callback) const
 {
   if(size() == 0) return;
@@ -968,7 +941,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::distance(void* cdata, DistanceCal
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::collide(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, CollisionCallBack<S> callback) const
 {
   DynamicAABBTreeCollisionManager_Array* other_manager = static_cast<DynamicAABBTreeCollisionManager_Array*>(other_manager_);
@@ -978,7 +950,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::collide(BroadPhaseCollisionManage
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DynamicAABBTreeCollisionManager_Array<S>::distance(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, DistanceCallBack<S> callback) const
 {
   DynamicAABBTreeCollisionManager_Array* other_manager = static_cast<DynamicAABBTreeCollisionManager_Array*>(other_manager_);
@@ -989,7 +960,6 @@ void DynamicAABBTreeCollisionManager_Array<S>::distance(BroadPhaseCollisionManag
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool DynamicAABBTreeCollisionManager_Array<S>::empty() const
 {
   return dtree.empty();
@@ -997,7 +967,6 @@ bool DynamicAABBTreeCollisionManager_Array<S>::empty() const
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 size_t DynamicAABBTreeCollisionManager_Array<S>::size() const
 {
   return dtree.size();
@@ -1005,7 +974,6 @@ size_t DynamicAABBTreeCollisionManager_Array<S>::size() const
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 const detail::implementation_array::HierarchyTree<AABB<S>>&
 DynamicAABBTreeCollisionManager_Array<S>::getTree() const
 {

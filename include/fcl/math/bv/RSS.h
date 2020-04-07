@@ -46,7 +46,7 @@ namespace fcl
 
 /// @brief A class for rectangle sphere-swept bounding volume
 template <typename S_>
-class FCL_EXPORT RSS
+class RSS
 {
 public:
 
@@ -123,7 +123,6 @@ using RSSd = RSS<double>;
 
 /// @brief Clip value between a and b
 template <typename S>
-FCL_EXPORT
 void clipToRange(S& val, S a, S b);
 
 /// @brief Finds the parameters t & u corresponding to the two closest points on
@@ -139,7 +138,6 @@ void clipToRange(S& val, S a, S b);
 /// Reference: "On fast computation of distance between line segments." Vladimir
 /// J. Lumelsky, in Information Processing Letters, no. 21, pages 55-61, 1985.
 template <typename S>
-FCL_EXPORT
 void segCoords(S& t, S& u, S a, S b,
                S A_dot_B, S A_dot_T, S B_dot_T);
 
@@ -149,7 +147,6 @@ void segCoords(S& t, S& u, S a, S b,
 /// determined by the point Pa and the direction Anorm.
 /// A,B, and Anorm are unit vectors. T is the vector between Pa and Pb.
 template <typename S>
-FCL_EXPORT
 bool inVoronoi(S a, S b,
                S Anorm_dot_B, S Anorm_dot_T,
                S A_dot_B, S A_dot_T, S B_dot_T);
@@ -158,7 +155,6 @@ bool inVoronoi(S a, S b,
 /// values) are the closest points in the rectangles, both are in the local
 /// frame of the first rectangle.
 template <typename S>
-FCL_EXPORT
 S rectDistance(
     const Matrix3<S>& Rab,
     const Vector3<S>& Tab,
@@ -171,7 +167,6 @@ S rectDistance(
 /// values) are the closest points in the rectangles, both are in the local
 /// frame of the first rectangle.
 template <typename S>
-FCL_EXPORT
 S rectDistance(
     const Transform3<S>& tfab,
     const S a[2],
@@ -185,7 +180,6 @@ S rectDistance(
 /// points. Notice that P and Q are both in the local frame of the first RSS
 /// (not global frame and not even the local frame of object 1)
 template <typename S, typename DerivedA, typename DerivedB>
-FCL_EXPORT
 S distance(
     const Eigen::MatrixBase<DerivedA>& R0,
     const Eigen::MatrixBase<DerivedB>& T0,
@@ -197,7 +191,6 @@ S distance(
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
 template <typename S, typename DerivedA, typename DerivedB>
-FCL_EXPORT
 bool overlap(
     const Eigen::MatrixBase<DerivedA>& R0,
     const Eigen::MatrixBase<DerivedB>& T0,
@@ -206,7 +199,6 @@ bool overlap(
 
 /// @brief Translate the RSS bv
 template <typename S>
-FCL_EXPORT
 RSS<S> translate(const RSS<S>& bv, const Vector3<S>& t);
 
 } // namespace fcl

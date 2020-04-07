@@ -43,14 +43,16 @@ namespace fcl
 
 //==============================================================================
 template
-struct Interval<double>;
+struct FCL_INSTANTIATION_DEF_API Interval<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 Interval<double> bound(const Interval<double>& i, double v);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 Interval<double> bound(const Interval<double>& i, const Interval<double>& other);
 
 } // namespace fcl

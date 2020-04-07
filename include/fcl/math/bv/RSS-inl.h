@@ -45,14 +45,16 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT RSS<double>;
+class FCL_EXTERN_TEMPLATE_API RSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void clipToRange(double& val, double a, double b);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void segCoords(
         double& t,
         double& u,
@@ -64,6 +66,7 @@ void segCoords(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool inVoronoi(
         double a,
         double b,
@@ -75,6 +78,7 @@ bool inVoronoi(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 double rectDistance(
     const Matrix3<double>& Rab,
     const Vector3<double>& Tab,
@@ -85,6 +89,7 @@ double rectDistance(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 double rectDistance(
     const Transform3<double>& tfab,
     const double a[2],
@@ -94,6 +99,7 @@ double rectDistance(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 RSS<double> translate(const RSS<double>& bv, const Vector3<double>& t);
 
 //==============================================================================

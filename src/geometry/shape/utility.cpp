@@ -41,66 +41,82 @@ namespace fcl {
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const AABB<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const OBB<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const OBBRSS<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const kIOS<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const RSS<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const KDOP<double, 16>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const KDOP<double, 18>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const KDOP<double, 24>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const AABB<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const OBB<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const OBBRSS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const kIOS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const RSS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const KDOP<double, 16>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const KDOP<double, 18>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void constructBox(const KDOP<double, 24>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
@@ -109,119 +125,119 @@ namespace detail {
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, AABB<double>, Box<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, AABB<double>, Box<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBB<double>, Box<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBB<double>, Box<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, AABB<double>, Capsule<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, AABB<double>, Capsule<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBB<double>, Capsule<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBB<double>, Capsule<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, AABB<double>, Cone<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, AABB<double>, Cone<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBB<double>, Cone<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBB<double>, Cone<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, AABB<double>, Cylinder<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, AABB<double>, Cylinder<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBB<double>, Cylinder<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBB<double>, Cylinder<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, AABB<double>, Ellipsoid<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, AABB<double>, Ellipsoid<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBB<double>, Ellipsoid<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBB<double>, Ellipsoid<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, AABB<double>, Halfspace<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, AABB<double>, Halfspace<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBB<double>, Halfspace<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBB<double>, Halfspace<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, RSS<double>, Halfspace<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, RSS<double>, Halfspace<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBBRSS<double>, Halfspace<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBBRSS<double>, Halfspace<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, kIOS<double>, Halfspace<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, kIOS<double>, Halfspace<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, KDOP<double, 16>, Halfspace<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, KDOP<double, 16>, Halfspace<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, KDOP<double, 18>, Halfspace<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, KDOP<double, 18>, Halfspace<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, KDOP<double, 24>, Halfspace<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, KDOP<double, 24>, Halfspace<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, AABB<double>, Plane<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, AABB<double>, Plane<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBB<double>, Plane<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBB<double>, Plane<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, RSS<double>, Plane<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, RSS<double>, Plane<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBBRSS<double>, Plane<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBBRSS<double>, Plane<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, kIOS<double>, Plane<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, kIOS<double>, Plane<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, KDOP<double, 16>, Plane<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, KDOP<double, 16>, Plane<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, KDOP<double, 18>, Plane<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, KDOP<double, 18>, Plane<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, KDOP<double, 24>, Plane<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, KDOP<double, 24>, Plane<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, AABB<double>, Sphere<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, AABB<double>, Sphere<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, OBB<double>, Sphere<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, OBB<double>, Sphere<double>>;
 
 //==============================================================================
 template
-struct ComputeBVImpl<double, AABB<double>, TriangleP<double>>;
+struct FCL_INSTANTIATION_DEF_API ComputeBVImpl<double, AABB<double>, TriangleP<double>>;
 
 //==============================================================================
 } // namespace detail

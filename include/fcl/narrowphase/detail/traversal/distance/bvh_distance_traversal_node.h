@@ -50,7 +50,7 @@ namespace detail
 
 /// @brief Traversal node for distance computation between BVH models
 template <typename BV>
-class FCL_EXPORT BVHDistanceTraversalNode
+class BVHDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename BV::S>
 {
 public:

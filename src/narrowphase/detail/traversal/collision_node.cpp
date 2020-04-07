@@ -45,22 +45,27 @@ namespace detail
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void collide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void selfCollide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void distance(DistanceTraversalNodeBase<double>* node, BVHFrontList* front_list, int qsize);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void collide2(MeshCollisionTraversalNodeOBB<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void collide2(MeshCollisionTraversalNodeRSS<double>* node, BVHFrontList* front_list);
 
 } // namespace detail

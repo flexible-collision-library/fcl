@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-struct TimeInterval<double>;
+struct FCL_EXTERN_TEMPLATE_API TimeInterval<double>;
 
 //==============================================================================
 template <typename S>

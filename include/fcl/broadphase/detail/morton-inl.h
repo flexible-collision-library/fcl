@@ -47,15 +47,16 @@ namespace detail {
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 uint32 quantize(double x, uint32 n);
 
 //==============================================================================
 extern template
-struct morton_functor<double, uint32>;
+struct FCL_EXTERN_TEMPLATE_API morton_functor<double, uint32>;
 
 //==============================================================================
 extern template
-struct morton_functor<double, uint64>;
+struct FCL_EXTERN_TEMPLATE_API morton_functor<double, uint64>;
 
 //==============================================================================
 template <typename S>

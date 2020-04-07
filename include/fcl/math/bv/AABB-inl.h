@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT AABB<double>;
+class FCL_EXTERN_TEMPLATE_API AABB<double>;
 
 //==============================================================================
 template <typename S>

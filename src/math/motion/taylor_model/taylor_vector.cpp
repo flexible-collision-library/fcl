@@ -42,22 +42,26 @@ namespace fcl
 
 //==============================================================================
 template
-class TVector3<double>;
+class FCL_INSTANTIATION_DEF_API TVector3<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void generateTVector3ForLinearFunc(TVector3<double>& v, const Vector3<double>& position, const Vector3<double>& velocity);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 TVector3<double> operator * (const Vector3<double>& v, const TaylorModel<double>& a);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 TVector3<double> operator + (const Vector3<double>& v1, const TVector3<double>& v2);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 TVector3<double> operator - (const Vector3<double>& v1, const TVector3<double>& v2);
 
 } // namespace fcl

@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct GJKSolver_libccd<double>;
+struct FCL_INSTANTIATION_DEF_API GJKSolver_libccd<double>;
 
 } // namespace detail
 } // namespace fcl

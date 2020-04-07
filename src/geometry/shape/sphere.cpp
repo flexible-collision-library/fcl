@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class Sphere<double>;
+class FCL_INSTANTIATION_DEF_API Sphere<double>;
 
 } // namespace fcl

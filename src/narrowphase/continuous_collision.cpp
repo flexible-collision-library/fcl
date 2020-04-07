@@ -42,6 +42,7 @@ namespace fcl
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 double continuousCollide(
     const CollisionGeometry<double>* o1,
     const MotionBase<double>* motion1,
@@ -52,6 +53,7 @@ double continuousCollide(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 double continuousCollide(
     const CollisionGeometry<double>* o1,
     const Transform3<double>& tf1_beg,
@@ -64,6 +66,7 @@ double continuousCollide(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 double continuousCollide(
     const CollisionObject<double>* o1,
     const Transform3<double>& tf1_end,
@@ -74,6 +77,7 @@ double continuousCollide(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 double collide(
     const ContinuousCollisionObject<double>* o1,
     const ContinuousCollisionObject<double>* o2,

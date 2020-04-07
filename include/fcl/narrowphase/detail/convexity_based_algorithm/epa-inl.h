@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-struct EPA<double>;
+struct FCL_EXTERN_TEMPLATE_API EPA<double>;
 
 //==============================================================================
 template <typename S>

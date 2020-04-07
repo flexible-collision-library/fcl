@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-struct ConservativeAdvancementStackData<double>;
+struct FCL_EXTERN_TEMPLATE_API ConservativeAdvancementStackData<double>;
 
 //==============================================================================
 template <typename S>

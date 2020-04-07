@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct EPA<double>;
+struct FCL_INSTANTIATION_DEF_API EPA<double>;
 
 } // namespace detail
 } // namespace fcl

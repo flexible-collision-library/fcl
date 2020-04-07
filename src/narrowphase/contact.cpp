@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-struct Contact<double>;
+struct FCL_INSTANTIATION_DEF_API Contact<double>;
 
 } // namespace fcl

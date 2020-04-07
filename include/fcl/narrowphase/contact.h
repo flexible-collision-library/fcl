@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Contact information returned by collision
 template <typename S>
-struct FCL_EXPORT Contact
+struct Contact
 {
   /// @brief collision object 1
   const CollisionGeometry<S>* o1;
@@ -64,7 +64,7 @@ struct FCL_EXPORT Contact
   /// if object 2 is geometry shape, it is NONE (-1),
   /// if object 2 is octree, it is the id of the cell
   int b2;
- 
+
   /// @brief contact normal, pointing from o1 to o2
   Vector3<S> normal;
 
@@ -74,7 +74,7 @@ struct FCL_EXPORT Contact
   /// @brief penetration depth
   S penetration_depth;
 
- 
+
   /// @brief invalid contact primitive information
   static const int NONE = -1;
 

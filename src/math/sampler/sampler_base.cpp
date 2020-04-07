@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class SamplerBase<double>;
+class FCL_INSTANTIATION_DEF_API SamplerBase<double>;
 
 } // namespace fcl

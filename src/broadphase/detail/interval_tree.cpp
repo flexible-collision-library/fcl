@@ -44,10 +44,10 @@ namespace detail
 {
 
 template
-struct it_recursion_node<double>;
+struct FCL_INSTANTIATION_DEF_API it_recursion_node<double>;
 
 template
-class IntervalTree<double>;
+class FCL_INSTANTIATION_DEF_API IntervalTree<double>;
 
 } // namespace detail
 } // namespace fcl

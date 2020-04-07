@@ -45,10 +45,11 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT Plane<double>;
+class FCL_EXTERN_TEMPLATE_API Plane<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 Plane<double> transform(const Plane<double>& a, const Transform3<double>& tf);
 
 //==============================================================================

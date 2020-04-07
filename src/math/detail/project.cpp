@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-class Project<double>;
+class FCL_INSTANTIATION_DEF_API Project<double>;
 
 } // namespace detail
 } // namespace fcl

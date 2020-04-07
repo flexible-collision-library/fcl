@@ -51,7 +51,7 @@ namespace detail
 
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
 template <typename S_>
-struct FCL_EXPORT GJKSolver_indep
+struct GJKSolver_indep
 {
   using S = S_;
 

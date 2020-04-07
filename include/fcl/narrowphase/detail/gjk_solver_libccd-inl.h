@@ -64,7 +64,7 @@ namespace detail
 
 //==============================================================================
 extern template
-struct GJKSolver_libccd<double>;
+struct FCL_EXTERN_TEMPLATE_API GJKSolver_libccd<double>;
 
 //==============================================================================
 template<typename S>

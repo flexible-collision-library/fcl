@@ -45,7 +45,7 @@ namespace fcl
 {
 
 template <typename S>
-class FCL_EXPORT SamplerSE3Euler_ball : public SamplerBase<S>
+class SamplerSE3Euler_ball : public SamplerBase<S>
 {
 public:
   SamplerSE3Euler_ball();
@@ -53,7 +53,7 @@ public:
   SamplerSE3Euler_ball(S r_);
 
   void setBound(const S& r_);
-  
+
   void getBound(S& r_) const;
 
   Vector6<S> sample() const;

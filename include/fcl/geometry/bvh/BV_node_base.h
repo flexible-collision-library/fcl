@@ -47,7 +47,7 @@ namespace fcl
 {
 
 /// @brief BVNodeBase encodes the tree structure for BVH
-struct FCL_EXPORT BVNodeBase
+struct FCL_API BVNodeBase
 {
   /// @brief An index for first child node or primitive
   /// If the value is positive, it is the index of the first child bv node
@@ -59,7 +59,7 @@ struct FCL_EXPORT BVNodeBase
   /// we can obtain the primitive's index in original data indirectly.
   int first_primitive;
 
-  /// @brief The number of primitives belonging to the current node 
+  /// @brief The number of primitives belonging to the current node
   int num_primitives;
 
   /// @brief Whether current node is a leaf node (i.e. contains a primitive index

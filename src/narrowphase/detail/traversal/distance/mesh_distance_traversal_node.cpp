@@ -45,10 +45,11 @@ namespace detail
 
 //==============================================================================
 template
-class MeshDistanceTraversalNodeRSS<double>;
+class FCL_INSTANTIATION_DEF_API MeshDistanceTraversalNodeRSS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool initialize(
     MeshDistanceTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -60,10 +61,11 @@ bool initialize(
 
 //==============================================================================
 template
-class MeshDistanceTraversalNodekIOS<double>;
+class FCL_INSTANTIATION_DEF_API MeshDistanceTraversalNodekIOS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool initialize(
     MeshDistanceTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -75,10 +77,11 @@ bool initialize(
 
 //==============================================================================
 template
-class MeshDistanceTraversalNodeOBBRSS<double>;
+class FCL_INSTANTIATION_DEF_API MeshDistanceTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool initialize(
     MeshDistanceTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

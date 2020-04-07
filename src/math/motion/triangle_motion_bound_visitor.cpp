@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class TriangleMotionBoundVisitor<double>;
+class FCL_INSTANTIATION_DEF_API TriangleMotionBoundVisitor<double>;
 
 } // namespace fcl

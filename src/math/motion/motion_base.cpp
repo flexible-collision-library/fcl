@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class MotionBase<double>;
+class FCL_INSTANTIATION_DEF_API MotionBase<double>;
 
 } // namespace fcl

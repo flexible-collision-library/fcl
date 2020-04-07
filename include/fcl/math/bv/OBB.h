@@ -48,7 +48,7 @@ namespace fcl
 
 /// @brief Oriented bounding box class
 template <typename S_>
-class FCL_EXPORT OBB
+class OBB
 {
 public:
 
@@ -75,10 +75,10 @@ public:
       const Vector3<S>& center,
       const Vector3<S>& extent);
 
-  /// @brief Check collision between two OBB, return true if collision happens. 
+  /// @brief Check collision between two OBB, return true if collision happens.
   bool overlap(const OBB<S>& other) const;
-  
-  /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb. 
+
+  /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb.
   bool overlap(const OBB<S>& other, OBB<S>& overlap_part) const;
 
   /// @brief Check whether the OBB contains a point.
@@ -124,29 +124,24 @@ using OBBd = OBB<double>;
 
 /// @brief Compute the 8 vertices of a OBB
 template <typename S>
-FCL_EXPORT
 void computeVertices(const OBB<S>& b, Vector3<S> vertices[8]);
 
 /// @brief OBB merge method when the centers of two smaller OBB are far away
 template <typename S>
-FCL_EXPORT
 OBB<S> merge_largedist(const OBB<S>& b1, const OBB<S>& b2);
 
 /// @brief OBB merge method when the centers of two smaller OBB are close
 template <typename S>
-FCL_EXPORT
 OBB<S> merge_smalldist(const OBB<S>& b1, const OBB<S>& b2);
 
 /// @brief Translate the OBB bv
 template <typename S, typename Derived>
-FCL_EXPORT
 OBB<S> translate(
     const OBB<S>& bv, const Eigen::MatrixBase<Derived>& t);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
 template <typename S, typename DerivedA, typename DerivedB>
-FCL_EXPORT
 bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
              const Eigen::MatrixBase<DerivedB>& T0,
              const OBB<S>& b1, const OBB<S>& b2);
@@ -155,7 +150,6 @@ bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
 /// (R, T) and its half dimension is set by a; the second box is in identity
 /// configuration and its half dimension is set by b.
 template <typename S>
-FCL_EXPORT
 bool obbDisjoint(
     const Matrix3<S>& B,
     const Vector3<S>& T,
@@ -166,7 +160,6 @@ bool obbDisjoint(
 /// (R, T) and its half dimension is set by a; the second box is in identity
 /// configuration and its half dimension is set by b.
 template <typename S>
-FCL_EXPORT
 bool obbDisjoint(
     const Transform3<S>& tf,
     const Vector3<S>& a,

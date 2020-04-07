@@ -55,7 +55,7 @@ enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP
 
 /// @brief The geometry for the object for collision or distance computation
 template <typename S>
-class FCL_EXPORT CollisionGeometry
+class CollisionGeometry
 {
 public:
   CollisionGeometry();

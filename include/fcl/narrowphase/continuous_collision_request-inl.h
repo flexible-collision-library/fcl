@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-struct ContinuousCollisionRequest<double>;
+struct FCL_EXTERN_TEMPLATE_API ContinuousCollisionRequest<double>;
 
 //==============================================================================
 template <typename S>

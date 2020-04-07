@@ -47,7 +47,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-struct DistanceRequest<double>;
+struct FCL_EXTERN_TEMPLATE_API DistanceRequest<double>;
 
 //==============================================================================
 template <typename S>

@@ -56,39 +56,41 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_EXPORT GJKInitializer<double, Cylinder<double>>;
+class FCL_EXTERN_TEMPLATE_API GJKInitializer<double, Cylinder<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT GJKInitializer<double, Sphere<double>>;
+class FCL_EXTERN_TEMPLATE_API GJKInitializer<double, Sphere<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT GJKInitializer<double, Ellipsoid<double>>;
+class FCL_EXTERN_TEMPLATE_API GJKInitializer<double, Ellipsoid<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT GJKInitializer<double, Box<double>>;
+class FCL_EXTERN_TEMPLATE_API GJKInitializer<double, Box<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT GJKInitializer<double, Capsule<double>>;
+class FCL_EXTERN_TEMPLATE_API GJKInitializer<double, Capsule<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT GJKInitializer<double, Cone<double>>;
+class FCL_EXTERN_TEMPLATE_API GJKInitializer<double, Cone<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT GJKInitializer<double, Convex<double>>;
+class FCL_EXTERN_TEMPLATE_API GJKInitializer<double, Convex<double>>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void* triCreateGJKObject(
     const Vector3d& P1, const Vector3d& P2, const Vector3d& P3);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void* triCreateGJKObject(
     const Vector3d& P1,
     const Vector3d& P2,
@@ -97,6 +99,7 @@ void* triCreateGJKObject(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool GJKCollide(
     void* obj1,
     ccd_support_fn supp1,
@@ -112,6 +115,7 @@ bool GJKCollide(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool GJKDistance(
     void* obj1,
     ccd_support_fn supp1,
@@ -124,6 +128,7 @@ bool GJKDistance(
     Vector3d* p2);
 
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool GJKSignedDistance(
     void* obj1,
     ccd_support_fn supp1,

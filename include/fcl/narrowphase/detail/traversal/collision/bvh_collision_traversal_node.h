@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Traversal node for collision between BVH models
 template <typename BV>
-class FCL_EXPORT BVHCollisionTraversalNode
+class BVHCollisionTraversalNode
     : public CollisionTraversalNodeBase<typename BV::S>
 {
 public:
@@ -81,7 +81,7 @@ public:
 
   /// @brief BV culling test in one BVTT node
   bool BVTesting(int b1, int b2) const;
-  
+
   /// @brief The first BVH model
   const BVHModel<BV>* model1;
 

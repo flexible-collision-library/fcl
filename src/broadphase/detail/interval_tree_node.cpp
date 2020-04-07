@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-class IntervalTreeNode<double>;
+class FCL_INSTANTIATION_DEF_API IntervalTreeNode<double>;
 
 } // namespace detail
 } // namespace fcl

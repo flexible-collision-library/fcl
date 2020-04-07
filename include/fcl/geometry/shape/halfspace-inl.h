@@ -45,10 +45,11 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT Halfspace<double>;
+class FCL_EXTERN_TEMPLATE_API Halfspace<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 Halfspace<double> transform(const Halfspace<double>& a, const Transform3<double>& tf);
 
 //==============================================================================

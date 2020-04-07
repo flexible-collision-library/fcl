@@ -51,10 +51,11 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshConservativeAdvancementTraversalNodeRSS<double>;
+class FCL_EXTERN_TEMPLATE_API MeshConservativeAdvancementTraversalNodeRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -65,10 +66,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
+class FCL_EXTERN_TEMPLATE_API MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

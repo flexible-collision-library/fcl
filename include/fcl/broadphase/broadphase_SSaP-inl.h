@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT SSaPCollisionManager<double>;
+class FCL_EXTERN_TEMPLATE_API SSaPCollisionManager<double>;
 
 /** @brief Functor sorting objects according to the AABB<S> lower x bound */
 template <typename S>
@@ -85,7 +85,7 @@ struct SortByZLow
 
 /** @brief Dummy collision object with a point AABB<S> */
 template <typename S>
-class FCL_EXPORT DummyCollisionObject : public CollisionObject<S>
+class DummyCollisionObject : public CollisionObject<S>
 {
 public:
   DummyCollisionObject(const AABB<S>& aabb_) : CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>())

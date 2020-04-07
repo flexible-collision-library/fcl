@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief class for GJK algorithm
 template <typename S>
-struct FCL_EXPORT GJK
+struct GJK
 {
   struct SimplexV
   {
@@ -63,7 +63,7 @@ struct FCL_EXPORT GJK
   {
     /// @brief simplex vertex
     SimplexV* c[4];
-    /// @brief weight 
+    /// @brief weight
     S p[4];
     /// @brief size of simplex (number of vertices)
     size_t rank;
@@ -79,7 +79,7 @@ struct FCL_EXPORT GJK
   Simplex simplices[2];
 
   GJK(unsigned int max_iterations_, S tolerance_);
-  
+
   void initialize();
 
   /// @brief GJK algorithm, given the initial value guess

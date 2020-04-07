@@ -44,7 +44,7 @@ namespace fcl
 {
 
 template <typename S>
-struct FCL_EXPORT IVector3
+struct IVector3
 {
   Interval<S> i_[3];
 
@@ -72,7 +72,7 @@ struct FCL_EXPORT IVector3
   void setValue(const Vector3<S>& v);
 
   void setValue(S v[3]);
-  
+
   IVector3 operator + (const IVector3& other) const;
   IVector3& operator += (const IVector3& other);
 
@@ -90,7 +90,7 @@ struct FCL_EXPORT IVector3
   Interval<S>& operator [] (size_t i);
 
   Vector3<S> getLow() const;
-  
+
   Vector3<S> getHigh() const;
 
   void print() const;
@@ -106,11 +106,9 @@ struct FCL_EXPORT IVector3
 };
 
 template <typename S>
-FCL_EXPORT
 IVector3<S> bound(const IVector3<S>& i, const Vector3<S>& v);
 
 template <typename S>
-FCL_EXPORT
 IVector3<S> bound(const IVector3<S>& i, const IVector3<S>& v);
 
 } // namespace fcl

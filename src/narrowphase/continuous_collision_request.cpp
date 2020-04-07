@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-struct ContinuousCollisionRequest<double>;
+struct FCL_INSTANTIATION_DEF_API ContinuousCollisionRequest<double>;
 
 } // namespace fcl

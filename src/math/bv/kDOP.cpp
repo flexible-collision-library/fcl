@@ -42,34 +42,39 @@ namespace fcl
 
 //==============================================================================
 template
-class KDOP<double, 16>;
+class FCL_INSTANTIATION_DEF_API KDOP<double, 16>;
 
 //==============================================================================
 template
-class KDOP<double, 18>;
+class FCL_INSTANTIATION_DEF_API KDOP<double, 18>;
 
 //==============================================================================
 template
-class KDOP<double, 24>;
+class FCL_INSTANTIATION_DEF_API KDOP<double, 24>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void minmax(double a, double b, double& minv, double& maxv);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void minmax(double p, double& minv, double& maxv);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void getDistances<double, 5>(const Vector3<double>& p, double* d);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void getDistances<double, 6>(const Vector3<double>& p, double* d);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void getDistances<double, 9>(const Vector3<double>& p, double* d);
 
 } // namespace fcl

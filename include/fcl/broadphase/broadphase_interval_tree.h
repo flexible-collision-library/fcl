@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -48,7 +48,7 @@ namespace fcl
 
 /// @brief Collision manager based on interval tree
 template <typename S>
-class FCL_EXPORT IntervalTreeCollisionManager : public BroadPhaseCollisionManager<S>
+class IntervalTreeCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   IntervalTreeCollisionManager();
@@ -99,7 +99,7 @@ public:
 
   /// @brief whether the manager is empty
   bool empty() const;
-  
+
   /// @brief the number of objects managed by the manager
   size_t size() const;
 
@@ -147,7 +147,7 @@ using IntervalTreeCollisionManagerd = IntervalTreeCollisionManager<double>;
 
 /// @brief SAP end point
 template <typename S>
-struct FCL_EXPORT IntervalTreeCollisionManager<S>::EndPoint
+struct IntervalTreeCollisionManager<S>::EndPoint
 {
   /// @brief object related with the end point
   CollisionObject<S>* obj;
@@ -163,7 +163,7 @@ struct FCL_EXPORT IntervalTreeCollisionManager<S>::EndPoint
 
 /// @brief Extention interval tree's interval to SAP interval, adding more information
 template <typename S>
-struct FCL_EXPORT IntervalTreeCollisionManager<S>::SAPInterval : public detail::SimpleInterval<S>
+struct IntervalTreeCollisionManager<S>::SAPInterval : public detail::SimpleInterval<S>
 {
   CollisionObject<S>* obj;
 

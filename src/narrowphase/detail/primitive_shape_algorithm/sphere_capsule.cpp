@@ -45,6 +45,7 @@ namespace detail
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void lineSegmentPointClosestToPoint(
     const Vector3<double> &p,
     const Vector3<double> &s1,
@@ -53,12 +54,14 @@ void lineSegmentPointClosestToPoint(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool sphereCapsuleIntersect(const Sphere<double>& s1, const Transform3<double>& tf1,
                             const Capsule<double>& s2, const Transform3<double>& tf2,
                             std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool sphereCapsuleDistance(const Sphere<double>& s1, const Transform3<double>& tf1,
                            const Capsule<double>& s2, const Transform3<double>& tf2,
                            double* dist, Vector3<double>* p1, Vector3<double>* p2);

@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class Convex<double>;
+class FCL_INSTANTIATION_DEF_API Convex<double>;
 
 } // namespace fcl

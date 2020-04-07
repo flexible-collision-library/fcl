@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class DynamicAABBTreeCollisionManager_Array<double>;
+class FCL_INSTANTIATION_DEF_API DynamicAABBTreeCollisionManager_Array<double>;
 
 } // namespace fcl

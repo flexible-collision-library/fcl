@@ -42,22 +42,24 @@ namespace fcl
 namespace detail
 {
 
-template bool
-sphereCylinderIntersect(const Sphere<double>& sphere,
-                        const Transform3<double>& X_FS,
-                        const Cylinder<double>& cylinder,
-                        const Transform3<double>& X_FC,
-                        std::vector<ContactPoint<double>>* contacts);
+template
+FCL_INSTANTIATION_DEF_API
+bool sphereCylinderIntersect(const Sphere<double>& sphere,
+                             const Transform3<double>& X_FS,
+                             const Cylinder<double>& cylinder,
+                             const Transform3<double>& X_FC,
+                             std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 
-template bool
-sphereCylinderDistance(const Sphere<double>& sphere,
-                       const Transform3<double>& X_FS,
-                       const Cylinder<double>& cylinder,
-                       const Transform3<double>& X_FC,
-                       double* distance, Vector3<double>* p_FSc,
-                       Vector3<double>* p_FCs);
+template
+FCL_INSTANTIATION_DEF_API
+bool sphereCylinderDistance(const Sphere<double>& sphere,
+                            const Transform3<double>& X_FS,
+                            const Cylinder<double>& cylinder,
+                            const Transform3<double>& X_FC,
+                            double* distance, Vector3<double>* p_FSc,
+                            Vector3<double>* p_FCs);
 
 } // namespace detail
 } // namespace fcl

@@ -55,7 +55,7 @@ namespace fcl
 ///            T(0) = T0 + R0 p_ref - p_ref
 ///            T(1) = T1 + R1 p_ref - p_ref
 template <typename S>
-class FCL_EXPORT InterpMotion : public MotionBase<S>
+class InterpMotion : public MotionBase<S>
 {
 public:
   /// @brief Default transformations are all identities
@@ -81,7 +81,7 @@ public:
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
   S computeMotionBound(const BVMotionBoundVisitor<S>& mb_visitor) const;
 
-  /// @brief Compute the motion bound for a triangle along a given direction n, which is defined in the visitor 
+  /// @brief Compute the motion bound for a triangle along a given direction n, which is defined in the visitor
   S computeMotionBound(const TriangleMotionBoundVisitor<S>& mb_visitor) const;
 
   /// @brief Get the rotation and translation in current step
@@ -94,9 +94,9 @@ protected:
   void computeVelocity();
 
   Quaternion<S> deltaRotation(S dt) const;
-  
+
   Quaternion<S> absoluteRotation(S dt) const;
-  
+
   /// @brief The transformation at time 0
   Transform3<S> tf1;
 

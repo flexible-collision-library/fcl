@@ -50,7 +50,7 @@ namespace detail
 
 //==============================================================================
 extern template
-struct BVHContinuousCollisionPair<double>;
+struct FCL_EXTERN_TEMPLATE_API BVHContinuousCollisionPair<double>;
 
 //==============================================================================
 template <typename S>

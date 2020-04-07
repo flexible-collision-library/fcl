@@ -42,22 +42,26 @@ namespace fcl
 
 //==============================================================================
 template
-class OBB<double>;
+class FCL_INSTANTIATION_DEF_API OBB<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void computeVertices(const OBB<double>& b, Vector3<double> vertices[8]);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 OBB<double> merge_largedist(const OBB<double>& b1, const OBB<double>& b2);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 OBB<double> merge_smalldist(const OBB<double>& b1, const OBB<double>& b2);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool obbDisjoint(
     const Matrix3<double>& B,
     const Vector3<double>& T,
@@ -66,6 +70,7 @@ bool obbDisjoint(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool obbDisjoint(
     const Transform3<double>& tf,
     const Vector3<double>& a,

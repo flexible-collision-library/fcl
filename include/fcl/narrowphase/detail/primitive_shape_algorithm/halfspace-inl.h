@@ -48,6 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool sphereHalfspaceIntersect(
     const Sphere<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -55,6 +56,7 @@ bool sphereHalfspaceIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool ellipsoidHalfspaceIntersect(
     const Ellipsoid<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -62,12 +64,14 @@ bool ellipsoidHalfspaceIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool boxHalfspaceIntersect(
     const Box<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool boxHalfspaceIntersect(
     const Box<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -75,6 +79,7 @@ bool boxHalfspaceIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool capsuleHalfspaceIntersect(
     const Capsule<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -82,6 +87,7 @@ bool capsuleHalfspaceIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool cylinderHalfspaceIntersect(
     const Cylinder<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -89,6 +95,7 @@ bool cylinderHalfspaceIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool coneHalfspaceIntersect(
     const Cone<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -96,6 +103,7 @@ bool coneHalfspaceIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool convexHalfspaceIntersect(
     const Convex<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -103,6 +111,7 @@ bool convexHalfspaceIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool halfspaceTriangleIntersect(
     const Halfspace<double>& s1, const Transform3<double>& tf1,
     const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, const Transform3<double>& tf2,
@@ -110,6 +119,7 @@ bool halfspaceTriangleIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool planeHalfspaceIntersect(
     const Plane<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -120,6 +130,7 @@ bool planeHalfspaceIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool halfspacePlaneIntersect(
     const Halfspace<double>& s1, const Transform3<double>& tf1,
     const Plane<double>& s2, const Transform3<double>& tf2,
@@ -129,6 +140,7 @@ bool halfspacePlaneIntersect(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool halfspaceIntersect(
     const Halfspace<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,

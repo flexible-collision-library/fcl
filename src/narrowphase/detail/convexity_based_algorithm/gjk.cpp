@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct GJK<double>;
+struct FCL_INSTANTIATION_DEF_API GJK<double>;
 
 } // namespace detail
 } // namespace fcl

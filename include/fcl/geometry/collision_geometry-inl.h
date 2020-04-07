@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT CollisionGeometry<double>;
+class FCL_EXTERN_TEMPLATE_API CollisionGeometry<double>;
 
 //==============================================================================
 template <typename S>

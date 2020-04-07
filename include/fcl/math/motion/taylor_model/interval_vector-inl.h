@@ -45,14 +45,16 @@ namespace fcl
 
 //==============================================================================
 extern template
-struct IVector3<double>;
+struct FCL_EXTERN_TEMPLATE_API IVector3<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 IVector3<double> bound(const IVector3<double>& i, const Vector3<double>& v);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 IVector3<double> bound(const IVector3<double>& i, const IVector3<double>& v);
 
 //==============================================================================

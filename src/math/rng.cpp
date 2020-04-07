@@ -42,6 +42,6 @@ namespace fcl
 
 //==============================================================================
 template
-class RNG<double>;
+class FCL_INSTANTIATION_DEF_API RNG<double>;
 
 } // namespace fcl

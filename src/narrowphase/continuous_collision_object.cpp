@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class ContinuousCollisionObject<double>;
+class FCL_INSTANTIATION_DEF_API ContinuousCollisionObject<double>;
 
 } // namespace fcl

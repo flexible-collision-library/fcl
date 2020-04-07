@@ -42,10 +42,11 @@ namespace fcl
 
 //==============================================================================
 template
-struct IMatrix3<double>;
+struct FCL_INSTANTIATION_DEF_API IMatrix3<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 IMatrix3<double> rotationConstrain(const IMatrix3<double>& m);
 
 } // namespace fcl

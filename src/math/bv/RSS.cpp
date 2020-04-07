@@ -42,14 +42,16 @@ namespace fcl
 
 //==============================================================================
 template
-class RSS<double>;
+class FCL_INSTANTIATION_DEF_API RSS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void clipToRange(double& val, double a, double b);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void segCoords(
         double& t,
         double& u,
@@ -61,6 +63,7 @@ void segCoords(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool inVoronoi(
         double a,
         double b,
@@ -72,6 +75,7 @@ bool inVoronoi(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 double rectDistance(
     const Matrix3<double>& Rab,
     const Vector3<double>& Tab,
@@ -82,6 +86,7 @@ double rectDistance(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 double rectDistance(
     const Transform3<double>& tfab,
     const double a[2],
@@ -91,6 +96,7 @@ double rectDistance(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 RSS<double> translate(const RSS<double>& bv, const Vector3<double>& t);
 
 } // namespace fcl

@@ -48,16 +48,16 @@ namespace detail
 
 /// @brief Node structure encoding the information required for traversal.
 template <typename S>
-class FCL_EXPORT TraversalNodeBase
+class TraversalNodeBase
 {
 public:
   virtual ~TraversalNodeBase();
 
   virtual void preprocess();
-  
+
   virtual void postprocess();
 
-  /// @brief Whether b is a leaf node in the first BVH tree 
+  /// @brief Whether b is a leaf node in the first BVH tree
   virtual bool isFirstNodeLeaf(int b) const;
 
   /// @brief Whether b is a leaf node in the second BVH tree

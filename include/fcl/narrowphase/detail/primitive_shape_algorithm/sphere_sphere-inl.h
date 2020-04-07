@@ -48,21 +48,20 @@ namespace detail
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 bool sphereSphereIntersect(const Sphere<double>& s1, const Transform3<double>& tf1,
                            const Sphere<double>& s2, const Transform3<double>& tf2,
                            std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 bool sphereSphereDistance(const Sphere<double>& s1, const Transform3<double>& tf1,
                           const Sphere<double>& s2, const Transform3<double>& tf2,
                           double* dist, Vector3<double>* p1, Vector3<double>* p2);
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool sphereSphereIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
                            const Sphere<S>& s2, const Transform3<S>& tf2,
                            std::vector<ContactPoint<S>>* contacts)
@@ -87,7 +86,6 @@ bool sphereSphereIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 bool sphereSphereDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
                           const Sphere<S>& s2, const Transform3<S>& tf2,
                           S* dist, Vector3<S>* p1, Vector3<S>* p2)

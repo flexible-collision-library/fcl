@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class SamplerSE3Euler_ball<double>;
+class FCL_INSTANTIATION_DEF_API SamplerSE3Euler_ball<double>;
 
 } // namespace fcl

@@ -50,7 +50,7 @@ namespace fcl
 {
 
 template <typename S>
-class FCL_EXPORT SplineMotion : public MotionBase<S>
+class SplineMotion : public MotionBase<S>
 {
 public:
   /// @brief Construct motion from 4 deBoor points
@@ -63,7 +63,7 @@ public:
 
   SplineMotion(const Transform3<S>& tf1,
                const Transform3<S>& tf2);
-  
+
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
   bool integrate(S dt) const override;
@@ -86,7 +86,7 @@ protected:
   S getWeight1(S t) const;
   S getWeight2(S t) const;
   S getWeight3(S t) const;
-  
+
   Vector3<S> Td[4];
   Vector3<S> Rd[4];
 
@@ -102,7 +102,7 @@ protected:
 
 public:
   S computeTBound(const Vector3<S>& n) const;
-  
+
   S computeDWMax() const;
 
   S getCurrentTime() const;

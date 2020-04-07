@@ -39,8 +39,8 @@
 
 namespace fcl
 {
- 
+
 template
-class kIOS<double>;
+class FCL_INSTANTIATION_DEF_API kIOS<double>;
 
 } // namespace fcl

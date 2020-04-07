@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class Capsule<double>;
+class FCL_INSTANTIATION_DEF_API Capsule<double>;
 
 } // namespace fcl

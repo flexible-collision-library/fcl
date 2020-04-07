@@ -45,30 +45,37 @@ namespace detail
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void collisionRecurse(CollisionTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void collisionRecurse(MeshCollisionTraversalNodeOBB<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void collisionRecurse(MeshCollisionTraversalNodeRSS<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void selfCollisionRecurse(CollisionTraversalNodeBase<double>* node, int b, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void distanceRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void distanceQueueRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 } // namespace detail

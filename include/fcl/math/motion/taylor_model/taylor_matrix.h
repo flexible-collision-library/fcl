@@ -45,10 +45,10 @@ namespace fcl
 {
 
 template <typename S>
-class FCL_EXPORT TMatrix3
+class TMatrix3
 {
   TVector3<S> v_[3];
-  
+
 public:
   TMatrix3();
   TMatrix3(const std::shared_ptr<TimeInterval<S>>& time_interval);
@@ -106,31 +106,24 @@ public:
 };
 
 template <typename S>
-FCL_EXPORT
 TMatrix3<S> rotationConstrain(const TMatrix3<S>& m);
 
 template <typename S>
-FCL_EXPORT
 TMatrix3<S> operator * (const Matrix3<S>& m, const TaylorModel<S>& a);
 
 template <typename S>
-FCL_EXPORT
 TMatrix3<S> operator * (const TaylorModel<S>& a, const Matrix3<S>& m);
 
 template <typename S>
-FCL_EXPORT
 TMatrix3<S> operator * (const TaylorModel<S>& a, const TMatrix3<S>& m);
 
 template <typename S>
-FCL_EXPORT
 TMatrix3<S> operator * (S d, const TMatrix3<S>& m);
 
 template <typename S>
-FCL_EXPORT
 TMatrix3<S> operator + (const Matrix3<S>& m1, const TMatrix3<S>& m2);
 
 template <typename S>
-FCL_EXPORT
 TMatrix3<S> operator - (const Matrix3<S>& m1, const TMatrix3<S>& m2);
 
 } // namespace fcl

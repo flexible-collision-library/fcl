@@ -45,9 +45,9 @@
 namespace fcl
 {
 
-/// @brief Center at zero cone 
+/// @brief Center at zero cone
 template <typename S_>
-class FCL_EXPORT Cone : public ShapeBase<S_>
+class Cone : public ShapeBase<S_>
 {
 public:
 
@@ -55,16 +55,16 @@ public:
 
   Cone(S radius, S lz);
 
-  /// @brief Radius of the cone 
+  /// @brief Radius of the cone
   S radius;
 
-  /// @brief Length along z axis 
+  /// @brief Length along z axis
   S lz;
 
   /// @brief Compute AABB
   void computeLocalAABB() override;
 
-  /// @brief Get node type: a cone 
+  /// @brief Get node type: a cone
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited

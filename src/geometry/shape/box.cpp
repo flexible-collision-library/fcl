@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class Box<double>;
+class FCL_INSTANTIATION_DEF_API Box<double>;
 
 } // namespace fcl

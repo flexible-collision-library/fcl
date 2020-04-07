@@ -48,10 +48,11 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshDistanceTraversalNodeRSS<double>;
+class FCL_EXTERN_TEMPLATE_API MeshDistanceTraversalNodeRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool initialize(
     MeshDistanceTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -63,10 +64,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshDistanceTraversalNodekIOS<double>;
+class FCL_EXTERN_TEMPLATE_API MeshDistanceTraversalNodekIOS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool initialize(
     MeshDistanceTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -78,10 +80,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshDistanceTraversalNodeOBBRSS<double>;
+class FCL_EXTERN_TEMPLATE_API MeshDistanceTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool initialize(
     MeshDistanceTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

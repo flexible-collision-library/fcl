@@ -47,7 +47,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT TranslationMotion<double>;
+class FCL_EXTERN_TEMPLATE_API TranslationMotion<double>;
 
 //==============================================================================
 template <typename S>

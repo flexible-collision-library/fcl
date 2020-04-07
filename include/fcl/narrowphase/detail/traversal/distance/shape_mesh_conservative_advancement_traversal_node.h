@@ -49,7 +49,7 @@ namespace detail
 {
 
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
-class FCL_EXPORT ShapeMeshConservativeAdvancementTraversalNode
+class ShapeMeshConservativeAdvancementTraversalNode
     : public ShapeMeshDistanceTraversalNode<Shape, BV, NarrowPhaseSolver>
 {
 public:
@@ -72,7 +72,7 @@ public:
   mutable Vector3<S> closest_p1, closest_p2;
 
   mutable int last_tri_id;
-  
+
    /// @brief CA controlling variable: early stop for the early iterations of CA
   S w;
 
@@ -103,7 +103,7 @@ bool initialize(
     bool refit_bottomup = false);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class FCL_EXPORT ShapeMeshConservativeAdvancementTraversalNodeRSS
+class ShapeMeshConservativeAdvancementTraversalNodeRSS
     : public ShapeMeshConservativeAdvancementTraversalNode<
     Shape, RSS<typename Shape::S>, NarrowPhaseSolver>
 {
@@ -130,7 +130,7 @@ bool initialize(
     typename Shape::S w = 1);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class FCL_EXPORT ShapeMeshConservativeAdvancementTraversalNodeOBBRSS
+class ShapeMeshConservativeAdvancementTraversalNodeOBBRSS
     : public ShapeMeshConservativeAdvancementTraversalNode<
     Shape, OBBRSS<typename Shape::S>, NarrowPhaseSolver>
 {
