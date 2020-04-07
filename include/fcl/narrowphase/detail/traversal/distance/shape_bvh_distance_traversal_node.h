@@ -50,7 +50,7 @@ namespace detail
 
 /// @brief Traversal node for distance computation between shape and BVH
 template<typename Shape, typename BV>
-class FCL_EXPORT ShapeBVHDistanceTraversalNode
+class ShapeBVHDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename BV::S>
 {
 public:
@@ -74,7 +74,7 @@ public:
   const Shape* model1;
   const BVHModel<BV>* model2;
   BV model1_bv;
-  
+
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
   mutable S query_time_seconds;

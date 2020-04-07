@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_EXPORT Intersect<double>;
+class FCL_EXTERN_TEMPLATE_API Intersect<double>;
 
 //==============================================================================
 template <typename S>

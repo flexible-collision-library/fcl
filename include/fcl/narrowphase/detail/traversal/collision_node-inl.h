@@ -49,22 +49,27 @@ namespace detail
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void collide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void selfCollide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void distance(DistanceTraversalNodeBase<double>* node, BVHFrontList* front_list, int qsize);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void collide2(MeshCollisionTraversalNodeOBB<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void collide2(MeshCollisionTraversalNodeRSS<double>* node, BVHFrontList* front_list);
 
 //==============================================================================

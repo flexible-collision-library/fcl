@@ -45,10 +45,11 @@ namespace detail
 
 //==============================================================================
 template
-class MeshCollisionTraversalNodeOBB<double>;
+class FCL_INSTANTIATION_DEF_API MeshCollisionTraversalNodeOBB<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool initialize(
     MeshCollisionTraversalNodeOBB<double>& node,
     const BVHModel<OBB<double>>& model1,
@@ -60,10 +61,11 @@ bool initialize(
 
 //==============================================================================
 template
-class MeshCollisionTraversalNodeRSS<double>;
+class FCL_INSTANTIATION_DEF_API MeshCollisionTraversalNodeRSS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool initialize(
     MeshCollisionTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -75,10 +77,11 @@ bool initialize(
 
 //==============================================================================
 template
-class MeshCollisionTraversalNodekIOS<double>;
+class FCL_INSTANTIATION_DEF_API MeshCollisionTraversalNodekIOS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool initialize(
     MeshCollisionTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -90,10 +93,11 @@ bool initialize(
 
 //==============================================================================
 template
-class MeshCollisionTraversalNodeOBBRSS<double>;
+class FCL_INSTANTIATION_DEF_API MeshCollisionTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool initialize(
     MeshCollisionTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

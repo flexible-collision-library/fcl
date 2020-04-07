@@ -42,14 +42,16 @@ namespace fcl
 
 //==============================================================================
 template
-struct IVector3<double>;
+struct FCL_INSTANTIATION_DEF_API IVector3<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 IVector3<double> bound(const IVector3<double>& i, const Vector3<double>& v);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 IVector3<double> bound(const IVector3<double>& i, const IVector3<double>& v);
 
 } // namespace fcl

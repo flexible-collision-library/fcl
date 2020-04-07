@@ -47,7 +47,7 @@ namespace detail
 {
 
 template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-class FCL_EXPORT ShapeConservativeAdvancementTraversalNode
+class ShapeConservativeAdvancementTraversalNode
     : public ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>
 {
 public:

@@ -48,18 +48,22 @@ namespace detail
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 double clamp(double n, double min, double max);
 
 //==============================================================================
-extern template double closestPtSegmentSegment(const Vector3d& p_FP1,
-                                               const Vector3d& p_FQ1,
-                                               const Vector3d& p_FP2,
-                                               const Vector3d& p_FQ2, double* s,
-                                               double* t, Vector3d* p_FC1,
-                                               Vector3d* p_FC2);
+extern template
+FCL_EXTERN_TEMPLATE_API
+double closestPtSegmentSegment(const Vector3d& p_FP1,
+                               const Vector3d& p_FQ1,
+                               const Vector3d& p_FP2,
+                               const Vector3d& p_FQ2, double* s,
+                               double* t, Vector3d* p_FC1,
+                               Vector3d* p_FC2);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool capsuleCapsuleDistance(
     const Capsule<double>& s1, const Transform3<double>& tf1,
     const Capsule<double>& s2, const Transform3<double>& tf2,

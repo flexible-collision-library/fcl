@@ -48,11 +48,11 @@ namespace detail
 {
 
 template <typename S>
-class FCL_EXPORT IntervalTree;
+class IntervalTree;
 
 /// @brief The node for interval tree
 template <typename S>
-class FCL_EXPORT IntervalTreeNode
+class IntervalTreeNode
 {
 public:
 
@@ -60,7 +60,7 @@ public:
   friend class IntervalTree;
 
   friend class IntervalTree<double>;
-  
+
   /// @brief Create an empty node
   IntervalTreeNode();
 
@@ -83,7 +83,7 @@ protected:
   S max_high;
 
   /// @brief red or black node: if red = false then the node is black
-  bool red;  
+  bool red;
 
   IntervalTreeNode* left;
 

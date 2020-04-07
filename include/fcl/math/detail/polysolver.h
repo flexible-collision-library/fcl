@@ -45,25 +45,25 @@ namespace fcl
 
 namespace detail {
 
-/// @brief A class solves polynomial degree (1,2,3) equations 
+/// @brief A class solves polynomial degree (1,2,3) equations
 template <typename S>
-class FCL_EXPORT PolySolver
+class PolySolver
 {
 public:
-  /// @brief Solve a linear equation with coefficients c, return roots s and number of roots 
+  /// @brief Solve a linear equation with coefficients c, return roots s and number of roots
   static int solveLinear(S c[2], S s[1]);
 
-  /// @brief Solve a quadratic function with coefficients c, return roots s and number of roots 
+  /// @brief Solve a quadratic function with coefficients c, return roots s and number of roots
   static int solveQuadric(S c[3], S s[2]);
 
-  /// @brief Solve a cubic function with coefficients c, return roots s and number of roots 
+  /// @brief Solve a cubic function with coefficients c, return roots s and number of roots
   static int solveCubic(S c[4], S s[3]);
 
 private:
-  /// @brief Check whether v is zero 
+  /// @brief Check whether v is zero
   static bool isZero(S v);
 
-  /// @brief Compute v^{1/3} 
+  /// @brief Compute v^{1/3}
   static bool cbrt(S v);
 
   static constexpr S getNearZeroThreshold();

@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class CollisionGeometry<double>;
+class FCL_INSTANTIATION_DEF_API CollisionGeometry<double>;
 
 } // namespace fcl

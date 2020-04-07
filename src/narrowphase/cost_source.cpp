@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-struct CostSource<double>;
+struct FCL_INSTANTIATION_DEF_API CostSource<double>;
 
 } // namespace fcl

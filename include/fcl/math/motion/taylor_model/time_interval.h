@@ -47,7 +47,7 @@ namespace fcl
 {
 
 template <typename S>
-struct FCL_EXPORT TimeInterval
+struct TimeInterval
 {
   /// @brief time Interval<S> and different powers
   Interval<S> t_; // [t1, t2]

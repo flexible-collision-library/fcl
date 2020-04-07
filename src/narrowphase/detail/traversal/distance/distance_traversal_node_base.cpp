@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-class DistanceTraversalNodeBase<double>;
+class FCL_INSTANTIATION_DEF_API DistanceTraversalNodeBase<double>;
 
 } // namespace detail
 } // namespace fcl

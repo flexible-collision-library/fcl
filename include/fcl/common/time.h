@@ -55,15 +55,15 @@ using point = std::chrono::system_clock::time_point;
 using duration = std::chrono::system_clock::duration;
 
 /// @brief Get the current time point
-FCL_EXPORT
+FCL_API
 point now(void);
 
 /// @brief Return the time duration representing a given number of seconds
-FCL_EXPORT
+FCL_API
 duration seconds(double sec);
 
 /// @brief Return the number of seconds that a time duration represents
-FCL_EXPORT
+FCL_API
 double seconds(const duration &d);
 
 } // namespace time

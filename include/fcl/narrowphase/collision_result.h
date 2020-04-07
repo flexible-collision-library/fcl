@@ -49,7 +49,7 @@ namespace fcl
 
 /// @brief collision result
 template <typename S>
-struct FCL_EXPORT CollisionResult
+struct CollisionResult
 {
 private:
   /// @brief contact information
@@ -85,7 +85,7 @@ public:
   /// @brief get all the contacts
   void getContacts(std::vector<Contact<S>>& contacts_);
 
-  /// @brief get all the cost sources 
+  /// @brief get all the cost sources
   void getCostSources(std::vector<CostSource<S>>& cost_sources_);
 
   /// @brief clear the results obtained

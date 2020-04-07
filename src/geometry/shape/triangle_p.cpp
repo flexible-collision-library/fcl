@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class TriangleP<double>;
+class FCL_INSTANTIATION_DEF_API TriangleP<double>;
 
 } // namespace fcl

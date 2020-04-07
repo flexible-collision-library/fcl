@@ -45,18 +45,18 @@
 namespace fcl
 {
 
-/// @brief Infinite plane 
+/// @brief Infinite plane
 template <typename S_>
-class FCL_EXPORT Plane : public ShapeBase<S_>
+class Plane : public ShapeBase<S_>
 {
 public:
 
   using S = S_;
 
-  /// @brief Construct a plane with normal direction and offset 
+  /// @brief Construct a plane with normal direction and offset
   Plane(const Vector3<S>& n, S d);
-  
-  /// @brief Construct a plane with normal direction and offset 
+
+  /// @brief Construct a plane with normal direction and offset
   Plane(S a, S b, S c, S d);
 
   Plane();
@@ -68,13 +68,13 @@ public:
   /// @brief Compute AABB
   void computeLocalAABB() override;
 
-  /// @brief Get node type: a plane 
+  /// @brief Get node type: a plane
   NODE_TYPE getNodeType() const override;
 
-  /// @brief Plane normal 
+  /// @brief Plane normal
   Vector3<S> n;
 
-  /// @brief Plane offset 
+  /// @brief Plane offset
   S d;
 
   friend
@@ -84,8 +84,8 @@ public:
   }
 
 protected:
-  
-  /// @brief Turn non-unit normal into unit 
+
+  /// @brief Turn non-unit normal into unit
   void unitNormalTest();
 };
 
@@ -93,7 +93,6 @@ using Planef = Plane<float>;
 using Planed = Plane<double>;
 
 template <typename S>
-FCL_EXPORT
 Plane<S> transform(const Plane<S>& a, const Transform3<S>& tf);
 
 } // namespace fcl

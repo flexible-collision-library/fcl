@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -48,7 +48,7 @@ namespace fcl
 
 /// @brief Rigorous SAP collision manager
 template <typename S>
-class FCL_EXPORT SaPCollisionManager : public BroadPhaseCollisionManager<S>
+class SaPCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
 
@@ -103,7 +103,7 @@ public:
 
   /// @brief whether the manager is empty
   bool empty() const;
-  
+
   /// @brief the number of objects managed by the manager
   size_t size() const;
 
@@ -119,10 +119,10 @@ protected:
   struct SaPPair;
 
   /// @brief Functor to help unregister one object
-  class FCL_EXPORT isUnregistered;
+  class isUnregistered;
 
   /// @brief Functor to help remove collision pairs no longer valid (i.e., should be culled away)
-  class FCL_EXPORT isNotValidPair;
+  class isNotValidPair;
 
   void update_(SaPAABB* updated_aabb);
 
@@ -130,7 +130,7 @@ protected:
 
   /// @brief End point list for x, y, z coordinates
   EndPoint* elist[3];
-  
+
   /// @brief vector version of elist, for acceleration
   std::vector<EndPoint*> velist[3];
 
@@ -215,7 +215,7 @@ struct SaPCollisionManager<S>::SaPPair
 
 /// @brief Functor to help unregister one object
 template <typename S>
-class FCL_EXPORT SaPCollisionManager<S>::isUnregistered
+class SaPCollisionManager<S>::isUnregistered
 {
   CollisionObject<S>* obj;
 
@@ -227,7 +227,7 @@ public:
 
 /// @brief Functor to help remove collision pairs no longer valid (i.e., should be culled away)
 template <typename S>
-class FCL_EXPORT SaPCollisionManager<S>::isNotValidPair
+class SaPCollisionManager<S>::isNotValidPair
 {
   CollisionObject<S>* obj1;
   CollisionObject<S>* obj2;

@@ -46,14 +46,16 @@ namespace fcl
 
 //==============================================================================
 extern template
-struct Interval<double>;
+struct FCL_EXTERN_TEMPLATE_API Interval<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 Interval<double> bound(const Interval<double>& i, double v);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 Interval<double> bound(const Interval<double>& i, const Interval<double>& other);
 
 //==============================================================================

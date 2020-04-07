@@ -42,10 +42,11 @@ namespace fcl
 
 //==============================================================================
 template
-class Plane<double>;
+class FCL_INSTANTIATION_DEF_API Plane<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 Plane<double> transform(const Plane<double>& a, const Transform3<double>& tf);
 
 } // namespace fcl

@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class ShapeBase<double>;
+class FCL_INSTANTIATION_DEF_API ShapeBase<double>;
 
 } // namespace fcl

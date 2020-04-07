@@ -45,39 +45,41 @@ namespace detail
 
 //==============================================================================
 template
-class GJKInitializer<double, Cylinder<double>>;
+class FCL_INSTANTIATION_DEF_API GJKInitializer<double, Cylinder<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Sphere<double>>;
+class FCL_INSTANTIATION_DEF_API GJKInitializer<double, Sphere<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Ellipsoid<double>>;
+class FCL_INSTANTIATION_DEF_API GJKInitializer<double, Ellipsoid<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Box<double>>;
+class FCL_INSTANTIATION_DEF_API GJKInitializer<double, Box<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Capsule<double>>;
+class FCL_INSTANTIATION_DEF_API GJKInitializer<double, Capsule<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Cone<double>>;
+class FCL_INSTANTIATION_DEF_API GJKInitializer<double, Cone<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Convex<double>>;
+class FCL_INSTANTIATION_DEF_API GJKInitializer<double, Convex<double>>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void* triCreateGJKObject(
     const Vector3d& P1, const Vector3d& P2, const Vector3d& P3);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void* triCreateGJKObject(
     const Vector3d& P1,
     const Vector3d& P2,
@@ -86,6 +88,7 @@ void* triCreateGJKObject(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool GJKCollide(
     void* obj1,
     ccd_support_fn supp1,
@@ -101,6 +104,7 @@ bool GJKCollide(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool GJKDistance(
     void* obj1,
     ccd_support_fn supp1,
@@ -113,6 +117,7 @@ bool GJKDistance(
     Vector3d* p2);
 
 template
+FCL_INSTANTIATION_DEF_API
 bool GJKSignedDistance(
     void* obj1,
     ccd_support_fn supp1,

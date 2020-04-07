@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class SamplerSE3Quat<double>;
+class FCL_INSTANTIATION_DEF_API SamplerSE3Quat<double>;
 
 } // namespace fcl

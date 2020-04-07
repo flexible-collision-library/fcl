@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class Ellipsoid<double>;
+class FCL_INSTANTIATION_DEF_API Ellipsoid<double>;
 
 } // namespace fcl

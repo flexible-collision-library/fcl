@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class InterpMotion<double>;
+class FCL_INSTANTIATION_DEF_API InterpMotion<double>;
 
 } // namespace fcl

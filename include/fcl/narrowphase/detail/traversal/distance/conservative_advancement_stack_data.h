@@ -47,7 +47,7 @@ namespace detail
 {
 
 template <typename S>
-struct FCL_EXPORT ConservativeAdvancementStackData
+struct ConservativeAdvancementStackData
 {
   ConservativeAdvancementStackData(
       const Vector3<S>& P1_,

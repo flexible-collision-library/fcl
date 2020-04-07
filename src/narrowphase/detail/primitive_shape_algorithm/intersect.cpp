@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-class Intersect<double>;
+class FCL_INSTANTIATION_DEF_API Intersect<double>;
 
 } // namespace detail
 } // namespace fcl

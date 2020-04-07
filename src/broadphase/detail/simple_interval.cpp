@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct SimpleInterval<double>;
+struct FCL_INSTANTIATION_DEF_API SimpleInterval<double>;
 
 } // namespace detail
 } // namespace fcl

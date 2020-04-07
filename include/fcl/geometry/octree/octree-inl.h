@@ -49,10 +49,11 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT OcTree<double>;
+class FCL_EXTERN_TEMPLATE_API OcTree<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void computeChildBV(const AABB<double>& root_bv, unsigned int i, AABB<double>& child_bv);
 
 //==============================================================================

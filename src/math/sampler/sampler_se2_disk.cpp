@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class SamplerSE2_disk<double>;
+class FCL_INSTANTIATION_DEF_API SamplerSE2_disk<double>;
 
 } // namespace fcl

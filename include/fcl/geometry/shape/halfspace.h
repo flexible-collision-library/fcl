@@ -54,7 +54,7 @@ namespace fcl
 /// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points
 /// in the positive side of the separation plane (i.e. {x | n * x > d}) are outside the half space
 template <typename S_>
-class FCL_EXPORT Halfspace : public ShapeBase<S_>
+class Halfspace : public ShapeBase<S_>
 {
 public:
 
@@ -77,10 +77,10 @@ public:
 
   /// @brief Get node type: a half space
   NODE_TYPE getNodeType() const override;
-  
+
   /// @brief Planed normal
   Vector3<S> n;
-  
+
   /// @brief Planed offset
   S d;
 
@@ -101,7 +101,6 @@ using Halfspacef = Halfspace<float>;
 using Halfspaced = Halfspace<double>;
 
 template <typename S>
-FCL_EXPORT
 Halfspace<S> transform(const Halfspace<S>& a, const Transform3<S>& tf);
 
 } // namespace fcl

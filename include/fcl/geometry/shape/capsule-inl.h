@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT Capsule<double>;
+class FCL_EXTERN_TEMPLATE_API Capsule<double>;
 
 //==============================================================================
 template <typename S>

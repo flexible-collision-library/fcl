@@ -42,6 +42,7 @@ namespace fcl
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 double distance(
     const CollisionObject<double>* o1,
     const CollisionObject<double>* o2,
@@ -50,6 +51,7 @@ double distance(
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 double distance(
     const CollisionGeometry<double>* o1, const Transform3<double>& tf1,
     const CollisionGeometry<double>* o2, const Transform3<double>& tf2,

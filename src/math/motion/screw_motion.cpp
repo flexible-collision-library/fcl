@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class ScrewMotion<double>;
+class FCL_INSTANTIATION_DEF_API ScrewMotion<double>;
 
 } // namespace fcl

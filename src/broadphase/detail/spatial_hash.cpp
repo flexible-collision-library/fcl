@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct SpatialHash<double>;
+struct FCL_INSTANTIATION_DEF_API SpatialHash<double>;
 
 } // namespace detail
 } // namespace fcl

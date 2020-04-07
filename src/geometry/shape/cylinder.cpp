@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class Cylinder<double>;
+class FCL_INSTANTIATION_DEF_API Cylinder<double>;
 
 } // namespace fcl

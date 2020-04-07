@@ -43,7 +43,7 @@ namespace fcl
 namespace detail {
 
 template
-class PolySolver<double>;
+class FCL_INSTANTIATION_DEF_API PolySolver<double>;
 
 } // namespace detail
 } // namespace fcl

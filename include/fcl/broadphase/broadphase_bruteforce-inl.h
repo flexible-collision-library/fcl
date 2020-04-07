@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -46,7 +46,7 @@ namespace fcl {
 
 //==============================================================================
 extern template
-class FCL_EXPORT NaiveCollisionManager<double>;
+class FCL_EXTERN_TEMPLATE_API NaiveCollisionManager<double>;
 
 //==============================================================================
 template <typename S>

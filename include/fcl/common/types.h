@@ -140,7 +140,7 @@ inline std::shared_ptr<_Tp> make_aligned_shared(_Args&&... __args)
 // C++11 compatible version is available since Eigen 3.2.9 so we use this copy
 // for Eigen (< 3.2.9).
 template <class T>
-class FCL_EXPORT aligned_allocator_cpp11 : public std::allocator<T>
+class aligned_allocator_cpp11 : public std::allocator<T>
 {
 public:
   typedef std::size_t     size_type;

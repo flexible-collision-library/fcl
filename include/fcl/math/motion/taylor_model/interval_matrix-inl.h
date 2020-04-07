@@ -45,10 +45,11 @@ namespace fcl
 
 //==============================================================================
 extern template
-struct IMatrix3<double>;
+struct FCL_EXTERN_TEMPLATE_API IMatrix3<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 IMatrix3<double> rotationConstrain(const IMatrix3<double>& m);
 
 //==============================================================================

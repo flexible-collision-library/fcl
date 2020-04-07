@@ -78,7 +78,7 @@ namespace fcl
 ///
 /// @tparam S_  The scalar type; must be a valid Eigen scalar.
 template <typename S_>
-class FCL_EXPORT Convex : public ShapeBase<S_>
+class Convex : public ShapeBase<S_>
 {
 public:
 
@@ -103,7 +103,7 @@ public:
   Convex(const std::shared_ptr<const std::vector<Vector3<S>>>& vertices,
          int num_faces, const std::shared_ptr<const std::vector<int>>& faces);
 
-  /// @brief Copy constructor 
+  /// @brief Copy constructor
   Convex(const Convex& other);
 
   ~Convex() = default;

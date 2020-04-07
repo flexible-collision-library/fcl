@@ -48,7 +48,7 @@ class CollisionGeometry;
 
 /// @brief distance result
 template <typename S>
-struct FCL_EXPORT DistanceResult
+struct DistanceResult
 {
 public:
 
@@ -88,7 +88,7 @@ public:
 
   /// @brief invalid contact primitive information
   static const int NONE = -1;
-  
+
   DistanceResult(S min_distance_ = std::numeric_limits<S>::max());
 
   /// @brief add distance information into the result

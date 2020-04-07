@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -53,7 +53,7 @@ namespace fcl
 template<typename S,
          typename HashTable
              = detail::SimpleHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>> >
-class FCL_EXPORT SpatialHashingCollisionManager : public BroadPhaseCollisionManager<S>
+class SpatialHashingCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   SpatialHashingCollisionManager(

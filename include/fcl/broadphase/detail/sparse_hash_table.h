@@ -51,25 +51,25 @@ namespace detail
 {
 
 template<typename U, typename V>
-class FCL_EXPORT unordered_map_hash_table : public std::unordered_map<U, V> {};
+class unordered_map_hash_table : public std::unordered_map<U, V> {};
 
 /// @brief A hash table implemented using unordered_map
 template <typename Key, typename Data, typename HashFnc,
           template<typename, typename> class TableT = unordered_map_hash_table>
-class FCL_EXPORT SparseHashTable
+class SparseHashTable
 {
 protected:
   HashFnc h_;
   typedef std::list<Data> Bin;
   typedef TableT<size_t, Bin> Table;
-  
+
   Table table_;
 public:
   SparseHashTable(const HashFnc& h);
 
   /// @brief Init the hash table. The bucket size is dynamically decided.
   void init(size_t);
-  
+
   /// @brief insert one key-value pair into the hash table
   void insert(Key key, Data value);
 

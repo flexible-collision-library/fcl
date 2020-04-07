@@ -61,7 +61,7 @@ namespace detail {
  FCL_THROW_UNEXPECTED_CONFIGURATION_EXCEPTION defined below. Code that exercises
  functionality that throws this type of exception should catch it and transform
  it to a `std::logic_error` by invoking ThrowDetailedConfiguration().  */
-class FCL_EXPORT FailedAtThisConfiguration final
+class FCL_API FailedAtThisConfiguration final
     : public std::exception {
  public:
   FailedAtThisConfiguration(const std::string& message)
@@ -82,12 +82,12 @@ class FCL_EXPORT FailedAtThisConfiguration final
  @param func     The name of the invoking function.
  @param file     The name of the file associated with the exception.
  @param line     The line number where the exception is thrown.  */
-FCL_EXPORT void ThrowFailedAtThisConfiguration(
+FCL_API void ThrowFailedAtThisConfiguration(
     const std::string& message, const char* func, const char* file, int line);
 
 /** Helper class for propagating a low-level exception upwards but with
  configuration-specific details appended. The parameters
- 
+
  @param s1        The first shape in the query.
  @param X_FS1     The pose of the first shape in frame F.
  @param s2        The second shape in the query.

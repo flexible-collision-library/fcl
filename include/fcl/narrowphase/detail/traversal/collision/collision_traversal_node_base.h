@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Node structure encoding the information required for collision traversal.
 template <typename S>
-class FCL_EXPORT CollisionTraversalNodeBase : public TraversalNodeBase<S>
+class CollisionTraversalNodeBase : public TraversalNodeBase<S>
 {
 public:
   CollisionTraversalNodeBase();
@@ -74,7 +74,7 @@ public:
   /// @brief collision result kept during the traversal iteration
   CollisionResult<S>* result;
 
-  /// @brief Whether stores statistics 
+  /// @brief Whether stores statistics
   bool enable_statistics;
 };
 

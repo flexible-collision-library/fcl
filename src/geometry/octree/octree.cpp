@@ -46,10 +46,11 @@ namespace fcl
 
 //==============================================================================
 template
-class OcTree<double>;
+class FCL_INSTANTIATION_DEF_API OcTree<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void computeChildBV(const AABB<double>& root_bv, unsigned int i, AABB<double>& child_bv);
 
 } // namespace fcl

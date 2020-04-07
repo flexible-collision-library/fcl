@@ -51,7 +51,7 @@ namespace detail {
 /// right branch in searching for intervals but possibly come back
 /// and check the left branch as well.
 template <typename S>
-struct FCL_EXPORT it_recursion_node
+struct it_recursion_node
 {
 public:
   IntervalTreeNode<S>* start_node;
@@ -65,11 +65,11 @@ using it_recursion_nodef = it_recursion_node<float>;
 using it_recursion_noded = it_recursion_node<double>;
 
 extern template
-struct it_recursion_node<double>;
+struct FCL_EXTERN_TEMPLATE_API it_recursion_node<double>;
 
 /// @brief Interval tree
 template <typename S>
-class FCL_EXPORT IntervalTree
+class IntervalTree
 {
 public:
 
@@ -113,7 +113,7 @@ protected:
   /// @brief Inserts node into the tree as if it were a regular binary tree
   void recursiveInsert(IntervalTreeNode<S>* node);
 
-  /// @brief recursively print a subtree 
+  /// @brief recursively print a subtree
   void recursivePrint(IntervalTreeNode<S>* node) const;
 
   /// @brief recursively find the node corresponding to the interval

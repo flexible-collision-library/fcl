@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct BVHContinuousCollisionPair<double>;
+struct FCL_INSTANTIATION_DEF_API BVHContinuousCollisionPair<double>;
 
 } // namespace detail
 } // namespace fcl

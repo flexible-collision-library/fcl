@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class AABB<double>;
+class FCL_INSTANTIATION_DEF_API AABB<double>;
 
 } // namespace fcl

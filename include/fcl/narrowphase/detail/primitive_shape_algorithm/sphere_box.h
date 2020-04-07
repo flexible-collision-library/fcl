@@ -107,10 +107,10 @@ namespace detail {
  @return True if the objects are colliding (including touching).
  @tparam S The scalar parameter (must be a valid Eigen scalar).  */
 template <typename S>
-FCL_EXPORT bool sphereBoxIntersect(const Sphere<S>& sphere,
-                                   const Transform3<S>& X_FS, const Box<S>& box,
-                                   const Transform3<S>& X_FB,
-                                   std::vector<ContactPoint<S>>* contacts);
+bool sphereBoxIntersect(const Sphere<S>& sphere,
+                        const Transform3<S>& X_FS, const Box<S>& box,
+                        const Transform3<S>& X_FB,
+                        std::vector<ContactPoint<S>>* contacts);
 
 /** Evaluate the minimum separating distance between a sphere and box. If
  separated, the nearest points on each shape will be returned in frame F.
@@ -127,10 +127,10 @@ FCL_EXPORT bool sphereBoxIntersect(const Sphere<S>& sphere,
  @return True if the objects are separated.
  @tparam S The scalar parameter (must be a valid Eigen scalar).  */
 template <typename S>
-FCL_EXPORT bool sphereBoxDistance(const Sphere<S>& sphere,
-                                  const Transform3<S>& X_FS, const Box<S>& box,
-                                  const Transform3<S>& X_FB, S* distance,
-                                  Vector3<S>* p_FSb, Vector3<S>* p_FBs);
+bool sphereBoxDistance(const Sphere<S>& sphere,
+                       const Transform3<S>& X_FS, const Box<S>& box,
+                       const Transform3<S>& X_FB, S* distance,
+                       Vector3<S>* p_FSb, Vector3<S>* p_FBs);
 
 //@}
 

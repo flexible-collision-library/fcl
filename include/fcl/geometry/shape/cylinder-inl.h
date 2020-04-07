@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT Cylinder<double>;
+class FCL_EXTERN_TEMPLATE_API Cylinder<double>;
 
 //==============================================================================
 template <typename S>

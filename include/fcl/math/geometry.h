@@ -49,72 +49,59 @@
 namespace fcl {
 
 template <typename S>
-FCL_EXPORT
 void normalize(Vector3<S>& v, bool* signal);
 
 template <typename Derived>
-FCL_EXPORT
 typename Derived::RealScalar triple(const Eigen::MatrixBase<Derived>& x,
                                     const Eigen::MatrixBase<Derived>& y,
                                     const Eigen::MatrixBase<Derived>& z);
 
 template <typename Derived>
-FCL_EXPORT
 void generateCoordinateSystem(
     const Eigen::MatrixBase<Derived>& w,
     Eigen::MatrixBase<Derived>& u,
     Eigen::MatrixBase<Derived>& v);
 
 template <typename S, int M, int N>
-FCL_EXPORT
 VectorN<S, M+N> combine(
     const VectorN<S, M>& v1, const VectorN<S, N>& v2);
 
 template <typename S>
-FCL_EXPORT
 void hat(Matrix3<S>& mat, const Vector3<S>& vec);
 
 /// @brief compute the eigen vector and eigen vector of a matrix. dout is the
 /// eigen values, vout is the eigen vectors
 template <typename S>
-FCL_EXPORT
 void eigen(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout);
 
 /// @brief compute the eigen vector and eigen vector of a matrix. dout is the
 /// eigen values, vout is the eigen vectors
 template<typename S>
-FCL_EXPORT
 void eigen_old(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout);
 
 template <typename S>
-FCL_EXPORT
 void axisFromEigen(const Matrix3<S>& eigenV,
                    const Vector3<S>& eigenS,
                    Matrix3<S>& axis);
 
 template <typename S>
-FCL_EXPORT
 void axisFromEigen(const Matrix3<S>& eigenV,
                    const Vector3<S>& eigenS,
                    Transform3<S>& tf);
 
 template <typename S>
-FCL_EXPORT
 void generateCoordinateSystem(Matrix3<S>& axis);
 
 template <typename S>
-FCL_EXPORT
 void generateCoordinateSystem(Transform3<S>& tf);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
-FCL_EXPORT
 void relativeTransform(
     const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
     const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
     Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t);
 
 template <typename S, typename DerivedA, typename DerivedB>
-FCL_EXPORT
 void relativeTransform(
     const Eigen::Transform<S, 3, Eigen::Isometry>& T1,
     const Eigen::Transform<S, 3, Eigen::Isometry>& T2,
@@ -123,7 +110,6 @@ void relativeTransform(
 /// @brief Compute the RSS bounding volume parameters: radius, rectangle size
 /// and the origin, given the BV axises.
 template <typename S>
-FCL_EXPORT
 void getRadiusAndOriginAndRectangleSize(
     const Vector3<S>* const ps,
     const Vector3<S>* const ps2,
@@ -138,7 +124,6 @@ void getRadiusAndOriginAndRectangleSize(
 /// @brief Compute the RSS bounding volume parameters: radius, rectangle size
 /// and the origin, given the BV axises.
 template <typename S>
-FCL_EXPORT
 void getRadiusAndOriginAndRectangleSize(
     const Vector3<S>* const ps,
     const Vector3<S>* const ps2,
@@ -151,7 +136,6 @@ void getRadiusAndOriginAndRectangleSize(
 
 /// @brief Compute the center and radius for a triangle's circumcircle
 template <typename S>
-FCL_EXPORT
 void circumCircleComputation(
     const Vector3<S>& a,
     const Vector3<S>& b,
@@ -161,7 +145,6 @@ void circumCircleComputation(
 
 /// @brief Compute the maximum distance from a given center point to a point cloud
 template <typename S>
-FCL_EXPORT
 S maximumDistance(
     const Vector3<S>* const ps,
     const Vector3<S>* const ps2,
@@ -173,7 +156,6 @@ S maximumDistance(
 /// @brief Compute the bounding volume extent and center for a set or subset of
 /// points, given the BV axises.
 template <typename S>
-FCL_EXPORT
 void getExtentAndCenter(
     const Vector3<S>* const ps,
     const Vector3<S>* const ps2,
@@ -187,7 +169,6 @@ void getExtentAndCenter(
 /// @brief Compute the bounding volume extent and center for a set or subset of
 /// points, given the BV axises.
 template <typename S>
-FCL_EXPORT
 void getExtentAndCenter(
     const Vector3<S>* const ps,
     const Vector3<S>* const ps2,
@@ -201,7 +182,6 @@ void getExtentAndCenter(
 /// ts = null, then indices refer to points directly; otherwise refer to
 /// triangles
 template <typename S>
-FCL_EXPORT
 void getCovariance(
     const Vector3<S>* const ps,
     const Vector3<S>* const ps2,

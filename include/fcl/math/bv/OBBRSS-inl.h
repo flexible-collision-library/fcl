@@ -45,10 +45,11 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT OBBRSS<double>;
+class FCL_EXTERN_TEMPLATE_API OBBRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 OBBRSS<double> translate(const OBBRSS<double>& bv, const Vector3<double>& t);
 
 //==============================================================================

@@ -52,7 +52,7 @@ namespace detail
 /// the traversal terminates while performing a query during a given time
 /// instance. The front list reﬂects the subset of a BVTT that is traversed for
 /// that particular proximity query.
-struct FCL_EXPORT BVHFrontNode
+struct FCL_API BVHFrontNode
 {
   /// @brief The nodes to start in the future, i.e. the wave front of the
   /// traversal tree.
@@ -69,7 +69,7 @@ struct FCL_EXPORT BVHFrontNode
 using BVHFrontList = std::list<BVHFrontNode>;
 
 /// @brief Add new front node into the front list
-FCL_EXPORT
+FCL_API
 void updateFrontList(BVHFrontList* front_list, int b1, int b2);
 
 } // namespace detail

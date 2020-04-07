@@ -42,10 +42,11 @@ namespace fcl
 
 //==============================================================================
 template
-class OBBRSS<double>;
+class FCL_INSTANTIATION_DEF_API OBBRSS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 OBBRSS<double> translate(const OBBRSS<double>& bv, const Vector3<double>& t);
 
 } // namespace fcl

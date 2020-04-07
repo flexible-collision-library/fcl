@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct GJKSolver_indep<double>;
+struct FCL_INSTANTIATION_DEF_API GJKSolver_indep<double>;
 
 } // namespace detail
 } // namespace fcl

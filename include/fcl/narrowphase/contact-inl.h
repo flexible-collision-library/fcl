@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-struct Contact<double>;
+struct FCL_EXTERN_TEMPLATE_API Contact<double>;
 
 //==============================================================================
 template <typename S>

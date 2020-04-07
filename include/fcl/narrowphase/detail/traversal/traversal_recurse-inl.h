@@ -52,35 +52,41 @@ namespace detail
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void collisionRecurse(CollisionTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void collisionRecurse(MeshCollisionTraversalNodeOBB<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void collisionRecurse(MeshCollisionTraversalNodeRSS<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void selfCollisionRecurse(CollisionTraversalNodeBase<double>* node, int b, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void distanceRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void distanceQueueRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void collisionRecurse(CollisionTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list)
 {
   bool l1 = node->isFirstNodeLeaf(b1);
@@ -130,7 +136,6 @@ void collisionRecurse(CollisionTraversalNodeBase<S>* node, int b1, int b2, BVHFr
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void collisionRecurse(MeshCollisionTraversalNodeOBB<S>* node, int b1, int b2, const Matrix3<S>& R, const Vector3<S>& T, BVHFrontList* front_list)
 {
   bool l1 = node->isFirstNodeLeaf(b1);
@@ -216,7 +221,6 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB<S>* node, int b1, int b2, co
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void collisionRecurse(MeshCollisionTraversalNodeRSS<S>* node, int b1, int b2, const Matrix3<S>& R, const Vector3<S>& T, BVHFrontList* front_list)
 {
   FCL_UNUSED(node);
@@ -234,7 +238,6 @@ void collisionRecurse(MeshCollisionTraversalNodeRSS<S>* node, int b1, int b2, co
  * Make sure node is set correctly so that the first and second tree are the same
  */
 template <typename S>
-FCL_EXPORT
 void selfCollisionRecurse(CollisionTraversalNodeBase<S>* node, int b, BVHFrontList* front_list)
 {
   bool l = node->isFirstNodeLeaf(b);
@@ -255,7 +258,6 @@ void selfCollisionRecurse(CollisionTraversalNodeBase<S>* node, int b, BVHFrontLi
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void distanceRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list)
 {
   bool l1 = node->isFirstNodeLeaf(b1);
@@ -318,7 +320,7 @@ void distanceRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BVHFron
 //==============================================================================
 /** @brief Bounding volume test structure */
 template <typename S>
-struct FCL_EXPORT BVT
+struct BVT
 {
   /** @brief distance between bvs */
   S d;
@@ -330,7 +332,7 @@ struct FCL_EXPORT BVT
 //==============================================================================
 /** @brief Comparer between two BVT */
 template <typename S>
-struct FCL_EXPORT BVT_Comparer
+struct BVT_Comparer
 {
   bool operator() (const BVT<S>& lhs, const BVT<S>& rhs) const
   {
@@ -340,7 +342,7 @@ struct FCL_EXPORT BVT_Comparer
 
 //==============================================================================
 template <typename S>
-struct FCL_EXPORT BVTQ
+struct BVTQ
 {
   BVTQ() : qsize(2) {}
 
@@ -382,7 +384,6 @@ struct FCL_EXPORT BVTQ
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void distanceQueueRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list, int qsize)
 {
   BVTQ<S> bvtq;
@@ -461,7 +462,6 @@ void distanceQueueRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BV
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list)
 {
   BVHFrontList::iterator front_iter;

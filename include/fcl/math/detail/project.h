@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Project functions
 template <typename S>
-class FCL_EXPORT Project
+class Project
 {
 public:
   struct ProjectResult

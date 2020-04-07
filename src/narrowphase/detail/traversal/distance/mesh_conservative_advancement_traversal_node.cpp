@@ -45,10 +45,11 @@ namespace detail
 
 //==============================================================================
 template
-class MeshConservativeAdvancementTraversalNodeRSS<double>;
+class FCL_INSTANTIATION_DEF_API MeshConservativeAdvancementTraversalNodeRSS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -59,10 +60,11 @@ bool initialize(
 
 //==============================================================================
 template
-class MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
+class FCL_INSTANTIATION_DEF_API MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

@@ -49,9 +49,9 @@ namespace detail
 
 /// @brief Traversal node for distance between mesh and shape
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
-class FCL_EXPORT MeshShapeDistanceTraversalNode
+class MeshShapeDistanceTraversalNode
     : public BVHShapeDistanceTraversalNode<BV, Shape>
-{ 
+{
 public:
 
   using S = typename BV::S;
@@ -69,7 +69,7 @@ public:
 
   S rel_err;
   S abs_err;
-    
+
   const NarrowPhaseSolver* nsolver;
 };
 
@@ -118,7 +118,7 @@ bool initialize(
 
 /// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, OBBRSS, kIOS)
 template <typename Shape, typename NarrowPhaseSolver>
-class FCL_EXPORT MeshShapeDistanceTraversalNodeRSS
+class MeshShapeDistanceTraversalNodeRSS
     : public MeshShapeDistanceTraversalNode<
     RSS<typename Shape::S>, Shape, NarrowPhaseSolver>
 {
@@ -148,7 +148,7 @@ bool initialize(
     DistanceResult<typename Shape::S>& result);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class FCL_EXPORT MeshShapeDistanceTraversalNodekIOS
+class MeshShapeDistanceTraversalNodekIOS
     : public MeshShapeDistanceTraversalNode<kIOS<typename Shape::S>, Shape, NarrowPhaseSolver>
 {
 public:
@@ -177,7 +177,7 @@ bool initialize(
     DistanceResult<typename Shape::S>& result);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class FCL_EXPORT MeshShapeDistanceTraversalNodeOBBRSS
+class MeshShapeDistanceTraversalNodeOBBRSS
     : public MeshShapeDistanceTraversalNode<OBBRSS<typename Shape::S>, Shape, NarrowPhaseSolver>
 {
 public:
@@ -192,7 +192,7 @@ public:
   S BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
-  
+
 };
 
 /// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for OBBRSS type

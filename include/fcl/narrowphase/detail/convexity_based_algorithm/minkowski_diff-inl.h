@@ -59,11 +59,10 @@ namespace detail
 
 //==============================================================================
 extern template
-struct MinkowskiDiff<double>;
+struct FCL_EXTERN_TEMPLATE_API MinkowskiDiff<double>;
 
 //==============================================================================
 template <typename S, typename Derived>
-FCL_EXPORT
 Vector3<S> getSupport(
     const ShapeBase<S>* shape,
     const Eigen::MatrixBase<Derived>& dir)

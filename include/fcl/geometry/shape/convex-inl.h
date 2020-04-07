@@ -46,7 +46,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT Convex<double>;
+class FCL_EXTERN_TEMPLATE_API Convex<double>;
 
 //==============================================================================
 template <typename S>

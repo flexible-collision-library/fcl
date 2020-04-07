@@ -46,7 +46,7 @@ namespace fcl
 {
 
 template <typename S, std::size_t N>
-class FCL_EXPORT SamplerR : public SamplerBase<S>
+class SamplerR : public SamplerBase<S>
 {
 public:
   SamplerR();

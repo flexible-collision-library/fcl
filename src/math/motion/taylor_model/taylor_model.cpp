@@ -45,30 +45,36 @@ namespace fcl
 
 //==============================================================================
 template
-class TaylorModel<double>;
+class FCL_INSTANTIATION_DEF_API TaylorModel<double>;
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 TaylorModel<double> operator * (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 TaylorModel<double> operator + (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 TaylorModel<double> operator - (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void generateTaylorModelForCosFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void generateTaylorModelForSinFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
 template
+FCL_INSTANTIATION_DEF_API
 void generateTaylorModelForLinearFunc(TaylorModel<double>& tm, double p, double v);
 
 } // namespace fcl

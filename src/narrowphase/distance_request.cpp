@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-struct DistanceRequest<double>;
+struct FCL_INSTANTIATION_DEF_API DistanceRequest<double>;
 
 } // namespace fcl

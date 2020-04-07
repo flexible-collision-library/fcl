@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-struct CostSource<double>;
+struct FCL_EXTERN_TEMPLATE_API CostSource<double>;
 
 //==============================================================================
 template <typename S>

@@ -52,10 +52,11 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshCollisionTraversalNodeOBB<double>;
+class FCL_EXTERN_TEMPLATE_API MeshCollisionTraversalNodeOBB<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool initialize(
     MeshCollisionTraversalNodeOBB<double>& node,
     const BVHModel<OBB<double>>& model1,
@@ -67,10 +68,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshCollisionTraversalNodeRSS<double>;
+class FCL_EXTERN_TEMPLATE_API MeshCollisionTraversalNodeRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool initialize(
     MeshCollisionTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -82,10 +84,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshCollisionTraversalNodekIOS<double>;
+class FCL_EXTERN_TEMPLATE_API MeshCollisionTraversalNodekIOS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool initialize(
     MeshCollisionTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -97,10 +100,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshCollisionTraversalNodeOBBRSS<double>;
+class FCL_EXTERN_TEMPLATE_API MeshCollisionTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool initialize(
     MeshCollisionTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

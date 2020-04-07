@@ -49,11 +49,11 @@ namespace detail
 /// @brief Interval trees implemented using red-black-trees as described in
 /// the book Introduction_To_Algorithms_ by Cormen, Leisserson, and Rivest.
 template <typename S>
-struct FCL_EXPORT SimpleInterval
+struct SimpleInterval
 {
 public:
   virtual ~SimpleInterval();
-  
+
   virtual void print();
 
   /// @brief interval is defined as [low, high]

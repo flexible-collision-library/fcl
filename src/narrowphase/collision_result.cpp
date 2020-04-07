@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-struct CollisionResult<double>;
+struct FCL_INSTANTIATION_DEF_API CollisionResult<double>;
 
 } // namespace fcl

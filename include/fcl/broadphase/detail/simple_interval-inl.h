@@ -45,7 +45,7 @@ namespace detail {
 
 //==============================================================================
 extern template
-struct SimpleInterval<double>;
+struct FCL_EXTERN_TEMPLATE_API SimpleInterval<double>;
 
 //==============================================================================
 template <typename S>

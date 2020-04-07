@@ -42,18 +42,20 @@
 namespace fcl {
 namespace detail {
 
-extern template FCL_EXPORT bool
-sphereBoxIntersect(const Sphere<double>& sphere, const Transform3<double>& X_FS,
-                   const Box<double>& box, const Transform3<double>& X_FB,
-                   std::vector<ContactPoint<double>>* contacts);
+extern template
+FCL_EXTERN_TEMPLATE_API
+bool sphereBoxIntersect(const Sphere<double>& sphere, const Transform3<double>& X_FS,
+                        const Box<double>& box, const Transform3<double>& X_FB,
+                        std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 
-extern template FCL_EXPORT bool
-sphereBoxDistance(const Sphere<double>& sphere, const Transform3<double>& X_FS,
-                  const Box<double>& box, const Transform3<double>& X_FB,
-                  double* distance, Vector3<double>* p_FSb,
-                  Vector3<double>* p_FBs);
+extern template
+FCL_EXTERN_TEMPLATE_API
+bool sphereBoxDistance(const Sphere<double>& sphere, const Transform3<double>& X_FS,
+                       const Box<double>& box, const Transform3<double>& X_FB,
+                       double* distance, Vector3<double>* p_FSb,
+                       Vector3<double>* p_FBs);
 
 //==============================================================================
 
@@ -95,10 +97,10 @@ bool nearestPointInBox(const Vector3<S>& size, const Vector3<S>& p_BQ,
 //==============================================================================
 
 template <typename S>
-FCL_EXPORT bool sphereBoxIntersect(const Sphere<S>& sphere,
-                                   const Transform3<S>& X_FS, const Box<S>& box,
-                                   const Transform3<S>& X_FB,
-                                   std::vector<ContactPoint<S>>* contacts) {
+bool sphereBoxIntersect(const Sphere<S>& sphere,
+                        const Transform3<S>& X_FS, const Box<S>& box,
+                        const Transform3<S>& X_FB,
+                        std::vector<ContactPoint<S>>* contacts) {
   const S r = sphere.radius;
   // Find the sphere center C in the box's frame.
   const Transform3<S> X_BS = X_FB.inverse() * X_FS;
@@ -180,10 +182,10 @@ FCL_EXPORT bool sphereBoxIntersect(const Sphere<S>& sphere,
 //==============================================================================
 
 template <typename S>
-FCL_EXPORT bool sphereBoxDistance(const Sphere<S>& sphere,
-                                  const Transform3<S>& X_FS, const Box<S>& box,
-                                  const Transform3<S>& X_FB, S* distance,
-                                  Vector3<S>* p_FSb, Vector3<S>* p_FBs) {
+bool sphereBoxDistance(const Sphere<S>& sphere,
+                       const Transform3<S>& X_FS, const Box<S>& box,
+                       const Transform3<S>& X_FB, S* distance,
+                       Vector3<S>* p_FSb, Vector3<S>* p_FBs) {
   // Find the sphere center C in the box's frame.
   const Transform3<S> X_BS = X_FB.inverse() * X_FS;
   const Vector3<S> p_BC = X_BS.translation();

@@ -62,7 +62,6 @@ namespace OBB_fit_functions {
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit1(const Vector3<S>* const ps, OBB<S>& bv)
 {
   bv.To = ps[0];
@@ -72,7 +71,6 @@ void fit1(const Vector3<S>* const ps, OBB<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit2(const Vector3<S>* const ps, OBB<S>& bv)
 {
   const Vector3<S>& p1 = ps[0];
@@ -90,7 +88,6 @@ void fit2(const Vector3<S>* const ps, OBB<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit3(const Vector3<S>* const ps, OBB<S>& bv)
 {
   const Vector3<S>& p1 = ps[0];
@@ -120,7 +117,6 @@ void fit3(const Vector3<S>* const ps, OBB<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit6(const Vector3<S>* const ps, OBB<S>& bv)
 {
   OBB<S> bv1, bv2;
@@ -131,7 +127,6 @@ void fit6(const Vector3<S>* const ps, OBB<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fitn(const Vector3<S>* const ps, int n, OBB<S>& bv)
 {
   Matrix3<S> M;
@@ -148,22 +143,27 @@ void fitn(const Vector3<S>* const ps, int n, OBB<S>& bv)
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void fit1(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void fit2(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void fit3(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void fit6(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void fitn(const Vector3d* const ps, int n, OBB<double>& bv);
 
 //==============================================================================
@@ -176,7 +176,6 @@ namespace RSS_fit_functions {
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit1(const Vector3<S>* const ps, RSS<S>& bv)
 {
   bv.To = ps[0];
@@ -188,7 +187,6 @@ void fit1(const Vector3<S>* const ps, RSS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit2(const Vector3<S>* const ps, RSS<S>& bv)
 {
   const Vector3<S>& p1 = ps[0];
@@ -208,7 +206,6 @@ void fit2(const Vector3<S>* const ps, RSS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit3(const Vector3<S>* const ps, RSS<S>& bv)
 {
   const Vector3<S>& p1 = ps[0];
@@ -236,7 +233,6 @@ void fit3(const Vector3<S>* const ps, RSS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit6(const Vector3<S>* const ps, RSS<S>& bv)
 {
   RSS<S> bv1, bv2;
@@ -247,7 +243,6 @@ void fit6(const Vector3<S>* const ps, RSS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fitn(const Vector3<S>* const ps, int n, RSS<S>& bv)
 {
   Matrix3<S> M; // row first matrix
@@ -264,27 +259,27 @@ void fitn(const Vector3<S>* const ps, int n, RSS<S>& bv)
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 void fit1(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 void fit2(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 void fit3(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 void fit6(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 void fitn(const Vector3d* const ps, int n, RSS<double>& bv);
 
 //==============================================================================
@@ -297,7 +292,6 @@ namespace kIOS_fit_functions {
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit1(const Vector3<S>* const ps, kIOS<S>& bv)
 {
   bv.num_spheres = 1;
@@ -311,7 +305,6 @@ void fit1(const Vector3<S>* const ps, kIOS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit2(const Vector3<S>* const ps, kIOS<S>& bv)
 {
   bv.num_spheres = 5;
@@ -349,7 +342,6 @@ void fit2(const Vector3<S>* const ps, kIOS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit3(const Vector3<S>* const ps, kIOS<S>& bv)
 {
   bv.num_spheres = 3;
@@ -395,7 +387,6 @@ void fit3(const Vector3<S>* const ps, kIOS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fitn(const Vector3<S>* const ps, int n, kIOS<S>& bv)
 {
   Matrix3<S> M;
@@ -463,22 +454,22 @@ void fitn(const Vector3<S>* const ps, int n, kIOS<S>& bv)
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 void fit1(const Vector3d* const ps, kIOS<double>& bv);
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 void fit2(const Vector3d* const ps, kIOS<double>& bv);
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 void fit3(const Vector3d* const ps, kIOS<double>& bv);
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXTERN_TEMPLATE_API
 void fitn(const Vector3d* const ps, int n, kIOS<double>& bv);
 
 //==============================================================================
@@ -491,7 +482,6 @@ namespace OBBRSS_fit_functions {
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit1(const Vector3<S>* const ps, OBBRSS<S>& bv)
 {
   OBB_fit_functions::fit1(ps, bv.obb);
@@ -500,7 +490,6 @@ void fit1(const Vector3<S>* const ps, OBBRSS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit2(const Vector3<S>* const ps, OBBRSS<S>& bv)
 {
   OBB_fit_functions::fit2(ps, bv.obb);
@@ -509,7 +498,6 @@ void fit2(const Vector3<S>* const ps, OBBRSS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fit3(const Vector3<S>* const ps, OBBRSS<S>& bv)
 {
   OBB_fit_functions::fit3(ps, bv.obb);
@@ -518,7 +506,6 @@ void fit3(const Vector3<S>* const ps, OBBRSS<S>& bv)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void fitn(const Vector3<S>* const ps, int n, OBBRSS<S>& bv)
 {
   OBB_fit_functions::fitn(ps, n, bv.obb);
@@ -527,18 +514,22 @@ void fitn(const Vector3<S>* const ps, int n, OBBRSS<S>& bv)
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void fit1(const Vector3d* const ps, OBBRSS<double>& bv);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void fit2(const Vector3d* const ps, OBBRSS<double>& bv);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void fit3(const Vector3d* const ps, OBBRSS<double>& bv);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void fitn(const Vector3d* const ps, int n, OBBRSS<double>& bv);
 
 //==============================================================================
@@ -547,7 +538,7 @@ void fitn(const Vector3d* const ps, int n, OBBRSS<double>& bv);
 
 //==============================================================================
 template <typename S, typename BV>
-struct FCL_EXPORT Fitter
+struct Fitter
 {
   static void fit(const Vector3<S>* const ps, int n, BV& bv)
   {
@@ -558,7 +549,7 @@ struct FCL_EXPORT Fitter
 
 //==============================================================================
 template <typename S>
-struct FCL_EXPORT Fitter<S, OBB<S>>
+struct Fitter<S, OBB<S>>
 {
   static void fit(const Vector3<S>* const ps, int n, OBB<S>& bv)
   {
@@ -584,7 +575,7 @@ struct FCL_EXPORT Fitter<S, OBB<S>>
 
 //==============================================================================
 template <typename S>
-struct FCL_EXPORT Fitter<S, RSS<S>>
+struct Fitter<S, RSS<S>>
 {
   static void fit(const Vector3<S>* const ps, int n, RSS<S>& bv)
   {
@@ -607,7 +598,7 @@ struct FCL_EXPORT Fitter<S, RSS<S>>
 
 //==============================================================================
 template <typename S>
-struct FCL_EXPORT Fitter<S, kIOS<S>>
+struct Fitter<S, kIOS<S>>
 {
   static void fit(const Vector3<S>* const ps, int n, kIOS<S>& bv)
   {
@@ -630,7 +621,7 @@ struct FCL_EXPORT Fitter<S, kIOS<S>>
 
 //==============================================================================
 template <typename S>
-struct FCL_EXPORT Fitter<S, OBBRSS<S>>
+struct Fitter<S, OBBRSS<S>>
 {
   static void fit(const Vector3<S>* const ps, int n, OBBRSS<S>& bv)
   {
@@ -653,19 +644,19 @@ struct FCL_EXPORT Fitter<S, OBBRSS<S>>
 
 //==============================================================================
 extern template
-struct Fitter<double, OBB<double>>;
+struct FCL_EXTERN_TEMPLATE_API Fitter<double, OBB<double>>;
 
 //==============================================================================
 extern template
-struct Fitter<double, RSS<double>>;
+struct FCL_EXTERN_TEMPLATE_API Fitter<double, RSS<double>>;
 
 //==============================================================================
 extern template
-struct Fitter<double, kIOS<double>>;
+struct FCL_EXTERN_TEMPLATE_API Fitter<double, kIOS<double>>;
 
 //==============================================================================
 extern template
-struct Fitter<double, OBBRSS<double>>;
+struct FCL_EXTERN_TEMPLATE_API Fitter<double, OBBRSS<double>>;
 
 //==============================================================================
 } // namespace detail
@@ -673,7 +664,6 @@ struct Fitter<double, OBBRSS<double>>;
 
 //==============================================================================
 template <typename BV>
-FCL_EXPORT
 void fit(const Vector3<typename BV::S>* const ps, int n, BV& bv)
 {
   detail::Fitter<typename BV::S, BV>::fit(ps, n, bv);
@@ -686,7 +676,7 @@ namespace detail {
 /// @brief Convert a bounding volume of type BV1 in configuration tf1 to a
 /// bounding volume of type BV2 in I configuration.
 template <typename S, typename BV1, typename BV2>
-class FCL_EXPORT ConvertBVImpl
+class ConvertBVImpl
 {
 private:
   static void run(const BV1& bv1, const Transform3<S>& tf1, BV2& bv2)
@@ -702,7 +692,7 @@ private:
 //==============================================================================
 /// @brief Convert from AABB to AABB, not very tight but is fast.
 template <typename S>
-class FCL_EXPORT ConvertBVImpl<S, AABB<S>, AABB<S>>
+class ConvertBVImpl<S, AABB<S>, AABB<S>>
 {
 public:
   static void run(const AABB<S>& bv1, const Transform3<S>& tf1, AABB<S>& bv2)
@@ -718,7 +708,7 @@ public:
 
 //==============================================================================
 template <typename S>
-class FCL_EXPORT ConvertBVImpl<S, AABB<S>, OBB<S>>
+class ConvertBVImpl<S, AABB<S>, OBB<S>>
 {
 public:
   static void run(const AABB<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2)
@@ -767,7 +757,7 @@ public:
 
 //==============================================================================
 template <typename S>
-class FCL_EXPORT ConvertBVImpl<S, OBB<S>, OBB<S>>
+class ConvertBVImpl<S, OBB<S>, OBB<S>>
 {
 public:
   static void run(const OBB<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2)
@@ -780,7 +770,7 @@ public:
 
 //==============================================================================
 template <typename S>
-class FCL_EXPORT ConvertBVImpl<S, OBBRSS<S>, OBB<S>>
+class ConvertBVImpl<S, OBBRSS<S>, OBB<S>>
 {
 public:
   static void run(const OBBRSS<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2)
@@ -791,7 +781,7 @@ public:
 
 //==============================================================================
 template <typename S>
-class FCL_EXPORT ConvertBVImpl<S, RSS<S>, OBB<S>>
+class ConvertBVImpl<S, RSS<S>, OBB<S>>
 {
 public:
   static void run(const RSS<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2)
@@ -804,7 +794,7 @@ public:
 
 //==============================================================================
 template <typename S, typename BV1>
-class FCL_EXPORT ConvertBVImpl<S, BV1, AABB<S>>
+class ConvertBVImpl<S, BV1, AABB<S>>
 {
 public:
   static void run(const BV1& bv1, const Transform3<S>& tf1, AABB<S>& bv2)
@@ -820,7 +810,7 @@ public:
 
 //==============================================================================
 template <typename S, typename BV1>
-class FCL_EXPORT ConvertBVImpl<S, BV1, OBB<S>>
+class ConvertBVImpl<S, BV1, OBB<S>>
 {
 public:
   static void run(const BV1& bv1, const Transform3<S>& tf1, OBB<S>& bv2)
@@ -833,7 +823,7 @@ public:
 
 //==============================================================================
 template <typename S>
-class FCL_EXPORT ConvertBVImpl<S, OBB<S>, RSS<S>>
+class ConvertBVImpl<S, OBB<S>, RSS<S>>
 {
 public:
   static void run(const OBB<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2)
@@ -849,7 +839,7 @@ public:
 
 //==============================================================================
 template <typename S>
-class FCL_EXPORT ConvertBVImpl<S, RSS<S>, RSS<S>>
+class ConvertBVImpl<S, RSS<S>, RSS<S>>
 {
 public:
   static void run(const RSS<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2)
@@ -865,7 +855,7 @@ public:
 
 //==============================================================================
 template <typename S>
-class FCL_EXPORT ConvertBVImpl<S, OBBRSS<S>, RSS<S>>
+class ConvertBVImpl<S, OBBRSS<S>, RSS<S>>
 {
 public:
   static void run(const OBBRSS<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2)
@@ -876,7 +866,7 @@ public:
 
 //==============================================================================
 template <typename S>
-class FCL_EXPORT ConvertBVImpl<S, AABB<S>, RSS<S>>
+class ConvertBVImpl<S, AABB<S>, RSS<S>>
 {
 public:
   static void run(const AABB<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2)
@@ -925,39 +915,39 @@ public:
 
 //==============================================================================
 extern template
-class FCL_EXPORT ConvertBVImpl<double, AABB<double>, AABB<double>>;
+class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, AABB<double>, AABB<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT ConvertBVImpl<double, AABB<double>, OBB<double>>;
+class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, AABB<double>, OBB<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT ConvertBVImpl<double, OBB<double>, OBB<double>>;
+class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, OBB<double>, OBB<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT ConvertBVImpl<double, OBBRSS<double>, OBB<double>>;
+class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, OBBRSS<double>, OBB<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT ConvertBVImpl<double, RSS<double>, OBB<double>>;
+class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, RSS<double>, OBB<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT ConvertBVImpl<double, OBB<double>, RSS<double>>;
+class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, OBB<double>, RSS<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT ConvertBVImpl<double, RSS<double>, RSS<double>>;
+class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, RSS<double>, RSS<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT ConvertBVImpl<double, OBBRSS<double>, RSS<double>>;
+class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, OBBRSS<double>, RSS<double>>;
 
 //==============================================================================
 extern template
-class FCL_EXPORT ConvertBVImpl<double, AABB<double>, RSS<double>>;
+class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, AABB<double>, RSS<double>>;
 
 //==============================================================================
 } // namespace detail
@@ -965,7 +955,6 @@ class FCL_EXPORT ConvertBVImpl<double, AABB<double>, RSS<double>>;
 
 //==============================================================================
 template <typename BV1, typename BV2>
-FCL_EXPORT
 void convertBV(
     const BV1& bv1, const Transform3<typename BV1::S>& tf1, BV2& bv2)
 {

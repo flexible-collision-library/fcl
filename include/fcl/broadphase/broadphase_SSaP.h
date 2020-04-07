@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -44,9 +44,9 @@
 namespace fcl
 {
 
-/// @brief Simple SAP collision manager 
+/// @brief Simple SAP collision manager
 template <typename S>
-class FCL_EXPORT SSaPCollisionManager : public BroadPhaseCollisionManager<S>
+class SSaPCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   SSaPCollisionManager();
@@ -89,7 +89,7 @@ public:
 
   /// @brief whether the manager is empty
   bool empty() const;
-  
+
   /// @brief the number of objects managed by the manager
   size_t size() const;
 
@@ -97,13 +97,13 @@ protected:
   /// @brief check collision between one object and a list of objects, return value is whether stop is possible
   bool checkColl(typename std::vector<CollisionObject<S>*>::const_iterator pos_start, typename std::vector<CollisionObject<S>*>::const_iterator pos_end,
                  CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
-  
+
   /// @brief check distance between one object and a list of objects, return value is whether stop is possible
   bool checkDis(typename std::vector<CollisionObject<S>*>::const_iterator pos_start, typename std::vector<CollisionObject<S>*>::const_iterator pos_end,
                 CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
 
   bool collide_(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
-  
+
   bool distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
 
   static size_t selectOptimalAxis(

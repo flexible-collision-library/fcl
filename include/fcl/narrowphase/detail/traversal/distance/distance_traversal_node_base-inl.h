@@ -50,7 +50,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_EXPORT DistanceTraversalNodeBase<double>;
+class FCL_EXTERN_TEMPLATE_API DistanceTraversalNodeBase<double>;
 
 //==============================================================================
 template <typename S>

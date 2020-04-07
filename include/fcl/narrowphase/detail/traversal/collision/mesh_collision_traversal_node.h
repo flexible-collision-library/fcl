@@ -55,7 +55,7 @@ namespace detail
 
 /// @brief Traversal node for collision between two meshes
 template <typename BV>
-class FCL_EXPORT MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
+class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
 public:
 
@@ -81,7 +81,6 @@ public:
 /// @brief Initialize traversal node for collision between two meshes, given the
 /// current transforms
 template <typename BV>
-FCL_EXPORT
 bool initialize(
     MeshCollisionTraversalNode<BV>& node,
     BVHModel<BV>& model1,
@@ -96,7 +95,7 @@ bool initialize(
 /// @brief Traversal node for collision between two meshes if their underlying
 /// BVH node is oriented node (OBB, RSS, OBBRSS, kIOS)
 template <typename S>
-class FCL_EXPORT MeshCollisionTraversalNodeOBB : public MeshCollisionTraversalNode<OBB<S>>
+class MeshCollisionTraversalNodeOBB : public MeshCollisionTraversalNode<OBB<S>>
 {
 public:
   MeshCollisionTraversalNodeOBB();
@@ -125,7 +124,6 @@ using MeshCollisionTraversalNodeOBBd = MeshCollisionTraversalNodeOBB<double>;
 /// @brief Initialize traversal node for collision between two meshes,
 /// specialized for OBB type
 template <typename S>
-FCL_EXPORT
 bool initialize(
     MeshCollisionTraversalNodeOBB<S>& node,
     const BVHModel<OBB<S>>& model1,
@@ -136,7 +134,7 @@ bool initialize(
     CollisionResult<S>& result);
 
 template <typename S>
-class FCL_EXPORT MeshCollisionTraversalNodeRSS : public MeshCollisionTraversalNode<RSS<S>>
+class MeshCollisionTraversalNodeRSS : public MeshCollisionTraversalNode<RSS<S>>
 {
 public:
   MeshCollisionTraversalNodeRSS();
@@ -167,7 +165,6 @@ using MeshCollisionTraversalNodeRSSd = MeshCollisionTraversalNodeRSS<double>;
 /// @brief Initialize traversal node for collision between two meshes,
 /// specialized for RSS type
 template <typename S>
-FCL_EXPORT
 bool initialize(
     MeshCollisionTraversalNodeRSS<S>& node,
     const BVHModel<RSS<S>>& model1,
@@ -178,11 +175,11 @@ bool initialize(
     CollisionResult<S>& result);
 
 template <typename S>
-class FCL_EXPORT MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOS<S>>
+class MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOS<S>>
 {
 public:
   MeshCollisionTraversalNodekIOS();
- 
+
   bool BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
@@ -199,7 +196,6 @@ using MeshCollisionTraversalNodekIOSd = MeshCollisionTraversalNodekIOS<double>;
 /// @brief Initialize traversal node for collision between two meshes,
 /// specialized for kIOS type
 template <typename S>
-FCL_EXPORT
 bool initialize(
     MeshCollisionTraversalNodekIOS<S>& node,
     const BVHModel<kIOS<S>>& model1,
@@ -210,11 +206,11 @@ bool initialize(
     CollisionResult<S>& result);
 
 template <typename S>
-class FCL_EXPORT MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRSS<S>>
+class MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRSS<S>>
 {
 public:
   MeshCollisionTraversalNodeOBBRSS();
- 
+
 
   bool BVTesting(int b1, int b2) const;
 
@@ -232,7 +228,6 @@ using MeshCollisionTraversalNodeOBBRSSd = MeshCollisionTraversalNodeOBBRSS<doubl
 /// @brief Initialize traversal node for collision between two meshes,
 /// specialized for OBBRSS type
 template <typename S>
-FCL_EXPORT
 bool initialize(
     MeshCollisionTraversalNodeOBBRSS<S>& node,
     const BVHModel<OBBRSS<S>>& model1,
@@ -243,7 +238,6 @@ bool initialize(
     CollisionResult<S>& result);
 
 template <typename BV>
-FCL_EXPORT
 void meshCollisionOrientedNodeLeafTesting(
     int b1,
     int b2,
@@ -264,7 +258,6 @@ void meshCollisionOrientedNodeLeafTesting(
     CollisionResult<typename BV::S>& result);
 
 template <typename BV>
-FCL_EXPORT
 void meshCollisionOrientedNodeLeafTesting(
     int b1,
     int b2,

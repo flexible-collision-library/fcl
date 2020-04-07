@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_EXPORT Project<double>;
+class FCL_EXTERN_TEMPLATE_API Project<double>;
 
 //==============================================================================
 template <typename S>

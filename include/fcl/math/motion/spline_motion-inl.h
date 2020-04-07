@@ -47,7 +47,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT SplineMotion<double>;
+class FCL_EXTERN_TEMPLATE_API SplineMotion<double>;
 
 //==============================================================================
 template <typename S>

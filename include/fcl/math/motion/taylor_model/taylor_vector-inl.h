@@ -45,22 +45,26 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT TVector3<double>;
+class FCL_EXTERN_TEMPLATE_API TVector3<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void generateTVector3ForLinearFunc(TVector3<double>& v, const Vector3<double>& position, const Vector3<double>& velocity);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TVector3<double> operator * (const Vector3<double>& v, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TVector3<double> operator + (const Vector3<double>& v1, const TVector3<double>& v2);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TVector3<double> operator - (const Vector3<double>& v1, const TVector3<double>& v2);
 
 //==============================================================================

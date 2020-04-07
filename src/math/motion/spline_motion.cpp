@@ -41,6 +41,6 @@ namespace fcl
 {
 
 template
-class SplineMotion<double>;
+class FCL_INSTANTIATION_DEF_API SplineMotion<double>;
 
 } // namespace fcl

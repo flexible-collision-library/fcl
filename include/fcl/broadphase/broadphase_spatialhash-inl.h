@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT SpatialHashingCollisionManager<
+class FCL_EXTERN_TEMPLATE_API SpatialHashingCollisionManager<
     double,
     detail::SimpleHashTable<
         AABB<double>, CollisionObject<double>*, detail::SpatialHash<double>>>;

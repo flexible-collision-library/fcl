@@ -47,7 +47,7 @@ namespace fcl
 
 /// @brief Triangle stores the points instead of only indices of points
 template <typename S_>
-class FCL_EXPORT TriangleP : public ShapeBase<S_>
+class TriangleP : public ShapeBase<S_>
 {
 public:
 
@@ -59,7 +59,7 @@ public:
 
   /// @brief virtual function of compute AABB<S> in local coordinate
   void computeLocalAABB() override;
-  
+
   // Documentation inherited
   NODE_TYPE getNodeType() const override;
 

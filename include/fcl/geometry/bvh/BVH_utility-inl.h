@@ -47,17 +47,18 @@ namespace fcl
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void BVHExpand(
     BVHModel<OBB<double>>& model, const Variance3<double>* ucs, double r);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void BVHExpand(
     BVHModel<RSS<double>>& model, const Variance3<double>* ucs, double r);
 
 //==============================================================================
 template <typename S, typename BV>
-FCL_EXPORT
 void BVHExpand(BVHModel<BV>& model, const Variance3<S>* ucs, S r)
 {
   for(int i = 0; i < model.num_bvs; ++i)
@@ -85,7 +86,6 @@ void BVHExpand(BVHModel<BV>& model, const Variance3<S>* ucs, S r)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void BVHExpand(
     BVHModel<OBB<S>>& model,
     const Variance3<S>* ucs,
@@ -129,7 +129,6 @@ void BVHExpand(
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void BVHExpand(
     BVHModel<RSS<S>>& model,
     const Variance3<S>* ucs,

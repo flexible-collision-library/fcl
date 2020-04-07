@@ -47,22 +47,26 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT OBB<double>;
+class FCL_EXTERN_TEMPLATE_API OBB<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void computeVertices(const OBB<double>& b, Vector3<double> vertices[8]);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 OBB<double> merge_largedist(const OBB<double>& b1, const OBB<double>& b2);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 OBB<double> merge_smalldist(const OBB<double>& b1, const OBB<double>& b2);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool obbDisjoint(
     const Matrix3<double>& B,
     const Vector3<double>& T,
@@ -71,6 +75,7 @@ bool obbDisjoint(
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 bool obbDisjoint(
     const Transform3<double>& tf,
     const Vector3<double>& a,

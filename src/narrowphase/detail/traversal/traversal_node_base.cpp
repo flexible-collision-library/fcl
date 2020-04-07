@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-class TraversalNodeBase<double>;
+class FCL_INSTANTIATION_DEF_API TraversalNodeBase<double>;
 
 } // namespace detail
 } // namespace fcl

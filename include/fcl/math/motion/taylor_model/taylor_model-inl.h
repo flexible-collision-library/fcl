@@ -48,30 +48,36 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT TaylorModel<double>;
+class FCL_EXTERN_TEMPLATE_API TaylorModel<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TaylorModel<double> operator * (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TaylorModel<double> operator + (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TaylorModel<double> operator - (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void generateTaylorModelForCosFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void generateTaylorModelForSinFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 void generateTaylorModelForLinearFunc(TaylorModel<double>& tm, double p, double v);
 
 //==============================================================================

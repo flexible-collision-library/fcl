@@ -45,34 +45,41 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT TMatrix3<double>;
+class FCL_EXTERN_TEMPLATE_API TMatrix3<double>;
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TMatrix3<double> rotationConstrain(const TMatrix3<double>& m);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TMatrix3<double> operator * (const Matrix3<double>& m, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TMatrix3<double> operator * (const TaylorModel<double>& a, const Matrix3<double>& m);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TMatrix3<double> operator * (const TaylorModel<double>& a, const TMatrix3<double>& m);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TMatrix3<double> operator * (double d, const TMatrix3<double>& m);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TMatrix3<double> operator + (const Matrix3<double>& m1, const TMatrix3<double>& m2);
 
 //==============================================================================
 extern template
+FCL_EXTERN_TEMPLATE_API
 TMatrix3<double> operator - (const Matrix3<double>& m1, const TMatrix3<double>& m2);
 
 //==============================================================================

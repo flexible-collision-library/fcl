@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -46,7 +46,7 @@ namespace fcl
 
 /// @brief Brute force N-body collision manager
 template <typename S>
-class FCL_EXPORT NaiveCollisionManager : public BroadPhaseCollisionManager<S>
+class NaiveCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   NaiveCollisionManager();
@@ -92,7 +92,7 @@ public:
 
   /// @brief whether the manager is empty
   bool empty() const;
-  
+
   /// @brief the number of objects managed by the manager
   size_t size() const;
 

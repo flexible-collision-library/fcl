@@ -49,7 +49,7 @@ struct CollisionResult;
 
 /// @brief Parameters for performing collision request.
 template <typename S>
-struct FCL_EXPORT CollisionRequest
+struct CollisionRequest
 {
   /// The underlying numerical representation of the request's scalar (e.g.,
   /// float or double).
@@ -81,7 +81,7 @@ struct FCL_EXPORT CollisionRequest
   // single std::optional<Vector3<S>>.
   /// @brief If true, uses the provided initial guess for the GJK algorithm.
   bool enable_cached_gjk_guess;
-  
+
   /// @brief The initial guess to use in the GJK algorithm.
   Vector3<S> cached_gjk_guess;
 
