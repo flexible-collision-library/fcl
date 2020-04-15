@@ -72,7 +72,7 @@ public:
   const AABB<S>& getAABB() const;
 
   /// @brief compute the AABB in world space
-  void computeAABB();
+  virtual void computeAABB();
 
   /// @brief get user data in object
   void* getUserData() const;
