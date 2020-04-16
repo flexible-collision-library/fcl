@@ -60,7 +60,7 @@ public:
                   const Matrix3<S>& R,
                   const Vector3<S>& T);
 
-  ~CollisionObject();
+  virtual ~CollisionObject();
 
   /// @brief get the type of the object
   OBJECT_TYPE getObjectType() const;
