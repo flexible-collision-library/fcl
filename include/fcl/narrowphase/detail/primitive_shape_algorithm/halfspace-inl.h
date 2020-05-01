@@ -102,6 +102,12 @@ bool convexHalfspaceIntersect(
     Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
 
 //==============================================================================
+extern template bool convexHalfspaceIntersect(
+    const Convex<double>& convex_C, const Transform3<double>& X_FC,
+    const Halfspace<double>& half_space_H, const Transform3<double>& X_FH,
+    std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
 extern template
 bool halfspaceTriangleIntersect(
     const Halfspace<double>& s1, const Transform3<double>& tf1,
@@ -490,6 +496,7 @@ bool coneHalfspaceIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
 }
 
 //==============================================================================
+// TODO(SeanCurtis-TRI): This is generally unused in FCL. Consider killing it.
 template <typename S>
 bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
                               const Halfspace<S>& s2, const Transform3<S>& tf2,
@@ -500,6 +507,10 @@ bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
   Vector3<S> v;
   S depth = std::numeric_limits<S>::max();
 
+  // Note: There are two issues with this for loop:
+  //  1. We are transforming *every* vertex in the convex. That's a waste.
+  //  2. If we don't report contact results, and we detect collision with the
+  //     first vertex, we still process all vertices. Also a waste.
   for (const auto& vertex : s1.getVertices())
   {
     Vector3<S> p = tf1 * vertex;
@@ -514,13 +525,60 @@ bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
 
   if(depth <= 0)
   {
+    // Note: this value for contact_point only works because depth is really
+    // signed distance, so negating the normal cancels the negation of the
+    // "penetration depth".
     if(contact_points) *contact_points = v - new_s2.n * (0.5 * depth);
+    // TODO(SeanCurtis-TRI): This appears to have the wrong sign for depth.
+    //  We've actually computed *signed distance* which is -depth.
     if(penetration_depth) *penetration_depth = depth;
+    // Note: This points *into* the half space. It is not clear this matches
+    // any documented convention.
     if(normal) *normal = -new_s2.n;
     return true;
   }
   else
     return false;
+}
+
+//==============================================================================
+template <typename S>
+bool convexHalfspaceIntersect(const Convex<S>& convex_C,
+                              const Transform3<S>& X_FC,
+                              const Halfspace<S>& half_space_H,
+                              const Transform3<S>& X_FH,
+                              std::vector<ContactPoint<S>>* contacts) {
+  Halfspace<S> half_space_C = transform(half_space_H, X_FC.inverse() * X_FH);
+
+  Vector3<S> p_CV_deepest;
+  S min_signed_distance = std::numeric_limits<S>::max();
+
+  // TODO: Once we have an efficient "support vector" implementation for Convex
+  //  (necessary to make GJK run faster with convex), this could benefit by
+  //  simply asking for the support vector in the negative normal direction.
+  //  That would also make computing normal_C cheaper; it could just be the
+  //  product: X_FC.linear().transpose() * X_FH.linear() * half_space_H.n.
+  for (const auto& p_CV : convex_C.getVertices()) {
+    const S signed_distance = half_space_C.signedDistance(p_CV);
+    if (signed_distance < min_signed_distance) {
+      min_signed_distance = signed_distance;
+      p_CV_deepest = p_CV;
+      if (signed_distance <= 0 && contacts == nullptr) return true;
+    }
+  }
+
+  const bool intersecting = min_signed_distance <= 0;
+
+  if (intersecting && contacts) {
+    const Vector3<S> normal_F = X_FH.linear() * half_space_H.n;
+    const Vector3<S> p_FV = X_FC * p_CV_deepest;
+    // NOTE: penetration depth is defined as the negative of signed distance.
+    // So, the depth reported here will always be non-negative.
+    const S depth = -min_signed_distance;
+    contacts->emplace_back(-normal_F, p_FV + normal_F * (0.5 * depth), depth);
+  }
+
+  return intersecting;
 }
 
 //==============================================================================
