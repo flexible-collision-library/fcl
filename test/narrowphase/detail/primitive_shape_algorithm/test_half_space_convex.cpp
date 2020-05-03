@@ -173,15 +173,15 @@ vector<Configuration<S>> GetConfigurations() {
   // plane.
   configurations.emplace_back(
       "simple non-colliding",
-      MakeTransform(AngleAxis<S>::Identity(), Vector3<S>{0, 0, 0.1}), I);
+      MakeTransform(AngleAxis<S>::Identity(), Vector3<S>{0, 0, S(0.1)}), I);
 
   // Simple penetration - the tet is rotated so the point is down and penetrates
   // the plane.
   const AngleAxis<S> R_CT_point_down{kPi, Vector3<S>::UnitX()};
   configurations.emplace_back(
       "simple penetration",
-      MakeTransform(R_CT_point_down, Vector3<S>{0, 0, 0.5}), I, 0.5,
-      Vector3<S>{0, 0, -1}, Vector3<S>{0, 0, -0.25});
+      MakeTransform(R_CT_point_down, Vector3<S>{0, 0, 0.5}), I, S(0.5),
+      Vector3<S>{0, 0, -1}, Vector3<S>{0, 0, S(-0.25)});
 
   // Orient the half-space so it is not axis aligned and does not pass through
   // the origin. Then position the tet so that one point is near penetration
@@ -189,7 +189,7 @@ vector<Configuration<S>> GetConfigurations() {
 
   Transform3<S> X_CH =
       MakeTransform(AngleAxis<S>{kPi / 5, Vector3<S>{1, 2, 3}.normalized()},
-                    Vector3<S>{0.25, 0.5, 0.75});
+                    Vector3<S>{S(0.25), S(0.5), S(0.75)});
 
   // Steal the orientation from the previous configuration so that vertex 3
   // is pointing downwards into the half space.
@@ -197,13 +197,13 @@ vector<Configuration<S>> GetConfigurations() {
 
   configurations.emplace_back(
       "non-trivial half space, non-colliding",
-      X_CH * MakeTransform(R_HT_point_down, Vector3<S>{0, 0, 1.01}), X_CH);
+      X_CH * MakeTransform(R_HT_point_down, Vector3<S>{0, 0, S(1.01)}), X_CH);
 
   // We pose the tet relative to the half plane, and the transform it again into
   // the configuration frame. Offset of 0.5 in the z-direction gives us a
   // penetration depth of 0.5.
   const Transform3<S> X_CT =
-      X_CH * MakeTransform(R_HT_point_down, Vector3<S>{0, 0, 0.5});
+      X_CH * MakeTransform(R_HT_point_down, Vector3<S>{0, 0, S(0.5)});
   const Vector3<S> Hz_C = X_CH.linear().col(2);
   // By construction, we're colliding vertex 3 (0, 0, 1). So, let's find where
   // it is in this configuration.
@@ -211,7 +211,7 @@ vector<Configuration<S>> GetConfigurations() {
   const Vector3<S> p_CV3 = X_CT * p_TV3;
   const S depth(0.5);
   configurations.emplace_back("non-trivial half space, colliding", X_CT, X_CH,
-                              depth, -Hz_C, p_CV3 + Hz_C * 0.5 * depth);
+                              depth, -Hz_C, p_CV3 + Hz_C * S(0.5) * depth);
 
   return configurations;
 }
@@ -254,8 +254,8 @@ void EvalCollisionForTestConfiguration(const Configuration<S>& config, S eps) {
   X_WCs.emplace_back(Transform3<S>::Identity());
   X_WCs.emplace_back(
       MakeTransform(AngleAxis<S>{constants<S>::pi() / 7,
-                                 Vector3<S>{1, -2, -1.3}.normalized()},
-                    Vector3<S>{-0.25, 0.5, -0.75}));
+                                 Vector3<S>{1, -2, S(-1.3)}.normalized()},
+                    Vector3<S>{S(-0.25), S(0.5), S(-0.75)}));
 
   for (const auto& X_WC : X_WCs) {
     // For a given configuration, we can set it up two ways:
