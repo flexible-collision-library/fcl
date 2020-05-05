@@ -131,13 +131,23 @@ bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
 /// transforms to a common frame F.
 ///
 /// If the two geometries are intersecting and `contacts` is not `nullptr`, the
-/// new ContactPoint.normal will be antiparallel to the half space normal
-/// (expressed in Frame F). We define the point P to be a point of `convex_C`
-/// that most deeply penetrates into the half space. It is not guaranteed to be
-/// unique. If it is not unique, it will be arbitrarily selected from the set of
-/// all such points. The ContactPoint.penetration_depth value is the depth of P.
-/// ContactPoint.pos is defined as the point between P and the nearest point on
-/// the boundary of the half space, measured and exppressed in F.
+/// new ContactPoint.normal will point in the opposite direction as the half
+/// space normal (expressed in Frame F) -- it points _into_ the half space. We
+/// define the point P to be a point of `convex_C` that most deeply penetrates
+/// into the half space. It is not guaranteed to be unique. If it is not unique,
+/// it will be arbitrarily selected from the set of all such points. The
+/// ContactPoint.penetration_depth value is the depth of P. ContactPoint.pos is
+/// defined as the point between P and the nearest point on the boundary of the
+/// half space, measured and expressed in F.
+///
+/// ContactPoint is documented to report contact position in the world frame W.
+/// This function will only truly satisfy that requirement if F = W. It is the
+/// responsibility of the caller to understand the semantics of F and confirm
+/// that it satisfies that requirement.
+///
+/// This makes use of the
+/// [Drake monogram notation](http://drake.mit.edu/doxygen_cxx/group__multibody__notation__basics.html)
+/// to describe quantities (particularly the poses of shapes).
 ///
 /// @param convex_C      The convex mesh. Its vertex positions are measured and
 ///                      expressed in Frame C.

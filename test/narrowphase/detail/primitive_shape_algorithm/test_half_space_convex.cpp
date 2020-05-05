@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018. Toyota Research Institute
+ *  Copyright (c) 2020. Toyota Research Institute
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 
 /** @author Sean Curtis (sean@tri.global) (2020) */
 
-// Tests the custom half space-convex collision test.
+// Tests the Halfspace-Convex primitive collision test.
 
 // TODO(SeanCurtis-TRI): Currently, there are no half space-X distance primitive
 //  implementations.
@@ -62,7 +62,7 @@ using std::string;
 using std::vector;
 
 /*
- Creates a unit tetrahedron as a Convex geometry.
+ Creates a simple tetrahedron as a Convex geometry.
        +z
         │
         │
@@ -79,8 +79,8 @@ using std::vector;
   +x
 
   The tet is defined in geometry frame G, shown above with vertex positions
-  marked. The final convex mesh is expressed in tetrahedral frame G. It
-  relationship to T is given by X_TG.
+  marked. The final tetrahedral convex mesh is expressed in frame T. The
+  relationship to G is given by X_TG.
  */
 template <typename S>
 Convex<S> MakeTetrahedron(const Transform3<S>& X_TG) {
@@ -107,9 +107,9 @@ Convex<S> MakeTetrahedron(const Transform3<S>& X_TG) {
 }
 
 /* Specifies the data necessary for a single test and the expected results.
- A Convex shape (the tetrahedron returned by MakeTetrahedron) is posed in
- the half space frame H (such that the half space lies on the Hz = 0 plane
- with the normal pointing in the Hz direction). */
+ The Convex tetrahedron is defined in frame T, the Halfspace is defined in frame
+ H, and both are posed relative to the configuration frame C with X_CT and X_CH,
+ respectively. */
 template <typename S>
 struct Configuration {
   /* Convenience constructor for creating an expected _non-colliding_
@@ -163,11 +163,11 @@ Transform3<S> MakeTransform(const AngleAxis<S>& angle_axis,
 }
 
 template <typename S>
-vector<Configuration<S>> GetConfigurations() {
+aligned_vector<Configuration<S>> GetConfigurations() {
   const Transform3<S> I = Transform3<S>::Identity();
   const S kPi = constants<S>::pi();
 
-  vector<Configuration<S>> configurations;
+  aligned_vector<Configuration<S>> configurations;
 
   // Vanilla configuration -- the un-rotated tet floats slightly above the
   // plane.
@@ -175,8 +175,8 @@ vector<Configuration<S>> GetConfigurations() {
       "simple non-colliding",
       MakeTransform(AngleAxis<S>::Identity(), Vector3<S>{0, 0, S(0.1)}), I);
 
-  // Simple penetration - the tet is rotated so the point is down and penetrates
-  // the plane.
+  // Simple penetration - the tet is rotated so the point V3 is down and
+  // penetrates the plane.
   const AngleAxis<S> R_CT_point_down{kPi, Vector3<S>::UnitX()};
   configurations.emplace_back(
       "simple penetration",
@@ -184,34 +184,37 @@ vector<Configuration<S>> GetConfigurations() {
       Vector3<S>{0, 0, -1}, Vector3<S>{0, 0, S(-0.25)});
 
   // Orient the half-space so it is not axis aligned and does not pass through
-  // the origin. Then position the tet so that one point is near penetration
+  // the origin. Then position the tet so that the point V3 is near penetration
   // and submit *two* configurations: one in collision, one not.
 
-  Transform3<S> X_CH =
+  const Transform3<S> X_CH =
       MakeTransform(AngleAxis<S>{kPi / 5, Vector3<S>{1, 2, 3}.normalized()},
                     Vector3<S>{S(0.25), S(0.5), S(0.75)});
 
-  // Steal the orientation from the previous configuration so that vertex 3
-  // is pointing downwards into the half space.
+  // Steal the orientation from the previous configuration so that V3 is
+  // pointing downwards into the half space.
   const AngleAxis<S> R_HT_point_down = R_CT_point_down;
 
-  configurations.emplace_back(
-      "non-trivial half space, non-colliding",
-      X_CH * MakeTransform(R_HT_point_down, Vector3<S>{0, 0, S(1.01)}), X_CH);
+  const Transform3<S> X_HT_separated =
+      MakeTransform(R_HT_point_down, Vector3<S>{0, 0, S(1.01)});
+  configurations.emplace_back("non-trivial half space, non-colliding",
+                              X_CH * X_HT_separated, X_CH);
 
   // We pose the tet relative to the half plane, and the transform it again into
   // the configuration frame. Offset of 0.5 in the z-direction gives us a
   // penetration depth of 0.5.
-  const Transform3<S> X_CT =
-      X_CH * MakeTransform(R_HT_point_down, Vector3<S>{0, 0, S(0.5)});
+  const Transform3<S> X_HT_colliding =
+      MakeTransform(R_HT_point_down, Vector3<S>{0, 0, S(0.5)});
+  const Transform3<S> X_CT_collding = X_CH * X_HT_colliding;
   const Vector3<S> Hz_C = X_CH.linear().col(2);
-  // By construction, we're colliding vertex 3 (0, 0, 1). So, let's find where
-  // it is in this configuration.
+  // By construction, we're colliding V3 (0, 0, 1). So, let's find where it is
+  // in this configuration.
   const Vector3<S> p_TV3 = Vector3<S>::UnitZ();
-  const Vector3<S> p_CV3 = X_CT * p_TV3;
+  const Vector3<S> p_CV3 = X_CT_collding * p_TV3;
   const S depth(0.5);
-  configurations.emplace_back("non-trivial half space, colliding", X_CT, X_CH,
-                              depth, -Hz_C, p_CV3 + Hz_C * S(0.5) * depth);
+  configurations.emplace_back("non-trivial half space, colliding",
+                              X_CT_collding, X_CH, depth, -Hz_C,
+                              p_CV3 + Hz_C * S(0.5) * depth);
 
   return configurations;
 }
@@ -250,7 +253,7 @@ void TestCollision(const Convex<S>& convex_T, const Transform3<S>& X_WT,
  against non-trivial transforms).  */
 template <typename S>
 void EvalCollisionForTestConfiguration(const Configuration<S>& config, S eps) {
-  vector<Transform3<S>> X_WCs{};
+  aligned_vector<Transform3<S>> X_WCs{};
   X_WCs.emplace_back(Transform3<S>::Identity());
   X_WCs.emplace_back(
       MakeTransform(AngleAxis<S>{constants<S>::pi() / 7,
@@ -259,8 +262,8 @@ void EvalCollisionForTestConfiguration(const Configuration<S>& config, S eps) {
 
   for (const auto& X_WC : X_WCs) {
     // For a given configuration, we can set it up two ways:
-    // X_CT and X_CH multiply mesh_T and half_space_H, respectively, or
-    // identity multiplies mesh_C and half_space_C.
+    // X_CT and X_CH multiply convex_T and half_space_H, respectively, or
+    // identity multiplies convex_C and half_space_C.
     // We'll do both; their answers should be the same. This will allow us to
     // easily confirm that all of the values contribute.
 
@@ -294,7 +297,7 @@ void EvalCollisionForTestConfiguration(const Configuration<S>& config, S eps) {
 
 // Simply evaluate collision on each of the given configurations.
 template <typename S>
-void QueryCollision(const vector<Configuration<S>>& configs) {
+void QueryCollision(const aligned_vector<Configuration<S>>& configs) {
   // Half space collision is clean enough that even under ugly rotations, we
   // still get good precision.
   const S eps = 2 * constants<S>::eps();
