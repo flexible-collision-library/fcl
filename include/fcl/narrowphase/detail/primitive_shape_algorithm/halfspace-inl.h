@@ -496,12 +496,12 @@ bool coneHalfspaceIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
 }
 
 //==============================================================================
+// TODO(SeanCurtis-TRI): This is generally unused in FCL. Consider killing it.
 template <typename S>
 bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
                               const Halfspace<S>& s2, const Transform3<S>& tf2,
                               Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal)
 {
-// TODO(SeanCurtis-TRI): This is generally unused in FCL. Consider killing it.
   Halfspace<S> new_s2 = transform(s2, tf2);
 
   Vector3<S> v;
@@ -551,7 +551,7 @@ bool convexHalfspaceIntersect(const Convex<S>& convex_C,
   Halfspace<S> half_space_C = transform(half_space_H, X_FC.inverse() * X_FH);
 
   Vector3<S> p_CV_deepest;
-  S minimum_distance = std::numeric_limits<S>::max();
+  S min_signed_distance = std::numeric_limits<S>::max();
 
   // TODO: Once we have an efficient "support vector" implementation for Convex
   //  (necessary to make GJK run faster with convex), this could benefit by
@@ -559,21 +559,22 @@ bool convexHalfspaceIntersect(const Convex<S>& convex_C,
   //  That would also make computing normal_C cheaper; it could just be the
   //  product: X_FC.linear().transpose() * X_FH.linear() * half_space_H.n.
   for (const auto& p_CV : convex_C.getVertices()) {
-    const S distance = half_space_C.signedDistance(p_CV);
-    if (distance < minimum_distance) {
-      minimum_distance = distance;
+    const S signed_distance = half_space_C.signedDistance(p_CV);
+    if (signed_distance < min_signed_distance) {
+      min_signed_distance = signed_distance;
       p_CV_deepest = p_CV;
-      if (distance <= 0 && contacts == nullptr) return true;
+      if (signed_distance <= 0 && contacts == nullptr) return true;
     }
   }
 
-  const bool intersecting = minimum_distance <= 0;
+  const bool intersecting = min_signed_distance <= 0;
 
   if (intersecting && contacts) {
     const Vector3<S> normal_F = X_FH.linear() * half_space_H.n;
     const Vector3<S> p_FV = X_FC * p_CV_deepest;
-    // NOTE: penetration depth is defined as negative signed distance.
-    const S depth = -minimum_distance;
+    // NOTE: penetration depth is defined as the negative of signed distance.
+    // So, the depth reported here will always be non-negative.
+    const S depth = -min_signed_distance;
     contacts->emplace_back(-normal_F, p_FV + normal_F * (0.5 * depth), depth);
   }
 
