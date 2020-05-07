@@ -47,6 +47,7 @@
 
 #include <octomap/octomap.h>
 #include "fcl/math/bv/AABB.h"
+#include "fcl/geometry/shape/box.h"
 #include "fcl/narrowphase/collision_object.h"
 
 namespace fcl
@@ -131,6 +132,47 @@ public:
 
   /// @brief return node type, it is an octree
   NODE_TYPE getNodeType() const;
+
+  /// @brief Access a node by query cell id
+  ///
+  /// The results of distance and collision queries include various pieces of
+  /// information about the objects involved in the query (in DistanceResult
+  /// and Contact, respectively). When an object in the query is an OcTree the
+  /// corresponding member (b1 or b2) contains an opaque identifier refered to
+  /// as the "query cell id" of the corresponding tree cell.
+  ///
+  /// This method returns the node pointer from the given query cell id.
+  /// In order to efficiently find the cell by its query cell id, the contact
+  /// point or nearest point in or on the cell must be given. This method also
+  /// provides optional access to properties of the OcTree cell associated
+  /// with the cell. 
+  ///
+  /// If the given cell can not be found, nullptr is returned and no
+  /// information is stored in the output pointer locations. This might happen
+  /// if some other point not in or on the cell is provided or if given a stale
+  /// or invalid query cell id.
+  ///
+  /// @param id the query cell id, as given in b1 or b2 in a query result
+  /// @param point a point in or on the given cell id, from a query result
+  /// @param aabb if valid, output pointer for the aabb of the cell
+  /// @param key if valid, output pointer for the octomap::OcTreeKey of the cell
+  /// @param depth if valid, output pointer for the tree depth of the cell
+  /// @return the node pointer for the given query cell id, or nullptr if not found
+  const OcTreeNode* getNode(
+      intptr_t id,
+      const Vector3<S>& point,
+      AABB<S>* aabb = nullptr,
+      octomap::OcTreeKey* key = nullptr,
+      unsigned int* depth = nullptr) const;
+
+private:
+  // Get the leaf_bbx_iterator pointing to the given cell given a point on or
+  // in the cell and the query id.
+  // Returns true if the cell was found, and false otherwise.
+  bool getOctomapIterator(
+      intptr_t id,
+      const Vector3<S>& point,
+      octomap::OcTree::leaf_bbx_iterator* out) const;
 };
 
 using OcTreef = OcTree<float>;
