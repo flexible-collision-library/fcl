@@ -47,6 +47,7 @@
 
 #include <octomap/octomap.h>
 #include "fcl/math/bv/AABB.h"
+#include "fcl/geometry/shape/box.h"
 #include "fcl/narrowphase/collision_object.h"
 
 namespace fcl
@@ -131,6 +132,36 @@ public:
 
   /// @brief return node type, it is an octree
   NODE_TYPE getNodeType() const;
+
+  /// @brief Access a node from an opaque cell id
+  ///
+  /// Return the node pointer from the opaque id of a cell.
+  /// The id of a cell is the opaque id returned by collision and
+  /// distance queries. The node pointer can be used to retrieve any
+  /// information stored in the cell, such as occupancy information.
+  const OcTreeNode* getNode(intptr_t id) const;
+
+  /// @brief Return the BV of the given opaque cell id and point on cell
+  /// @return true if the cell was found and aabb updated
+  bool getNodeBV(intptr_t id, const Vector3<S>& point, AABB<S>& aabb) const;
+
+  /// @brief Return the box of the given opaque cell id and point on cell
+  /// @return true if the cell was found and box and tf updated
+  bool getNodeBox(intptr_t id, const Vector3<S>& point, Box<S>& box, Transform3<S>& box_tf) const;
+
+  /// @brief Return the octomap::OcTreeKey and depth from the opaque id and point on cell
+  /// @return true if the cell was found and key and depth updated
+  bool getNodeKeyAndDepth(intptr_t id, const Vector3<S>& point, octomap::OcTreeKey& key, unsigned int& depth) const;
+
+protected:
+  /// @brief get the leaf_bbx_iterator pointing to the given cell
+  ///
+  /// @param id    opaque id returned in the contact information or distance result
+  /// @param point a point on or in the cell returned in the contact
+  ///              information or distance result
+  /// @param out   pointer to output iterator
+  /// @return true if the cell was found
+  bool getOctomapIterator(intptr_t id, const Vector3<S>& point, octomap::OcTree::leaf_bbx_iterator* out) const;
 };
 
 using OcTreef = OcTree<float>;
