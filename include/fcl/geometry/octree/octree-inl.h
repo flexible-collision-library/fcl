@@ -42,6 +42,8 @@
 
 #include "fcl/config.h"
 
+#include "fcl/geometry/shape/utility.h"
+
 #if FCL_HAVE_OCTOMAP
 
 namespace fcl
@@ -294,6 +296,84 @@ void computeChildBV(const AABB<S>& root_bv, unsigned int i, AABB<S>& child_bv)
     child_bv.min_[2] = root_bv.min_[2];
     child_bv.max_[2] = (root_bv.min_[2] + root_bv.max_[2]) * 0.5;
   }
+}
+
+//==============================================================================
+template <typename S>
+const typename OcTree<S>::OcTreeNode* OcTree<S>::getNodeByQueryCellId(
+    intptr_t id,
+    const Vector3<S>& point,
+    AABB<S>* aabb,
+    octomap::OcTreeKey* key,
+    unsigned int* depth) const
+{
+  octomap::OcTree::leaf_bbx_iterator it;
+  if (!getOctomapIterator(id, point, &it))
+  {
+    return nullptr;
+  }
+  if (aabb != nullptr)
+  {
+    Vector3<S> center(it.getX(), it.getY(), it.getZ());
+    double half_size = it.getSize() / 2.0;
+    Vector3<S> half_extent(half_size, half_size, half_size);
+    aabb->min_ = center - half_extent;
+    aabb->max_ = center + half_extent;
+  }
+  if (key != nullptr)
+    *key = it.getKey();
+  if (depth != nullptr)
+    *depth = it.getDepth();
+  return &(*it);
+}
+
+//==============================================================================
+template <typename S>
+bool OcTree<S>::getOctomapIterator(
+    intptr_t id,
+    const Vector3<S>& point,
+    octomap::OcTree::leaf_bbx_iterator* out) const
+{
+  assert(out != nullptr);
+  // The octomap tree structure provides no way to find a node from its pointer
+  // short of an exhaustive search. This could take a long time on a large
+  // tree. Instead, require the user to supply the contact point or nearest
+  // point returned by the query that also returned the id. Use the point to
+  // create the bounds to search for the node pointer.
+  const octomap::OcTreeKey point_key = tree->coordToKey(
+      point[0], point[1], point[2]);
+  // Set the min and max keys used for the bbx to the point key plus or minus
+  // one (if not at the limits of the data type) so we are guaranteed to hit
+  // the correct cell even when the point is on a boundary and rounds to the
+  // wrong cell.
+  octomap::OcTreeKey min_key, max_key;
+  for (unsigned int i = 0; i < 3; ++i)
+  {
+    min_key[i] = (point_key[i] > std::numeric_limits<octomap::key_type>::min() ?
+        point_key[i] - 1 : point_key[i]);
+    max_key[i] = (point_key[i] < std::numeric_limits<octomap::key_type>::max() ?
+        point_key[i] + 1 : point_key[i]);
+  }
+  octomap::OcTree::leaf_bbx_iterator it = tree->begin_leafs_bbx(
+      min_key, max_key);
+  const octomap::OcTree::leaf_bbx_iterator end = tree->end_leafs_bbx();
+  const OcTreeNode* const node = getRoot() + id;
+  // While it may appear like this loop could take forever, in reality it will
+  // only take a few iterations. Octomap iterators use a fixed end iterator
+  // (copied above), and we are guaranteed to get to the end iterator after
+  // incrementing past the bounds of the octomap::OcTree::leaf_bbx_iterator.
+  // Incrementing end will keep the iterator at end as well. This functionality
+  // of octomap iterators is tested extensively in the octomap package tests.
+  while (it != end)
+  {
+    if (node == &(*it))
+    {
+      *out = it;
+      return true;
+    }
+    ++it;
+  }
+  return false;
 }
 
 } // namespace fcl
