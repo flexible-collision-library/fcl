@@ -171,17 +171,17 @@ aligned_vector<Configuration<S>> GetConfigurations() {
 
   // Vanilla configuration -- the un-rotated tet floats slightly above the
   // plane.
-  configurations.emplace_back(
+  configurations.push_back(Configuration<S>{
       "simple non-colliding",
-      MakeTransform(AngleAxis<S>::Identity(), Vector3<S>{0, 0, S(0.1)}), I);
+      MakeTransform(AngleAxis<S>::Identity(), Vector3<S>{0, 0, S(0.1)}), I});
 
   // Simple penetration - the tet is rotated so the point V3 is down and
   // penetrates the plane.
   const AngleAxis<S> R_CT_point_down{kPi, Vector3<S>::UnitX()};
-  configurations.emplace_back(
+  configurations.push_back(Configuration<S>{
       "simple penetration",
       MakeTransform(R_CT_point_down, Vector3<S>{0, 0, 0.5}), I, S(0.5),
-      Vector3<S>{0, 0, -1}, Vector3<S>{0, 0, S(-0.25)});
+      Vector3<S>{0, 0, -1}, Vector3<S>{0, 0, S(-0.25)}});
 
   // Orient the half-space so it is not axis aligned and does not pass through
   // the origin. Then position the tet so that the point V3 is near penetration
@@ -197,8 +197,8 @@ aligned_vector<Configuration<S>> GetConfigurations() {
 
   const Transform3<S> X_HT_separated =
       MakeTransform(R_HT_point_down, Vector3<S>{0, 0, S(1.01)});
-  configurations.emplace_back("non-trivial half space, non-colliding",
-                              X_CH * X_HT_separated, X_CH);
+  configurations.push_back(Configuration<S>{
+      "non-trivial half space, non-colliding", X_CH * X_HT_separated, X_CH});
 
   // We pose the tet relative to the half plane, and the transform it again into
   // the configuration frame. Offset of 0.5 in the z-direction gives us a
@@ -212,9 +212,9 @@ aligned_vector<Configuration<S>> GetConfigurations() {
   const Vector3<S> p_TV3 = Vector3<S>::UnitZ();
   const Vector3<S> p_CV3 = X_CT_collding * p_TV3;
   const S depth(0.5);
-  configurations.emplace_back("non-trivial half space, colliding",
-                              X_CT_collding, X_CH, depth, -Hz_C,
-                              p_CV3 + Hz_C * S(0.5) * depth);
+  configurations.push_back(Configuration<S>{"non-trivial half space, colliding",
+                                            X_CT_collding, X_CH, depth, -Hz_C,
+                                            p_CV3 + Hz_C * S(0.5) * depth});
 
   return configurations;
 }
