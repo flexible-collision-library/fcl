@@ -119,6 +119,52 @@ bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
                               const Halfspace<S>& s2, const Transform3<S>& tf2,
                               Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal);
 
+/// @brief Reports whether a convex mesh and half space are intersecting.
+/// If `contacts` is not `nullptr` and the two geometries are intersecting,
+/// a new ContactPoint will be added to the data.
+///
+/// The two geometries are considered to be free of intersection if and only if
+/// all points in the Convex mesh lie strictly _outside_ the half space. Lying
+/// *on* the boundary of the half space is considered intersecting.
+///
+/// The two geometries are each defined in their own frames, but we have
+/// transforms to a common frame F.
+///
+/// If the two geometries are intersecting and `contacts` is not `nullptr`, the
+/// new ContactPoint.normal will point in the opposite direction as the half
+/// space normal (expressed in Frame F) -- it points _into_ the half space. We
+/// define the point P to be a point of `convex_C` that most deeply penetrates
+/// into the half space. It is not guaranteed to be unique. If it is not unique,
+/// it will be arbitrarily selected from the set of all such points. The
+/// ContactPoint.penetration_depth value is the depth of P. ContactPoint.pos is
+/// defined as the point halfway between P and the nearest point on the boundary
+/// of the half space, measured and expressed in F.
+///
+/// ContactPoint is documented to report contact position in the world frame W.
+/// This function will only truly satisfy that requirement if F = W. It is the
+/// responsibility of the caller to understand the semantics of F and confirm
+/// that it satisfies that requirement.
+///
+/// This makes use of the
+/// [Drake monogram notation](http://drake.mit.edu/doxygen_cxx/group__multibody__notation__basics.html)
+/// to describe quantities (particularly the poses of shapes).
+///
+/// @param convex_C      The convex mesh. Its vertex positions are measured and
+///                      expressed in Frame C.
+/// @param X_FC          The transform relating Frame C with the common frame F.
+/// @param half_space_H  The half space. The position and orientation of its
+///                      boundary plane are measured and expressed in Frame H.
+/// @param X_FH          The transform relating Frame H with the common frame F.
+/// @param[out] contacts The optional accumulator for data characterizing the
+///                      intersection.
+/// @return `true` if the two geometries are intersecting.
+/// @tparam S The computational scalar.
+template <typename S>
+FCL_EXPORT bool convexHalfspaceIntersect(
+    const Convex<S>& convex_C, const Transform3<S>& X_FC,
+    const Halfspace<S>& half_space_H, const Transform3<S>& X_FH,
+    std::vector<ContactPoint<S>>* contacts);
+
 template <typename S>
 FCL_EXPORT
 bool halfspaceTriangleIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,

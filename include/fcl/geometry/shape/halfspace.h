@@ -50,9 +50,11 @@
 namespace fcl
 {
 
-/// @brief Half Space: this is equivalent to the Planed in ODE. The separation plane is defined as n * x = d;
-/// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points
-/// in the positive side of the separation plane (i.e. {x | n * x > d}) are outside the half space
+/// @brief Half Space: this is equivalent to the Planed in ODE. The separation
+/// plane is defined as n * x = d.  Points in the negative side of the
+/// separation plane (i.e. {x | n * x < d}) are inside the half space and points
+/// in the positive side of the separation plane (i.e. {x | n * x > d}) are
+/// outside the half space.
 template <typename S_>
 class FCL_EXPORT Halfspace : public ShapeBase<S_>
 {
