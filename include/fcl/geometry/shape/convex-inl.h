@@ -39,6 +39,10 @@
 #ifndef FCL_SHAPE_CONVEX_INL_H
 #define FCL_SHAPE_CONVEX_INL_H
 
+#include <map>
+#include <set>
+#include <utility>
+
 #include "fcl/geometry/shape/convex.h"
 
 namespace fcl
@@ -52,11 +56,13 @@ class FCL_EXPORT Convex<double>;
 template <typename S>
 Convex<S>::Convex(
     const std::shared_ptr<const std::vector<Vector3<S>>>& vertices,
-    int num_faces, const std::shared_ptr<const std::vector<int>>& faces)
-  : ShapeBase<S>(),
-    vertices_(vertices),
-    num_faces_(num_faces),
-    faces_(faces) {
+    int num_faces, const std::shared_ptr<const std::vector<int>>& faces,
+    bool throw_if_invalid)
+    : ShapeBase<S>(),
+      vertices_(vertices),
+      num_faces_(num_faces),
+      faces_(faces),
+      extent_from_edges_{vertices->size() > 32} {
   assert(vertices != nullptr);
   assert(faces != nullptr);
   // Compute an interior point. We're computing the mean point and *not* some
@@ -66,6 +72,8 @@ Convex<S>::Convex(
     sum += vertex;
   }
   interior_point_ = sum * (S)(1.0 / vertices_->size());
+  FindVertexNeighbors();
+  ValidateMesh(throw_if_invalid);
 }
 
 //==============================================================================
@@ -212,7 +220,7 @@ template <typename S> S Convex<S>::computeVolume() const {
     face_center = face_center * (1.0 / vertex_count);
 
     // TODO(SeanCurtis-TRI): Because volume serves as the weights for
-    // center-of-mass an inertia computations, it should be refactored into its
+    // center-of-mass and inertia computations, it should be refactored into its
     // own function that can be invoked by providing three vertices (the fourth
     // being the origin).
 
@@ -246,6 +254,176 @@ std::vector<Vector3<S>> Convex<S>::getBoundVertices(
   }
 
   return result;
+}
+
+//==============================================================================
+template <typename S>
+const Vector3<S>& Convex<S>::findExtremeVertex(const Vector3<S>& v_C) const {
+  // TODO(SeanCurtis-TRI): Create an override of this that seeds the search with
+  //  the last extremal vertex index (assuming some kind of coherency in the
+  //  evaluation sequence).
+  const std::vector<Vector3<S>>& vertices = *vertices_;
+  // Note: A small amount of empirical testing suggests that a vector of int8_t
+  // yields a slight performance improvement over int and bool. This is *not*
+  // definitive.
+  std::vector<int8_t> visited(vertices.size(), 0);
+  int extreme_index = 0;
+  S extreme_value = v_C.dot(vertices[extreme_index]);
+
+  if (extent_from_edges_) {
+    bool keep_searching = true;
+    while (keep_searching) {
+      keep_searching = false;
+      const int neighbor_start = neighbors_[extreme_index];
+      const int neighbor_count = neighbors_[neighbor_start];
+      for (int n_index = neighbor_start + 1;
+           n_index <= neighbor_start + neighbor_count; ++n_index) {
+        const int neighbor_index = neighbors_[n_index];
+        if (visited[neighbor_index]) continue;
+        visited[neighbor_index] = 1;
+        S neighbor_value = v_C.dot(vertices[neighbor_index]);
+        if (neighbor_value > extreme_value) {
+          keep_searching = true;
+          extreme_index = neighbor_index;
+          extreme_value = neighbor_value;
+        }
+      }
+    }
+  } else {
+    // Simple linear search.
+    for (int i = 1; i < static_cast<int>(vertices.size()); ++i) {
+      S value = v_C.dot(vertices[i]);
+      if (value > extreme_value) {
+        extreme_index = i;
+        extreme_value = value;
+      }
+    }
+  }
+  return vertices[extreme_index];
+}
+
+//==============================================================================
+template <typename S>
+void Convex<S>::ValidateMesh(bool throw_on_error) {
+  ValidateTopology(throw_on_error);
+  // TODO(SeanCurtis-TRI) Implement the missing "all-faces-are-planar" test.
+  // TODO(SeanCurtis-TRI) Implement the missing "really-is-convex" test.
+}
+
+//==============================================================================
+template <typename S>
+void Convex<S>::ValidateTopology(bool throw_on_error) {
+  // Computing the vertex neighbors is a pre-requisite to determining validity.
+  assert(neighbors_.size() > vertices_->size());
+
+  std::stringstream ss;
+  ss << "Found errors in the Convex mesh:";
+
+  // To simplify the code, we define an edge as a pair of ints (A, B) such that
+  // A < B must be true.
+  auto make_edge = [](int v0, int v1) {
+      if (v0 > v1) std::swap(v0, v1);
+      return std::make_pair(v0, v1);
+  };
+
+  bool all_connected = true;
+  // Build a map from each edge to the number of faces adjacent to it. First,
+  // pre-populate all the edges found in in the vertex neighbor calculation.
+  std::map<std::pair<int, int>, int> edge_faces;
+  for (int v = 0; v < static_cast<int>(vertices_->size()); ++v) {
+    const int neighbor_start = neighbors_[v];
+    const int neighbor_count = neighbors_[neighbor_start];
+    if (neighbor_count == 0) {
+      if (all_connected) {
+        ss << "\n Not all vertices are connected";
+        all_connected = false;
+      }
+      ss << "\n  Vertex " << v << " is not included in any faces";
+    }
+    for (int n_index = neighbor_start + 1;
+         n_index <= neighbor_start + neighbor_count; ++n_index) {
+      const int n = neighbors_[n_index];
+        edge_faces[make_edge(v, n)] = 0;
+    }
+  }
+
+  // Explicitly visit the faces and examine edges. Note: this can't be done
+  // directly from the neighbor list because a degenerate mesh where more than
+  // two faces shared an edge would still result in the edge's vertices listing
+  // each other as edges and nothing more. We must explicitly handle the faces.
+  const std::vector<int>& faces = *faces_;
+  int face_index = 0;
+  for (int f = 0; f < num_faces_; ++f) {
+      const int vertex_count = faces[face_index];
+      int prev_v = faces[face_index + vertex_count];
+      for (int i = face_index + 1; i <= face_index + vertex_count; ++i) {
+          const int v = faces[i];
+          ++edge_faces[make_edge(v, prev_v)];
+          prev_v = v;
+      }
+      face_index += vertex_count + 1;
+  }
+
+  // Now examine the results.
+  bool is_watertight = true;
+  for (const auto& key_value_pair : edge_faces) {
+    const auto& edge = key_value_pair.first;
+    const int count = key_value_pair.second;
+    if (count != 2) {
+      if (is_watertight) {
+        is_watertight = false;
+        ss << "\n The mesh is not watertight";
+      }
+      ss << "\n  Edge between vertices " << edge.first << " and " << edge.second
+         << " is shared by " << count << " faces (should be 2)";
+    }
+  }
+  // We can't trust walking the edges on a mesh that isn't watertight.
+  const bool has_error = !(is_watertight && all_connected);
+  extent_from_edges_ = extent_from_edges_ && !has_error;
+  if (has_error && throw_on_error) {
+    throw std::runtime_error(ss.str());
+  }
+}
+
+//==============================================================================
+template <typename S>
+void Convex<S>::FindVertexNeighbors() {
+  // We initially build it using sets. Two faces with a common edge will
+  // independently want to report that the edge's vertices are neighbors. So,
+  // we rely on the set to eliminate the redundant declaration and then dump
+  // the results to a more compact representation: the vector.
+  std::vector<std::set<int>> neighbors(vertices_->size());
+  const std::vector<Vector3<S>>& vertices = *vertices_;
+  const std::vector<int>& faces = *faces_;
+  int face_index = 0;
+  for (int f = 0; f < num_faces_; ++f) {
+    const int vertex_count = faces[face_index];
+    int prev_v = faces[face_index + vertex_count];
+    for (int i = face_index + 1; i <= face_index + vertex_count; ++i) {
+      const int v = faces[i];
+      neighbors[v].insert(prev_v);
+      neighbors[prev_v].insert(v);
+      prev_v = v;
+    }
+    face_index += vertex_count + 1;
+  }
+  // Instantiate a bunch of empty vectors for each vertex.
+  std::vector<std::vector<int>> neighbor_vertices;
+  neighbor_vertices = std::vector<std::vector<int>>(vertices.size());
+  for (int v = 0; v < static_cast<int>(vertices.size()); ++v) {
+    neighbor_vertices[v].insert(neighbor_vertices[v].begin(),
+                                neighbors[v].begin(), neighbors[v].end());
+  }
+
+  const int v_count = static_cast<int>(neighbor_vertices.size());
+  neighbors_.resize(v_count, -1);
+  for (int v = 0; v < v_count; ++v) {
+    const auto& n = neighbor_vertices[v];
+    neighbors_[v] = static_cast<int>(neighbors_.size());
+    neighbors_.push_back(static_cast<int>(n.size()));
+    neighbors_.insert(neighbors_.end(), n.begin(), n.end());
+  }
 }
 
 } // namespace fcl
