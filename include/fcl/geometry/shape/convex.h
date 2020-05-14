@@ -40,6 +40,8 @@
 #define FCL_SHAPE_CONVEX_H
 
 #include <iostream>
+#include <memory>
+#include <vector>
 
 #include "fcl/geometry/shape/shape_base.h"
 
@@ -92,16 +94,21 @@ public:
   /// @note: The %Convex geometry assumes that the input data %vertices and
   /// %faces do not change through the life of the object.
   ///
-  /// @warning: The %Convex class does *not* validate the input; it trusts that
-  /// the inputs truly represent a coherent convex polytope.
+  /// @warning: The %Convex class only partially validates the input; it
+  /// generally trusts that the inputs truly represent a coherent convex
+  /// polytope. For those aspects that *are* validated, the constructor will
+  /// throw for failed tests if `throw_if_invalid` is set to `true`.
   ///
-  /// @param vertices       The positions of the polytope vertices.
-  /// @param num_faces      The number of faces defined in `faces`.
-  /// @param faces          Encoding of the polytope faces. Must encode
-  ///                       `num_faces` number of faces. See member
-  ///                       documentation for details on encoding.
+  /// @param vertices           The positions of the polytope vertices.
+  /// @param num_faces          The number of faces defined in `faces`.
+  /// @param faces              Encoding of the polytope faces. Must encode
+  ///                           `num_faces` number of faces. See member
+  ///                           documentation for details on encoding.
+  /// @param throw_if_invalid   If `true`, failed attempts to validate the mesh
+  ///                           will throw an exception.
   Convex(const std::shared_ptr<const std::vector<Vector3<S>>>& vertices,
-         int num_faces, const std::shared_ptr<const std::vector<int>>& faces);
+         int num_faces, const std::shared_ptr<const std::vector<int>>& faces,
+         bool throw_if_invalid = false);
 
   /// @brief Copy constructor 
   Convex(const Convex& other);
@@ -160,6 +167,14 @@ public:
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
 
+  /// @brief Reports a vertex in this convex polytope that lies farthest in the
+  /// given direction v_C. The direction vector must be expressed in the same
+  /// frame C as the vertices of `this` %Convex polytope.
+  /// @retval p_CE the position vector from Frame C's origin to the extreme
+  ///         vertex E. It is guaranteed that v_C⋅p_CE ≥ v_C⋅p_CF for all F ≠ E
+  ///         in the  %Convex polytope's set of vertices.
+  const Vector3<S>& findExtremeVertex(const Vector3<S>& v_C) const;
+
   friend
   std::ostream& operator<<(std::ostream& out, const Convex& convex) {
     out << "Convex(v count: " << convex.vertices_->size() << ", f count: "
@@ -167,11 +182,84 @@ public:
     return out;
   }
 
-private:
+ private:
+  // Test utility to examine Convex internal state.
+  friend class ConvexTester;
+
+  // TODO(SeanCurtis-TRI): Complete the validation.
+  // *Partially* validate the mesh. The following properties are validated:
+  //   - Confirms mesh is water tight (see IsWaterTight).
+  //   - Confirms that all vertices are included in a face.
+  // The following properties still need to be validated:
+  //   - There are at least four vertices (the minimum to enclose a *volume*.)
+  //   - the vertices associated with each face are planar.
+  //   - For each face, all vertices *not* forming the face lie "on" or "behind"
+  //     the face.
+  //
+  // Invoking this *can* have side effects. Internal configuration can change
+  // based on failed validation tests. For example, the performance of
+  // findExtremeVertex() depends on the mesh being "valid" -- an invalid mesh
+  // can be used, but will use a slower algorithm as a result of being found
+  // invalid.
+  //
+  // @param throw_on_error  If `true` and the convex is shown to be invalid, an
+  //                        exception is thrown.
+  void ValidateMesh(bool throw_on_error);
+
+  // Reports if the mesh is watertight and that every vertex is part of a face.
+  // The mesh is watertight if every edge is shared by two different faces.
+  //
+  // As a side effect, if this fails, find_extreme_via_neighbors_ is set to
+  // false because a water tight mesh is a prerequisite to being able to find
+  // extremal points by following edges.
+  //
+  // @param throw_on_error  If `true` and the convex is shown to be invalid, an
+  //                        exception is thrown.
+  // @pre FindVertexNeighbors() must have been called already.
+  void ValidateTopology(bool throw_on_error);
+
+  // Analyzes the convex specification and builds the map of vertex ->
+  // neighboring vertices.
+  void FindVertexNeighbors();
+
   const std::shared_ptr<const std::vector<Vector3<S>>> vertices_;
   const int num_faces_;
   const std::shared_ptr<const std::vector<int>> faces_;
   Vector3<S> interior_point_;
+
+  /* The encoding of vertex adjacency in the mesh. The encoding is as follows:
+   Entries [0, V-1] encode the location in `neighbors_` where the adjacency
+   data for the ith vertex lies in the array.
+   Following those offsets is the compact representation of each vertex's
+   neighbors as: number of neighbors, n0, n1, ....
+
+   The figure below shows that for vertex j, entry j tells us to jump into
+   the vector at neighbors_[j]. The value mⱼ -- the number of vertices adjacent
+   to j -- is stored at that location. The next mⱼ entries starting at
+   neighbors_[j] + 1 are the *indices* of those vertices adjacent to vertex j.
+
+               Index where
+               vertex j's     Vertex j's
+               data lies      neighbor count
+                    ↓          ↓
+           |_|...|_|_|_|......┃mⱼ┃n₁┃n₂┃...┃nₘ┃mⱼ₊₁|...|
+            0 ...   j             ↑   ↑ ... ↑
+                                 Indices of vertex j's
+                                 neighboring vertices.
+
+   A modicum testing indicated that this compact representation led to
+   measurably improved performance for findExtremeVertex() -- initial
+   hypothesis attributes it to improved cache hits. */
+  std::vector<int> neighbors_;
+
+  // If true, findExtremeVertex() can reliably use neighbor_vertices_ to walk
+  // along the surface of the mesh. If false, it must linearly search.
+  bool find_extreme_via_neighbors_{false};
+
+  // Empirical evidence suggests that finding the extreme vertex by walking the
+  // edges of the mesh is only more efficient if there are more than 32
+  // vertices.
+  static constexpr int kMinVertCountForEdgeWalking = 32;
 };
 
 // Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57728 which
