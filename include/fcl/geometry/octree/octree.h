@@ -54,6 +54,11 @@ namespace fcl
 
 /// @brief Octree is one type of collision geometry which can encode uncertainty
 /// information in the sensor data.
+///
+/// @note OcTree will only be declared if octomap was found when FCL was built.
+/// For any particular FCL install, FCL_HAVE_OCTOMAP will be set to 1 in
+/// fcl/config.h if and only if octomap was found. Doxygen documentation will
+/// be generated whether or not octomap was found.
 template <typename S>
 class FCL_EXPORT OcTree : public CollisionGeometry<S>
 {
