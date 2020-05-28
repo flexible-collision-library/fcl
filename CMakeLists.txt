@@ -376,15 +376,16 @@ if(DOXYGEN_FOUND)
   set(DOXYGEN_HTML_INDEX       ${PROJECT_SOURCE_DIR}/doc/doxygen/index.html )
   set(DOXYGEN_OUTPUT_ROOT      ${PROJECT_SOURCE_DIR}/doc/doxygen            )
   set(DOXYGEN_GENERATE_TAGFILE ${DOXYGEN_OUTPUT_ROOT}/${PROJECT_NAME}.tag)
-  set(DOXYGEN_INCLUDE_PATH     ${PROJECT_SOURCE_DIR}                     )
+  set(DOXYGEN_INCLUDE_PATH     "${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}/include")
   set(DOXYGEN_INPUT_ROOT       "${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src")
 
   configure_file(${DOXYGEN_DOXYFILE_IN} ${DOXYGEN_DOXYFILE} @ONLY)
   add_custom_command(OUTPUT ${DOXYGEN_HTML_INDEX}
                      COMMAND ${CMAKE_COMMAND} -E echo_append "Building API Documentation..."
                      COMMAND ${DOXYGEN_EXECUTABLE} -u ${DOXYGEN_DOXYFILE}
-                     COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_DOXYFILE}
+                     COMMAND env DOXYGEN_INCLUDE_PATH=${DOXYGEN_INCLUDE_PATH} ${DOXYGEN_EXECUTABLE} ${DOXYGEN_DOXYFILE}
                      COMMAND ${CMAKE_COMMAND} -E echo "Done."
+                     COMMAND env
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/doc
                      DEPENDS ${DOXYGEN_DOXYFILE}
   )
