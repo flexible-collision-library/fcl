@@ -56,14 +56,16 @@ struct FCL_EXPORT Contact
   /// @brief contact primitive in object 1
   /// if object 1 is mesh or point cloud, it is the triangle or point id
   /// if object 1 is geometry shape, it is NONE (-1),
-  /// if object 1 is octree, it is the id of the cell
-  int b1;
+  /// if object 1 is octree, it is the query cell id (see
+  ///                OcTree::getNodeByQueryCellId)
+  intptr_t b1;
 
   /// @brief contact primitive in object 2
   /// if object 2 is mesh or point cloud, it is the triangle or point id
   /// if object 2 is geometry shape, it is NONE (-1),
-  /// if object 2 is octree, it is the id of the cell
-  int b2;
+  /// if object 2 is octree, it is the query cell id (see
+  ///                OcTree::getNodeByQueryCellId)
+  intptr_t b2;
  
   /// @brief contact normal, pointing from o1 to o2
   Vector3<S> normal;
