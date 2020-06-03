@@ -68,22 +68,22 @@ std::size_t collide(
 extern template
 FCL_EXPORT
 std::size_t collide(
-    const CollisionGeometry<double>* o1,
-    const Transform3<double>& tf1,
-    const CollisionGeometry<double>* o2,
-    const Transform3<double>& tf2,
-    const CollisionRequest<double>& request,
-    CollisionResult<double>& result);
-
-extern template
-FCL_EXPORT
-std::size_t collide(
     const CollisionGeometry<float>* o1,
     const Transform3<float>& tf1,
     const CollisionGeometry<float>* o2,
     const Transform3<float>& tf2,
     const CollisionRequest<float>& request,
     CollisionResult<float>& result);
+
+extern template
+FCL_EXPORT
+std::size_t collide(
+    const CollisionGeometry<double>* o1,
+    const Transform3<double>& tf1,
+    const CollisionGeometry<double>* o2,
+    const Transform3<double>& tf2,
+    const CollisionRequest<double>& request,
+    CollisionResult<double>& result);
 
 //==============================================================================
 template<typename GJKSolver>
