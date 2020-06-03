@@ -41,6 +41,9 @@ namespace fcl
 {
 
 template
+class ScrewMotion<float>;
+
+template
 class ScrewMotion<double>;
 
 } // namespace fcl
