@@ -45,6 +45,9 @@ namespace fcl
 
 //==============================================================================
 extern template
+class FCL_EXPORT InterpMotion<float>;
+
+extern template
 class FCL_EXPORT InterpMotion<double>;
 
 //==============================================================================
@@ -127,7 +130,7 @@ InterpMotion<S>::InterpMotion(
 
 //==============================================================================
 template <typename S>
-bool InterpMotion<S>::integrate(double dt) const
+bool InterpMotion<S>::integrate(S dt) const
 {
   if(dt > 1) dt = 1;
 
