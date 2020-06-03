@@ -45,6 +45,9 @@ namespace fcl
 
 //==============================================================================
 extern template
+class FCL_EXPORT ScrewMotion<float>;
+
+extern template
 class FCL_EXPORT ScrewMotion<double>;
 
 //==============================================================================
@@ -92,7 +95,7 @@ ScrewMotion<S>::ScrewMotion(
 
 //==============================================================================
 template <typename S>
-bool ScrewMotion<S>::integrate(double dt) const
+bool ScrewMotion<S>::integrate(S dt) const
 {
   if(dt > 1) dt = 1;
 
