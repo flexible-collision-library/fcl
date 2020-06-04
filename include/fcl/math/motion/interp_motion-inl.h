@@ -45,9 +45,6 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_EXPORT InterpMotion<float>;
-
-extern template
 class FCL_EXPORT InterpMotion<double>;
 
 //==============================================================================
