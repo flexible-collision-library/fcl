@@ -90,7 +90,6 @@ public:
   void getTaylorModel(TMatrix3<S>& tm, TVector3<S>& tv) const;
 
 protected:
-
   void computeVelocity();
 
   Quaternion<S> deltaRotation(S dt) const;
