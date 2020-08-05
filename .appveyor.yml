@@ -38,9 +38,9 @@ before_build:
             cd ..\..
          ) else (echo Using cached libccd)
   - cmd: if not exist C:\"Program Files"\Eigen\include\eigen3\Eigen\Core (
-            curl -L -o eigen-eigen-dc6cfdf9bcec.tar.gz https://bitbucket.org/eigen/eigen/get/3.2.9.tar.gz &&
-            cmake -E tar zxf eigen-eigen-dc6cfdf9bcec.tar.gz &&
-            cd eigen-eigen-dc6cfdf9bcec &&
+            curl -LO https://gitlab.com/libeigen/eigen/-/archive/3.2.9/eigen-3.2.9.tar.gz &&
+            cmake -E tar zxf eigen-3.2.9.tar.gz &&
+            cd eigen-3.2.9 &&
             mkdir build &&
             cd build &&
             cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% .. &&

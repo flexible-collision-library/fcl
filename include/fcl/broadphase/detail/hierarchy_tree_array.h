@@ -65,6 +65,9 @@ class FCL_EXPORT HierarchyTree
   
   struct SortByMorton
   {
+    SortByMorton(NodeType* nodes_in) : nodes(nodes_in) {}
+    SortByMorton(NodeType* nodes_in, uint32 split_in)
+        : nodes(nodes_in), split(split_in) {}
     bool operator() (size_t a, size_t b) const
     {
       if((a != NULL_NODE) && (b != NULL_NODE))
@@ -77,8 +80,8 @@ class FCL_EXPORT HierarchyTree
       return false;
     }
 
-    NodeType* nodes;
-    uint32 split;
+    NodeType* nodes{};
+    uint32 split{};
   };
 
 public:
