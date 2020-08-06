@@ -114,7 +114,7 @@ GTEST_TEST(GjkLibccdSupportFunction, ConvexSupport) {
 
   /* Collection of arbitrary poses of the convex mesh: identity, translation,
    and rotation. */
-  vector<Transform3d> X_WCs{
+  aligned_vector<Transform3d> X_WCs{
     Transform3d::Identity(),
     Transform3d(Translation3d{-1, 2, -3}),
     Transform3d(Quaterniond{0.5, -0.5, 0.5, -0.5})
