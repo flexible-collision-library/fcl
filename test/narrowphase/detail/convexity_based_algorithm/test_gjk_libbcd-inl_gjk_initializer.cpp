@@ -116,8 +116,8 @@ GTEST_TEST(GjkLibccdSupportFunction, ConvexSupport) {
    and rotation. */
   aligned_vector<Transform3d> X_WCs;
   X_WCs.push_back(Transform3d::Identity());
-  X_WCs.emplace_back(Translation3d{-1, 2, -3});
-  X_WCs.emplace_back(Quaterniond{0.5, -0.5, 0.5, -0.5});
+  X_WCs.emplace_back(Transform3d(Translation3d{-1, 2, -3}));
+  X_WCs.emplace_back(Transform3d(Quaterniond{0.5, -0.5, 0.5, -0.5}));
 
   /* Collection of arbitrary directions (each expressed in Frame C).  */
   vector<Vector3d> directions_C{Vector3d{-2, -2, -2}, Vector3d{-2, 3, -2},
