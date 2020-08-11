@@ -168,11 +168,11 @@ public:
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
 
   /// @brief Reports a vertex in this convex polytope that lies most in the
-  /// given direction v. The direction vector must be expressed in the same
+  /// given direction v_C. The direction vector must be expressed in the same
   /// frame C as the vertices of `this` %Convex polytope.
   /// @retval p_CE the position vector from Frame C's origin to the extreme
-  ///         vertex E. It is guaranteed that v⋅E ≥ v⋅F for all F ≠ E in the
-  ///         Convex polytope's set of vertices.
+  ///         vertex E. It is guaranteed that v_C⋅p_CE ≥ v_C⋅p_CF for all F ≠ E
+  ///         in the  %Convex polytope's set of vertices.
   const Vector3<S>& findExtremeVertex(const Vector3<S>& v_C) const;
 
   friend
@@ -196,7 +196,7 @@ public:
   //     the face.
   //
   // Invoking this *can* have side effects. Internal configuration can change
-  // based failed validation tests.
+  // based on failed validation tests.
   //
   // @param throw_on_error  If `true` and the convex is shown to be invalid, an
   //                        exception is thrown.
@@ -205,9 +205,9 @@ public:
   // Reports if the mesh is watertight and that every vertex is part of a face.
   // The mesh is watertight if every edge is shared by two unique faces.
   //
-  // As a side effect, if this fails, extent_from_edges_ is set to false because
-  // a water tight mesh is a prerequisite to being able to find extremal points
-  // by following edges.
+  // As a side effect, if this fails, find_extreme_via_neighbors_ is set to
+  // false because a water tight mesh is a prerequisite to being able to find
+  // extremal points by following edges.
   //
   // @param throw_on_error  If `true` and the convex is shown to be invalid, an
   //                        exception is thrown.
@@ -230,9 +230,9 @@ public:
    neighbors as: number of neighbors, n0, n1, ....
 
    The figure below shows that for vertex j, entry j tells us to jump into
-   the vector at neighbors_[j]. At that location, is the number of vertices
-   adjacent to j (mⱼ). The next mⱼ entries starting at neighbors_[j] + 1 are
-   the *indices* of those vertices adjacent to j.
+   the vector at neighbors_[j]. The value mⱼ -- the number of vertices adjacent
+   to j -- is stored at that location. The next mⱼ entries starting at
+   neighbors_[j] + 1 are the *indices* of those vertices adjacent to vertex j.
 
                Index where
                vertex j's     Vertex j's
@@ -250,7 +250,7 @@ public:
 
   // If true, findExtremeVertex() can reliably use neighbor_vertices_ to walk
   // along the surface of the mesh. If false, it must linearly search.
-  bool extent_from_edges_{false};
+  bool find_extreme_via_neighbors_{false};
 };
 
 // Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57728 which

@@ -51,8 +51,14 @@ namespace fcl {
 class ConvexTester {
  public:
   template <typename S>
-  static bool extent_from_edges(const Convex<S>& convex) {
-      return convex.extent_from_edges_;
+  static bool find_extreme_via_neighbors(const Convex<S>& convex) {
+      return convex.find_extreme_via_neighbors_;
+  }
+
+  // Override the built-in logic for disabling find_extreme_via_neighbors.
+  template <typename S>
+  static void force_find_extreme_via_neighbors(Convex<S>* convex) {
+    convex->find_extreme_via_neighbors_ = true;
   }
 };
 namespace {
@@ -582,6 +588,58 @@ GTEST_TEST(ConvexGeometry, SupportVertex_Tetrahedron) {
   }
 }
 
+// A tetrahedron whose bottom triangle consists of three co-planar faces. (In
+// other words, we've injected a new vertex into the center of the bottom face.)
+// That new vertex is vertex 0. Used for the SupportVertexCoPlanarFaces test.
+class CoPlanarTetrahedron final : public Polytope<double> {
+ public:
+  CoPlanarTetrahedron() : Polytope<double>(1.0) {
+    // Tetrahedron vertices in the tet's canonical frame T. The tet is placed
+    // so that it's bottom face lies on the z = 0 plane.
+    Vector3d points_T[] = {{0.5, -0.5 / sqrt(3.), 0},
+                           {-0.5, -0.5 / sqrt(3.), 0},
+                           {0, 1. / sqrt(3.), 0},
+                           {0, 0, sqrt(3. / 8)}};
+    const Vector3d center = (points_T[0] + points_T[1] + points_T[2]) / 3.0;
+    this->add_vertex(center);
+    for (const auto& v : points_T) {
+      this->add_vertex(v);
+    };
+
+    // Now add the polygons
+    this->add_face({0, 1, 2});
+    this->add_face({0, 2, 3});
+    this->add_face({0, 3, 1});
+    this->add_face({1, 3, 4});
+    this->add_face({3, 2, 4});
+    this->add_face({1, 4, 2});
+
+    this->confirm_data();
+  }
+  // Properties of the polytope.
+  int face_count() const final { return 6; }
+  int vertex_count() const final { return 5; }
+};
+
+// Test for special condition in findExtremeVertex which can arise iff the
+// Convex shape has co-planar faces. Furthermore, it requires that vertex 0 is
+// only shared by a set of co-planar faces *and* the query direction is
+// perpendicular to that plane.
+GTEST_TEST(ConvexGeometry, SupportVertexCoPlanarFaces) {
+  CoPlanarTetrahedron tet;
+  Convex<double> convex_W = tet.MakeConvex();
+  // Query direction is perpendicular to the bottom face.
+  const Vector3d v_W{0, 0, 1};
+  const Vector3d p_WE_expected = tet.points()->at(4);
+  // With only five vertices, findExtremeVertex would default to a linear
+  // search. For this test, we want to use the edge graph. So, we force it to
+  // be enabled.
+  ConvexTester::force_find_extreme_via_neighbors(&convex_W);
+
+  // We can expect an exact answer down to the last bit.
+  EXPECT_TRUE(CompareMatrices(convex_W.findExtremeVertex(v_W), p_WE_expected));
+}
+
 // A tetrahedron with a missing face.
 class HoleTetrahedron final : public Polytope<double> {
  public:
@@ -798,20 +856,20 @@ GTEST_TEST(ConvexGeometry, UseEdgeWalkingConditions) {
         // Too few triangles.
         EquilateralTetrahedron<double> poly(1.0);
         Convex<double> convex = poly.MakeConvex(throw_if_invalid);
-        EXPECT_FALSE(ConvexTester::extent_from_edges(convex));
+        EXPECT_FALSE(ConvexTester::find_extreme_via_neighbors(convex));
     }
     {
         // Hole in an unvalidated convex mesh.
         HoleTetrahedron poly;
         Convex<double> convex = poly.MakeConvex(!throw_if_invalid);
-        EXPECT_FALSE(ConvexTester::extent_from_edges(convex));
+        EXPECT_FALSE(ConvexTester::find_extreme_via_neighbors(convex));
     }
     {
         // A *valid* mesh with sufficient number of vertices will enable edge
         // walking. Simply create a tessellated sphere.
         Sphere poly;
         Convex<double> convex = poly.MakeConvex(throw_if_invalid);
-        EXPECT_TRUE(ConvexTester::extent_from_edges(convex));
+        EXPECT_TRUE(ConvexTester::find_extreme_via_neighbors(convex));
     }
 }
 
