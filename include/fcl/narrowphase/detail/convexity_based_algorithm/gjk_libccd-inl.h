@@ -2513,7 +2513,7 @@ static void supportConvex(const void* obj, const ccd_vec3_t* dir_,
   // The extremal point E measured and expressed in Frame C.
   const Vector3<S>& p_CE = c->convex->findExtremeVertex(dir_C);
 
-  // No measure and express E in the original query frame Q: p_CE -> p_QE.
+  // Now measure and express E in the original query frame Q: p_CE -> p_QE.
   v->v[0] = p_CE(0);
   v->v[1] = p_CE(1);
   v->v[2] = p_CE(2);

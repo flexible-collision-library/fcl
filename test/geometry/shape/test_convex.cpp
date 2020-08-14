@@ -124,9 +124,6 @@ class Polytope {
     return polygons_;
   }
   Convex<S> MakeConvex(bool throw_if_invalid = true) const {
-    // The Polytope class makes the pointers to vertices and faces const access.
-    // The Convex class calls for non-const pointers. Temporarily const-casting
-    // them to make it compatible.
     return Convex<S>(points(), face_count(), polygons(), throw_if_invalid);
   }
   Vector3<S> min_point() const {
@@ -406,7 +403,8 @@ void testSupportVertex(const Shape<S>& model, const Transform3<S>& X_WS,
     // answer should be unique and precise down to the last bit.
     EXPECT_TRUE(CompareMatrices(convex_W.findExtremeVertex(v_W), p_WE))
         << shape_W.description() << " at\n"
-        << X_WS.matrix() << "\nusing scalar: " << ScalarString<S>::value();
+        << X_WS.matrix() << "\nusing scalar: " << ScalarString<S>::value()
+        << "\n  v_W = " << v_W.transpose();
   }
 }
 
@@ -567,23 +565,25 @@ GTEST_TEST(ConvexGeometry, CenterOfMass_Tetrahedron) {
 // direction to every polytope vertex is unique. So, the direction to the vertex
 // should uniquely produce that vertex as the support vertex.
 template <typename S>
-void BuildTests(const Polytope<S>& polytope,
-                std::vector<SupportVertexTest<S>>* tests) {
+std::vector<SupportVertexTest<S>> BuildSupportVertexTests(
+    const Polytope<S>& polytope) {
+  std::vector<SupportVertexTest<S>> tests;
   for (const auto& p_SV : *polytope.points()) {
-    tests->push_back({p_SV, p_SV});
+    tests.push_back({p_SV, p_SV});
   }
+  return tests;
 }
 
 GTEST_TEST(ConvexGeometry, SupportVertex_Tetrahedron) {
   for (double scale : get_test_scales()) {
     EquilateralTetrahedron<double> tet_d(scale);
-    std::vector<SupportVertexTest<double>> tests_d;
-    BuildTests(tet_d, &tests_d);
+    std::vector<SupportVertexTest<double>> tests_d =
+        BuildSupportVertexTests(tet_d);
     testSupportVertexComputation(tet_d, tests_d);
 
     EquilateralTetrahedron<float> tet_f(scale);
-    std::vector<SupportVertexTest<float>> tests_f;
-    BuildTests(tet_f, &tests_f);
+    std::vector<SupportVertexTest<float>> tests_f =
+        BuildSupportVertexTests(tet_f);
     testSupportVertexComputation(tet_f, tests_f);
   }
 }
@@ -622,9 +622,9 @@ class CoPlanarTetrahedron final : public Polytope<double> {
 };
 
 // Test for special condition in findExtremeVertex which can arise iff the
-// Convex shape has co-planar faces. Furthermore, it requires that vertex 0 is
-// only shared by a set of co-planar faces *and* the query direction is
-// perpendicular to that plane.
+// Convex shape has a vertex whose adjacent vertices are all co-planar with it,
+// that vertex is the *starting* vertex of the search, *and* the query direction
+// is perpendicular to the plane that those vertices all lie on.
 GTEST_TEST(ConvexGeometry, SupportVertexCoPlanarFaces) {
   CoPlanarTetrahedron tet;
   Convex<double> convex_W = tet.MakeConvex();
@@ -782,11 +782,10 @@ GTEST_TEST(ConvexGeometry, WaterTightValidation) {
   }
 }
 
-
 // A tessellated unit sphere; 8 longitudinal wedges and 8 latitudinal bands.
-class Sphere final : public Polytope<double> {
+class TessellatedSphere final : public Polytope<double> {
  public:
-  Sphere() : Polytope<double>(1.0) {
+  TessellatedSphere() : Polytope<double>(1.0) {
       // The angle between the latitude lines measured along the prime meridian.
       const double dphi = M_PI / 8;
       auto slice_height = [dphi](int slice_index) {
@@ -867,7 +866,7 @@ GTEST_TEST(ConvexGeometry, UseEdgeWalkingConditions) {
     {
         // A *valid* mesh with sufficient number of vertices will enable edge
         // walking. Simply create a tessellated sphere.
-        Sphere poly;
+        TessellatedSphere poly;
         Convex<double> convex = poly.MakeConvex(throw_if_invalid);
         EXPECT_TRUE(ConvexTester::find_extreme_via_neighbors(convex));
     }
