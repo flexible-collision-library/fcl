@@ -17,6 +17,8 @@
     [#467](https://github.com/flexible-collision-library/fcl/pull/467)
   * Bugs in RSS distance queries fixed:
     [#467](https://github.com/flexible-collision-library/fcl/pull/467)
+  * Convex gets *some* validation and improved support for the GJK `supportVertex()` API:
+    [#488](https://github.com/flexible-collision-library/fcl/pull/488)
 
 * Broadphase
 

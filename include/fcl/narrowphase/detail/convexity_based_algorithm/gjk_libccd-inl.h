@@ -2499,27 +2499,24 @@ static void supportConvex(const void* obj, const ccd_vec3_t* dir_,
                           ccd_vec3_t* v)
 {
   const auto* c = (const ccd_convex_t<S>*)obj;
-  ccd_vec3_t dir, p;
-  ccd_real_t maxdot, dot;
-  const auto& center = c->convex->getInteriorPoint();
 
+  // Transform the support direction vector from the query frame Q to the
+  // convex mesh's local frame C. I.e., dir_Q -> dir_C.
+  ccd_vec3_t dir;
   ccdVec3Copy(&dir, dir_);
   ccdQuatRotVec(&dir, &c->rot_inv);
+  // Note: The scalar type ccd_real_t is fixed w.r.t. S. That means if S is
+  // float and ccd_real_t is double, this conversion requires narrowing. To
+  // avoid warning/errors about implicit narrowing, we explicitly convert.
+  Vector3<S> dir_C{S(dir.v[0]), S(dir.v[1]), S(dir.v[2])};
 
-  maxdot = -CCD_REAL_MAX;
+  // The extremal point E measured and expressed in Frame C.
+  const Vector3<S>& p_CE = c->convex->findExtremeVertex(dir_C);
 
-  for (const auto& vertex : c->convex->getVertices())
-  {
-    ccdVec3Set(&p, vertex[0] - center[0], vertex[1] - center[1],
-               vertex[2] - center[2]);
-    dot = ccdVec3Dot(&dir, &p);
-    if (dot > maxdot) {
-      ccdVec3Set(v, vertex[0], vertex[1], vertex[2]);
-      maxdot = dot;
-    }
-  }
-
-  // transform support vertex
+  // Now measure and express E in the original query frame Q: p_CE -> p_QE.
+  v->v[0] = p_CE(0);
+  v->v[1] = p_CE(1);
+  v->v[2] = p_CE(2);
   ccdQuatRotVec(v, &c->rot);
   ccdVec3Add(v, &c->pos);
 }
