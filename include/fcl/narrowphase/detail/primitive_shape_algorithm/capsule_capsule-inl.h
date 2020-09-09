@@ -81,8 +81,8 @@ S closestPtSegmentSegment(const Vector3<S>& p_FP1, const Vector3<S>& p_FQ1,
                           S* s, S* t, Vector3<S>* p_FC1, Vector3<S>* p_FC2) {
   // TODO(SeanCurtis-TRI): Document the match underlying this function -- the
   //  variables: a, b, c, e, and f are otherwise overly inscrutable.
-  const auto kEps = constants<S>::eps_78();
-  const auto kEpsSquared = kEps * kEps;
+  constexpr auto kEps = constants<S>::eps_78();
+  constexpr auto kEpsSquared = kEps * kEps;
 
   Vector3<S> p_P1Q1 = p_FQ1 - p_FP1;  // Segment 1's displacement vector: D1.
   Vector3<S> p_P2Q2 = p_FQ2 - p_FP2;  // Segment 2's displacement vector: D2.
@@ -207,7 +207,7 @@ bool capsuleCapsuleDistance(const Capsule<S>& s1, const Transform3<S>& X_FC1,
   const S segment_dist = sqrt(squared_dist);
   *dist = segment_dist - s1.radius - s2.radius;
   Vector3<S> vhat_C1C2_F;
-  const auto eps = constants<S>::eps_78();
+  constexpr auto eps = constants<S>::eps_78();
   // We can only use the vector between the center-line nearest points to find
   // the witness points if they are sufficiently far apart.
   if (segment_dist > eps) {

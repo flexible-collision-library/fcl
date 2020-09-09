@@ -142,36 +142,31 @@ static constexpr S phi() { return S(1.618033988749894848204586834365638117720309
 /// for floats (2e-14 vs 9e-7, respectively). The choice of ε^(7/8) as the
 /// default GJK tolerance reflects a tolerance that is a *slightly* tighter
 /// bound than the historical value of 1e-6 used for 32-bit floats.
-static Real gjk_default_tolerance() {
-  static const Real value = eps_78();
-  return value;
+static constexpr Real gjk_default_tolerance() {
+  return eps_78();
 }
 
 /// Returns ε for the precision of the underlying scalar type.
-static Real eps() {
+static constexpr Real eps() {
   static_assert(std::is_floating_point<Real>::value,
                 "Constants can only be evaluated for scalars with floating "
                 "point implementations");
-  static const Real value = std::numeric_limits<Real>::epsilon();
-  return value;
+  return std::numeric_limits<Real>::epsilon();
 }
 
 /// Returns ε^(7/8) for the precision of the underlying scalar type.
-static Real eps_78() {
-  static const Real value = std::pow(eps(), 7./8.);
-  return value;
+static constexpr Real eps_78() {
+  return std::pow(eps(), 7./8.);
 }
 
 /// Returns ε^(3/4) for the precision of the underlying scalar type.
-static Real eps_34() {
-  static const Real value = std::pow(eps(), 3./4.);
-  return value;
+static constexpr Real eps_34() {
+  return std::pow(eps(), 3./4.);
 }
 
 /// Returns ε^(1/2) for the precision of the underlying scalar type.
-static Real eps_12() {
-  static const Real value = std::pow(eps(), 1./2.);
-  return value;
+static constexpr Real eps_12() {
+  return std::pow(eps(), 1./2.);
 }
 
 };

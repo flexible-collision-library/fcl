@@ -313,7 +313,7 @@ _ccd_inline void tripleCross(const ccd_vec3_t *a, const ccd_vec3_t *b,
 static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir) {
   // Used to define numerical thresholds near zero; typically scaled to the size
   // of the quantities being tested.
-  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  constexpr ccd_real_t eps = constants<ccd_real_t>::eps();
 
   const Vector3<ccd_real_t> p_OA(simplex->ps[simplex->last].v.v);
   const Vector3<ccd_real_t> p_OB(simplex->ps[0].v.v);
@@ -922,7 +922,7 @@ static bool are_coincident(const ccd_vec3_t& p, const ccd_vec3_t& q) {
   using std::abs;
   using std::max;
 
-  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  constexpr ccd_real_t eps = constants<ccd_real_t>::eps();
   // NOTE: Wrapping "1.0" with ccd_real_t accounts for mac problems where ccd
   // is actually float based.
   for (int i = 0; i < 3; ++i) {
@@ -960,7 +960,7 @@ static bool triangle_area_is_zero(const ccd_vec3_t& a, const ccd_vec3_t& b,
   ccdVec3Normalize(&AB);
   ccdVec3Normalize(&AC);
   ccdVec3Cross(&n, &AB, &AC);
-  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  constexpr ccd_real_t eps = constants<ccd_real_t>::eps();
   // Second co-linearity condition.
   if (ccdVec3Len2(&n) < eps * eps) return true;
   return false;
