@@ -11,6 +11,9 @@
 
 * Math
 
+  * constants::eps() is now constexpr:
+    [#494](https://github.com/flexible-collision-library/fcl/pull/494)
+
 * Geometry
 
   * OcTree logic for determining free/occupied:
