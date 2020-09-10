@@ -33,6 +33,8 @@
     [#472](https://github.com/flexible-collision-library/fcl/pull/472)
   * Documentation for OcTree no longer mistakenly excluded from doxygen:
     [#472](https://github.com/flexible-collision-library/fcl/pull/472)
+  * Another failure mode in the GJK/EPA signed distance query patched:
+    [#494](https://github.com/flexible-collision-library/fcl/pull/494)
 
 * Build/Test/Misc
 
