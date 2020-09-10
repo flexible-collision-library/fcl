@@ -460,6 +460,62 @@ void test_distance_box_box_regression6() {
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2, &expected_distance);
 }
 
+// This is a *specific* case that has cropped up in the wild. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/493.
+// This includes the *first* scenario.
+template <typename S>
+void test_distance_box_box_regression7a() {
+  const Vector3<S> box_size(0.5, 0.5, 0.5);
+  // Both transforms have the same orientation.
+  Matrix3<S> R_WB;
+  // clang-format off
+  R_WB <<
+       0.96193976625564348026,  0.15401279915737359216, 0.22572537250328919556,
+      -0.19134171618254486313,  0.96936494951283913579, 0.15401279915737359216,
+      -0.19509032201612822033, -0.19134171618254486313, 0.96193976625564348026;
+  // clang-format on
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  X_WB1.linear() = R_WB;
+  // clang-format off
+  X_WB1.translation() <<
+      2.0770063995786869349, 0.48468247475641951239, 1.1543291419087275962;
+  // clang-format on
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  X_WB2.linear() = R_WB;
+  X_WB2.translation() << 2, 0, 1.25;
+  const double expected_distance{0};
+  test_distance_box_box_helper(box_size, X_WB1, box_size, X_WB2,
+                               &expected_distance);
+}
+
+// This is a *specific* case that has cropped up in the wild. This error was
+// reported in https://github.com/flexible-collision-library/fcl/issues/493.
+// This includes the *second* scenario.
+template <typename S>
+void test_distance_box_box_regression7b() {
+  const Vector3<S> box_size(0.25, 0.25, 0.25);
+  // Both transforms have the same orientation.
+  Matrix3<S> R_WB;
+  // clang-format off
+  R_WB <<
+       0.95233240645725869555,   0.27969320707964251405,  0.12179777307008109177,
+      -0.28888687719060901493,   0.95512127579560024415,  0.065480689593520297054,
+      -0.098017140329560589751, -0.097545161008064124042, 0.99039264020161521529;
+  // clang-format on
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  X_WB1.linear() = R_WB;
+  // clang-format off
+  X_WB1.translation() <<
+      0.069923301769910642389, 0.23878031894890006104, 1.2256137097479840037;
+  // clang-format on
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  X_WB2.linear() = R_WB;
+  X_WB2.translation() << 0, 0, 1.25;
+  const double expected_distance{0};
+  test_distance_box_box_helper(box_size, X_WB1, box_size, X_WB2,
+                               &expected_distance);
+}
+
 // This is a *specific* case that has cropped up in the wild that reaches the
 // unexpected `validateNearestFeatureOfPolytopeBeingEdge` error. This error was
 // reported in https://github.com/flexible-collision-library/fcl/issues/408
@@ -533,6 +589,8 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression) {
   test_distance_box_box_regression4<double>();
   test_distance_box_box_regression5<double>();
   test_distance_box_box_regression6<double>();
+  test_distance_box_box_regression7a<double>();
+  test_distance_box_box_regression7b<double>();
   test_distance_sphere_box_regression1<double>();
 }
 
