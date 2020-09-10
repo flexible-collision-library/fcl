@@ -325,12 +325,22 @@ void test_distance_box_box_helper(const Vector3<S>& box1_size,
   // p_B1P1 is the position of the witness point P1 on box 1, measured
   // and expressed in the box 1 frame B1.
   const Vector3<S> p_B1P1 = X_WB1.inverse() * result.nearest_points[0];
-  const double tol = 10 * std::numeric_limits<S>::epsilon();
-  EXPECT_TRUE((p_B1P1.array().abs() <= (box1_size / 2).array() + tol).all());
+  constexpr double tol = 10 * constants<S>::eps();
+  const double tol_1 = tol * std::max(S(1), (box1_size / 2).maxCoeff());
+  EXPECT_TRUE(
+      (p_B1P1.array().abs() <= (box1_size / 2).array() + tol_1).all())
+      << "\n  p_B1P1: " << p_B1P1.transpose()
+      << "\n  box1_size / 2: " << (box1_size / 2).transpose()
+      << "\n  tol: " << tol_1;
   // p_B2P2 is the position of the witness point P2 on box 2, measured
   // and expressed in the box 2 frame B2.
+  const double tol_2 = tol * std::max(S(1), (box2_size / 2).maxCoeff());
   const Vector3<S> p_B2P2 = X_WB2.inverse() * result.nearest_points[1];
-  EXPECT_TRUE((p_B2P2.array().abs() <= (box2_size / 2).array() + tol).all());
+  EXPECT_TRUE(
+      (p_B2P2.array().abs() <= (box2_size / 2).array() + tol_2).all())
+      << "\n  p_B2P2: " << p_B2P2.transpose()
+      << "\n  box2_size / 2: " << (box2_size / 2).transpose()
+      << "\n  tol: " << tol_2;
 
   // An expected distance has been provided; let's test that the value is as
   // expected.
@@ -345,6 +355,7 @@ void test_distance_box_box_helper(const Vector3<S>& box1_size,
 // reported in https://github.com/flexible-collision-library/fcl/issues/388
 template <typename S>
 void test_distance_box_box_regression1() {
+  SCOPED_TRACE("test_distance_box_box_regression1");
   const Vector3<S> box1_size(0.03, 0.12, 0.1);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   X_WB1.matrix() << -3.0627937852578681533e-08, -0.99999999999999888978,
@@ -370,6 +381,7 @@ void test_distance_box_box_regression1() {
 // reported in https://github.com/flexible-collision-library/fcl/issues/395
 template <typename S>
 void test_distance_box_box_regression2() {
+  SCOPED_TRACE("test_distance_box_box_regression2");
   const Vector3<S> box1_size(0.46, 0.48, 0.01);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   X_WB1.matrix() <<  1,0,0, -0.72099999999999997424,
@@ -393,6 +405,7 @@ void test_distance_box_box_regression2() {
 // reported in https://github.com/flexible-collision-library/fcl/issues/415
 template <typename S>
 void test_distance_box_box_regression3() {
+  SCOPED_TRACE("test_distance_box_box_regression3");
   const Vector3<S> box1_size(0.49, 0.05, 0.21);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   // clang-format off
@@ -416,6 +429,7 @@ void test_distance_box_box_regression3() {
 // reported in https://github.com/flexible-collision-library/fcl/issues/398
 template <typename S>
 void test_distance_box_box_regression4() {
+  SCOPED_TRACE("test_distance_box_box_regression4");
   const Vector3<S> box1_size(0.614, 3, 0.37);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   X_WB1.translation() << -0.675, 0, 0.9115;
@@ -429,6 +443,7 @@ void test_distance_box_box_regression4() {
 // reported in https://github.com/flexible-collision-library/fcl/issues/428
 template <typename S>
 void test_distance_box_box_regression5() {
+  SCOPED_TRACE("test_distance_box_box_regression5");
   const Vector3<S> box1_size(0.2, 0.33, 0.1);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   X_WB1.translation() << -0.071000000000000035305, -0.77200000000000001954, 0.79999999999999993339;
@@ -440,6 +455,7 @@ void test_distance_box_box_regression5() {
 
 template <typename S>
 void test_distance_box_box_regression6() {
+  SCOPED_TRACE("test_distance_box_box_regression6");
   const Vector3<S> box1_size(0.31650000000000000355, 0.22759999999999999676, 0.1768000000000000127);
   Transform3<S> X_WB1 = Transform3<S>::Identity();
   // clang-format off
@@ -460,11 +476,64 @@ void test_distance_box_box_regression6() {
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2, &expected_distance);
 }
 
+// Issue #493 outlines a number of scenarios that caused signed distance
+// failure. They consisted of two identical, stacked boxes. The boxes are
+// slightly tilted. The boxes were essentially touching but were separated by
+// infinitesimally small distances. The issue outlines three different examples.
+// Rather than reproducing each of them verbatim, this test attempts to
+// generalize those cases by testing the stacked scenario across various box
+// sizes and separation amounts (ranging from slightly penetrating to slightly
+// separated). These should essentially cover the variations described in the
+// issue.
+template <typename S>
+void test_distance_box_box_regression_tilted_kissing_contact() {
+  SCOPED_TRACE("test_distance_box_box_regression_tilted_kissing_contact");
+  // The boxes are posed relative to each other in a common frame F (such that
+  // it is easy to reason about their separation). The stack is rotated around
+  // box A's origin and translated into the world frame.
+  Matrix3<S> R_WF;
+  R_WF <<
+       0.94096063217417758029, 0.29296840037289501035, 0.16959541586174811667,
+      -0.23569836841299879326, 0.92661523595848427348, -0.29296840037289506586,
+      -0.2429801799032638987, 0.23569836841299884878, 0.94096063217417758029;
+
+  for (const S dim : {S(0.01), S(0.25), S(0.5), S(10), S(1000)}) {
+    const Vector3<S> box_size(dim, dim, dim);
+
+    const Vector3<S> p_WA(0, 0, 5 * dim);
+    Transform3<S> X_WA;
+    X_WA.linear() = R_WF;
+    X_WA.translation() = p_WA;
+    Transform3<S> X_WB;
+    X_WB.linear() = R_WF;
+
+    // Both boxes always have the same orientation and the *stack* is always
+    // located at p_WA. Only the translational component of X_WB changes with
+    // varying separation distance.
+
+    // By design, the distances are all near epsilon. We'll scale them up for
+    // larger boxes to make sure the distance doesn't simply disappear in
+    // the rounding noise.
+    for (const S distance : {S(-1e-15), S(-2.5e-16), S(-1e-16), S(0), S(1e-16),
+                             S(2.5e-16), S(1e-15)}) {
+      const S scaled_distance = distance * std::max(S(1), dim);
+      const Vector3<S> p_AB_F = Vector3<S>(0, dim + scaled_distance, 0);
+
+      X_WB.translation() = p_WA + R_WF * p_AB_F;
+      SCOPED_TRACE("dim: " + std::to_string(dim) +
+                   ", distance: " + std::to_string(distance));
+      test_distance_box_box_helper(box_size, X_WA, box_size, X_WB,
+                                   &scaled_distance);
+    }
+  }
+}
+
 // This is a *specific* case that has cropped up in the wild that reaches the
 // unexpected `validateNearestFeatureOfPolytopeBeingEdge` error. This error was
 // reported in https://github.com/flexible-collision-library/fcl/issues/408
 template <typename S>
 void test_distance_sphere_box_regression1() {
+  SCOPED_TRACE("test_distance_sphere_box_regression1");
   using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
   const S sphere_radius = 0.06;
   CollisionGeometryPtr_t sphere_geo(new fcl::Sphere<S>(sphere_radius));
@@ -533,6 +602,7 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression) {
   test_distance_box_box_regression4<double>();
   test_distance_box_box_regression5<double>();
   test_distance_box_box_regression6<double>();
+  test_distance_box_box_regression_tilted_kissing_contact<double>();
   test_distance_sphere_box_regression1<double>();
 }
 
