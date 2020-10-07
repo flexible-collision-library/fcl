@@ -1693,7 +1693,8 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
   // for this possibility.
   const ccd_real_t v0_dist =
       std::sqrt(ccdVec3Len2(&nearest_edge->vertex[0]->v.v));
-  const ccd_real_t plane_threshold = kEps * std::max(1.0, v0_dist);
+  const ccd_real_t plane_threshold =
+      kEps * std::max(static_cast<ccd_real_t>(1.0), v0_dist);
 
   for (int i = 0; i < 2; ++i) {
     face_normals[i] =
