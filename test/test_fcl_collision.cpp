@@ -89,7 +89,7 @@ std::vector<Contact<S>>& global_pairs_now()
 }
 
 template <typename S>
-void test_SplineMotion_rotated_start_test()
+void test_SplineMotion_rotated_spline_collide_test()
 {
   fcl::Vector3<S> t[4];
   t[0] = fcl::Vector3<S>(7.5, 8, 0);
@@ -142,9 +142,9 @@ void test_SplineMotion_rotated_start_test()
 
 }
 
-GTEST_TEST(FCL_COLLISION, test_SplineMotion_rotated_start_test)
+GTEST_TEST(FCL_COLLISION, test_SplineMotion_rotated_spline_collide_test)
 {
-  test_SplineMotion_rotated_start_test<double>();
+  test_SplineMotion_rotated_spline_collide_test<double>();
 }
 
 template <typename S>
