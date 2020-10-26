@@ -116,11 +116,12 @@ void test_SplineMotion_rotated_spline_collide_test()
   r[1] = fcl::Vector3<S>(0, 0, 0);
   r[2] = fcl::Vector3<S>(0, 0, 0);
   r[3] = fcl::Vector3<S>(0, 0, 0);
+
   auto motion_b = std::make_shared<fcl::SplineMotion<S>>(
     t[0], t[1], t[2], t[3],
     r[0], r[1], r[2], r[3]);
 
-  // test collision with unit circles
+  // Test collision with unit spheres
   auto shape_a = std::make_shared<fcl::Sphere<S>>(1.0);
   const auto obj_a = fcl::ContinuousCollisionObject<S>(
     shape_a,
@@ -139,7 +140,6 @@ void test_SplineMotion_rotated_spline_collide_test()
   fcl::collide(&obj_a, &obj_b, request, result);
 
   EXPECT_TRUE(result.is_collide);
-
 }
 
 GTEST_TEST(FCL_COLLISION, test_SplineMotion_rotated_spline_collide_test)
