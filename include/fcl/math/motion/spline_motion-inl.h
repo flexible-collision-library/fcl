@@ -85,6 +85,7 @@ SplineMotion<S>::SplineMotion(
   RB = (Rd[0] - Rd[1] * 2 + Rd[2]) * 3;
   RC = (Rd[2] - Rd[0]) * 3;
 
+  tf.setIdentity();
   integrate(0.0);
 }
 
@@ -124,7 +125,8 @@ bool SplineMotion<S>::integrate(S dt) const
   Vector3<S> cur_T = Td[0] * getWeight0(dt) + Td[1] * getWeight1(dt) + Td[2] * getWeight2(dt) + Td[3] * getWeight3(dt);
   Vector3<S> cur_w = Rd[0] * getWeight0(dt) + Rd[1] * getWeight1(dt) + Rd[2] * getWeight2(dt) + Rd[3] * getWeight3(dt);
   S cur_angle = cur_w.norm();
-  cur_w.normalize();
+  if (cur_w.squaredNorm() > 0.0)
+    cur_w.normalize();
 
   tf.linear() = AngleAxis<S>(cur_angle, cur_w).toRotationMatrix();
   tf.translation() = cur_T;
