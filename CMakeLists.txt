@@ -31,13 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-if(APPLE)
-  cmake_minimum_required(VERSION 3.0.0)
-elseif(MSVC)
-  cmake_minimum_required(VERSION 3.1.3)
-else()
-  cmake_minimum_required(VERSION 2.8.12)
-endif()
+cmake_minimum_required(VERSION 3.10)
 
 project(fcl CXX)
 
