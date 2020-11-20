@@ -103,7 +103,7 @@ void test_SplineMotion_rotated_spline_collide_test()
   r[2] = fcl::Vector3<S>(0, 0, 3.141593);
   r[3] = fcl::Vector3<S>(0, 0, 3.141593);
 
-  auto motion_a = std::make_shared<fcl::SplineMotion<S>>(
+  auto motion_a = fcl::make_aligned_shared<fcl::SplineMotion<S>>(
     t[0], t[1], t[2], t[3],
     r[0], r[1], r[2], r[3]);
 
@@ -117,7 +117,7 @@ void test_SplineMotion_rotated_spline_collide_test()
   r[2] = fcl::Vector3<S>(0, 0, 0);
   r[3] = fcl::Vector3<S>(0, 0, 0);
 
-  auto motion_b = std::make_shared<fcl::SplineMotion<S>>(
+  auto motion_b = fcl::make_aligned_shared<fcl::SplineMotion<S>>(
     t[0], t[1], t[2], t[3],
     r[0], r[1], r[2], r[3]);
 
