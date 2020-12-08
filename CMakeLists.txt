@@ -79,30 +79,40 @@ else()
   option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" OFF)
 endif()
 
+set(SSE_FLAGS "")
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(SSE_FLAGS -mfpmath=sse -msse -msse2 -msse3 -mssse3)
+elseif(MSVC)
+  # Win64 will add the flag automatically
+  if(CMAKE_VS_PLATFORM_NAME STREQUAL "Win32")
+    set(SSE_FLAGS /arch:SSE2)
+  endif()
+endif()
+
 # Whether to enable SSE
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(FCL_TARGET_SUPPORT_X64_SSE OFF)
 else()
+  # Does the host support SSE
   cmake_host_system_information(RESULT _has_sse QUERY HAS_SSE)
   cmake_host_system_information(RESULT _has_sse2 QUERY HAS_SSE2)
-  if(_has_sse AND _has_sse2)
+
+  # Does the compiler support SSE
+  include(CheckCXXCompilerFlag)
+  check_cxx_compiler_flag("${SSE_FLAGS}" _compiler_supports_sse)
+
+  if(_has_sse AND _has_sse2 AND _compiler_supports_sse)
     set(FCL_TARGET_SUPPORT_X64_SSE ON)
   else()
     set(FCL_TARGET_SUPPORT_X64_SSE OFF)
   endif()
 endif()
-set(SSE_FLAGS "")
 option(FCL_USE_X64_SSE "Whether FCL should x64 SSE instructions" ${FCL_TARGET_SUPPORT_X64_SSE})
 if(FCL_USE_X64_SSE)
-  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(SSE_FLAGS -mfpmath=sse -msse -msse2 -msse3 -mssse3)
-  elseif(MSVC)
-    # Win64 will add the flag automatically
-    if(CMAKE_VS_PLATFORM_NAME STREQUAL "Win32")
-      set(SSE_FLAGS /arch:SSE2)
-    endif()
-  endif()
   add_compile_options(${SSE_FLAGS})
+else()
+  # Unset SSE_FLAGS so it doesn't get used in subdirectories
+  set(SSE_FLAGS "")
 endif()
 
 option(FCL_USE_HOST_NATIVE_ARCH "Whether FCL should use cflags from the host used to compile" OFF)
