@@ -17,4 +17,10 @@ include(CMakeFindDependencyMacro)
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")
 
+add_library(fcl INTERFACE IMPORTED)
+set_target_properties(fcl PROPERTIES INTERFACE_LINK_LIBRARIES "fcl::fcl")
+if(NOT CMAKE_VERSION VERSION_LESS 3.17)
+  set_property(TARGET fcl PROPERTY DEPRECATION "Deprecated target. Please use fcl::fcl instead.")
+endif()
+
 check_required_components(@PROJECT_NAME@)
