@@ -76,8 +76,10 @@ leafTesting(int, int) const
   Vector3<S> closest_p2 = Vector3<S>::Zero();
   this->nsolver->shapeDistance(*(this->model1), this->tf1, *(this->model2), this->tf2, &distance, &closest_p1, &closest_p2);
 
-  Vector3<S> n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
-  n.normalize();
+  Vector3<S> n = closest_p2 - closest_p1;
+  const S norm_sq = n.squaredNorm();
+  if (norm_sq > 0.0)
+    n /= sqrt(norm_sq);  // Normalize.
   TBVMotionBoundVisitor<RSS<S>> mb_visitor1(model1_bv, n);
   TBVMotionBoundVisitor<RSS<S>> mb_visitor2(model2_bv, -n);
   S bound1 = motion1->computeMotionBound(mb_visitor1);

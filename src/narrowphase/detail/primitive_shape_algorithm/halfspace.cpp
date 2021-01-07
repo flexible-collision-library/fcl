@@ -114,6 +114,14 @@ bool convexHalfspaceIntersect(
 
 //==============================================================================
 template
+bool convexHalfspaceIntersect(const Convex<double>& convex_C,
+                              const Transform3<double>& X_FC,
+                              const Halfspace<double>& half_space_H,
+                              const Transform3<double>& X_FH,
+                              std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+template
 bool halfspaceTriangleIntersect(
     const Halfspace<double>& s1, const Transform3<double>& tf1,
     const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, const Transform3<double>& tf2,

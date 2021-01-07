@@ -40,6 +40,7 @@
 
 #include "fcl/geometry/bvh/BVH_model.h"
 #include <new>
+#include <algorithm>
 
 namespace fcl
 {
@@ -92,7 +93,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
   if(other.vertices)
   {
     vertices = new Vector3<S>[num_vertices];
-    memcpy(vertices, other.vertices, sizeof(Vector3<S>) * num_vertices);
+    std::copy(other.vertices, other.vertices + num_vertices, vertices);
   }
   else
     vertices = nullptr;
@@ -100,7 +101,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
   if(other.tri_indices)
   {
     tri_indices = new Triangle[num_tris];
-    memcpy(tri_indices, other.tri_indices, sizeof(Triangle) * num_tris);
+    std::copy(other.tri_indices, other.tri_indices + num_tris, tri_indices);
   }
   else
     tri_indices = nullptr;
@@ -108,7 +109,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
   if(other.prev_vertices)
   {
     prev_vertices = new Vector3<S>[num_vertices];
-    memcpy(prev_vertices, other.prev_vertices, sizeof(Vector3<S>) * num_vertices);
+    std::copy(other.prev_vertices, other.prev_vertices + num_vertices, prev_vertices);
   }
   else
     prev_vertices = nullptr;
@@ -129,7 +130,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     }
 
     primitive_indices = new unsigned int[num_primitives];
-    memcpy(primitive_indices, other.primitive_indices, sizeof(unsigned int) * num_primitives);
+    std::copy(other.primitive_indices, other.primitive_indices + num_primitives, primitive_indices);
   }
   else
     primitive_indices = nullptr;
@@ -138,7 +139,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
   if(other.bvs)
   {
     bvs = new BVNode<BV>[num_bvs];
-    memcpy(bvs, other.bvs, sizeof(BVNode<BV>) * num_bvs);
+    std::copy(other.bvs, other.bvs + num_bvs, bvs);
   }
   else
     bvs = nullptr;
@@ -270,7 +271,7 @@ int BVHModel<BV>::addVertex(const Vector3<S>& p)
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vector3<S>) * num_vertices);
+    std::copy(vertices, vertices + num_vertices, temp);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated *= 2;
@@ -301,7 +302,7 @@ int BVHModel<BV>::addTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const 
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vector3<S>) * num_vertices);
+    std::copy(vertices, vertices + num_vertices, temp);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated = num_vertices_allocated * 2 + 2;
@@ -329,7 +330,7 @@ int BVHModel<BV>::addTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const 
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, tri_indices, sizeof(Triangle) * num_tris);
+    std::copy(tri_indices, tri_indices + num_tris, temp);
     delete [] tri_indices;
     tri_indices = temp;
     num_tris_allocated *= 2;
@@ -362,7 +363,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps)
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vector3<S>) * num_vertices);
+    std::copy(vertices, vertices + num_vertices, temp);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated = num_vertices_allocated * 2 + num_vertices_to_add - 1;
@@ -398,7 +399,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps, const std::vect
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vector3<S>) * num_vertices);
+    std::copy(vertices, vertices + num_vertices, temp);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated = num_vertices_allocated * 2 + num_vertices_to_add - 1;
@@ -428,7 +429,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps, const std::vect
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, tri_indices, sizeof(Triangle) * num_tris);
+    std::copy(tri_indices, tri_indices + num_tris, temp);
     delete [] tri_indices;
     tri_indices = temp;
     num_tris_allocated = num_tris_allocated * 2 + num_tris_to_add - 1;
@@ -468,7 +469,7 @@ int BVHModel<BV>::endModel()
       std::cerr << "BVH Error! Out of memory for tri_indices array in endModel() call!" << std::endl;
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
-    memcpy(new_tris, tri_indices, sizeof(Triangle) * num_tris);
+    std::copy(tri_indices, tri_indices + num_tris, new_tris);
     delete [] tri_indices;
     tri_indices = new_tris;
     num_tris_allocated = num_tris;
@@ -482,7 +483,7 @@ int BVHModel<BV>::endModel()
       std::cerr << "BVH Error! Out of memory for vertices array in endModel() call!" << std::endl;
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
-    memcpy(new_vertices, vertices, sizeof(Vector3<S>) * num_vertices);
+    std::copy(vertices, vertices + num_vertices, new_vertices);
     delete [] vertices;
     vertices = new_vertices;
     num_vertices_allocated = num_vertices;

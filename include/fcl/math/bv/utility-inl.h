@@ -77,12 +77,10 @@ void fit2(const Vector3<S>* const ps, OBB<S>& bv)
 {
   const Vector3<S>& p1 = ps[0];
   const Vector3<S>& p2 = ps[1];
-  Vector3<S> p1p2 = p1 - p2;
-  S len_p1p2 = p1p2.norm();
-  p1p2.normalize();
+  const Vector3<S> p1p2 = p1 - p2;
+  const S len_p1p2 = p1p2.norm();
 
-  bv.axis.col(0) = p1p2;
-  generateCoordinateSystem(bv.axis);
+  bv.axis = generateCoordinateSystem(p1p2);
 
   bv.extent << len_p1p2 * 0.5, 0, 0;
   bv.To.noalias() = 0.5 * (p1 + p2);
@@ -193,12 +191,10 @@ void fit2(const Vector3<S>* const ps, RSS<S>& bv)
 {
   const Vector3<S>& p1 = ps[0];
   const Vector3<S>& p2 = ps[1];
-  Vector3<S> p1p2 = p1 - p2;
-  S len_p1p2 = p1p2.norm();
-  p1p2.normalize();
+  const Vector3<S> p1p2 = p1 - p2;
+  const S len_p1p2 = p1p2.norm();
 
-  bv.axis.col(0) = p1p2;
-  generateCoordinateSystem(bv.axis);
+  bv.axis = generateCoordinateSystem(p1p2);
   bv.l[0] = len_p1p2;
   bv.l[1] = 0;
 
@@ -318,12 +314,10 @@ void fit2(const Vector3<S>* const ps, kIOS<S>& bv)
 
   const Vector3<S>& p1 = ps[0];
   const Vector3<S>& p2 = ps[1];
-  Vector3<S> p1p2 = p1 - p2;
-  S len_p1p2 = p1p2.norm();
-  p1p2.normalize();
+  const Vector3<S> p1p2 = p1 - p2;
+  const S len_p1p2 = p1p2.norm();
 
-  bv.obb.axis.col(0) = p1p2;
-  generateCoordinateSystem(bv.obb.axis);
+  bv.obb.axis = generateCoordinateSystem(p1p2);
 
   S r0 = len_p1p2 * 0.5;
   bv.obb.extent << r0, 0, 0;
@@ -797,7 +791,7 @@ public:
   static void run(const RSS<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2)
   {
     bv2.extent << bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r;
-    bv2.To.noalias() = tf1 * bv1.To;
+    bv2.To.noalias() = tf1 * bv1.center();
     bv2.axis.noalias() = tf1.linear() * bv1.axis;
   }
 };
@@ -838,12 +832,23 @@ class FCL_EXPORT ConvertBVImpl<S, OBB<S>, RSS<S>>
 public:
   static void run(const OBB<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2)
   {
-    bv2.To.noalias() = tf1 * bv1.To;
+    // OBB's rotation matrix in axis is required to be lined up with the
+    // x-axis along the longest edge, the y-axis on the next longest edge
+    // and the z-axis on the shortest edge. RSS requires the longest edge
+    // of the rectangle to be the x-axis and the next longest the y-axis.
+    // This maps perfectly from OBB to RSS so simply transform the rotation
+    // axis of the OBB into the RSS.
     bv2.axis.noalias() = tf1.linear() * bv1.axis;
 
+    // Set longest rectangle side for RSS to longest dimension of OBB.
+    bv2.l[0] = 2 * (bv1.extent[0]);
+    // Set shortest rectangle side for RSS to next-longest dimension of OBB.
+    bv2.l[1] = 2 * (bv1.extent[1]);
+    // Set radius for RSS to the smallest dimension of OBB.
     bv2.r = bv1.extent[2];
-    bv2.l[0] = 2 * (bv1.extent[0] - bv2.r);
-    bv2.l[1] = 2 * (bv1.extent[1] - bv2.r);
+
+    // OBB's To is at its center while RSS's To is at a corner.
+    bv2.setToFromCenter(tf1 * bv1.center());
   }
 };
 
@@ -881,8 +886,6 @@ class FCL_EXPORT ConvertBVImpl<S, AABB<S>, RSS<S>>
 public:
   static void run(const AABB<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2)
   {
-    bv2.To.noalias() = tf1 * bv1.center();
-
     /// Sort the AABB edges so that AABB extents are ordered.
     S d[3] = {bv1.width(), bv1.height(), bv1.depth() };
     std::size_t id[3] = {0, 1, 2};
@@ -909,8 +912,8 @@ public:
 
     Vector3<S> extent = (bv1.max_ - bv1.min_) * 0.5;
     bv2.r = extent[id[2]];
-    bv2.l[0] = (extent[id[0]] - bv2.r) * 2;
-    bv2.l[1] = (extent[id[1]] - bv2.r) * 2;
+    bv2.l[0] = (extent[id[0]]) * 2;
+    bv2.l[1] = (extent[id[1]]) * 2;
 
     const Matrix3<S>& R = tf1.linear();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
@@ -920,6 +923,7 @@ public:
       bv2.axis.col(0) = R.col(id[0]);
     bv2.axis.col(1) = R.col(id[1]);
     bv2.axis.col(2) = R.col(id[2]);
+    bv2.setToFromCenter(tf1 * bv1.center());
   }
 };
 

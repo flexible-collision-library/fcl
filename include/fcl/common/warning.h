@@ -68,13 +68,6 @@
   #define FCL_SUPPRESS_UNINITIALIZED_END \
     _Pragma("GCC diagnostic pop")
 
-  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN                           \
-    _Pragma("GCC diagnostic push")                                   \
-    _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
-
-  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_END \
-    _Pragma("GCC diagnostic pop")
-
 #elif defined (FCL_COMPILER_CLANG)
 
   #define FCL_SUPPRESS_DEPRECATED_BEGIN                               \
@@ -91,10 +84,6 @@
   #define FCL_SUPPRESS_UNINITIALIZED_END \
     _Pragma("clang diagnostic pop")
 
-  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
-
-  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
-
 #elif defined (FCL_COMPILER_MSVC)
 
   #define FCL_SUPPRESS_DEPRECATED_BEGIN \
@@ -107,10 +96,6 @@
   #define FCL_SUPPRESS_UNINITIALIZED_BEGIN  // TODO
 
   #define FCL_SUPPRESS_UNINITIALIZED_END  // TODO
-
-  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN  // TODO
-
-  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_END  // TODO
 
 #endif
 

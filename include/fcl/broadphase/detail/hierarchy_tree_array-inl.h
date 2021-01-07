@@ -42,6 +42,8 @@
 
 #include "fcl/common/unused.h"
 
+#include <algorithm>
+
 namespace fcl
 {
 
@@ -109,7 +111,7 @@ void HierarchyTree<BV>::init_0(NodeType* leaves, int n_leaves_)
   n_leaves = n_leaves_;
   root_node = NULL_NODE;
   nodes = new NodeType[n_leaves * 2];
-  memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+  std::copy(leaves, leaves + n_leaves, nodes);
   freelist = n_leaves;
   n_nodes = n_leaves;
   n_nodes_alloc = 2 * n_leaves;
@@ -137,7 +139,7 @@ void HierarchyTree<BV>::init_1(NodeType* leaves, int n_leaves_)
   n_leaves = n_leaves_;
   root_node = NULL_NODE;
   nodes = new NodeType[n_leaves * 2];
-  memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+  std::copy(leaves, leaves + n_leaves, nodes);
   freelist = n_leaves;
   n_nodes = n_leaves;
   n_nodes_alloc = 2 * n_leaves;
@@ -161,10 +163,7 @@ void HierarchyTree<BV>::init_1(NodeType* leaves, int n_leaves_)
   for(size_t i = 0; i < n_leaves; ++i)
     ids[i] = i;
 
-  FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
-  SortByMorton comp;
-  FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
-  comp.nodes = nodes;
+  const SortByMorton comp{nodes};
   std::sort(ids, ids + n_leaves, comp);
   root_node = mortonRecurse_0(ids, ids + n_leaves, (1 << (coder.bits()-1)), coder.bits()-1);
   delete [] ids;
@@ -184,7 +183,7 @@ void HierarchyTree<BV>::init_2(NodeType* leaves, int n_leaves_)
   n_leaves = n_leaves_;
   root_node = NULL_NODE;
   nodes = new NodeType[n_leaves * 2];
-  memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+  std::copy(leaves, leaves + n_leaves, nodes);
   freelist = n_leaves;
   n_nodes = n_leaves;
   n_nodes_alloc = 2 * n_leaves;
@@ -208,10 +207,7 @@ void HierarchyTree<BV>::init_2(NodeType* leaves, int n_leaves_)
   for(size_t i = 0; i < n_leaves; ++i)
     ids[i] = i;
 
-  FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
-  SortByMorton comp;
-  FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
-  comp.nodes = nodes;
+  const SortByMorton comp{nodes};
   std::sort(ids, ids + n_leaves, comp);
   root_node = mortonRecurse_1(ids, ids + n_leaves, (1 << (coder.bits()-1)), coder.bits()-1);
   delete [] ids;
@@ -231,7 +227,7 @@ void HierarchyTree<BV>::init_3(NodeType* leaves, int n_leaves_)
   n_leaves = n_leaves_;
   root_node = NULL_NODE;
   nodes = new NodeType[n_leaves * 2];
-  memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+  std::copy(leaves, leaves + n_leaves, nodes);
   freelist = n_leaves;
   n_nodes = n_leaves;
   n_nodes_alloc = 2 * n_leaves;
@@ -255,10 +251,7 @@ void HierarchyTree<BV>::init_3(NodeType* leaves, int n_leaves_)
   for(size_t i = 0; i < n_leaves; ++i)
     ids[i] = i;
 
-  FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
-  SortByMorton comp;
-  FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
-  comp.nodes = nodes;
+  const SortByMorton comp{nodes};
   std::sort(ids, ids + n_leaves, comp);
   root_node = mortonRecurse_2(ids, ids + n_leaves);
   delete [] ids;
@@ -394,7 +387,7 @@ void HierarchyTree<BV>::balanceBottomup()
     NodeType* leaves_ = leaves;
     extractLeaves(root_node, leaves_);
     root_node = NULL_NODE;
-    memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+    std::copy(leaves, leaves + n_leaves, nodes);
     freelist = n_leaves;
     n_nodes = n_leaves;
     for(size_t i = n_leaves; i < n_nodes_alloc; ++i)
@@ -423,7 +416,7 @@ void HierarchyTree<BV>::balanceTopdown()
     NodeType* leaves_ = leaves;
     extractLeaves(root_node, leaves_);
     root_node = NULL_NODE;
-    memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+    std::copy(leaves, leaves + n_leaves, nodes);
     freelist = n_leaves;
     n_nodes = n_leaves;
     for(size_t i = n_leaves; i < n_nodes_alloc; ++i)
@@ -722,9 +715,7 @@ size_t HierarchyTree<BV>::mortonRecurse_0(size_t* lbeg, size_t* lend, const uint
   {
     if(bits > 0)
     {
-      SortByMorton comp;
-      comp.nodes = nodes;
-      comp.split = split;
+      const SortByMorton comp{nodes, split};
       size_t* lcenter = std::lower_bound(lbeg, lend, NULL_NODE, comp);
 
       if(lcenter == lbeg)
@@ -771,9 +762,7 @@ size_t HierarchyTree<BV>::mortonRecurse_1(size_t* lbeg, size_t* lend, const uint
   {
     if(bits > 0)
     {
-      SortByMorton comp;
-      comp.nodes = nodes;
-      comp.split = split;
+      const SortByMorton comp{nodes, split};
       size_t* lcenter = std::lower_bound(lbeg, lend, NULL_NODE, comp);
 
       if(lcenter == lbeg)
@@ -959,7 +948,7 @@ size_t HierarchyTree<BV>::allocateNode()
     NodeType* old_nodes = nodes;
     n_nodes_alloc *= 2;
     nodes = new NodeType[n_nodes_alloc];
-    memcpy(nodes, old_nodes, n_nodes * sizeof(NodeType));
+    std::copy(old_nodes, old_nodes + n_nodes, nodes);
     delete [] old_nodes;
 
     for(size_t i = n_nodes; i < n_nodes_alloc - 1; ++i)

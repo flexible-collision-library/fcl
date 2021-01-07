@@ -1,5 +1,50 @@
 ## FCL 0
 
+### FCL 0.7.0 (????-??-??)
+
+* Breaking changes
+
+  * Macros `FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN` and `FCL_SUPPRESS_MAYBE_UNINITIALIZED_END` defined in `fcl/common/warning.h` have been removed:
+    [#489](https://github.com/flexible-collision-library/fcl/pull/489)
+
+* Core/Common
+
+* Math
+
+  * constants::eps() is now constexpr:
+    [#494](https://github.com/flexible-collision-library/fcl/pull/494)
+
+* Geometry
+
+  * OcTree logic for determining free/occupied:
+    [#467](https://github.com/flexible-collision-library/fcl/pull/467)
+  * Bugs in RSS distance queries fixed:
+    [#467](https://github.com/flexible-collision-library/fcl/pull/467)
+  * Convex gets *some* validation and improved support for the GJK `supportVertex()` API:
+    [#488](https://github.com/flexible-collision-library/fcl/pull/488)
+
+* Broadphase
+
+* Narrowphase
+
+  * Primitive convex-half space collision algorithm introduced:
+    [#469](https://github.com/flexible-collision-library/fcl/pull/469)
+  * Contact and distance query results types changed to be compatible with OcTree:
+    [#472](https://github.com/flexible-collision-library/fcl/pull/472)
+  * Documentation for OcTree no longer mistakenly excluded from doxygen:
+    [#472](https://github.com/flexible-collision-library/fcl/pull/472)
+  * Another failure mode in the GJK/EPA signed distance query patched:
+    [#494](https://github.com/flexible-collision-library/fcl/pull/494)
+
+* Build/Test/Misc
+
+  * Fixed syntax which prevented building in Visual Studio 2015:
+    [#459](https://github.com/flexible-collision-library/fcl/pull/459)
+  * Fix compilation errors using default options on Emscripten:
+    [#470](https://github.com/flexible-collision-library/fcl/pull/470)
+  * Change supported linux build to Ubuntu 18.04 and Mac OS 10.14.6:
+    [#489](https://github.com/flexible-collision-library/fcl/pull/489)
+
 ### FCL 0.6.1 (2020-02-26)
 
 * Math

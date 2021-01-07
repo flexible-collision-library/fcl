@@ -531,34 +531,6 @@ struct ComputeSplitVectorImpl<S, kIOS<S>>
 {
   static void run(const kIOS<S>& bv, Vector3<S>& split_vector)
   {
-    /*
-      switch(bv.num_spheres)
-      {
-      case 1:
-      split_vector = Vector3<S>(1, 0, 0);
-      break;
-      case 3:
-      {
-      Vector3<S> v[3];
-      v[0] = bv.spheres[1].o - bv.spheres[0].o;
-      v[0].normalize();
-      generateCoordinateSystem(v[0], v[1], v[2]);
-      split_vector = v[1];
-      }
-      break;
-      case 5:
-      {
-      Vector3<S> v[2];
-      v[0] = bv.spheres[1].o - bv.spheres[0].o;
-      v[1] = bv.spheres[3].o - bv.spheres[0].o;
-      split_vector = v[0].cross(v[1]);
-      split_vector.normalize();
-      }
-      break;
-      default:
-      ;
-      }
-    */
     split_vector = bv.obb.axis.col(0);
   }
 };

@@ -155,7 +155,7 @@ FCL_EXPORT bool sphereCylinderIntersect(
     // Furthermore, in finding the *near* face, a better candidate must be more
     // than this epsilon closer to the sphere center (see the test in the
     // else branch).
-    const auto eps = 16 * constants<S>::eps();
+    constexpr auto eps = 16 * constants<S>::eps();
     if (S_is_outside && p_SN_squared_dist > eps * eps) {
       // The sphere center is *measurably outside* the cylinder. There are three
       // possibilities: nearest point lies on the cap face, cap edge, or barrel.

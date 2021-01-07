@@ -31,13 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-if(APPLE)
-  cmake_minimum_required(VERSION 3.0.0)
-elseif(MSVC)
-  cmake_minimum_required(VERSION 3.1.3)
-else()
-  cmake_minimum_required(VERSION 2.8.12)
-endif()
+cmake_minimum_required(VERSION 3.10)
 
 project(fcl CXX)
 
@@ -85,19 +79,40 @@ else()
   option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" OFF)
 endif()
 
-# Whether to enable SSE
 set(SSE_FLAGS "")
-option(FCL_USE_X64_SSE "Whether FCL should x64 SSE instructions" ON)
-if(FCL_USE_X64_SSE)
-  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(SSE_FLAGS -mfpmath=sse -msse -msse2 -msse3 -mssse3)
-  elseif(MSVC)
-    # Win64 will add the flag automatically
-    if(CMAKE_VS_PLATFORM_NAME STREQUAL "Win32")
-      set(SSE_FLAGS /arch:SSE2)
-    endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(SSE_FLAGS -mfpmath=sse -msse -msse2 -msse3 -mssse3)
+elseif(MSVC)
+  # Win64 will add the flag automatically
+  if(CMAKE_VS_PLATFORM_NAME STREQUAL "Win32")
+    set(SSE_FLAGS /arch:SSE2)
   endif()
+endif()
+
+# Whether to enable SSE
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(FCL_TARGET_SUPPORT_X64_SSE OFF)
+else()
+  # Does the host support SSE
+  cmake_host_system_information(RESULT _has_sse QUERY HAS_SSE)
+  cmake_host_system_information(RESULT _has_sse2 QUERY HAS_SSE2)
+
+  # Does the compiler support SSE
+  include(CheckCXXCompilerFlag)
+  check_cxx_compiler_flag("${SSE_FLAGS}" _compiler_supports_sse)
+
+  if(_has_sse AND _has_sse2 AND _compiler_supports_sse)
+    set(FCL_TARGET_SUPPORT_X64_SSE ON)
+  else()
+    set(FCL_TARGET_SUPPORT_X64_SSE OFF)
+  endif()
+endif()
+option(FCL_USE_X64_SSE "Whether FCL should x64 SSE instructions" ${FCL_TARGET_SUPPORT_X64_SSE})
+if(FCL_USE_X64_SSE)
   add_compile_options(${SSE_FLAGS})
+else()
+  # Unset SSE_FLAGS so it doesn't get used in subdirectories
+  set(SSE_FLAGS "")
 endif()
 
 option(FCL_USE_HOST_NATIVE_ARCH "Whether FCL should use cflags from the host used to compile" OFF)
@@ -169,17 +184,29 @@ find_package(ccd QUIET)
 # find_library()
 if(NOT ccd_FOUND)
   if(PKG_CONFIG_FOUND)
-    pkg_check_modules(PC_CCD ccd)
-    pkg_check_modules(PC_LIBCCD libccd)
+    pkg_search_module(PC_CCD ccd libccd)
   endif()
 
+  # The include directory returned by pkg_config is very unreliable:
+  #  1. PC_CCD_INCLUDE_DIRS cannot locate ccd.h definitively, it could be:
+  #     a) PC_CCD_INCLUDE_DIRS/ccd/ccd.h
+  #     b) PC_CCD_INCLUDE_DIRS/ccd.h
+  #  2. It may be empty due to pkg-config's de-duplication, if the path is
+  #     provided by:
+  #     a) $PKG_CONFIG_SYSTEM_INCLUDE_PATH
+  #     b) $C_INCLUDE_PATH
+  #     c) $CPLUS_INCLUDE_PATH
   find_path(CCD_INCLUDE_DIR ccd/ccd.h
-    HINTS "${PC_CCD_INCLUDE_DIRS}" "${PC_LIBCCD_INCLUDE_DIRS}")
+    HINTS "${PC_CCD_INCLUDE_DIRS}"
+          "${PC_CCD_INCLUDE_DIRS}/.."
+          ENV PKG_CONFIG_SYSTEM_INCLUDE_PATH
+          ENV C_INCLUDE_PATH
+          ENV CPLUS_INCLUDE_PATH)
 
   # Using find_library() even if pkg-config is available ensures that the full
   # path to the ccd library is available in CCD_LIBRARIES
   find_library(CCD_LIBRARY ccd
-    HINTS "${PC_CCD_LIBRARY_DIRS}" "${PC_LIBCCD_LIBRARY_DIRS}")
+    HINTS "${PC_CCD_LIBRARY_DIRS}")
 
   # libccd links to LibM on UNIX.
   if(CYGWIN OR NOT WIN32)

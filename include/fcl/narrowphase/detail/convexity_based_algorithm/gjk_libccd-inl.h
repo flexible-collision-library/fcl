@@ -313,7 +313,7 @@ _ccd_inline void tripleCross(const ccd_vec3_t *a, const ccd_vec3_t *b,
 static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir) {
   // Used to define numerical thresholds near zero; typically scaled to the size
   // of the quantities being tested.
-  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  constexpr ccd_real_t eps = constants<ccd_real_t>::eps();
 
   const Vector3<ccd_real_t> p_OA(simplex->ps[simplex->last].v.v);
   const Vector3<ccd_real_t> p_OB(simplex->ps[0].v.v);
@@ -922,7 +922,7 @@ static bool are_coincident(const ccd_vec3_t& p, const ccd_vec3_t& q) {
   using std::abs;
   using std::max;
 
-  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  constexpr ccd_real_t eps = constants<ccd_real_t>::eps();
   // NOTE: Wrapping "1.0" with ccd_real_t accounts for mac problems where ccd
   // is actually float based.
   for (int i = 0; i < 3; ++i) {
@@ -960,32 +960,10 @@ static bool triangle_area_is_zero(const ccd_vec3_t& a, const ccd_vec3_t& b,
   ccdVec3Normalize(&AB);
   ccdVec3Normalize(&AC);
   ccdVec3Cross(&n, &AB, &AC);
-  const ccd_real_t eps = constants<ccd_real_t>::eps();
+  constexpr ccd_real_t eps = constants<ccd_real_t>::eps();
   // Second co-linearity condition.
   if (ccdVec3Len2(&n) < eps * eps) return true;
   return false;
-}
-
-/**
- * Determines if the point P is on the line segment AB.
- * If A, B, P are coincident, report true.
- */
-static bool is_point_on_line_segment(const ccd_vec3_t& p, const ccd_vec3_t& a,
-                                     const ccd_vec3_t& b) {
-  if (are_coincident(a, b)) {
-    return are_coincident(a, p);
-  }
-  // A and B are not coincident, if the triangle ABP has non-zero area, then P
-  // is not on the line adjoining AB, and hence not on the line segment AB.
-  if (!triangle_area_is_zero(a, b, p)) {
-    return false;
-  }
-  // P is on the line adjoinging AB. If P is on the line segment AB, then
-  // PA.dot(PB) <= 0.
-  ccd_vec3_t PA, PB;
-  ccdVec3Sub2(&PA, &p, &a);
-  ccdVec3Sub2(&PB, &p, &b);
-  return ccdVec3Dot(&PA, &PB) <= 0;
 }
 
 /**
@@ -1691,6 +1669,14 @@ static int __ccdGJK(const void *obj1, const void *obj2,
  */
 static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
   assert(polytope->nearest_type == CCD_PT_EDGE);
+
+  // We define epsilon to include an additional bit of noise. The goal is to
+  // pick the smallest epsilon possible. This factor of two proved necessary
+  // due to unit test behavior on the mac. In the future, as we collect
+  // more evidence, it may be necessary to increase to more bits. But the need
+  // should always be demonstrable and not purely theoretical.
+  constexpr ccd_real_t kEps = 2 * constants<ccd_real_t>::eps();
+
   // Only verify the feature if the nearest feature is an edge.
 
   const ccd_pt_edge_t* const nearest_edge =
@@ -1701,6 +1687,15 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
   // normalized.
   std::array<ccd_vec3_t, 2> face_normals;
   std::array<double, 2> origin_to_face_distance;
+
+  // We define the plane equation using vertex[0]. If vertex[0] is far away
+  // from the origin, it can magnify rounding error. We scale epsilon to account
+  // for this possibility.
+  const ccd_real_t v0_dist =
+      std::sqrt(ccdVec3Len2(&nearest_edge->vertex[0]->v.v));
+  const ccd_real_t plane_threshold =
+      kEps * std::max(static_cast<ccd_real_t>(1.0), v0_dist);
+
   for (int i = 0; i < 2; ++i) {
     face_normals[i] =
         faceNormalPointingOutward(polytope, nearest_edge->faces[i]);
@@ -1709,27 +1704,29 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
     // n̂ ⋅ (o - vₑ) ≤ 0 or, with simplification, -n̂ ⋅ vₑ ≤ 0 (since n̂ ⋅ o = 0).
     origin_to_face_distance[i] =
         -ccdVec3Dot(&face_normals[i], &nearest_edge->vertex[0]->v.v);
-    if (origin_to_face_distance[i] > 0) {
+    // If the origin lies *on* the edge, then it also lies on the two adjacent
+    // faces. Rather than failing on strictly *positive* signed distance, we
+    // introduce an epsilon threshold. This usage of epsilon is to account for a
+    // discrepancy in the signed distance computation. How GJK (and partially
+    // EPA) compute the signed distance from origin to face may *not* be exactly
+    // the same as done in this test (i.e. for a given set of vertices, the
+    // plane equation can be defined various ways. Those ways are
+    // *mathematically* equivalent but numerically will differ due to rounding).
+    // We account for those differences by allowing a very small positive signed
+    // distance to be considered zero. We assume that the GJK/EPA code
+    // ultimately classifies inside/outside around *zero* and *not* epsilon.
+    if (origin_to_face_distance[i] > plane_threshold) {
       FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
           "The origin is outside of the polytope. This should already have "
           "been identified as separating.");
     }
   }
-  // We compute the projection of the origin onto the plane as
-  // -face_normals[i] * origin_to_face_distance[i]
-  // If the projection to both faces are on the edge, the the edge is the
-  // closest feature.
-  bool is_edge_closest_feature = true;
-  for (int i = 0; i < 2; ++i) {
-    ccd_vec3_t origin_projection_to_plane = face_normals[i];
-    ccdVec3Scale(&(origin_projection_to_plane), -origin_to_face_distance[i]);
-    if (!is_point_on_line_segment(origin_projection_to_plane,
-                                  nearest_edge->vertex[0]->v.v,
-                                  nearest_edge->vertex[1]->v.v)) {
-      is_edge_closest_feature = false;
-      break;
-    }
-  }
+
+  // We know the reported squared distance to the edge. If that distance is
+  // functionally zero, then the edge must *truly* be the nearest feature.
+  // If it isn't, then it must be one of the adjacent faces.
+  const bool is_edge_closest_feature = nearest_edge->dist < kEps * kEps;
+
   if (!is_edge_closest_feature) {
     // We assume that libccd is not crazily wrong. Although the closest
     // feature is not the edge, it is near that edge. Hence we select the
@@ -1779,7 +1776,7 @@ static int __ccdEPA(const void *obj1, const void *obj2,
         return -2;
     }
 
-    while (1){
+    while (1) {
       // get triangle nearest to origin
       *nearest = ccdPtNearest(polytope);
       if (polytope->nearest_type == CCD_PT_EDGE) {
@@ -1791,14 +1788,13 @@ static int __ccdEPA(const void *obj1, const void *obj2,
         *nearest = ccdPtNearest(polytope);
       }
 
-        // get next support point
-        if (nextSupport(polytope, obj1, obj2, ccd, *nearest, &supp) != 0) {
-            break;
-        }
+      // get next support point
+      if (nextSupport(polytope, obj1, obj2, ccd, *nearest, &supp) != 0) {
+        break;
+      }
 
-        // expand nearest triangle using new point - supp
-        if (expandPolytope(polytope, *nearest, &supp) != 0)
-            return -2;
+      // expand nearest triangle using new point - supp
+      if (expandPolytope(polytope, *nearest, &supp) != 0) return -2;
     }
 
     return 0;
@@ -2499,27 +2495,24 @@ static void supportConvex(const void* obj, const ccd_vec3_t* dir_,
                           ccd_vec3_t* v)
 {
   const auto* c = (const ccd_convex_t<S>*)obj;
-  ccd_vec3_t dir, p;
-  ccd_real_t maxdot, dot;
-  const auto& center = c->convex->getInteriorPoint();
 
+  // Transform the support direction vector from the query frame Q to the
+  // convex mesh's local frame C. I.e., dir_Q -> dir_C.
+  ccd_vec3_t dir;
   ccdVec3Copy(&dir, dir_);
   ccdQuatRotVec(&dir, &c->rot_inv);
+  // Note: The scalar type ccd_real_t is fixed w.r.t. S. That means if S is
+  // float and ccd_real_t is double, this conversion requires narrowing. To
+  // avoid warning/errors about implicit narrowing, we explicitly convert.
+  Vector3<S> dir_C{S(dir.v[0]), S(dir.v[1]), S(dir.v[2])};
 
-  maxdot = -CCD_REAL_MAX;
+  // The extremal point E measured and expressed in Frame C.
+  const Vector3<S>& p_CE = c->convex->findExtremeVertex(dir_C);
 
-  for (const auto& vertex : c->convex->getVertices())
-  {
-    ccdVec3Set(&p, vertex[0] - center[0], vertex[1] - center[1],
-               vertex[2] - center[2]);
-    dot = ccdVec3Dot(&dir, &p);
-    if (dot > maxdot) {
-      ccdVec3Set(v, vertex[0], vertex[1], vertex[2]);
-      maxdot = dot;
-    }
-  }
-
-  // transform support vertex
+  // Now measure and express E in the original query frame Q: p_CE -> p_QE.
+  v->v[0] = p_CE(0);
+  v->v[1] = p_CE(1);
+  v->v[2] = p_CE(2);
   ccdQuatRotVec(v, &c->rot);
   ccdVec3Add(v, &c->pos);
 }
