@@ -47,6 +47,8 @@ else()
   add_library(${PROJECT_NAME} SHARED ${FCL_HEADERS} ${FCL_SOURCE_CODE})
 endif()
 
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 # Be sure to pass to the consumer the set of SIMD used in the compilation
 target_compile_options(${PROJECT_NAME} PUBLIC ${SSE_FLAGS})
 
