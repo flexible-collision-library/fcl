@@ -759,6 +759,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[GEOM_HALFSPACE][GEOM_CONVEX] = &ShapeShapeCollide<Halfspace<S>, Convex<S>, NarrowPhaseSolver>;
   collision_matrix[GEOM_HALFSPACE][GEOM_PLANE] = &ShapeShapeCollide<Halfspace<S>, Plane<S>, NarrowPhaseSolver>;
   collision_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] = &ShapeShapeCollide<Halfspace<S>, Halfspace<S>, NarrowPhaseSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_ELLIPSOID] = &ShapeShapeCollide<Halfspace<S>, Ellipsoid<S>, NarrowPhaseSolver>;
 
   collision_matrix[BV_AABB][GEOM_BOX] = &BVHShapeCollider<AABB<S>, Box<S>, NarrowPhaseSolver>::collide;
   collision_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeCollider<AABB<S>, Sphere<S>, NarrowPhaseSolver>::collide;
