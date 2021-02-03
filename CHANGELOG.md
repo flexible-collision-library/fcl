@@ -22,6 +22,10 @@
     [#467](https://github.com/flexible-collision-library/fcl/pull/467)
   * Convex gets *some* validation and improved support for the GJK `supportVertex()` API:
     [#488](https://github.com/flexible-collision-library/fcl/pull/488)
+  * Fixed bug in collision function matrix that only allowed calculation of
+    collision between ellipsoid and half space *with that ordering*. Now also
+    supports half space and ellipsoid.
+    [#520](https://github.com/flexible-collision-library/fcl/pull/520)
 
 * Broadphase
 
