@@ -57,7 +57,7 @@ namespace {
 template <typename S>
 struct Eps {
   using Real = typename constants<S>::Real;
-  static Real value() { return 16 * constants<S>::eps(); }
+  static Real value() { return 18 * constants<S>::eps(); }
 };
 
 // NOTE: The version of Eigen in travis CI seems to be using code that when
