@@ -244,12 +244,12 @@ void test_distance_cylinder_box_helper(S cylinder_radius, S cylinder_length,
   // p_CPc is the position of the witness point Pc on the cylinder, measured
   // and expressed in the cylinder frame C.
   const Vector3<S> p_CPc = X_WC.inverse() * result.nearest_points[0];
-  EXPECT_LE(abs(p_CPc(2)), cylinder_length / 2);
+  const S tol = 10 * std::numeric_limits<S>::epsilon();
+  EXPECT_LE(abs(p_CPc(2)), cylinder_length / 2 + tol);
   EXPECT_LE(p_CPc.template head<2>().norm(), cylinder_radius);
   // p_BPb is the position of the witness point Pb on the box, measured and
   // expressed in the box frame B.
   const Vector3<S> p_BPb = X_WB.inverse() * result.nearest_points[1];
-  const S tol = 10 * std::numeric_limits<S>::epsilon();
   EXPECT_TRUE((p_BPb.array().abs() <= box_size.array() / 2 + tol).all());
 }
 
