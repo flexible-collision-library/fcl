@@ -1,4 +1,4 @@
-<package format="2">
+<package format="3">
   <name>fcl</name>
   <version>0.6.1</version>
   <description>FCL: the Flexible Collision Library</description>
@@ -9,7 +9,7 @@
   <depend>eigen</depend>
   <depend>octomap</depend>
   <!-- Following recommendations of REP 136 -->
-  <exec_depend>catkin</exec_depend>
+  <exec_depend condition="ROS_VERSION == 1">catkin</exec_depend>
   <export>
     <build_type>cmake</build_type>
   </export>
