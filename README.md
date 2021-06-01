@@ -49,7 +49,7 @@ zipped version.
 
 Some optional libraries need to be installed for some optional capability of
 FCL. For octree collision, please install the octomap library from
-http://octomap.github.com.
+https://octomap.github.io/.
 
 CMakeLists.txt is used to generate makefiles in Linux or Visual studio projects
 in windows. In command line, run
