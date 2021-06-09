@@ -228,7 +228,7 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
     tri_indices = new(std::nothrow) Triangle[num_tris_allocated];
     if(!tri_indices)
     {
-      std::cerr << "BVH Error! Out of memory for tri_indices array on BeginModel() call!" << std::endl;
+      std::cerr << "BVH Error! Out of memory for tri_indices array on BeginModel() call!\n";
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
   }
@@ -236,13 +236,13 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
   vertices = new Vector3<S>[num_vertices_allocated];
   if(!vertices)
   {
-    std::cerr << "BVH Error! Out of memory for vertices array on BeginModel() call!" << std::endl;
+    std::cerr << "BVH Error! Out of memory for vertices array on BeginModel() call!\n";
     return BVH_ERR_MODEL_OUT_OF_MEMORY;
   }
 
   if(build_state != BVH_BUILD_STATE_EMPTY)
   {
-    std::cerr << "BVH Warning! Call beginModel() on a BVHModel that is not empty. This model was cleared and previous triangles/vertices were lost." << std::endl;
+    std::cerr << "BVH Warning! Call beginModel() on a BVHModel that is not empty. This model was cleared and previous triangles/vertices were lost.\n";
     build_state = BVH_BUILD_STATE_EMPTY;
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
@@ -258,7 +258,7 @@ int BVHModel<BV>::addVertex(const Vector3<S>& p)
 {
   if(build_state != BVH_BUILD_STATE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call addVertex() in a wrong order. addVertex() was ignored. Must do a beginModel() to clear the model for addition of new vertices." << std::endl;
+    std::cerr << "BVH Warning! Call addVertex() in a wrong order. addVertex() was ignored. Must do a beginModel() to clear the model for addition of new vertices.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -267,7 +267,7 @@ int BVHModel<BV>::addVertex(const Vector3<S>& p)
     Vector3<S>* temp = new Vector3<S>[num_vertices_allocated * 2];
     if(!temp)
     {
-      std::cerr << "BVH Error! Out of memory for vertices array on addVertex() call!" << std::endl;
+      std::cerr << "BVH Error! Out of memory for vertices array on addVertex() call!\n";
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
@@ -289,7 +289,7 @@ int BVHModel<BV>::addTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const 
 {
   if(build_state == BVH_BUILD_STATE_PROCESSED)
   {
-    std::cerr << "BVH Warning! Call addTriangle() in a wrong order. addTriangle() was ignored. Must do a beginModel() to clear the model for addition of new triangles." << std::endl;
+    std::cerr << "BVH Warning! Call addTriangle() in a wrong order. addTriangle() was ignored. Must do a beginModel() to clear the model for addition of new triangles.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -298,7 +298,7 @@ int BVHModel<BV>::addTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const 
     Vector3<S>* temp = new Vector3<S>[num_vertices_allocated * 2 + 2];
     if(!temp)
     {
-      std::cerr << "BVH Error! Out of memory for vertices array on addTriangle() call!" << std::endl;
+      std::cerr << "BVH Error! Out of memory for vertices array on addTriangle() call!\n";
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
@@ -326,7 +326,7 @@ int BVHModel<BV>::addTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const 
     Triangle* temp = new Triangle[num_tris_allocated * 2];
     if(!temp)
     {
-      std::cerr << "BVH Error! Out of memory for tri_indices array on addTriangle() call!" << std::endl;
+      std::cerr << "BVH Error! Out of memory for tri_indices array on addTriangle() call!\n";
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
@@ -348,7 +348,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps)
 {
   if(build_state == BVH_BUILD_STATE_PROCESSED)
   {
-    std::cerr << "BVH Warning! Call addSubModel() in a wrong order. addSubModel() was ignored. Must do a beginModel() to clear the model for addition of new vertices." << std::endl;
+    std::cerr << "BVH Warning! Call addSubModel() in a wrong order. addSubModel() was ignored. Must do a beginModel() to clear the model for addition of new vertices.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -359,7 +359,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps)
     Vector3<S>* temp = new Vector3<S>[num_vertices_allocated * 2 + num_vertices_to_add - 1];
     if(!temp)
     {
-      std::cerr << "BVH Error! Out of memory for vertices array on addSubModel() call!" << std::endl;
+      std::cerr << "BVH Error! Out of memory for vertices array on addSubModel() call!\n";
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
@@ -384,7 +384,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps, const std::vect
 {
   if(build_state == BVH_BUILD_STATE_PROCESSED)
   {
-    std::cerr << "BVH Warning! Call addSubModel() in a wrong order. addSubModel() was ignored. Must do a beginModel() to clear the model for addition of new vertices." << std::endl;
+    std::cerr << "BVH Warning! Call addSubModel() in a wrong order. addSubModel() was ignored. Must do a beginModel() to clear the model for addition of new vertices.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -395,7 +395,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps, const std::vect
     Vector3<S>* temp = new Vector3<S>[num_vertices_allocated * 2 + num_vertices_to_add - 1];
     if(!temp)
     {
-      std::cerr << "BVH Error! Out of memory for vertices array on addSubModel() call!" << std::endl;
+      std::cerr << "BVH Error! Out of memory for vertices array on addSubModel() call!\n";
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
@@ -425,7 +425,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps, const std::vect
     Triangle* temp = new(std::nothrow) Triangle[num_tris_allocated * 2 + num_tris_to_add - 1];
     if(!temp)
     {
-      std::cerr << "BVH Error! Out of memory for tri_indices array on addSubModel() call!" << std::endl;
+      std::cerr << "BVH Error! Out of memory for tri_indices array on addSubModel() call!\n";
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
@@ -451,13 +451,13 @@ int BVHModel<BV>::endModel()
 {
   if(build_state != BVH_BUILD_STATE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call endModel() in wrong order. endModel() was ignored." << std::endl;
+    std::cerr << "BVH Warning! Call endModel() in wrong order. endModel() was ignored.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
   if(num_tris == 0 && num_vertices == 0)
   {
-    std::cerr << "BVH Error! endModel() called on model with no triangles and vertices." << std::endl;
+    std::cerr << "BVH Error! endModel() called on model with no triangles and vertices.\n";
     return BVH_ERR_BUILD_EMPTY_MODEL;
   }
 
@@ -466,7 +466,7 @@ int BVHModel<BV>::endModel()
     Triangle* new_tris = new(std::nothrow) Triangle[num_tris];
     if(!new_tris)
     {
-      std::cerr << "BVH Error! Out of memory for tri_indices array in endModel() call!" << std::endl;
+      std::cerr << "BVH Error! Out of memory for tri_indices array in endModel() call!\n";
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
     std::copy(tri_indices, tri_indices + num_tris, new_tris);
@@ -480,7 +480,7 @@ int BVHModel<BV>::endModel()
     Vector3<S>* new_vertices = new Vector3<S>[num_vertices];
     if(!new_vertices)
     {
-      std::cerr << "BVH Error! Out of memory for vertices array in endModel() call!" << std::endl;
+      std::cerr << "BVH Error! Out of memory for vertices array in endModel() call!\n";
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
     std::copy(vertices, vertices + num_vertices, new_vertices);
@@ -502,7 +502,7 @@ int BVHModel<BV>::endModel()
   primitive_indices = new(std::nothrow) unsigned int [num_bvs_to_be_allocated];
   if(!bvs || !primitive_indices)
   {
-    std::cerr << "BVH Error! Out of memory for BV array in endModel()!" << std::endl;
+    std::cerr << "BVH Error! Out of memory for BV array in endModel()!\n";
     return BVH_ERR_MODEL_OUT_OF_MEMORY;
   }
   num_bvs_allocated = num_bvs_to_be_allocated;
@@ -522,7 +522,7 @@ int BVHModel<BV>::beginReplaceModel()
 {
   if(build_state != BVH_BUILD_STATE_PROCESSED)
   {
-    std::cerr << "BVH Error! Call beginReplaceModel() on a BVHModel that has no previous frame." << std::endl;
+    std::cerr << "BVH Error! Call beginReplaceModel() on a BVHModel that has no previous frame.\n";
     return BVH_ERR_BUILD_EMPTY_PREVIOUS_FRAME;
   }
 
@@ -545,7 +545,7 @@ int BVHModel<BV>::replaceVertex(const Vector3<S>& p)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call replaceVertex() in a wrong order. replaceVertex() was ignored. Must do a beginReplaceModel() for initialization." << std::endl;
+    std::cerr << "BVH Warning! Call replaceVertex() in a wrong order. replaceVertex() was ignored. Must do a beginReplaceModel() for initialization.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -561,7 +561,7 @@ int BVHModel<BV>::replaceTriangle(const Vector3<S>& p1, const Vector3<S>& p2, co
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call replaceTriangle() in a wrong order. replaceTriangle() was ignored. Must do a beginReplaceModel() for initialization." << std::endl;
+    std::cerr << "BVH Warning! Call replaceTriangle() in a wrong order. replaceTriangle() was ignored. Must do a beginReplaceModel() for initialization.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -577,7 +577,7 @@ int BVHModel<BV>::replaceSubModel(const std::vector<Vector3<S>>& ps)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call replaceSubModel() in a wrong order. replaceSubModel() was ignored. Must do a beginReplaceModel() for initialization." << std::endl;
+    std::cerr << "BVH Warning! Call replaceSubModel() in a wrong order. replaceSubModel() was ignored. Must do a beginReplaceModel() for initialization.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -595,13 +595,13 @@ int BVHModel<BV>::endReplaceModel(bool refit, bool bottomup)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call endReplaceModel() in a wrong order. endReplaceModel() was ignored. " << std::endl;
+    std::cerr << "BVH Warning! Call endReplaceModel() in a wrong order. endReplaceModel() was ignored. \n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
   if(num_vertex_updated != num_vertices)
   {
-    std::cerr << "BVH Error! The replaced model should have the same number of vertices as the old model." << std::endl;
+    std::cerr << "BVH Error! The replaced model should have the same number of vertices as the old model.\n";
     return BVH_ERR_INCORRECT_DATA;
   }
 
@@ -625,7 +625,7 @@ int BVHModel<BV>::beginUpdateModel()
 {
   if(build_state != BVH_BUILD_STATE_PROCESSED && build_state != BVH_BUILD_STATE_UPDATED)
   {
-    std::cerr << "BVH Error! Call beginUpdatemodel() on a BVHModel that has no previous frame." << std::endl;
+    std::cerr << "BVH Error! Call beginUpdatemodel() on a BVHModel that has no previous frame.\n";
     return BVH_ERR_BUILD_EMPTY_PREVIOUS_FRAME;
   }
 
@@ -654,7 +654,7 @@ int BVHModel<BV>::updateVertex(const Vector3<S>& p)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call updateVertex() in a wrong order. updateVertex() was ignored. Must do a beginUpdateModel() for initialization." << std::endl;
+    std::cerr << "BVH Warning! Call updateVertex() in a wrong order. updateVertex() was ignored. Must do a beginUpdateModel() for initialization.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -670,7 +670,7 @@ int BVHModel<BV>::updateTriangle(const Vector3<S>& p1, const Vector3<S>& p2, con
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call updateTriangle() in a wrong order. updateTriangle() was ignored. Must do a beginUpdateModel() for initialization." << std::endl;
+    std::cerr << "BVH Warning! Call updateTriangle() in a wrong order. updateTriangle() was ignored. Must do a beginUpdateModel() for initialization.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -686,7 +686,7 @@ int BVHModel<BV>::updateSubModel(const std::vector<Vector3<S>>& ps)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call updateSubModel() in a wrong order. updateSubModel() was ignored. Must do a beginUpdateModel() for initialization." << std::endl;
+    std::cerr << "BVH Warning! Call updateSubModel() in a wrong order. updateSubModel() was ignored. Must do a beginUpdateModel() for initialization.\n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
@@ -704,13 +704,13 @@ int BVHModel<BV>::endUpdateModel(bool refit, bool bottomup)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
-    std::cerr << "BVH Warning! Call endUpdateModel() in a wrong order. endUpdateModel() was ignored. " << std::endl;
+    std::cerr << "BVH Warning! Call endUpdateModel() in a wrong order. endUpdateModel() was ignored. \n";
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
   if(num_vertex_updated != num_vertices)
   {
-    std::cerr << "BVH Error! The updated model should have the same number of vertices as the old model." << std::endl;
+    std::cerr << "BVH Error! The updated model should have the same number of vertices as the old model.\n";
     return BVH_ERR_INCORRECT_DATA;
   }
 
@@ -744,10 +744,10 @@ int BVHModel<BV>::memUsage(int msg) const
   int total_mem = mem_bv_list + mem_tri_list + mem_vertex_list + sizeof(BVHModel<BV>);
   if(msg)
   {
-    std::cerr << "Total for model " << total_mem << " bytes." << std::endl;
-    std::cerr << "BVs: " << num_bvs << " allocated." << std::endl;
-    std::cerr << "Tris: " << num_tris << " allocated." << std::endl;
-    std::cerr << "Vertices: " << num_vertices << " allocated." << std::endl;
+    std::cerr << "Total for model " << total_mem << " bytes.\n";
+    std::cerr << "BVs: " << num_bvs << " allocated.\n";
+    std::cerr << "Tris: " << num_tris << " allocated.\n";
+    std::cerr << "Vertices: " << num_vertices << " allocated.\n";
   }
 
   return BVH_OK;
@@ -849,7 +849,7 @@ int BVHModel<BV>::buildTree()
     num_primitives = num_vertices;
     break;
   default:
-    std::cerr << "BVH Error: Model type not supported!" << std::endl;
+    std::cerr << "BVH Error: Model type not supported!\n";
     return BVH_ERR_UNSUPPORTED_FUNCTION;
   }
 
@@ -903,7 +903,7 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
       }
       else
       {
-        std::cerr << "BVH Error: Model type not supported!" << std::endl;
+        std::cerr << "BVH Error: Model type not supported!\n";
         return BVH_ERR_UNSUPPORTED_FUNCTION;
       }
 
@@ -1012,7 +1012,7 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
     }
     else
     {
-      std::cerr << "BVH Error: Model type not supported!" << std::endl;
+      std::cerr << "BVH Error: Model type not supported!\n";
       return BVH_ERR_UNSUPPORTED_FUNCTION;
     }
   }

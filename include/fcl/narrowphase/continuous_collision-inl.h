@@ -291,7 +291,7 @@ S continuousCollideBVHPolynomial(
     ;
   }
 
-  std::cerr << "Warning: BV type not supported by polynomial solver CCD" << std::endl;
+  std::cerr << "Warning: BV type not supported by polynomial solver CCD\n";
 
   return -1;
 }
@@ -326,7 +326,7 @@ typename NarrowPhaseSolver::S continuousCollideConservativeAdvancement(
 
   if(!looktable.conservative_advancement_matrix[node_type1][node_type2])
   {
-    std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
+    std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported\n";
   }
   else
   {
@@ -412,7 +412,7 @@ S continuousCollide(
 
     }
     else
-      std::cerr << "Warning! Invalid continuous collision setting" << std::endl;
+      std::cerr << "Warning! Invalid continuous collision setting\n";
     break;
   case CCDC_POLYNOMIAL_SOLVER:
     if(o1->getObjectType() == OT_BVH && o2->getObjectType() == OT_BVH && request.ccd_motion_type == CCDM_TRANS)
@@ -422,10 +422,10 @@ S continuousCollide(
                                             request, result);
     }
     else
-      std::cerr << "Warning! Invalid continuous collision checking" << std::endl;
+      std::cerr << "Warning! Invalid continuous collision checking\n";
     break;
   default:
-    std::cerr << "Warning! Invalid continuous collision setting" << std::endl;
+    std::cerr << "Warning! Invalid continuous collision setting\n";
   }
 
   return -1;

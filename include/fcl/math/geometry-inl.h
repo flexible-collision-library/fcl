@@ -556,7 +556,7 @@ void eigen_old(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout)
     }
   }
 
-  std::cerr << "eigen: too many iterations in Jacobi transform." << std::endl;
+  std::cerr << "eigen: too many iterations in Jacobi transform.\n";
 
   return;
 }
