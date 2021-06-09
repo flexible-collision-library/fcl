@@ -40,8 +40,7 @@
 
 #include "fcl/math/motion/interp_motion.h"
 
-namespace fcl
-{
+namespace fcl {
 
 //==============================================================================
 extern template
@@ -50,46 +49,21 @@ class FCL_EXPORT InterpMotion<double>;
 //==============================================================================
 template <typename S>
 InterpMotion<S>::InterpMotion()
-  : MotionBase<S>(), angular_axis(Vector3<S>::UnitX())
-{
-  // Default angular velocity is zero
-  angular_vel = 0;
-
-  // Default reference point is local zero point
-
-  // Default linear velocity is zero
-}
+    : InterpMotion(Transform3<S>::Identity(), Transform3<S>::Identity(),
+                   Vector3<S>::Zero()) {}
 
 //==============================================================================
 template <typename S>
 InterpMotion<S>::InterpMotion(
     const Matrix3<S>& R1, const Vector3<S>& T1,
     const Matrix3<S>& R2, const Vector3<S>& T2)
-  : MotionBase<S>(),
-    tf1(Transform3<S>::Identity()),
-    tf2(Transform3<S>::Identity())
-{
-  tf1.linear() = R1;
-  tf1.translation() = T1;
-
-  tf2.linear() = R2;
-  tf2.translation() = T2;
-
-  tf = tf1;
-
-  // Compute the velocities for the motion
-  computeVelocity();
-}
+    : InterpMotion(R1, T1, R2, T2, Vector3<S>::Zero()) {}
 
 //==============================================================================
 template <typename S>
 InterpMotion<S>::InterpMotion(
     const Transform3<S>& tf1_, const Transform3<S>& tf2_)
-  : MotionBase<S>(), tf1(tf1_), tf2(tf2_), tf(tf1)
-{
-  // Compute the velocities for the motion
-  computeVelocity();
-}
+  : InterpMotion<S>(tf1_, tf2_, Vector3<S>::Zero()) {}
 
 //==============================================================================
 template <typename S>
@@ -117,17 +91,26 @@ InterpMotion<S>::InterpMotion(
 }
 
 //==============================================================================
+
+// Note: In the name of using delegating constructors, we introduce the
+// silliness below. We *unpack* the transforms tf1_ and tf2_ just so that we
+// can pack them *back* into the member fields. Eigen forces us to do this
+// because we *can't* go the other way; there is no constructor of a Transform3
+// based on a Matrix3 and a Vector3. It might be worth creating a utility that
+// does that just so this could become more compact. The constructor that this
+// delegates to would, instead, do something like:
+//  InterpMotion(MakeTransform(R1, T1), MakeTransform(R2, T2), O) {}
+// And then the core functionality for initializing the class would go into this
+// constructor.
 template <typename S>
-InterpMotion<S>::InterpMotion(
-    const Transform3<S>& tf1_, const Transform3<S>& tf2_, const Vector3<S>& O)
-  : MotionBase<S>(), tf1(tf1_), tf2(tf2_), tf(tf1), reference_p(O)
-{
-  // Do nothing
-}
+InterpMotion<S>::InterpMotion(const Transform3<S>& tf1_,
+                              const Transform3<S>& tf2_, const Vector3<S>& O)
+    : InterpMotion(tf1_.linear(), tf1_.translation(), tf2_.linear(),
+                   tf2_.translation(), O) {}
 
 //==============================================================================
 template <typename S>
-bool InterpMotion<S>::integrate(double dt) const
+bool InterpMotion<S>::integrate(S dt) const
 {
   if(dt > 1) dt = 1;
 

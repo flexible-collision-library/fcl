@@ -43,12 +43,28 @@ namespace fcl
 //==============================================================================
 template
 std::size_t collide(
+    const CollisionObject<float>* o1,
+    const CollisionObject<float>* o2,
+    const CollisionRequest<float>& request,
+    CollisionResult<float>& result);
+
+template
+std::size_t collide(
     const CollisionObject<double>* o1,
     const CollisionObject<double>* o2,
     const CollisionRequest<double>& request,
     CollisionResult<double>& result);
 
 //==============================================================================
+template
+std::size_t collide(
+    const CollisionGeometry<float>* o1,
+    const Transform3<float>& tf1,
+    const CollisionGeometry<float>* o2,
+    const Transform3<float>& tf2,
+    const CollisionRequest<float>& request,
+    CollisionResult<float>& result);
+
 template
 std::size_t collide(
     const CollisionGeometry<double>* o1,

@@ -41,6 +41,9 @@ namespace fcl
 {
 
 template
+class InterpMotion<float>;
+
+template
 class InterpMotion<double>;
 
 } // namespace fcl

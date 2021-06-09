@@ -65,7 +65,7 @@ public:
 
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
-  bool integrate(double dt) const;
+  bool integrate(S dt) const;
 
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
   S computeMotionBound(const BVMotionBoundVisitor<S>& mb_visitor) const;

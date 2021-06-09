@@ -41,6 +41,9 @@ namespace fcl
 {
 
 template
+class ContinuousCollisionObject<float>;
+
+template
 class ContinuousCollisionObject<double>;
 
 } // namespace fcl

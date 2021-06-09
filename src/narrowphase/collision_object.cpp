@@ -41,6 +41,9 @@ namespace fcl
 {
 
 template
+class CollisionObject<float>;
+
+template
 class CollisionObject<double>;
 
 } // namespace fcl

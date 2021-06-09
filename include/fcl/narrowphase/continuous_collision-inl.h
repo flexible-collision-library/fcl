@@ -94,6 +94,7 @@ double collide(
     const ContinuousCollisionRequest<double>& request,
     ContinuousCollisionResult<double>& result);
 
+
 //==============================================================================
 template<typename GJKSolver>
 detail::ConservativeAdvancementFunctionMatrix<GJKSolver>&
