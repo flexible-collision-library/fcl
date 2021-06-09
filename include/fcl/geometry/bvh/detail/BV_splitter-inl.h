@@ -90,7 +90,7 @@ void BVSplitter<BV>::computeRule(
     computeRule_bvcenter(bv, primitive_indices, num_primitives);
     break;
   default:
-    std::cerr << "Split method not supported" << std::endl;
+    std::cerr << "Split method not supported\n";
   }
 }
 
