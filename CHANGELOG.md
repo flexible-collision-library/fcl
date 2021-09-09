@@ -1,18 +1,35 @@
 ## FCL 0
 
-### FCL 0.7.0 (????-??-??)
+### FCL 0.7.0 (2021-09-09)
 
 * Breaking changes
 
   * Macros `FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN` and `FCL_SUPPRESS_MAYBE_UNINITIALIZED_END` defined in `fcl/common/warning.h` have been removed:
     [#489](https://github.com/flexible-collision-library/fcl/pull/489)
+  * Require CMake 3.10:
+    [#506](https://github.com/flexible-collision-library/fcl/pull/506)
+  * Check SSE support and enable SSE if support is found:
+    [#506](https://github.com/flexible-collision-library/fcl/pull/506)
+    [#514](https://github.com/flexible-collision-library/fcl/pull/514)
 
 * Core/Common
+
+  * Use package format 3 with conditional dependency on catkin:
+    [#536](https://github.com/flexible-collision-library/fcl/pull/536)
+  * Fix compilation on Windows. Do not use "not" in preprocessor:
+    [#530](https://github.com/flexible-collision-library/fcl/pull/530)
+  * Use std::copy instead of memcpy. Patches imported from Debian:
+    [#517](https://github.com/flexible-collision-library/fcl/pull/517)
+  * Fix finding of ccd with pkg-config:
+    [#499](https://github.com/flexible-collision-library/fcl/pull/499)
+    [#497](https://github.com/flexible-collision-library/fcl/pull/497)
 
 * Math
 
   * constants::eps() is now constexpr:
     [#494](https://github.com/flexible-collision-library/fcl/pull/494)
+  * Fix shape conservative advancement normal computation:
+    [#505](https://github.com/flexible-collision-library/fcl/pull/505)
 
 * Geometry
 
@@ -26,6 +43,8 @@
     collision between ellipsoid and half space *with that ordering*. Now also
     supports half space and ellipsoid.
     [#520](https://github.com/flexible-collision-library/fcl/pull/520)
+  * Do not flush error messages on cerr:
+    [#542](https://github.com/flexible-collision-library/fcl/pull/542)
 
 * Broadphase
 
@@ -39,6 +58,10 @@
     [#472](https://github.com/flexible-collision-library/fcl/pull/472)
   * Another failure mode in the GJK/EPA signed distance query patched:
     [#494](https://github.com/flexible-collision-library/fcl/pull/494)
+  * Fix build when ccd_real_t == float:
+    [#498](https://github.com/flexible-collision-library/fcl/pull/498)
+  * Remove accidental recursive include:
+    [#496](https://github.com/flexible-collision-library/fcl/pull/496)
 
 * Build/Test/Misc
 
