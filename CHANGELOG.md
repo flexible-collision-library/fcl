@@ -1,6 +1,6 @@
 ## FCL 0
 
-### FCL 0.7.0 (2021-08-xx)
+### FCL 0.7.0 (2021-09-09)
 
 * Breaking changes
 
