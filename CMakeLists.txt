@@ -378,7 +378,8 @@ if(NOT FCL_BUILD_TESTS STREQUAL "DEFAULT")
   unset(_BUILD_TESTING)
 endif()
 
-if(BUILD_TESTING AND NOT FCL_HIDE_ALL_SYMBOLS)
+if(BUILD_TESTING)
+    enable_testing()
     add_subdirectory(test)
 endif()
 
