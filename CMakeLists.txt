@@ -46,9 +46,7 @@ configure_file(CTestCustom.cmake.in CTestCustom.cmake @ONLY)
 
 option(FCL_ENABLE_PROFILING "Enable profiling" OFF)
 option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
-# Option for some bundle-like build system in order not to expose
-# any FCL binary symbols in their public ABI
-option(FCL_HIDE_ALL_SYMBOLS "Hide all binary symbols" OFF)
+option(FCL_HIDE_ALL_SYMBOLS "Hide all binary symbols" ON)
 
 # set the default build type
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
