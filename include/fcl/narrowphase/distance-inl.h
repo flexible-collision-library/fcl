@@ -120,7 +120,7 @@ typename NarrowPhaseSolver::S distance(
   {
     if(!looktable.distance_matrix[node_type2][node_type1])
     {
-      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
+      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported\n";
     }
     else
     {
@@ -131,7 +131,7 @@ typename NarrowPhaseSolver::S distance(
   {
     if(!looktable.distance_matrix[node_type1][node_type2])
     {
-      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
+      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported\n";
     }
     else
     {

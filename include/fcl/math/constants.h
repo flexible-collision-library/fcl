@@ -148,13 +148,17 @@ static Real gjk_default_tolerance() {
 }
 
 /// Returns ε for the precision of the underlying scalar type.
-static Real eps() {
+static constexpr Real eps() {
   static_assert(std::is_floating_point<Real>::value,
                 "Constants can only be evaluated for scalars with floating "
                 "point implementations");
-  static const Real value = std::numeric_limits<Real>::epsilon();
-  return value;
+  return std::numeric_limits<Real>::epsilon();
 }
+
+// TODO(SeanCurtis-TRI) These are *not* declared constexpr because the clang
+//  compiler available in the current CI configuration for ubuntu and mac does
+//  not have std::pow declared as constexpr. When that changes, these can
+//  likewise be declared as constexpr.
 
 /// Returns ε^(7/8) for the precision of the underlying scalar type.
 static Real eps_78() {

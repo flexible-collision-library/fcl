@@ -531,7 +531,7 @@ std::deque<SimpleInterval<S>*> IntervalTree<S>::query(S low, S high)
         recursion_node_stack_size *= 2;
         recursion_node_stack = (it_recursion_node<S> *)realloc(recursion_node_stack, recursion_node_stack_size * sizeof(it_recursion_node<S>));
         if(recursion_node_stack == nullptr)
-          exit(1);
+          abort();
       }
       recursion_node_stack[recursion_node_stack_top].start_node = x;
       recursion_node_stack[recursion_node_stack_top].try_right_branch = false;

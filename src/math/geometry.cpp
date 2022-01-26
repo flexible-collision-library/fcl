@@ -75,12 +75,7 @@ void axisFromEigen(const Matrix3d& eigenV,
 //==============================================================================
 template
 FCL_INSTANTIATION_DEF_API
-void generateCoordinateSystem(Matrix3d& axis);
-
-//==============================================================================
-template
-FCL_INSTANTIATION_DEF_API
-void generateCoordinateSystem(Transform3d& tf);
+Matrix3d generateCoordinateSystem(const Vector3d& x_axis);
 
 //==============================================================================
 template

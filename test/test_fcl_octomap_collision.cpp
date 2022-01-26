@@ -61,7 +61,11 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
 /// @brief Octomap collision with an environment mesh with 3 * env_size objects, asserting that correct triangle ids
 /// are returned when performing collision tests
 template <typename S>
-void octomap_collision_test_mesh_triangle_id(S env_scale, std::size_t env_size, std::size_t num_max_contacts, double resolution = 0.1);
+void octomap_collision_test_contact_primitive_id(
+    S env_scale,
+    std::size_t env_size,
+    std::size_t num_max_contacts,
+    double resolution = 0.1);
 
 template<typename BV>
 void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolution = 0.1);
@@ -109,19 +113,19 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh)
 }
 
 template <typename S>
-void test_octomap_collision_mesh_triangle_id()
+void test_octomap_collision_contact_primitive_id()
 {
 #ifdef NDEBUG
-  octomap_collision_test_mesh_triangle_id<S>(1, 30, 100000);
+  octomap_collision_test_contact_primitive_id<S>(1, 30, 100000);
 #else
-  octomap_collision_test_mesh_triangle_id<S>(1, 10, 10000, 1.0);
+  octomap_collision_test_contact_primitive_id<S>(1, 10, 10000, 1.0);
 #endif
 }
 
-GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_triangle_id)
+GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_contact_primitive_id)
 {
-//  test_octomap_collision_mesh_triangle_id<float>();
-  test_octomap_collision_mesh_triangle_id<double>();
+//  test_octomap_collision_contact_primitive_id<float>();
+  test_octomap_collision_contact_primitive_id<double>();
 }
 
 template <typename S>
@@ -179,8 +183,26 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(test::generateOcTree(resolution)));
+  auto octree = std::shared_ptr<const octomap::OcTree>(
+      test::generateOcTree(resolution));
+  OcTree<S>* tree = new OcTree<S>(octree);
   std::shared_ptr<CollisionGeometry<S>> tree_ptr(tree);
+
+  // Check and make sure that the generated tree contains both free and
+  // occupied space. There was a time when it was impossible to represent free
+  // space, this part of the collision tests that both free and occupied space
+  // are correctly represented.
+  size_t free_nodes = 0;
+  size_t occupied_nodes = 0;
+  for (auto it = octree->begin(), end = octree->end(); it != end; ++it)
+  {
+    if (tree->isNodeFree(&*it))
+      ++free_nodes;
+    if (tree->isNodeOccupied(&*it))
+      ++occupied_nodes;
+  }
+  EXPECT_GT(free_nodes, 0UL);
+  EXPECT_GT(occupied_nodes, 0UL);
 
   aligned_vector<Transform3<S>> transforms;
   S extents[] = {-10, -10, 10, 10, 10, 10};
@@ -329,12 +351,18 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
 }
 
 template <typename S>
-void octomap_collision_test_mesh_triangle_id(S env_scale, std::size_t env_size, std::size_t num_max_contacts, double resolution)
+void octomap_collision_test_contact_primitive_id(
+    S env_scale,
+    std::size_t env_size,
+    std::size_t num_max_contacts,
+    double resolution)
 {
   std::vector<CollisionObject<S>*> env;
   test::generateEnvironmentsMesh(env, env_scale, env_size);
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(test::generateOcTree(resolution)));
+  std::shared_ptr<const octomap::OcTree> octree(
+      test::generateOcTree(resolution));
+  OcTree<S>* tree = new OcTree<S>(octree);
   CollisionObject<S> tree_obj((std::shared_ptr<CollisionGeometry<S>>(tree)));
 
   std::vector<CollisionObject<S>*> boxes;
@@ -348,6 +376,31 @@ void octomap_collision_test_mesh_triangle_id(S env_scale, std::size_t env_size, 
     for(std::size_t index=0; index<cResult.numContacts(); ++index)
     {
       const Contact<S>& contact = cResult.getContact(index);
+
+      const fcl::OcTree<S>* contact_tree = static_cast<const fcl::OcTree<S>*>(
+          contact.o1);
+      fcl::AABB<S> aabb;
+      octomap::OcTreeKey key;
+      unsigned int depth;
+      auto get_node_rv = contact_tree->getNodeByQueryCellId(
+          contact.b1,
+          contact.pos,
+          &aabb,
+          &key,
+          &depth);
+      EXPECT_TRUE(get_node_rv != nullptr);
+      auto center_octomap_point = octree->keyToCoord(key);
+      double cell_size = octree->getNodeSize(depth);
+      for (unsigned i = 0; i < 3; ++i)
+      {
+        EXPECT_FLOAT_EQ(
+            aabb.min_[i], center_octomap_point(i) - cell_size / 2.0);
+        EXPECT_FLOAT_EQ(
+            aabb.max_[i], center_octomap_point(i) + cell_size / 2.0);
+      }
+      auto octree_node = octree->search(key, depth);
+      EXPECT_TRUE(octree_node == get_node_rv);
+
       const fcl::BVHModel<fcl::OBBRSS<S>>* surface = static_cast<const fcl::BVHModel<fcl::OBBRSS<S>>*> (contact.o2);
       EXPECT_TRUE(surface->num_tris > contact.b2);
     }

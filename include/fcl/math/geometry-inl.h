@@ -39,6 +39,7 @@
 #define FCL_BV_DETAIL_UTILITY_INL_H
 
 #include "fcl/math/geometry.h"
+#include "fcl/math/constants.h"
 
 namespace fcl {
 
@@ -78,12 +79,7 @@ void axisFromEigen(const Matrix3d& eigenV,
 //==============================================================================
 extern template
 FCL_EXTERN_TEMPLATE_API
-void generateCoordinateSystem(Matrix3d& axis);
-
-//==============================================================================
-extern template
-FCL_EXTERN_TEMPLATE_API
-void generateCoordinateSystem(Transform3d& tf);
+Matrix3d generateCoordinateSystem(const Vector3d& x_axis);
 
 //==============================================================================
 extern template
@@ -451,37 +447,6 @@ typename Derived::RealScalar triple(const Eigen::MatrixBase<Derived>& x,
 }
 
 //==============================================================================
-template <typename Derived>
-void generateCoordinateSystem(
-    const Eigen::MatrixBase<Derived>& w,
-    Eigen::MatrixBase<Derived>& u,
-    Eigen::MatrixBase<Derived>& v)
-{
-  typename Derived::RealScalar inv_length;
-
-  if(std::abs(w[0]) >= std::abs(w[1]))
-  {
-    inv_length = 1.0 / std::sqrt(w[0] * w[0] + w[2] * w[2]);
-    u[0] = -w[2] * inv_length;
-    u[1] = 0;
-    u[2] =  w[0] * inv_length;
-    v[0] =  w[1] * u[2];
-    v[1] =  w[2] * u[0] - w[0] * u[2];
-    v[2] = -w[1] * u[0];
-  }
-  else
-  {
-    inv_length = 1.0 / std::sqrt(w[1] * w[1] + w[2] * w[2]);
-    u[0] = 0;
-    u[1] =  w[2] * inv_length;
-    u[2] = -w[1] * inv_length;
-    v[0] =  w[1] * u[2] - w[2] * u[1];
-    v[1] = -w[0] * u[2];
-    v[2] =  w[0] * u[1];
-  }
-}
-
-//==============================================================================
 template <typename S, int M, int N>
 VectorN<S, M+N> combine(
     const VectorN<S, M>& v1, const VectorN<S, N>& v2)
@@ -598,7 +563,7 @@ void eigen_old(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout)
     }
   }
 
-  std::cerr << "eigen: too many iterations in Jacobi transform." << std::endl;
+  std::cerr << "eigen: too many iterations in Jacobi transform.\n";
 
   return;
 }
@@ -683,92 +648,13 @@ void axisFromEigen(const Matrix3<S>& eigenV,
 
 //==============================================================================
 template <typename S>
-void generateCoordinateSystem(Matrix3<S>& axis)
+Matrix3<S> generateCoordinateSystem(const Vector3<S>& x_axis)
 {
-  // Assum axis.col(0) is closest to z-axis
-  assert(axis.col(0).maxCoeff() == 2);
-
-  if(std::abs(axis(0, 0)) >= std::abs(axis(1, 0)))
-  {
-    // let axis.col(0) = (x, y, z)
-    // axis.col(1) = (-z, 0, x) / length((-z, 0, x)) // so that axis.col(0) and
-    //                                               // axis.col(1) are
-    //                                               // othorgonal
-    // axis.col(2) = axis.col(0).cross(axis.col(1))
-
-    S inv_length = 1.0 / sqrt(std::pow(axis(0, 0), 2) + std::pow(axis(2, 0), 2));
-
-    axis(0, 1) = -axis(2, 0) * inv_length;
-    axis(1, 1) = 0;
-    axis(2, 1) =  axis(0, 0) * inv_length;
-
-    axis(0, 2) =  axis(1, 0) * axis(2, 1);
-    axis(1, 2) =  axis(2, 0) * axis(0, 1) - axis(0, 0) * axis(2, 1);
-    axis(2, 2) = -axis(1, 0) * axis(0, 1);
-  }
-  else
-  {
-    // let axis.col(0) = (x, y, z)
-    // axis.col(1) = (0, z, -y) / length((0, z, -y)) // so that axis.col(0) and
-    //                                               // axis.col(1) are
-    //                                               // othorgonal
-    // axis.col(2) = axis.col(0).cross(axis.col(1))
-
-    S inv_length = 1.0 / sqrt(std::pow(axis(1, 0), 2) + std::pow(axis(2, 0), 2));
-
-    axis(0, 1) = 0;
-    axis(1, 1) =  axis(2, 0) * inv_length;
-    axis(2, 1) = -axis(1, 0) * inv_length;
-
-    axis(0, 2) =  axis(1, 0) * axis(2, 1) - axis(2, 0) * axis(1, 1);
-    axis(1, 2) = -axis(0, 0) * axis(2, 1);
-    axis(2, 2) =  axis(0, 0) * axis(1, 1);
-  }
-}
-
-//==============================================================================
-template <typename S>
-void generateCoordinateSystem(Transform3<S>& tf)
-{
-  // Assum axis.col(0) is closest to z-axis
-  assert(tf.linear().col(0).maxCoeff() == 2);
-
-  if(std::abs(tf.linear()(0, 0)) >= std::abs(tf.linear()(1, 0)))
-  {
-    // let axis.col(0) = (x, y, z)
-    // axis.col(1) = (-z, 0, x) / length((-z, 0, x)) // so that axis.col(0) and
-    //                                               // axis.col(1) are
-    //                                               // othorgonal
-    // axis.col(2) = axis.col(0).cross(axis.col(1))
-
-    S inv_length = 1.0 / sqrt(std::pow(tf.linear()(0, 0), 2) + std::pow(tf.linear()(2, 0), 2));
-
-    tf.linear()(0, 1) = -tf.linear()(2, 0) * inv_length;
-    tf.linear()(1, 1) = 0;
-    tf.linear()(2, 1) =  tf.linear()(0, 0) * inv_length;
-
-    tf.linear()(0, 2) =  tf.linear()(1, 0) * tf.linear()(2, 1);
-    tf.linear()(1, 2) =  tf.linear()(2, 0) * tf.linear()(0, 1) - tf.linear()(0, 0) * tf.linear()(2, 1);
-    tf.linear()(2, 2) = -tf.linear()(1, 0) * tf.linear()(0, 1);
-  }
-  else
-  {
-    // let axis.col(0) = (x, y, z)
-    // axis.col(1) = (0, z, -y) / length((0, z, -y)) // so that axis.col(0) and
-    //                                               // axis.col(1) are
-    //                                               // othorgonal
-    // axis.col(2) = axis.col(0).cross(axis.col(1))
-
-    S inv_length = 1.0 / sqrt(std::pow(tf.linear()(1, 0), 2) + std::pow(tf.linear()(2, 0), 2));
-
-    tf.linear()(0, 1) = 0;
-    tf.linear()(1, 1) =  tf.linear()(2, 0) * inv_length;
-    tf.linear()(2, 1) = -tf.linear()(1, 0) * inv_length;
-
-    tf.linear()(0, 2) =  tf.linear()(1, 0) * tf.linear()(2, 1) - tf.linear()(2, 0) * tf.linear()(1, 1);
-    tf.linear()(1, 2) = -tf.linear()(0, 0) * tf.linear()(2, 1);
-    tf.linear()(2, 2) =  tf.linear()(0, 0) * tf.linear()(1, 1);
-  }
+  Matrix3<S> axis;
+  axis.col(0).noalias() = x_axis.normalized();
+  axis.col(1).noalias() = axis.col(0).unitOrthogonal();
+  axis.col(2).noalias() = axis.col(0).cross(axis.col(1)).normalized();
+  return axis;
 }
 
 //==============================================================================

@@ -108,7 +108,7 @@ std::size_t collide(
   std::size_t res;
   if(request.num_max_contacts == 0)
   {
-    std::cerr << "Warning: should stop early as num_max_contact is " << request.num_max_contacts << " !" << std::endl;
+    std::cerr << "Warning: should stop early as num_max_contact is " << request.num_max_contacts << " !\n";
     res = 0;
   }
   else
@@ -122,7 +122,7 @@ std::size_t collide(
     {
       if(!looktable.collision_matrix[node_type2][node_type1])
       {
-        std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
+        std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported\n";
         res = 0;
       }
       else
@@ -132,7 +132,7 @@ std::size_t collide(
     {
       if(!looktable.collision_matrix[node_type1][node_type2])
       {
-        std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
+        std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported\n";
         res = 0;
       }
       else
@@ -197,7 +197,7 @@ std::size_t collide(
       return collide(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
-    std::cerr << "Warning! Invalid GJK solver" << std::endl;
+    std::cerr << "Warning! Invalid GJK solver\n";
     return -1; // error
   }
 }

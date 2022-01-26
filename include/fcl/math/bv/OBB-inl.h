@@ -229,7 +229,7 @@ S OBB<S>::distance(const OBB& other, Vector3<S>* P,
   FCL_UNUSED(P);
   FCL_UNUSED(Q);
 
-  std::cerr << "OBB distance not implemented!" << std::endl;
+  std::cerr << "OBB distance not implemented!\n";
   return 0.0;
 }
 

@@ -137,7 +137,7 @@ bool sphereBoxIntersect(const Sphere<S>& sphere,
     // Furthermore, in finding the *near* face, a better candidate must be more
     // than this epsilon closer to the sphere center (see the test in the
     // else branch).
-    auto eps = 16 * constants<S>::eps();
+    constexpr auto eps = 16 * constants<S>::eps();
     if (N_is_not_C && squared_distance > eps * eps) {
       // The center is on the outside. Normal direction is from C to N (computed
       // above) and penetration depth is r - |p_BN - p_BC|. The contact position

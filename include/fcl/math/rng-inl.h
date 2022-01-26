@@ -194,13 +194,12 @@ void RNG<S>::setSeed(uint_fast32_t seed)
   if (detail::Seed::isFirstSeedGenerated())
   {
     std::cerr << "Random number generation already started. Changing seed now "
-              << "will not lead to deterministic sampling." << std::endl;
+              << "will not lead to deterministic sampling.\n";
   }
 
   if (seed == 0)
   {
-    std::cerr << "Random generator seed cannot be 0. Using 1 instead."
-              << std::endl;
+    std::cerr << "Random generator seed cannot be 0. Using 1 instead.\n";
     detail::Seed::setUserSetSeed(1);
   }
   else

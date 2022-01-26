@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: bionic
 cache:
   apt: true
 
@@ -20,11 +20,11 @@ matrix:
       compiler: clang
       env: BUILD_TYPE=Release COVERALLS=OFF
     - os: osx
-      osx_image: xcode9
+      osx_image: xcode11.3
       compiler: clang
       env: BUILD_TYPE=Debug COVERALLS=OFF
     - os: osx
-      osx_image: xcode9
+      osx_image: xcode11.3
       compiler: clang
       env: BUILD_TYPE=Release COVERALLS=OFF
 

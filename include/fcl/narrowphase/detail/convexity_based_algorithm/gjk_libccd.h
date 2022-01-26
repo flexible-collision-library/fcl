@@ -59,7 +59,6 @@
 #include "fcl/narrowphase/detail/convexity_based_algorithm/polytope.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/alloc.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/list.h"
-#include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 
 namespace fcl
 {

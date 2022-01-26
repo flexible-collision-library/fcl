@@ -191,7 +191,7 @@ struct GJKSolver_indep
         << "\n    epa max face num:    " << solver.epa_max_face_num
         << "\n    epa max vertex num:  " << solver.epa_max_vertex_num
         << "\n    epa max iterations:  " << solver.epa_max_iterations
-        << "\n    enable cahced guess: " << solver.enable_cached_guess;
+        << "\n    enable cached guess: " << solver.enable_cached_guess;
     if (solver.enable_cached_guess) out << solver.cached_guess.transpose();
     return out;
   }

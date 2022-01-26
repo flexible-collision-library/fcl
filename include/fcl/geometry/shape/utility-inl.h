@@ -673,9 +673,8 @@ struct ComputeBVImpl<S, OBB<S>, Plane<S>>
 {
   static void run(const Plane<S>& s, const Transform3<S>& tf, OBB<S>& bv)
   {
-    Vector3<S> n = tf.linear() * s.n;
-    bv.axis.col(0) = n;
-    generateCoordinateSystem(bv.axis);
+    const Vector3<S> n = tf.linear() * s.n;
+    bv.axis = generateCoordinateSystem(n);
 
     bv.extent << 0, std::numeric_limits<S>::max(), std::numeric_limits<S>::max();
 
@@ -690,10 +689,8 @@ struct ComputeBVImpl<S, RSS<S>, Plane<S>>
 {
   static void run(const Plane<S>& s, const Transform3<S>& tf, RSS<S>& bv)
   {
-    Vector3<S> n = tf.linear() * s.n;
-
-    bv.axis.col(0) = n;
-    generateCoordinateSystem(bv.axis);
+    const Vector3<S> n = tf.linear() * s.n;
+    bv.axis = generateCoordinateSystem(n);
 
     bv.l[0] = std::numeric_limits<S>::max();
     bv.l[1] = std::numeric_limits<S>::max();

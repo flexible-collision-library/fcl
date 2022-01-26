@@ -44,9 +44,23 @@
 #include <gtest/gtest.h>
 
 #include "eigen_matrix_compare.h"
+#include "expect_throws_message.h"
 #include "fcl/common/types.h"
 
 namespace fcl {
+class ConvexTester {
+ public:
+  template <typename S>
+  static bool find_extreme_via_neighbors(const Convex<S>& convex) {
+      return convex.find_extreme_via_neighbors_;
+  }
+
+  // Override the built-in logic for disabling find_extreme_via_neighbors.
+  template <typename S>
+  static void force_find_extreme_via_neighbors(Convex<S>* convex) {
+    convex->find_extreme_via_neighbors_ = true;
+  }
+};
 namespace {
 
 using std::max;
@@ -90,10 +104,16 @@ class Polytope {
 
   virtual int face_count() const = 0;
   virtual int vertex_count() const = 0;
-  virtual S volume() const = 0;
-  virtual Vector3<S> com() const = 0;
-  virtual Matrix3<S> principal_inertia_tensor() const = 0;
-  virtual std::string description() const = 0;
+  virtual S volume() const { throw std::logic_error("Not implemented yet"); }
+  virtual Vector3<S> com() const {
+    throw std::logic_error("Not implemented yet");
+  }
+  virtual Matrix3<S> principal_inertia_tensor() const {
+    throw std::logic_error("Not implemented yet");
+  }
+  virtual std::string description() const {
+    throw std::logic_error("Not implemented yet");
+  }
 
   // The scale of the polytope to use with test tolerances.
   S scale() const { return scale_; }
@@ -103,11 +123,8 @@ class Polytope {
   std::shared_ptr<const std::vector<int>> polygons() const {
     return polygons_;
   }
-  Convex<S> MakeConvex() const {
-    // The Polytope class makes the pointers to vertices and faces const access.
-    // The Convex class calls for non-const pointers. Temporarily const-casting
-    // them to make it compatible.
-    return Convex<S>(points(), face_count(), polygons());
+  Convex<S> MakeConvex(bool throw_if_invalid = true) const {
+    return Convex<S>(points(), face_count(), polygons(), throw_if_invalid);
   }
   Vector3<S> min_point() const {
     Vector3<S> m;
@@ -164,7 +181,7 @@ class Polytope {
     GTEST_ASSERT_EQ(face_count(), count);
   }
 
- private:
+ protected:
   std::shared_ptr<std::vector<Vector3<S>>> vertices_;
   std::shared_ptr<std::vector<int>> polygons_;
   S scale_{};
@@ -176,7 +193,7 @@ template <typename S>
 class EquilateralTetrahedron : public Polytope<S> {
  public:
   // Constructs the tetrahedron (of edge length `s`).
-  explicit EquilateralTetrahedron(S scale) : Polytope<S>(scale), scale_(scale) {
+  explicit EquilateralTetrahedron(S scale) : Polytope<S>(scale) {
     // Tetrahedron vertices in the tet's canonical frame T. The tet is
     // "centered" on the origin so that it's center of mass is simple [0, 0, 0].
     const S z_base = -1 / S(2 * sqrt(6.));
@@ -199,22 +216,15 @@ class EquilateralTetrahedron : public Polytope<S> {
   // Properties of the polytope.
   int face_count() const final { return 4; }
   int vertex_count() const final { return 4; }
-  virtual S volume() const final {
+  S volume() const final {
     // This assumes unit mass.
-    S s = this->scale();
+    const S s = this->scale_;
     return S(sqrt(2) / 12) * s * s * s;
   }
-  virtual Vector3<S> com() const final { return Vector3<S>::Zero(); }
-  virtual Matrix3<S> principal_inertia_tensor() const {
-    // TODO(SeanCurtis-TRI): Replace this with a legitimate tensor.
-    throw std::logic_error("Not implemented yet");
-  };
+  Vector3<S> com() const final { return Vector3<S>::Zero(); }
   std::string description() const final {
     return "Tetrahedron with scale: " + std::to_string(this->scale());
   }
-
- private:
-  S scale_{0};
 };
 
 // A simple cube with sides of length `scale`.
@@ -369,6 +379,35 @@ void testMomentOfInertia(const Shape<S>& model, const Transform3<S>& X_WS,
             << "\nusing scalar: " << ScalarString<S>::value();
 }
 
+// The definition of a support vertex test configuration.
+template <typename S>
+struct SupportVertexTest {
+  // The direction for which we find the support vertex, expressed in the
+  // shape's frame S.
+  Vector3<S> v_S;
+  // The position of the *expected* support vertex measured and expressed in the
+  // shape's frame S.
+  Vector3<S> p_SE;
+};
+
+template <template <typename> class Shape, typename S>
+void testSupportVertex(const Shape<S>& model, const Transform3<S>& X_WS,
+    const std::vector<SupportVertexTest<S>>& tests) {
+  Shape<S> shape_W(model);
+  shape_W.SetPose(X_WS);
+  Convex<S> convex_W = shape_W.MakeConvex();
+  for (const auto& test : tests) {
+    const Vector3<S> v_W = X_WS.linear() * test.v_S;
+    const Vector3<S> p_WE = X_WS * test.p_SE;
+    // As long as we don't have directions parallel with face normals, the
+    // answer should be unique and precise down to the last bit.
+    EXPECT_TRUE(CompareMatrices(convex_W.findExtremeVertex(v_W), p_WE))
+        << shape_W.description() << " at\n"
+        << X_WS.matrix() << "\nusing scalar: " << ScalarString<S>::value()
+        << "\n  v_W = " << v_W.transpose();
+  }
+}
+
 template <typename S>
 PoseVector<S> GetPoses() {
   PoseVector<S> poses;
@@ -433,6 +472,14 @@ template <template <typename> class Shape, typename S>
 void testMomentOfInertiaComputation(const Shape<S>& shape, int bits_lost) {
   for (const auto& X_WP : GetPoses<S>()) {
     testMomentOfInertia<Shape>(shape, X_WP, bits_lost);
+  }
+}
+
+template <template <typename> class Shape, typename S>
+void testSupportVertexComputation(
+    const Shape<S>& shape, const std::vector<SupportVertexTest<S>>& tests) {
+  for (const auto& X_WP : GetPoses<S>()) {
+    testSupportVertex<Shape>(shape, X_WP, tests);
   }
 }
 
@@ -511,6 +558,309 @@ GTEST_TEST(ConvexGeometry, CenterOfMass_Tetrahedron) {
     EquilateralTetrahedron<float> tet_f(static_cast<float>(scale));
     testCenterOfMassComputation(tet_f, 0);
   }
+}
+
+// Defines a collection of support vertex directions and expected vertex
+// results. We assume that the given polytope contains the origin so that the
+// direction to every polytope vertex is unique. So, the direction to the vertex
+// should uniquely produce that vertex as the support vertex.
+template <typename S>
+std::vector<SupportVertexTest<S>> BuildSupportVertexTests(
+    const Polytope<S>& polytope) {
+  std::vector<SupportVertexTest<S>> tests;
+  for (const auto& p_SV : *polytope.points()) {
+    tests.push_back({p_SV, p_SV});
+  }
+  return tests;
+}
+
+GTEST_TEST(ConvexGeometry, SupportVertex_Tetrahedron) {
+  for (double scale : get_test_scales()) {
+    EquilateralTetrahedron<double> tet_d(scale);
+    std::vector<SupportVertexTest<double>> tests_d =
+        BuildSupportVertexTests(tet_d);
+    testSupportVertexComputation(tet_d, tests_d);
+
+    EquilateralTetrahedron<float> tet_f(scale);
+    std::vector<SupportVertexTest<float>> tests_f =
+        BuildSupportVertexTests(tet_f);
+    testSupportVertexComputation(tet_f, tests_f);
+  }
+}
+
+// A tetrahedron whose bottom triangle consists of three co-planar faces. (In
+// other words, we've injected a new vertex into the center of the bottom face.)
+// That new vertex is vertex 0. Used for the SupportVertexCoPlanarFaces test.
+class CoPlanarTetrahedron final : public Polytope<double> {
+ public:
+  CoPlanarTetrahedron() : Polytope<double>(1.0) {
+    // Tetrahedron vertices in the tet's canonical frame T. The tet is placed
+    // so that it's bottom face lies on the z = 0 plane.
+    Vector3d points_T[] = {{0.5, -0.5 / sqrt(3.), 0},
+                           {-0.5, -0.5 / sqrt(3.), 0},
+                           {0, 1. / sqrt(3.), 0},
+                           {0, 0, sqrt(3. / 8)}};
+    const Vector3d center = (points_T[0] + points_T[1] + points_T[2]) / 3.0;
+    this->add_vertex(center);
+    for (const auto& v : points_T) {
+      this->add_vertex(v);
+    };
+
+    // Now add the polygons
+    this->add_face({0, 1, 2});
+    this->add_face({0, 2, 3});
+    this->add_face({0, 3, 1});
+    this->add_face({1, 3, 4});
+    this->add_face({3, 2, 4});
+    this->add_face({1, 4, 2});
+
+    this->confirm_data();
+  }
+  // Properties of the polytope.
+  int face_count() const final { return 6; }
+  int vertex_count() const final { return 5; }
+};
+
+// Test for special condition in findExtremeVertex which can arise iff the
+// Convex shape has a vertex whose adjacent vertices are all co-planar with it,
+// that vertex is the *starting* vertex of the search, *and* the query direction
+// is perpendicular to the plane that those vertices all lie on.
+GTEST_TEST(ConvexGeometry, SupportVertexCoPlanarFaces) {
+  CoPlanarTetrahedron tet;
+  Convex<double> convex_W = tet.MakeConvex();
+  // Query direction is perpendicular to the bottom face.
+  const Vector3d v_W{0, 0, 1};
+  const Vector3d p_WE_expected = tet.points()->at(4);
+  // With only five vertices, findExtremeVertex would default to a linear
+  // search. For this test, we want to use the edge graph. So, we force it to
+  // be enabled.
+  ConvexTester::force_find_extreme_via_neighbors(&convex_W);
+
+  // We can expect an exact answer down to the last bit.
+  EXPECT_TRUE(CompareMatrices(convex_W.findExtremeVertex(v_W), p_WE_expected));
+}
+
+// A tetrahedron with a missing face.
+class HoleTetrahedron final : public Polytope<double> {
+ public:
+  HoleTetrahedron() : Polytope<double>(1.0) {
+    // We'll start with a good tetrahedron, copy all vertices and simply omit
+    // its first face.
+    EquilateralTetrahedron<double> tet(1.0);
+    vertices_->insert(vertices_->begin(), tet.points()->begin(),
+                      tet.points()->end());
+
+    // Add the faces of the tet (skipping the first).
+    const std::vector<int>& polys = *tet.polygons();
+    // polys[0] is the number of vertices in face 0. So, face 1 starts at
+    // that number plus one.
+    const int face1 = polys[0] + 1;
+    polygons_->insert(polygons_->end(), polys.begin() + face1, polys.end());
+
+    this->confirm_data();
+  }
+  // Properties of the polytope.
+  int face_count() const final { return 3; }
+  int vertex_count() const final { return 4; }
+};
+
+// A tetrahedron with a structural crack; a vertex is duplicated (but left in
+// the same location). It forms a break in the topology over its adjacent edges.
+class CrackTetrahedron final : public Polytope<double> {
+ public:
+  CrackTetrahedron() : Polytope<double>(1.0) {
+    EquilateralTetrahedron<double> tet(1.0);
+    vertices_->insert(vertices_->begin(), tet.points()->begin(),
+                      tet.points()->end());
+    vertices_->push_back((*vertices_)[0]);
+
+    // Now add the polygons by hand (copied and modified from
+    // EquilateralTetrahedron).
+    this->add_face({4, 1, 2});  // Vertex 4 swapped for vertex 0.
+    this->add_face({1, 0, 3});
+    this->add_face({0, 2, 3});
+    this->add_face({2, 1, 3});
+
+    this->confirm_data();
+  }
+  // Properties of the polytope.
+  int face_count() const final { return 4; }
+  int vertex_count() const final { return 5; }
+};
+
+// A tetrahedron with a "stray" vertex; a vertex not connected to any face.
+class StrayVertexTetrahedron final : public Polytope<double> {
+ public:
+  StrayVertexTetrahedron() : Polytope<double>(1.0) {
+    EquilateralTetrahedron<double> tet(1.0);
+    vertices_->insert(vertices_->begin(), tet.points()->begin(),
+                      tet.points()->end());
+    // Add the stray.
+    vertices_->push_back({-1, -1, -1});
+
+    // Add the faces of the tet.
+    const std::vector<int>& polys = *tet.polygons();
+    polygons_->insert(polygons_->end(), polys.begin(), polys.end());
+
+    this->confirm_data();
+  }
+  // Properties of the polytope.
+  int face_count() const final { return 4; }
+  int vertex_count() const final { return 5; }
+};
+
+// A tetrahedron with an extra face built off of one of the edges.
+class NonManifoldTetrahedron final : public Polytope<double> {
+ public:
+  NonManifoldTetrahedron() : Polytope<double>(1.0) {
+    EquilateralTetrahedron<double> tet(1.0);
+    vertices_->insert(vertices_->begin(), tet.points()->begin(),
+                      tet.points()->end());
+    vertices_->push_back({0, 0, -5});
+
+    polygons_->insert(polygons_->end(), tet.polygons()->begin(),
+                      tet.polygons()->end());
+    // The (0, 1) edge is now shared by 3 faces.
+    this->add_face({0, 1, 4});
+
+    this->confirm_data();
+  }
+  // Properties of the polytope.
+  int face_count() const final { return 5; }
+  int vertex_count() const final { return 5; }
+};
+
+// The test for the "watertight" validation conditions with several variations
+// of invalid topologies. We don't *explicitly* test the *valid* case because it
+// is implicitly tested every time a Convex is created in these tests. We also
+// don't care about the scalar types because this test is purely about topology.
+GTEST_TEST(ConvexGeometry, WaterTightValidation) {
+  {
+    // Hole in the convex mesh.
+    HoleTetrahedron bad_tet;
+    FCL_EXPECT_THROWS_MESSAGE(
+        bad_tet.MakeConvex(), std::runtime_error,
+        "Found errors in the Convex mesh[^]+ Edge between vertices \\d+ and "
+        "\\d+ is shared by 1 faces .+");
+  }
+
+  {
+    // Crack in an otherwise closed convex mesh due to duplicate vertices.
+    StrayVertexTetrahedron bad_tet;
+    FCL_EXPECT_THROWS_MESSAGE(
+        bad_tet.MakeConvex(), std::runtime_error,
+        "Found errors in the Convex mesh[^]+ Not all vertices are connected[^]+"
+        " Vertex \\d+ is not included in any faces[^]*");
+  }
+
+  {
+    // Crack in an otherwise closed convex mesh due to duplicate vertices.
+    CrackTetrahedron bad_tet;
+    FCL_EXPECT_THROWS_MESSAGE(
+        bad_tet.MakeConvex(), std::runtime_error,
+        "Found errors in the Convex mesh[^]+ Edge between vertices \\d+ and "
+        "\\d+ is shared by 1 faces .+");
+  }
+
+  {
+    // Non-manifold mesh (an edge is shared by three faces).
+    NonManifoldTetrahedron bad_tet;
+    FCL_EXPECT_THROWS_MESSAGE(
+        bad_tet.MakeConvex(), std::runtime_error,
+        "Found errors in the Convex mesh[^]+ Edge between vertices 0 and 1 is "
+        "shared by 3 faces [^]+");
+  }
+}
+
+// A tessellated unit sphere; 8 longitudinal wedges and 8 latitudinal bands.
+class TessellatedSphere final : public Polytope<double> {
+ public:
+  TessellatedSphere() : Polytope<double>(1.0) {
+      // The angle between the latitude lines measured along the prime meridian.
+      const double dphi = M_PI / 8;
+      auto slice_height = [dphi](int slice_index) {
+          // Assumes 1 <= slice_index < 8.
+          return std::cos(slice_index * dphi);
+      };
+      auto slice_radius = [dphi](int slice_index) {
+        // Assumes 1 <= slice_index < 8.
+        return std::sin(slice_index * dphi);
+      };
+      // North pole is top of slice 1.
+      vertices_->push_back({0, 0, 1});
+      // Now create the bands of vertices between slices 1 & 2, 2 & 3, etc.
+      // The angle between the longitude lines measured along the equator.
+      const double dtheta = 2 * M_PI / 8;
+      for (int slice = 1; slice < 8; ++slice) {
+          double z = slice_height(slice);
+          double r = slice_radius(slice);
+          for (int i = 0; i < 8; ++i) {
+              const double theta = dtheta * i;
+              vertices_->emplace_back(std::cos(theta) * r,
+                                      std::sin(theta) * r,
+                                      z);
+          }
+      }
+      // South pole is slice bottom of slice 8.
+      vertices_->push_back({0, 0, -1});
+
+      // North pole triangle fan: slice 1.
+      // [0, 8, 1], [0, 1, 2], [0, 2, 3], ..., [0, 7, 8].
+      // The "previous" index is: 8, 1, 2, 3, ... 7 and i is 1, 2, 3, ..., 8.
+      int prev = 8;
+      int next = 1;
+      for (; next <= 8; prev = next, ++next) {
+          this->add_face({0, prev, next});
+          prev = next;
+      }
+      // The rectangular facets for each latitude band. For slice 2, the quads
+      // would be: [upper prev, prev, next, upper next]. I.e., [8, 16, 9, 1],
+      // [1, 9, 10, 2], [2, 10, 11, 3], ..., [7, 15, 16, 8]. Such that
+      // upper_prev = prev - 8, and upper_next = next - 8. So, we track
+      // prev and next and compute the upper versions.
+      for (int slice = 2; slice < 8; ++slice) {
+          prev = slice * 8;
+          next = prev - 7;
+          for (int i = 0; i < 8; ++i, prev = next, ++next) {
+              this->add_face({prev - 8, prev, next, next - 8});
+          }
+      }
+      // South pole triangle fan: slice 8.
+      prev = 56;  // slice 7 * 8.
+      next = 49;  // The index of the first vertex on slice 8.
+      for (int i = 0; i < 8; ++i, prev = next, ++next) {
+          this->add_face({57, next, prev});
+      }
+
+      this->confirm_data();
+  }
+  // Properties of the polytope.
+  int face_count() const final { return 64; }
+  int vertex_count() const final { return 58; }
+};
+
+// Confirm that edge walking gets disabled in expected cases.
+GTEST_TEST(ConvexGeometry, UseEdgeWalkingConditions) {
+    const bool throw_if_invalid{true};
+    {
+        // Too few triangles.
+        EquilateralTetrahedron<double> poly(1.0);
+        Convex<double> convex = poly.MakeConvex(throw_if_invalid);
+        EXPECT_FALSE(ConvexTester::find_extreme_via_neighbors(convex));
+    }
+    {
+        // Hole in an unvalidated convex mesh.
+        HoleTetrahedron poly;
+        Convex<double> convex = poly.MakeConvex(!throw_if_invalid);
+        EXPECT_FALSE(ConvexTester::find_extreme_via_neighbors(convex));
+    }
+    {
+        // A *valid* mesh with sufficient number of vertices will enable edge
+        // walking. Simply create a tessellated sphere.
+        TessellatedSphere poly;
+        Convex<double> convex = poly.MakeConvex(throw_if_invalid);
+        EXPECT_TRUE(ConvexTester::find_extreme_via_neighbors(convex));
+    }
 }
 
 // TODO(SeanCurtis-TRI): Add Tetrahedron inertia unit test.

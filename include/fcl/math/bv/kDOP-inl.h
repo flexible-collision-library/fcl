@@ -254,7 +254,7 @@ S KDOP<S, N>::distance(const KDOP<S, N>& other, Vector3<S>* P, Vector3<S>* Q) co
   FCL_UNUSED(P);
   FCL_UNUSED(Q);
 
-  std::cerr << "KDOP distance not implemented!" << std::endl;
+  std::cerr << "KDOP distance not implemented!\n";
   return 0.0;
 }
 
