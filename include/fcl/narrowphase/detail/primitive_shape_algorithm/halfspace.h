@@ -151,7 +151,7 @@ bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
 /// @return `true` if the two geometries are intersecting.
 /// @tparam S The computational scalar.
 template <typename S>
-FCL_EXPORT bool convexHalfspaceIntersect(
+bool convexHalfspaceIntersect(
     const Convex<S>& convex_C, const Transform3<S>& X_FC,
     const Halfspace<S>& half_space_H, const Transform3<S>& X_FH,
     std::vector<ContactPoint<S>>* contacts);

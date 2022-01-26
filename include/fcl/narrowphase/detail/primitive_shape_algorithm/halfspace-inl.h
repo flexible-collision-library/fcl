@@ -110,7 +110,9 @@ bool convexHalfspaceIntersect(
     Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
 
 //==============================================================================
-extern template bool convexHalfspaceIntersect(
+extern template
+FCL_EXTERN_TEMPLATE_API
+bool convexHalfspaceIntersect(
     const Convex<double>& convex_C, const Transform3<double>& X_FC,
     const Halfspace<double>& half_space_H, const Transform3<double>& X_FH,
     std::vector<ContactPoint<double>>* contacts);
