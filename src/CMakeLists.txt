@@ -56,7 +56,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # Hide symbols by default
 #################################################
-if(NOT FCL_STATIC_LIBRARY and FCL_HIDE_ALL_SYMBOLS)
+if(FCL_HIDE_ALL_SYMBOLS AND NOT FCL_STATIC_LIBRARY)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_VISIBILITY_PRESET hidden
         VISIBILITY_INLINES_HIDDEN TRUE
