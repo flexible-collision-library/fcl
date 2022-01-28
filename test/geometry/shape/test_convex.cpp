@@ -46,6 +46,7 @@
 #include "eigen_matrix_compare.h"
 #include "expect_throws_message.h"
 #include "fcl/common/types.h"
+#include "fcl/math/constants.h"
 
 namespace fcl {
 class ConvexTester {
@@ -776,8 +777,9 @@ GTEST_TEST(ConvexGeometry, WaterTightValidation) {
 class TessellatedSphere final : public Polytope<double> {
  public:
   TessellatedSphere() : Polytope<double>(1.0) {
+      const auto pi = constants<double>::pi();
       // The angle between the latitude lines measured along the prime meridian.
-      const double dphi = M_PI / 8;
+      const double dphi = pi / 8;
       auto slice_height = [dphi](int slice_index) {
           // Assumes 1 <= slice_index < 8.
           return std::cos(slice_index * dphi);
@@ -790,7 +792,7 @@ class TessellatedSphere final : public Polytope<double> {
       vertices_->push_back({0, 0, 1});
       // Now create the bands of vertices between slices 1 & 2, 2 & 3, etc.
       // The angle between the longitude lines measured along the equator.
-      const double dtheta = 2 * M_PI / 8;
+      const double dtheta = 2 * pi / 8;
       for (int slice = 1; slice < 8; ++slice) {
           double z = slice_height(slice);
           double r = slice_radius(slice);
