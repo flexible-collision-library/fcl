@@ -37,7 +37,9 @@ macro(fix_default_compiler_settings_)
 
       # We prefer more strict warning checking for building Google Test.
       # Replaces /W3 with /W4 in defaults.
-      string(REPLACE "/W3" "-W4" ${flag_var} "${${flag_var}}")
+      if(${flag_var} MATCHES "/W[0-4]")
+        STRING(REGEX REPLACE "/W[0-4]" "/W4" ${flag_var} "${${flag_var}}")
+      endif()
     endforeach()
   endif()
 endmacro()
