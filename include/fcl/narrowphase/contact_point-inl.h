@@ -70,6 +70,26 @@ ContactPoint<S>::ContactPoint()
 
 //==============================================================================
 template <typename S>
+ContactPoint<S>::~ContactPoint() = default;
+
+//==============================================================================
+template <typename S>
+ContactPoint<S>::ContactPoint(const ContactPoint<S>&) = default;
+
+//==============================================================================
+template <typename S>
+ContactPoint<S>& ContactPoint<S>::operator=(const ContactPoint<S>&) = default;
+
+//==============================================================================
+template <typename S>
+ContactPoint<S>::ContactPoint(ContactPoint<S>&&) noexcept = default;
+
+//==============================================================================
+template <typename S>
+ContactPoint<S>& ContactPoint<S>::operator=(ContactPoint<S>&&) noexcept = default;
+
+//==============================================================================
+template <typename S>
 ContactPoint<S>::ContactPoint(
     const Vector3<S>& n_, const Vector3<S>& p_, S d_)
   : normal(n_), pos(p_), penetration_depth(d_)

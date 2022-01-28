@@ -60,6 +60,26 @@ Contact<S>::Contact()
 
 //==============================================================================
 template <typename S>
+Contact<S>::~Contact() = default;
+
+//==============================================================================
+template <typename S>
+Contact<S>::Contact(const Contact<S>&) = default;
+
+//==============================================================================
+template <typename S>
+Contact<S>& Contact<S>::operator=(const Contact<S>&) = default;
+
+//==============================================================================
+template <typename S>
+Contact<S>::Contact(Contact<S>&&) noexcept = default;
+
+//==============================================================================
+template <typename S>
+Contact<S>& Contact<S>::operator=(Contact<S>&&) noexcept = default;
+
+//==============================================================================
+template <typename S>
 Contact<S>::Contact(
     const CollisionGeometry<S>* o1_,
     const CollisionGeometry<S>* o2_,
