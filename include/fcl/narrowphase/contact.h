@@ -66,7 +66,7 @@ struct Contact
   /// if object 2 is octree, it is the query cell id (see
   ///                OcTree::getNodeByQueryCellId)
   intptr_t b2;
- 
+
   /// @brief contact normal, pointing from o1 to o2
   Vector3<S> normal;
 
@@ -81,6 +81,16 @@ struct Contact
   static const int NONE = -1;
 
   Contact();
+
+  ~Contact();
+
+  Contact(const Contact<S>&);
+
+  Contact<S>& operator=(const Contact<S>&);
+
+  Contact(Contact<S>&&) noexcept;
+
+  Contact<S>& operator=(Contact<S>&&) noexcept;
 
   Contact(const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_);
 

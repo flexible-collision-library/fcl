@@ -56,8 +56,23 @@ struct ContactPoint
   /// @brief Penetration depth
   S penetration_depth;
 
-  /// @brief Constructor
+  /// @brief Default Constructor
   ContactPoint();
+
+  /// @brief Destructor
+  ~ContactPoint();
+
+  /// @brief Copy Constructor
+  ContactPoint(const ContactPoint<S>&);
+
+  /// @brief Copy assignment operator
+  ContactPoint<S>& operator=(const ContactPoint<S>&);
+
+  /// @brief Move Constructor
+  ContactPoint(ContactPoint<S>&&) noexcept;
+
+  /// @brief Move assignment operator
+  ContactPoint<S>& operator=(ContactPoint<S>&&) noexcept;
 
   /// @brief Constructor
   ContactPoint(const Vector3<S>& n_, const Vector3<S>& p_, S d_);
