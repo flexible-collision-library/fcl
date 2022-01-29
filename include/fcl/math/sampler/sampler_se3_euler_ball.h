@@ -53,7 +53,7 @@ public:
   SamplerSE3Euler_ball(S r_);
 
   void setBound(const S& r_);
-
+  
   void getBound(S& r_) const;
 
   Vector6<S> sample() const;

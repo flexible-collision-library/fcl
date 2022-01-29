@@ -140,7 +140,7 @@ public:
   S BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
-
+  
 };
 
 /// @brief Initialize traversal node for distance computation between one shape
