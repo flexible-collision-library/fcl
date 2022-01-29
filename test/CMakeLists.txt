@@ -33,7 +33,7 @@ execute_process(COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/test_results
 include_directories(${GTEST_INCLUDE_DIRS})
 
 add_library(test_fcl_utility test_fcl_utility.cpp)
-target_link_libraries(test_fcl_utility fcl)
+target_link_libraries(test_fcl_utility PUBLIC fcl)
 
 # test file list
 set(tests
@@ -75,7 +75,7 @@ macro(add_fcl_test test_file_name)
   # Get the name (i.e. bla.cpp => bla)
   get_filename_component(test_name ${ARGV} NAME_WE)
   add_executable(${test_name} ${ARGV})
-  target_link_libraries(${test_name} fcl test_fcl_utility gtest)
+  target_link_libraries(${test_name} PRIVATE fcl test_fcl_utility gtest)
   add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
 endmacro(add_fcl_test)
 

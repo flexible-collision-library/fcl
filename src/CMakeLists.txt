@@ -47,6 +47,8 @@ else()
   add_library(${PROJECT_NAME} SHARED ${FCL_HEADERS} ${FCL_SOURCE_CODE})
 endif()
 
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
+
 # Be sure to pass to the consumer the set of SIMD used in the compilation
 target_compile_options(${PROJECT_NAME} PUBLIC ${SSE_FLAGS})
 
