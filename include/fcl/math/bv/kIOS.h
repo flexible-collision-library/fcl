@@ -42,7 +42,7 @@
 
 namespace fcl
 {
-
+ 
 /// @brief A class describing the kIOS collision structure, which is a set of spheres.
 template <typename S_>
 class kIOS

@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */
+ */ 
 
 /** @author Jia Pan */
 
@@ -99,7 +99,7 @@ public:
 
   /// @brief whether the manager is empty
   bool empty() const;
-
+  
   /// @brief the number of objects managed by the manager
   size_t size() const;
 

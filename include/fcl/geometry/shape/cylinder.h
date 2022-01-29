@@ -45,7 +45,7 @@
 namespace fcl
 {
 
-/// @brief Center at zero cylinder
+/// @brief Center at zero cylinder 
 template <typename S_>
 class Cylinder : public ShapeBase<S_>
 {
@@ -55,17 +55,17 @@ public:
 
   /// @brief Constructor
   Cylinder(S radius, S lz);
-
-  /// @brief Radius of the cylinder
+  
+  /// @brief Radius of the cylinder 
   S radius;
 
-  /// @brief Length along z axis
+  /// @brief Length along z axis 
   S lz;
 
-  /// @brief Compute AABB
+  /// @brief Compute AABB 
   void computeLocalAABB() override;
 
-  /// @brief Get node type: a cylinder
+  /// @brief Get node type: a cylinder 
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited

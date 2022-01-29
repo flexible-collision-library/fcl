@@ -125,7 +125,7 @@ public:
 
   /// @return const ptr to child number childIdx of node
   const OcTreeNode* getNodeChild(const OcTreeNode* node, unsigned int childIdx) const;
-
+      
   /// @brief return true if the child at childIdx exists
   bool nodeChildExists(const OcTreeNode* node, unsigned int childIdx) const;
 

@@ -59,7 +59,7 @@ public:
 
   /// @brief virtual function of compute AABB<S> in local coordinate
   void computeLocalAABB() override;
-
+  
   // Documentation inherited
   NODE_TYPE getNodeType() const override;
 

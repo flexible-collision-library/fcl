@@ -74,7 +74,7 @@ public:
   /// @brief collision result kept during the traversal iteration
   CollisionResult<S>* result;
 
-  /// @brief Whether stores statistics
+  /// @brief Whether stores statistics 
   bool enable_statistics;
 };
 

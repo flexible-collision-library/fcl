@@ -69,7 +69,7 @@ class TaylorModel
 public:
 
   void setTimeInterval(S l, S r);
-
+  
   void setTimeInterval(const std::shared_ptr<TimeInterval<S>>& time_interval);
 
   const std::shared_ptr<TimeInterval<S>>& getTimeInterval() const;
@@ -78,7 +78,7 @@ public:
   S& coeff(std::size_t i);
   const Interval<S>& remainder() const;
   Interval<S>& remainder();
-
+  
   TaylorModel();
   TaylorModel(const std::shared_ptr<TimeInterval<S>>& time_interval);
   TaylorModel(S coeff, const std::shared_ptr<TimeInterval<S>>& time_interval);

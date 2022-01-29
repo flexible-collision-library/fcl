@@ -49,14 +49,14 @@ struct ContinuousCollisionResult
 {
   /// @brief collision or not
   bool is_collide;
-
+  
   /// @brief time of contact in [0, 1]
   S time_of_contact;
 
   Transform3<S> contact_tf1;
 
   Transform3<S> contact_tf2;
-
+  
   ContinuousCollisionResult();
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

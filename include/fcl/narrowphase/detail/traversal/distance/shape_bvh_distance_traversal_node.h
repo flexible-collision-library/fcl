@@ -74,7 +74,7 @@ public:
   const Shape* model1;
   const BVHModel<BV>* model2;
   BV model1_bv;
-
+  
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
   mutable S query_time_seconds;

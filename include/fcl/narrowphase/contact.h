@@ -66,7 +66,7 @@ struct Contact
   /// if object 2 is octree, it is the query cell id (see
   ///                OcTree::getNodeByQueryCellId)
   intptr_t b2;
-
+ 
   /// @brief contact normal, pointing from o1 to o2
   Vector3<S> normal;
 
@@ -76,7 +76,7 @@ struct Contact
   /// @brief penetration depth
   S penetration_depth;
 
-
+ 
   /// @brief invalid contact primitive information
   static const int NONE = -1;
 

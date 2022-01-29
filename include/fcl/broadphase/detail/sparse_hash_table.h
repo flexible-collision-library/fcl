@@ -62,14 +62,14 @@ protected:
   HashFnc h_;
   typedef std::list<Data> Bin;
   typedef TableT<size_t, Bin> Table;
-
+  
   Table table_;
 public:
   SparseHashTable(const HashFnc& h);
 
   /// @brief Init the hash table. The bucket size is dynamically decided.
   void init(size_t);
-
+  
   /// @brief insert one key-value pair into the hash table
   void insert(Key key, Data value);
 

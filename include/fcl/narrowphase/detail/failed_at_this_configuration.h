@@ -87,7 +87,7 @@ FCL_API void ThrowFailedAtThisConfiguration(
 
 /** Helper class for propagating a low-level exception upwards but with
  configuration-specific details appended. The parameters
-
+ 
  @param s1        The first shape in the query.
  @param X_FS1     The pose of the first shape in frame F.
  @param s2        The second shape in the query.
