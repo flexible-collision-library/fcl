@@ -81,7 +81,7 @@ public:
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
   S computeMotionBound(const BVMotionBoundVisitor<S>& mb_visitor) const;
 
-  /// @brief Compute the motion bound for a triangle along a given direction n, which is defined in the visitor
+  /// @brief Compute the motion bound for a triangle along a given direction n, which is defined in the visitor 
   S computeMotionBound(const TriangleMotionBoundVisitor<S>& mb_visitor) const;
 
   /// @brief Get the rotation and translation in current step
@@ -94,9 +94,9 @@ protected:
   void computeVelocity();
 
   Quaternion<S> deltaRotation(S dt) const;
-
+  
   Quaternion<S> absoluteRotation(S dt) const;
-
+  
   /// @brief The transformation at time 0
   Transform3<S> tf1;
 

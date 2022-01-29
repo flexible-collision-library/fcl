@@ -66,7 +66,7 @@ public:
 
   Vector3<S>* vertices;
   Triangle* tri_indices;
-
+  
   S cost_density;
 
   const NarrowPhaseSolver* nsolver;

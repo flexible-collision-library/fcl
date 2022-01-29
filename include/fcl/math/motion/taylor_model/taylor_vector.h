@@ -50,13 +50,13 @@ class TVector3
   TaylorModel<S> i_[3];
 
 public:
-
+  
   TVector3();
   TVector3(const std::shared_ptr<TimeInterval<S>>& time_interval);
   TVector3(TaylorModel<S> v[3]);
   TVector3(const TaylorModel<S>& v0, const TaylorModel<S>& v1, const TaylorModel<S>& v2);
   TVector3(const Vector3<S>& v, const std::shared_ptr<TimeInterval<S>>& time_interval);
-
+  
   TVector3 operator + (const TVector3& other) const;
   TVector3& operator += (const TVector3& other);
 

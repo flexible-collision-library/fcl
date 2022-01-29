@@ -75,10 +75,10 @@ public:
       const Vector3<S>& center,
       const Vector3<S>& extent);
 
-  /// @brief Check collision between two OBB, return true if collision happens.
+  /// @brief Check collision between two OBB, return true if collision happens. 
   bool overlap(const OBB<S>& other) const;
-
-  /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb.
+  
+  /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb. 
   bool overlap(const OBB<S>& other, OBB<S>& overlap_part) const;
 
   /// @brief Check whether the OBB contains a point.

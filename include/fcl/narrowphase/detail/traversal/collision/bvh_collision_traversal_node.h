@@ -81,7 +81,7 @@ public:
 
   /// @brief BV culling test in one BVTT node
   bool BVTesting(int b1, int b2) const;
-
+  
   /// @brief The first BVH model
   const BVHModel<BV>* model1;
 

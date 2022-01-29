@@ -113,7 +113,7 @@ protected:
   /// @brief Inserts node into the tree as if it were a regular binary tree
   void recursiveInsert(IntervalTreeNode<S>* node);
 
-  /// @brief recursively print a subtree
+  /// @brief recursively print a subtree 
   void recursivePrint(IntervalTreeNode<S>* node) const;
 
   /// @brief recursively find the node corresponding to the interval

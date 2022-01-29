@@ -72,7 +72,7 @@ public:
   mutable Vector3<S> closest_p1, closest_p2;
 
   mutable int last_tri_id;
-
+  
    /// @brief CA controlling variable: early stop for the early iterations of CA
   S w;
 

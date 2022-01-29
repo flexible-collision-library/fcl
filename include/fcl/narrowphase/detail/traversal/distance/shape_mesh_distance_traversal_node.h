@@ -51,7 +51,7 @@ namespace detail
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
 class ShapeMeshDistanceTraversalNode
     : public ShapeBVHDistanceTraversalNode<Shape, BV>
-{
+{ 
 public:
 
   using S = typename BV::S;
@@ -69,7 +69,7 @@ public:
 
   S rel_err;
   S abs_err;
-
+    
   const NarrowPhaseSolver* nsolver;
 };
 
@@ -140,7 +140,7 @@ public:
   S BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
-
+  
 };
 
 /// @brief Initialize traversal node for distance computation between one shape
@@ -174,7 +174,7 @@ public:
   S BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
-
+  
 };
 
 /// @brief Initialize traversal node for distance computation between one shape

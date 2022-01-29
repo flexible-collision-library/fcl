@@ -79,10 +79,10 @@ public:
 
   /// @brief Get node type: a half space
   NODE_TYPE getNodeType() const override;
-
+  
   /// @brief Planed normal
   Vector3<S> n;
-
+  
   /// @brief Planed offset
   S d;
 

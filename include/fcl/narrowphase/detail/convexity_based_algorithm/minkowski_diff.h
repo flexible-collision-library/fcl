@@ -63,14 +63,14 @@ struct MinkowskiDiff
   /// @brief rotation from shape0 to shape1
   Matrix3<S> toshape1;
 
-  /// @brief transform from shape1 to shape0
+  /// @brief transform from shape1 to shape0 
   Transform3<S> toshape0;
 
   MinkowskiDiff();
 
   /// @brief support function for shape0
   Vector3<S> support0(const Vector3<S>& d) const;
-
+  
   /// @brief support function for shape1
   Vector3<S> support1(const Vector3<S>& d) const;
 

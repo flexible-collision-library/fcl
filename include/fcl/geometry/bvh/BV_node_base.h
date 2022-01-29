@@ -59,7 +59,7 @@ struct FCL_API BVNodeBase
   /// we can obtain the primitive's index in original data indirectly.
   int first_primitive;
 
-  /// @brief The number of primitives belonging to the current node
+  /// @brief The number of primitives belonging to the current node 
   int num_primitives;
 
   /// @brief Whether current node is a leaf node (i.e. contains a primitive index

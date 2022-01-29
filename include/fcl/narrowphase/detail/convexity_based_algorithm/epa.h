@@ -101,7 +101,7 @@ private:
 public:
 
   enum Status {Valid, Touching, Degenerated, NonConvex, InvalidHull, OutOfFaces, OutOfVertices, AccuracyReached, FallBack, Failed};
-
+  
   Status status;
   typename GJK<S>::Simplex result;
   Vector3<S> normal;
@@ -130,8 +130,8 @@ public:
 
   Status evaluate(GJK<S>& gjk, const Vector3<S>& guess);
 
-  /// @brief the goal is to add a face connecting vertex w and face edge f[e]
-  bool expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon& horizon);
+  /// @brief the goal is to add a face connecting vertex w and face edge f[e] 
+  bool expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon& horizon);  
 };
 
 using EPAf = EPA<float>;

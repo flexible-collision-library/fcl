@@ -179,7 +179,7 @@ class MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOS<S>
 {
 public:
   MeshCollisionTraversalNodekIOS();
-
+ 
   bool BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
@@ -210,7 +210,7 @@ class MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRS
 {
 public:
   MeshCollisionTraversalNodeOBBRSS();
-
+ 
 
   bool BVTesting(int b1, int b2) const;
 

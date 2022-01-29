@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */
+ */ 
 
 /** @author Jia Pan */
 
@@ -53,7 +53,7 @@ struct SpatialHash
   using S = S_;
 
   SpatialHash(const AABB<S>& scene_limit_, S cell_size_);
-
+    
   std::vector<unsigned int> operator() (const AABB<S>& aabb) const;
 
 private:

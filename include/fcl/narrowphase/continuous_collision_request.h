@@ -65,13 +65,13 @@ struct ContinuousCollisionRequest
 
   /// @brief ccd solver type
   CCDSolverType ccd_solver_type;
-
+  
   ContinuousCollisionRequest(std::size_t num_max_iterations_ = 10,
                              S toc_err_ = 0.0001,
                              CCDMotionType ccd_motion_type_ = CCDM_TRANS,
                              GJKSolverType gjk_solver_type_ = GST_LIBCCD,
                              CCDSolverType ccd_solver_type_ = CCDC_NAIVE);
-
+  
 };
 
 using ContinuousCollisionRequestf = ContinuousCollisionRequest<float>;

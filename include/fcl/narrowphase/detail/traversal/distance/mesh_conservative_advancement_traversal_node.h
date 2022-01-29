@@ -69,9 +69,9 @@ public:
   bool canStop(S c) const;
 
   mutable S min_distance;
-
+ 
   mutable Vector3<S> closest_p1, closest_p2;
-
+  
   mutable int last_tri_id1, last_tri_id2;
 
   /// @brief CA controlling variable: early stop for the early iterations of CA

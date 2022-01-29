@@ -74,7 +74,7 @@ public:
 
   /// @brief We provide getBV() and getNumBVs() because BVH may be compressed
   /// (in future), so we must provide some flexibility here
-
+  
   /// @brief Access the bv giving the its index
   const BVNode<BV>& getBV(int id) const;
 
@@ -147,7 +147,7 @@ public:
   /// @brief Check the number of memory used
   int memUsage(int msg) const;
 
-  /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent
+  /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
   /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative();
 
@@ -211,7 +211,7 @@ private:
   /// @brief Recursive kernel for hierarchy construction
   int recursiveBuildTree(int bv_id, int first_primitive, int num_primitives);
 
-  /// @brief Recursive kernel for bottomup refitting
+  /// @brief Recursive kernel for bottomup refitting 
   int recursiveRefitTree_bottomup(int bv_id);
 
   /// @recursively compute each bv's transform related to its parent. For

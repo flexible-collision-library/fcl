@@ -53,7 +53,7 @@ struct SimpleInterval
 {
 public:
   virtual ~SimpleInterval();
-
+  
   virtual void print();
 
   /// @brief interval is defined as [low, high]

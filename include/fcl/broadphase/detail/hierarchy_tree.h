@@ -70,7 +70,7 @@ public:
   HierarchyTree(int bu_threshold_ = 16, int topdown_level_ = 0);
 
   ~HierarchyTree();
-
+  
   /// @brief Initialize the tree by a set of leaves using algorithm with a given level.
   void init(std::vector<NodeType*>& leaves, int level = 0);
 
@@ -80,10 +80,10 @@ public:
   /// @brief Remove a leaf node
   void remove(NodeType* leaf);
 
-  /// @brief Clear the tree
+  /// @brief Clear the tree 
   void clear();
 
-  /// @brief Whether the tree is empty
+  /// @brief Whether the tree is empty 
   bool empty() const;
 
   /// @brief Updates a `leaf` node. A use case is when the bounding volume
@@ -102,10 +102,10 @@ public:
   /// @brief update the tree when the bounding volume of a given leaf has changed
   bool update(NodeType* leaf, const BV& bv);
 
-  /// @brief update one leaf's bounding volume, with prediction
+  /// @brief update one leaf's bounding volume, with prediction 
   bool update(NodeType* leaf, const BV& bv, const Vector3<S>& vel, S margin);
 
-  /// @brief update one leaf's bounding volume, with prediction
+  /// @brief update one leaf's bounding volume, with prediction 
   bool update(NodeType* leaf, const BV& bv, const Vector3<S>& vel);
 
   /// @brief get the max height of the tree
@@ -114,19 +114,19 @@ public:
   /// @brief get the max depth of the tree
   size_t getMaxDepth() const;
 
-  /// @brief balance the tree from bottom
+  /// @brief balance the tree from bottom 
   void balanceBottomup();
 
-  /// @brief balance the tree from top
+  /// @brief balance the tree from top 
   void balanceTopdown();
-
-  /// @brief balance the tree in an incremental way
+  
+  /// @brief balance the tree in an incremental way 
   void balanceIncremental(int iterations);
-
+  
   /// @brief refit the tree, i.e., when the leaf nodes' bounding volumes change, update the entire tree in a bottom-up manner
   void refit();
 
-  /// @brief extract all the leaves of the tree
+  /// @brief extract all the leaves of the tree 
   void extractLeaves(const NodeType* root, std::vector<NodeType*>& leaves) const;
 
   /// @brief number of leaves in the tree
@@ -153,10 +153,10 @@ private:
     }
   };
 
-  /// @brief construct a tree for a set of leaves from bottom -- very heavy way
+  /// @brief construct a tree for a set of leaves from bottom -- very heavy way 
   void bottomup(const NodeVecIterator lbeg, const NodeVecIterator lend);
 
-  /// @brief construct a tree for a set of leaves from top
+  /// @brief construct a tree for a set of leaves from top 
   NodeType* topdown(const NodeVecIterator lbeg, const NodeVecIterator lend);
 
   /// @brief compute the maximum height of a subtree rooted from a given node
@@ -184,24 +184,24 @@ private:
   void init_1(std::vector<NodeType*>& leaves);
 
   /// @brief init tree from leaves using morton code. It uses morton_0, i.e., for nodes which is of depth more than the maximum bits of the morton code,
-  /// we split the leaves into two parts with the same size simply using the node index.
+  /// we split the leaves into two parts with the same size simply using the node index. 
   void init_2(std::vector<NodeType*>& leaves);
 
   /// @brief init tree from leaves using morton code. It uses morton_2, i.e., for all nodes, we simply divide the leaves into parts with the same size simply using the node index.
   void init_3(std::vector<NodeType*>& leaves);
-
+  
   NodeType* mortonRecurse_0(const NodeVecIterator lbeg, const NodeVecIterator lend, const uint32& split, int bits);
 
   NodeType* mortonRecurse_1(const NodeVecIterator lbeg, const NodeVecIterator lend, const uint32& split, int bits);
 
   NodeType* mortonRecurse_2(const NodeVecIterator lbeg, const NodeVecIterator lend);
 
-  /// @brief update one leaf node's bounding volume
+  /// @brief update one leaf node's bounding volume 
   void update_(NodeType* leaf, const BV& bv);
 
-  /// @brief sort node n and its parent according to their memory position
+  /// @brief sort node n and its parent according to their memory position 
   NodeType* sort(NodeType* n, NodeType*& r);
-
+  
   /// @brief Insert a leaf node and also update its ancestors. Maintain the
   /// tree as a full binary tree (every interior node has exactly two children).
   /// Furthermore, adjust the BV of interior nodes so that each parent's BV
@@ -219,13 +219,13 @@ private:
   //           adjusted.
   NodeType* removeLeaf(NodeType* const leaf);
 
-  /// @brief Delete all internal nodes and return all leaves nodes with given depth from root
+  /// @brief Delete all internal nodes and return all leaves nodes with given depth from root 
   void fetchLeaves(NodeType* root, std::vector<NodeType*>& leaves, int depth = -1);
 
   static size_t indexOf(NodeType* node);
 
-  /// @brief create one node (leaf or internal)
-  NodeType* createNode(NodeType* parent,
+  /// @brief create one node (leaf or internal)  
+  NodeType* createNode(NodeType* parent, 
                        const BV& bv,
                        void* data);
 
@@ -233,7 +233,7 @@ private:
                        const BV& bv1,
                        const BV& bv2,
                        void* data);
-
+  
   NodeType* createNode(NodeType* parent,
                        void* data);
 
@@ -250,11 +250,11 @@ protected:
 
   unsigned int opath;
 
-  /// This is a one NodeType cache, the reason is that we need to remove a node and then add it again frequently.
-  NodeType* free_node;
+  /// This is a one NodeType cache, the reason is that we need to remove a node and then add it again frequently. 
+  NodeType* free_node; 
 
   int max_lookahead_level;
-
+  
 public:
   /// @brief decide which topdown algorithm to use
   int topdown_level;

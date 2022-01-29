@@ -48,7 +48,7 @@ template <typename S>
 class TMatrix3
 {
   TVector3<S> v_[3];
-
+  
 public:
   TMatrix3();
   TMatrix3(const std::shared_ptr<TimeInterval<S>>& time_interval);

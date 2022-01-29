@@ -110,7 +110,7 @@ public:
          int num_faces, const std::shared_ptr<const std::vector<int>>& faces,
          bool throw_if_invalid = false);
 
-  /// @brief Copy constructor
+  /// @brief Copy constructor 
   Convex(const Convex& other);
 
   ~Convex() = default;
