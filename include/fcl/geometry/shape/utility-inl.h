@@ -59,6 +59,11 @@ namespace fcl {
 //==============================================================================
 extern template
 FCL_EXTERN_TEMPLATE_API
+void constructBox(const AABB<double>& bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+extern template
+FCL_EXTERN_TEMPLATE_API
 void constructBox(const OBB<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
