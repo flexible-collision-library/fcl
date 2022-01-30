@@ -43,7 +43,6 @@
 #include "fcl/math/geometry.h"
 #include "fcl/math/motion/motion_base.h"
 #include "fcl/math/motion/bv_motion_bound_visitor.h"
-#include "fcl/math/motion/triangle_motion_bound_visitor.h"
 
 namespace fcl
 {
