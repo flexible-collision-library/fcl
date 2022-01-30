@@ -41,6 +41,7 @@
 #include "fcl/narrowphase/detail/traversal/octree/octree_solver.h"
 
 #include "fcl/geometry/shape/utility.h"
+#include "fcl/narrowphase/contact_point.h"
 
 namespace fcl
 {

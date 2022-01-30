@@ -41,6 +41,7 @@
 #include "fcl/narrowphase/detail/traversal/distance/mesh_shape_conservative_advancement_traversal_node.h"
 
 #include "fcl/common/unused.h"
+#include "fcl/math/motion/tbv_motion_bound_visitor.h"
 
 namespace fcl
 {
