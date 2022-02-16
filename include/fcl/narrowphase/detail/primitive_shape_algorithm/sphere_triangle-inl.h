@@ -204,13 +204,13 @@ bool sphereTriangleIntersect(const Sphere<S>& s, const Transform3<S>& tf,
         S distance = std::sqrt(distance_sqr);
         if(normal_) *normal_ = contact_to_center.normalized();
         if(contact_points) *contact_points = contact_point;
-        if(penetration_depth) *penetration_depth = -(radius - distance);
+        if(penetration_depth) *penetration_depth = radius - distance;
       }
       else
       {
         if(normal_) *normal_ = -normal;
         if(contact_points) *contact_points = contact_point;
-        if(penetration_depth) *penetration_depth = -radius;
+        if(penetration_depth) *penetration_depth = radius;
       }
 
       return true;

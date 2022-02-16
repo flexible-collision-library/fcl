@@ -74,10 +74,10 @@ bool sphereSphereIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
 
   if(contacts)
   {
-    // If the centers of two sphere are at the same position, the normal is (0, 0, 0).
+    // If the centers of two sphere are at the same position, the normal is (1, 0, 0).
     // Otherwise, normal is pointing from center of object 1 to center of object 2
-    const Vector3<S> normal = len > 0 ? (diff / len).eval() : diff;
-    const Vector3<S> point = tf1.translation() + diff * s1.radius / (s1.radius + s2.radius);
+    const Vector3<S> normal = len > 0 ? (diff / len).eval() : Vector3<S>(1, 0, 0);
+    const Vector3<S> point = tf2.translation() - s2.radius * normal;
     const S penetration_depth = s1.radius + s2.radius - len;
     contacts->emplace_back(normal, point, penetration_depth);
   }
