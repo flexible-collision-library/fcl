@@ -33,7 +33,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Jia Pan */
+/** @author Jia Pan, Shi Shenglei */
+/** @author Shi Shenglei: add GJKDistanceS function */
 
 #ifndef FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
 #define FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
@@ -113,6 +114,18 @@ bool GJKCollide(
 //==============================================================================
 extern template
 bool GJKDistance(
+    void* obj1,
+    ccd_support_fn supp1,
+    void* obj2,
+    ccd_support_fn supp2,
+    unsigned int max_iterations,
+    double tolerance,
+    double* dist,
+    Vector3d* p1,
+    Vector3d* p2);
+
+extern template
+bool GJKDistanceS(
     void* obj1,
     ccd_support_fn supp1,
     void* obj2,
@@ -310,13 +323,14 @@ _ccd_inline void tripleCross(const ccd_vec3_t *a, const ccd_vec3_t *b,
  doSimplex2() is only called from doSimplex() its region 1 assumption _should_
  remain valid.
 */
-static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir) {
+static int doSimplex2(const ccd_support_t &a, const ccd_support_t &b, ccd_vec3_t *dir)
+{
   // Used to define numerical thresholds near zero; typically scaled to the size
   // of the quantities being tested.
   constexpr ccd_real_t eps = constants<ccd_real_t>::eps();
 
-  const Vector3<ccd_real_t> p_OA(simplex->ps[simplex->last].v.v);
-  const Vector3<ccd_real_t> p_OB(simplex->ps[0].v.v);
+  const Vector3<ccd_real_t> p_OA(a.v.v);
+  const Vector3<ccd_real_t> p_OB(b.v.v);
 
   // Confirm that A is in region 1. Given that A may be very near to the origin,
   // we must avoid normalizing p_OA. So, we use this instead.
@@ -352,10 +366,8 @@ static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir) {
   // use later to compute a new support direction, as necessary).
   const Vector3<ccd_real_t> p_AB = p_OB - p_OA;
   const Vector3<ccd_real_t> plane_normal = p_OB.cross(p_AB);
-  if (plane_normal.squaredNorm() <
-      p_AB.squaredNorm() * p_OB.squaredNorm() * eps * eps) {
+  if (plane_normal.squaredNorm() < p_AB.squaredNorm() * p_OB.squaredNorm() * eps * eps)
     return 1;
-  }
 
   // O is not co-linear with AB, so dist(O, AB) > ε. Define `dir` as the
   // direction to O from the nearest point on AB.
@@ -368,6 +380,11 @@ static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir) {
   const Vector3<ccd_real_t> new_dir = plane_normal.normalized().cross(p_AB);
   ccdVec3Set(dir, new_dir(0), new_dir(1), new_dir(2));
   return 0;
+}
+
+static int doSimplex2(ccd_simplex_t *simplex, ccd_vec3_t *dir)
+{
+  return doSimplex2(simplex->ps[simplex->last], simplex->ps[0], dir);
 }
 
 // Compares the given `value` against a _squared epsilon_. This is particularly
@@ -1815,9 +1832,8 @@ static void extractObjectPointsFromPoint(ccd_support_t *q, ccd_vec3_t *p1,
  point on that line segment `p`, computes the points `p1` and `p2`, the points
  on object 1 and 2, respectively, in the support data which correspond to `p`.
  @pre `p = a + s(b - a), 0 <= s <= 1`  */
-static void extractObjectPointsFromSegment(ccd_support_t *a, ccd_support_t *b,
-                                           ccd_vec3_t *p1, ccd_vec3_t *p2,
-                                           ccd_vec3_t *p) {
+static ccd_real_t alphaRatio(ccd_support_t *a, ccd_support_t *b, ccd_vec3_t *p)
+{
   // Closest points lie on the segment defined by the points in the simplex
   // Let the segment be defined by points A and B. We can write p as
   //
@@ -1856,7 +1872,21 @@ static void extractObjectPointsFromSegment(ccd_support_t *a, ccd_support_t *b,
     p_i = ccdVec3Z(p);
   }
 
-  if (std::abs(AB_i) < constants<ccd_real_t>::eps()) {
+  if (std::abs(AB_i) < constants<ccd_real_t>::eps())
+      return -1.0;
+
+  // TODO(SeanCurtis-TRI): If p1 or p2 is null, there seems little point in
+  // calling this method. It seems that both of these being non-null should be
+  // a *requirement*. Determine that this is the case and do so.
+  ccd_real_t s = (p_i - A_i) / AB_i;
+  return s;
+}
+
+static void extractObjectPointsFromSegment(ccd_support_t *a, ccd_support_t *b,
+                                           ccd_vec3_t *p1, ccd_vec3_t *p2,
+                                           ccd_vec3_t *p) {
+  ccd_real_t s = alphaRatio(a, b, p);
+  if (s < CCD_ZERO) {
     // Points are coincident; treat as a single point.
     extractObjectPointsFromPoint(a, p1, p2);
     return;
@@ -1870,11 +1900,6 @@ static void extractObjectPointsFromSegment(ccd_support_t *a, ccd_support_t *b,
     ccdVec3Copy(p, p_a);
     ccdVec3Add(p, &sAB);
   };
-
-  // TODO(SeanCurtis-TRI): If p1 or p2 is null, there seems little point in
-  // calling this method. It seems that both of these being non-null should be
-  // a *requirement*. Determine that this is the case and do so.
-  ccd_real_t s = (p_i - A_i) / AB_i;
 
   if (p1) {
     // p1 = A1 + s*A1B1
@@ -2017,6 +2042,15 @@ static void extractClosestPoints(ccd_simplex_t *simplex, ccd_vec3_t *p1,
   }
 }
 
+/*
+static void extractClosestPointsS(ccd_simplex_t *simplex, ccd_vec3_t *p1,
+                                 ccd_vec3_t *p2)
+{
+    const int simplex_size = ccdSimplexSize(simplex);
+    extractObjectPointsFromPoint(&simplex->ps[simplex_size-1], p1, p2);
+}
+*/
+
 // Computes the distance between two non-penetrating convex objects, `obj1` and
 // `obj2` based on the warm-started witness simplex, returning the distance and
 // nearest points on each object.
@@ -2113,6 +2147,111 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
   }
 
   return -CCD_REAL(1.);
+}
+
+static inline ccd_real_t _ccdDistS(const void *obj1, const void *obj2,
+                                  const ccd_t *ccd,
+                                  ccd_simplex_t* simplex,
+                                  ccd_vec3_t* p1, ccd_vec3_t* p2)
+{
+    ccd_real_t last_dist = -CCD_REAL_MAX, last_distp = CCD_REAL_MAX;
+    ccd_real_t dist, distp;
+
+    ccd_vec3_t closest_p; // The point on the simplex that is closest to the origin.
+    ccd_vec3_t dir; // direction vector
+    ccd_support_t last, temp; // last support point
+
+    for (unsigned long iterations = 0UL; iterations < ccd->max_iterations; ++iterations)
+    {
+        if (ccdSimplexSize(simplex) == 1)
+            ccdVec3Copy(&closest_p, &ccdSimplexPoint(simplex, 0)->v);
+        else if (ccdSimplexSize(simplex) == 2)
+            ccdVec3PointSegmentDist2(ccd_vec3_origin,
+                    &ccdSimplexPoint(simplex, 0)->v,
+                    &ccdSimplexPoint(simplex, 1)->v,
+                    &closest_p);
+        else if (ccdSimplexSize(simplex) == 3)
+            ccdVec3PointTriDist2(ccd_vec3_origin,
+                    &ccdSimplexPoint(simplex, 0)->v,
+                    &ccdSimplexPoint(simplex, 1)->v,
+                    &ccdSimplexPoint(simplex, 2)->v,
+                    &closest_p);
+        else // todo
+            simplexReduceToTriangle(simplex, last_distp, &closest_p);
+
+        if (ccdSimplexSize(simplex) > 1) // todo
+        {
+            ccd_support_t first;
+            ccdVec3Copy(&first.v, &closest_p);
+            extractClosestPoints(simplex, &first.v1, &first.v2, &first.v);
+            ccdSimplexSet(simplex, 0, &first);
+            ccdSimplexSetSize(simplex, 1);
+        }
+
+        ccdVec3Copy(&dir, &closest_p);
+        ccdVec3Scale(&dir, -CCD_ONE);
+        ccdVec3Normalize(&dir);
+        __ccdSupport(obj1, obj2, &dir, ccd, &temp);
+        dist = -ccdVec3Dot(&dir, &temp.v);
+        if (dist > last_dist)
+            ccdSupportCopy(&last, ccdSimplexPoint(simplex, 0));
+        else
+        {
+            ccd_vec3_t p_BA, p_BO;
+            ccdVec3Sub2(&p_BA, &simplex->ps[0].v, &last.v);
+            ccdVec3Copy(&p_BO, &last.v);
+            ccdVec3Scale(&p_BO, -CCD_ONE);
+            ccd_real_t s = ccdVec3Dot(&p_BO, &p_BA) / ccdVec3Len2(&p_BA);
+            if (s >= CCD_ONE || s <= CCD_ZERO)
+                s = ccd_real_t(0.5);
+            /*
+            ccdVec3PointSegmentDist2(ccd_vec3_origin, &last.v, &simplex->ps[0].v, &closest_p);
+            s = alphaRatio(&last, &simplex->ps[0], &closest_p);
+            if (s >= CCD_ONE || s <= CCD_ZERO)
+                s = ccd_real_t(0.5);
+            */
+            while (dist <= last_dist)
+            {
+                if (s <= CCD_ZERO)
+                {
+                    std::cout << "Error!" << std::endl;
+                    return last_dist;
+                }
+                ccd_vec3_t sBA;
+                ccdVec3Copy(&sBA, &p_BA);
+                ccdVec3Scale(&sBA, s);
+                ccdVec3Copy(&closest_p, &last.v);
+                ccdVec3Add(&closest_p, &sBA);
+
+                ccdVec3Copy(&dir, &closest_p);
+                ccdVec3Scale(&dir, -CCD_ONE);
+                ccdVec3Normalize(&dir);
+                __ccdSupport(obj1, obj2, &dir, ccd, &temp);
+                dist = -ccdVec3Dot(&dir, &temp.v);
+                s /= 2.0;
+            }
+            ccd_support_t ltemp;
+            ccdVec3Copy(&ltemp.v, &closest_p);
+            extractObjectPointsFromSegment(&last, &simplex->ps[0], &ltemp.v1, &ltemp.v2, &ltemp.v);
+            ccdSupportCopy(&last, &ltemp);
+        }
+        distp = ccdVec3Len2(&temp.v);
+        distp = CCD_SQRT(distp);
+        if (CCD_FABS(distp - dist) < ccd->dist_tolerance)
+        {
+            extractClosestPoints(simplex, p1, p2, &closest_p); // todo error
+            return dist;
+        }
+        if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance) // todo termination
+        {
+            extractClosestPoints(simplex, p1, p2, &closest_p); // todo error
+            return dist;
+        }
+        last_dist = dist;
+        ccdSimplexSet(simplex, 0, &temp);
+    }
+
+    return last_dist;
 }
 
 /**
@@ -2256,6 +2395,22 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2,
     return -CCD_ONE;
 
   return _ccdDist(obj1, obj2, ccd, &simplex, p1, p2);
+}
+
+static inline ccd_real_t ccdGJKDist2S(const void *obj1, const void *obj2,
+                                     const ccd_t *ccd, ccd_vec3_t* p1,
+                                     ccd_vec3_t* p2)
+{
+  ccd_simplex_t simplex;
+  // first find an intersection
+  if (__ccdGJK(obj1, obj2, ccd, &simplex) == 0)
+    return -CCD_ONE;
+
+  return _ccdDistS(obj1, obj2, ccd, &simplex, p1, p2);
+//  ccdSimplexSet(&simplex, 0, ccdSimplexPoint(&simplex, ccdSimplexSize(&simplex)-1));
+//  simplex.pd[0] = simplex.pd[ccdSimplexSize(&simplex)-1];
+//  ccdSimplexSetSize(&simplex, 1);
+//  return __ccdDist(obj1, obj2, ccd, &simplex, p1, p2);
 }
 
 } // namespace libccd_extension
@@ -2647,7 +2802,8 @@ template <typename S>
 bool GJKDistanceImpl(void* obj1, ccd_support_fn supp1, void* obj2,
                      ccd_support_fn supp2, unsigned int max_iterations,
                      S tolerance, detail::DistanceFn distance_func, S* res,
-                     Vector3<S>* p1, Vector3<S>* p2) {
+                     Vector3<S>* p1, Vector3<S>* p2)
+{
   ccd_t ccd;
   ccd_real_t dist;
   CCD_INIT(&ccd);
@@ -2683,6 +2839,17 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  S* res, Vector3<S>* p1, Vector3<S>* p2) {
   return detail::GJKDistanceImpl(obj1, supp1, obj2, supp2, max_iterations,
                                  tolerance, libccd_extension::ccdGJKDist2, res,
+                                 p1, p2);
+}
+
+template <typename S>
+bool GJKDistanceS(void* obj1, ccd_support_fn supp1,
+                 void* obj2, ccd_support_fn supp2,
+                 unsigned int max_iterations, S tolerance,
+                 S* res, Vector3<S>* p1, Vector3<S>* p2)
+{
+  return detail::GJKDistanceImpl(obj1, supp1, obj2, supp2, max_iterations,
+                                 tolerance, libccd_extension::ccdGJKDist2S, res,
                                  p1, p2);
 }
 

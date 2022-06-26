@@ -113,6 +113,18 @@ bool GJKDistance(
     Vector3d* p2);
 
 template
+bool GJKDistanceS(
+    void* obj1,
+    ccd_support_fn supp1,
+    void* obj2,
+    ccd_support_fn supp2,
+    unsigned int max_iterations,
+    double tolerance,
+    double* dist,
+    Vector3d* p1,
+    Vector3d* p2);
+
+template
 bool GJKSignedDistance(
     void* obj1,
     ccd_support_fn supp1,

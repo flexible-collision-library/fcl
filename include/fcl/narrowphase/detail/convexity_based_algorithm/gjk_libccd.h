@@ -227,6 +227,13 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  unsigned int max_iterations, S tolerance,
                  S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
+template <typename S>
+FCL_EXPORT
+bool GJKDistanceS(void* obj1, ccd_support_fn supp1,
+                 void* obj2, ccd_support_fn supp2,
+                 unsigned int max_iterations, S tolerance,
+                 S* dist, Vector3<S>* p1, Vector3<S>* p2);
+
 /** Compute the signed distance between two objects using GJK and EPA algorithm.
  * @param[in] obj1 A convex geometric object.
  * @param[in] supp1 A function to compute the support of obj1 along some
