@@ -48,8 +48,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_DYNAMIC_AABB_TREE_ARRAY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API DynamicAABBTreeCollisionManager_Array<double>;
+class FCL_EXPORT_EXPL_INST_DECL DynamicAABBTreeCollisionManager_Array<double>;
+#endif
 
 namespace detail
 {

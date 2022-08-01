@@ -63,8 +63,10 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_GJK_SOLVER_LIBCCD_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API GJKSolver_libccd<double>;
+struct FCL_EXPORT_EXPL_INST_DECL GJKSolver_libccd<double>;
+#endif
 
 //==============================================================================
 template<typename S>

@@ -44,13 +44,15 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_PLANE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API Plane<double>;
+class FCL_EXPORT_EXPL_INST_DECL Plane<double>;
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 Plane<double> transform(const Plane<double>& a, const Transform3<double>& tf);
+#endif
 
 //==============================================================================
 template <typename S>

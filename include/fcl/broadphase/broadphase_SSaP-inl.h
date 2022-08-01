@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_SSAP_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API SSaPCollisionManager<double>;
+class FCL_EXPORT_EXPL_INST_DECL SSaPCollisionManager<double>;
+#endif
 
 /** @brief Functor sorting objects according to the AABB<S> lower x bound */
 template <typename S>

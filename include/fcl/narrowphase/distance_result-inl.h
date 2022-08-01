@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DISTANCE_RESULT_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API DistanceResult<double>;
+struct FCL_EXPORT_EXPL_INST_DECL DistanceResult<double>;
+#endif
 
 //==============================================================================
 template <typename S>

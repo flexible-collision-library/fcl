@@ -49,41 +49,43 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_TRIANGLE_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double segmentSqrDistance(const Vector3<double>& from, const Vector3<double>& to,const Vector3<double>& p, Vector3<double>& nearest);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool projectInTriangle(const Vector3<double>& p1, const Vector3<double>& p2, const Vector3<double>& p3, const Vector3<double>& normal, const Vector3<double>& p);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereTriangleIntersect(const Sphere<double>& s, const Transform3<double>& tf,
                              const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal_);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereTriangleDistance(const Sphere<double>& sp, const Transform3<double>& tf,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3,
                             double* dist);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereTriangleDistance(const Sphere<double>& sp, const Transform3<double>& tf,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3,
                             double* dist, Vector3<double>* p1, Vector3<double>* p2);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereTriangleDistance(const Sphere<double>& sp, const Transform3<double>& tf1,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, const Transform3<double>& tf2,
                             double* dist, Vector3<double>* p1, Vector3<double>* p2);
+#endif
 
 //==============================================================================
 template <typename S>

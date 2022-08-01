@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_BV_UTILITY_BUILDING
 #include "fcl/math/bv/utility-inl.h"
 
 namespace fcl {
@@ -46,27 +47,27 @@ namespace OBB_fit_functions {
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit1(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit2(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit3(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit6(const Vector3d* const ps, OBB<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fitn(const Vector3d* const ps, int n, OBB<double>& bv);
 
 //==============================================================================
@@ -79,27 +80,27 @@ namespace RSS_fit_functions {
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit1(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit2(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit3(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit6(const Vector3d* const ps, RSS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fitn(const Vector3d* const ps, int n, RSS<double>& bv);
 
 //==============================================================================
@@ -112,22 +113,22 @@ namespace kIOS_fit_functions {
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit1(const Vector3d* const ps, kIOS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit2(const Vector3d* const ps, kIOS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit3(const Vector3d* const ps, kIOS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fitn(const Vector3d* const ps, int n, kIOS<double>& bv);
 
 //==============================================================================
@@ -140,22 +141,22 @@ namespace OBBRSS_fit_functions {
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit1(const Vector3d* const ps, OBBRSS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit2(const Vector3d* const ps, OBBRSS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fit3(const Vector3d* const ps, OBBRSS<double>& bv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void fitn(const Vector3d* const ps, int n, OBBRSS<double>& bv);
 
 //==============================================================================
@@ -164,55 +165,55 @@ void fitn(const Vector3d* const ps, int n, OBBRSS<double>& bv);
 
 //==============================================================================
 template
-struct FCL_INSTANTIATION_DEF_API Fitter<double, OBB<double>>;
+struct FCL_EXPORT Fitter<double, OBB<double>>;
 
 //==============================================================================
 template
-struct FCL_INSTANTIATION_DEF_API Fitter<double, RSS<double>>;
+struct FCL_EXPORT Fitter<double, RSS<double>>;
 
 //==============================================================================
 template
-struct FCL_INSTANTIATION_DEF_API Fitter<double, kIOS<double>>;
+struct FCL_EXPORT Fitter<double, kIOS<double>>;
 
 //==============================================================================
 template
-struct FCL_INSTANTIATION_DEF_API Fitter<double, OBBRSS<double>>;
+struct FCL_EXPORT Fitter<double, OBBRSS<double>>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API ConvertBVImpl<double, AABB<double>, AABB<double>>;
+class FCL_EXPORT ConvertBVImpl<double, AABB<double>, AABB<double>>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API ConvertBVImpl<double, AABB<double>, OBB<double>>;
+class FCL_EXPORT ConvertBVImpl<double, AABB<double>, OBB<double>>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API ConvertBVImpl<double, OBB<double>, OBB<double>>;
+class FCL_EXPORT ConvertBVImpl<double, OBB<double>, OBB<double>>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API ConvertBVImpl<double, OBBRSS<double>, OBB<double>>;
+class FCL_EXPORT ConvertBVImpl<double, OBBRSS<double>, OBB<double>>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API ConvertBVImpl<double, RSS<double>, OBB<double>>;
+class FCL_EXPORT ConvertBVImpl<double, RSS<double>, OBB<double>>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API ConvertBVImpl<double, OBB<double>, RSS<double>>;
+class FCL_EXPORT ConvertBVImpl<double, OBB<double>, RSS<double>>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API ConvertBVImpl<double, RSS<double>, RSS<double>>;
+class FCL_EXPORT ConvertBVImpl<double, RSS<double>, RSS<double>>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API ConvertBVImpl<double, OBBRSS<double>, RSS<double>>;
+class FCL_EXPORT ConvertBVImpl<double, OBBRSS<double>, RSS<double>>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API ConvertBVImpl<double, AABB<double>, RSS<double>>;
+class FCL_EXPORT ConvertBVImpl<double, AABB<double>, RSS<double>>;
 
 } // namespace detail
 } // namespace fcl

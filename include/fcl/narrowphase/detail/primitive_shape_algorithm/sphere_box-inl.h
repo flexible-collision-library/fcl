@@ -42,8 +42,9 @@
 namespace fcl {
 namespace detail {
 
+#ifndef FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_BOX_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereBoxIntersect(const Sphere<double>& sphere, const Transform3<double>& X_FS,
                         const Box<double>& box, const Transform3<double>& X_FB,
                         std::vector<ContactPoint<double>>* contacts);
@@ -51,11 +52,12 @@ bool sphereBoxIntersect(const Sphere<double>& sphere, const Transform3<double>& 
 //==============================================================================
 
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereBoxDistance(const Sphere<double>& sphere, const Transform3<double>& X_FS,
                        const Box<double>& box, const Transform3<double>& X_FB,
                        double* distance, Vector3<double>* p_FSb,
                        Vector3<double>* p_FBs);
+#endif
 
 //==============================================================================
 

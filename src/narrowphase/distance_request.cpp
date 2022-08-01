@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DISTANCE_REQUEST_BUILDING
 #include "fcl/narrowphase/distance_request-inl.h"
 
 namespace fcl
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API DistanceRequest<double>;
+struct FCL_EXPORT DistanceRequest<double>;
 
 } // namespace fcl

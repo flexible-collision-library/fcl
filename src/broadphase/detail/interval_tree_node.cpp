@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_DETAIL_INTERVAL_TREE_NODE_BUILDING
 #include "fcl/broadphase/detail/interval_tree_node-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-class FCL_INSTANTIATION_DEF_API IntervalTreeNode<double>;
+class FCL_EXPORT IntervalTreeNode<double>;
 
 } // namespace detail
 } // namespace fcl

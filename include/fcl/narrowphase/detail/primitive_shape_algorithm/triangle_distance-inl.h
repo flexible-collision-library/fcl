@@ -47,8 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_TRIANGLE_DISTANCE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API TriangleDistance<double>;
+class FCL_EXPORT_EXPL_INST_DECL TriangleDistance<double>;
+#endif
 
 //==============================================================================
 template <typename S>

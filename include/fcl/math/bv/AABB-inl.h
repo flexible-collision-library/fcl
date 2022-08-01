@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_BV_AABB_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API AABB<double>;
+class FCL_EXPORT_EXPL_INST_DECL AABB<double>;
+#endif
 
 //==============================================================================
 template <typename S>

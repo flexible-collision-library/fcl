@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_CONE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API Cone<double>;
+class FCL_EXPORT_EXPL_INST_DECL Cone<double>;
+#endif
 
 //==============================================================================
 template <typename S>

@@ -58,11 +58,11 @@ template <typename S>
 S planeIntersectTolerance();
 
 template <>
-FCL_API
+FCL_EXPORT
 double planeIntersectTolerance();
 
 template <>
-FCL_API
+FCL_EXPORT
 float planeIntersectTolerance();
 
 template <typename S>

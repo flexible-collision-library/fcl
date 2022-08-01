@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_CONVEXITY_BASED_ALGORITHM_MINKOWSKI_DIFF_BUILDING
 #include "fcl/narrowphase/detail/convexity_based_algorithm/minkowski_diff-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API MinkowskiDiff<double>;
+struct FCL_EXPORT MinkowskiDiff<double>;
 
 } // namespace detail
 } // namespace fcl

@@ -46,41 +46,43 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_BV_KDOP_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API KDOP<double, 16>;
+class FCL_EXPORT_EXPL_INST_DECL KDOP<double, 16>;
 
 //==============================================================================
 extern template
-class FCL_EXTERN_TEMPLATE_API KDOP<double, 18>;
+class FCL_EXPORT_EXPL_INST_DECL KDOP<double, 18>;
 
 //==============================================================================
 extern template
-class FCL_EXTERN_TEMPLATE_API KDOP<double, 24>;
+class FCL_EXPORT_EXPL_INST_DECL KDOP<double, 24>;
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void minmax(double a, double b, double& minv, double& maxv);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void minmax(double p, double& minv, double& maxv);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void getDistances<double, 5>(const Vector3<double>& p, double* d);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void getDistances<double, 6>(const Vector3<double>& p, double* d);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void getDistances<double, 9>(const Vector3<double>& p, double* d);
+#endif
 
 //==============================================================================
 template <typename S, std::size_t N>

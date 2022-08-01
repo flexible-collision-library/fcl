@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_CONTINUOUS_COLLISION_OBJECT_BUILDING
 #include "fcl/narrowphase/continuous_collision_object-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API ContinuousCollisionObject<double>;
+class FCL_EXPORT ContinuousCollisionObject<double>;
 
 } // namespace fcl

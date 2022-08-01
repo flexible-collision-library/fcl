@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_VARIANCE3_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API Variance3<double>;
+class FCL_EXPORT_EXPL_INST_DECL Variance3<double>;
+#endif
 
 //==============================================================================
 template <typename S>

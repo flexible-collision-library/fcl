@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_SAP_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API SaPCollisionManager<double>;
+class FCL_EXPORT_EXPL_INST_DECL SaPCollisionManager<double>;
+#endif
 
 //==============================================================================
 template <typename S>

@@ -44,43 +44,45 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_TAYLOR_MODEL_TAYLOR_MATRIX_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API TMatrix3<double>;
+class FCL_EXPORT_EXPL_INST_DECL TMatrix3<double>;
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 TMatrix3<double> rotationConstrain(const TMatrix3<double>& m);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 TMatrix3<double> operator * (const Matrix3<double>& m, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 TMatrix3<double> operator * (const TaylorModel<double>& a, const Matrix3<double>& m);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 TMatrix3<double> operator * (const TaylorModel<double>& a, const TMatrix3<double>& m);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 TMatrix3<double> operator * (double d, const TMatrix3<double>& m);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 TMatrix3<double> operator + (const Matrix3<double>& m1, const TMatrix3<double>& m2);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 TMatrix3<double> operator - (const Matrix3<double>& m1, const TMatrix3<double>& m2);
+#endif
 
 //==============================================================================
 template <typename S>

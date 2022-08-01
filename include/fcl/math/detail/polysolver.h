@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_NARROWPHASE_DETAIL_POLYSOLVER_H
-#define FCL_NARROWPHASE_DETAIL_POLYSOLVER_H
+#ifndef FCL_MATH_DETAIL_POLYSOLVER_H
+#define FCL_MATH_DETAIL_POLYSOLVER_H
 
 #include "fcl/export.h"
 

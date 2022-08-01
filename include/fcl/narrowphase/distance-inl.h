@@ -46,8 +46,9 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DISTANCE_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double distance(
     const CollisionObject<double>* o1,
     const CollisionObject<double>* o2,
@@ -56,11 +57,12 @@ double distance(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double distance(
     const CollisionGeometry<double>* o1, const Transform3<double>& tf1,
     const CollisionGeometry<double>* o2, const Transform3<double>& tf2,
     const DistanceRequest<double>& request, DistanceResult<double>& result);
+#endif
 
 //==============================================================================
 template <typename GJKSolver>

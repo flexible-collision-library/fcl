@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_BASE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ShapeBase<double>;
+class FCL_EXPORT_EXPL_INST_DECL ShapeBase<double>;
+#endif
 
 //==============================================================================
 template <typename S>

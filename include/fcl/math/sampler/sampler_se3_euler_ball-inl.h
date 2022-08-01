@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_SAMPLER_SE3_EULER_BALL_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API SamplerSE3Euler_ball<double>;
+class FCL_EXPORT_EXPL_INST_DECL SamplerSE3Euler_ball<double>;
+#endif
 
 //==============================================================================
 template <typename S>

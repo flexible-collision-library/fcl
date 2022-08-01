@@ -44,19 +44,21 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_CONTACT_POINT_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API ContactPoint<double>;
+struct FCL_EXPORT_EXPL_INST_DECL ContactPoint<double>;
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool comparePenDepth(
     const ContactPoint<double>& _cp1, const ContactPoint<double>& _cp2);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void flipNormal(std::vector<ContactPoint<double>>& contacts);
+#endif
 
 //==============================================================================
 template <typename S>

@@ -47,79 +47,81 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_PLANE_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool spherePlaneIntersect(const Sphere<double>& s1, const Transform3<double>& tf1,
                           const Plane<double>& s2, const Transform3<double>& tf2,
                           std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool ellipsoidPlaneIntersect(const Ellipsoid<double>& s1, const Transform3<double>& tf1,
                              const Plane<double>& s2, const Transform3<double>& tf2,
                              std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool boxPlaneIntersect(const Box<double>& s1, const Transform3<double>& tf1,
                        const Plane<double>& s2, const Transform3<double>& tf2,
                        std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool capsulePlaneIntersect(const Capsule<double>& s1, const Transform3<double>& tf1,
                            const Plane<double>& s2, const Transform3<double>& tf2);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool capsulePlaneIntersect(const Capsule<double>& s1, const Transform3<double>& tf1,
                            const Plane<double>& s2, const Transform3<double>& tf2,
                            std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool cylinderPlaneIntersect(const Cylinder<double>& s1, const Transform3<double>& tf1,
                             const Plane<double>& s2, const Transform3<double>& tf2);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool cylinderPlaneIntersect(const Cylinder<double>& s1, const Transform3<double>& tf1,
                             const Plane<double>& s2, const Transform3<double>& tf2,
                             std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool conePlaneIntersect(const Cone<double>& s1, const Transform3<double>& tf1,
                         const Plane<double>& s2, const Transform3<double>& tf2,
                         std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool convexPlaneIntersect(const Convex<double>& s1, const Transform3<double>& tf1,
                           const Plane<double>& s2, const Transform3<double>& tf2,
                           Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool planeTriangleIntersect(const Plane<double>& s1, const Transform3<double>& tf1,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, const Transform3<double>& tf2,
                             Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool planeIntersect(const Plane<double>& s1, const Transform3<double>& tf1,
                     const Plane<double>& s2, const Transform3<double>& tf2,
                     std::vector<ContactPoint<double>>* contacts);
+#endif
 
 //==============================================================================
 template <typename S>

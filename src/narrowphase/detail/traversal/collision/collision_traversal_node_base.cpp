@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_COLLISION_TRAVERSAL_NODE_BASE_BUILDING
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-class FCL_INSTANTIATION_DEF_API CollisionTraversalNodeBase<double>;
+class FCL_EXPORT CollisionTraversalNodeBase<double>;
 
 } // namespace detail
 } // namespace fcl

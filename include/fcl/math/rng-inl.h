@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_RNG_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API RNG<double>;
+class FCL_EXPORT_EXPL_INST_DECL RNG<double>;
+#endif
 
 //==============================================================================
 template <typename S>

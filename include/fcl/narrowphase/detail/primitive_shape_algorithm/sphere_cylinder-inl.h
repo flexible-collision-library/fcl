@@ -42,8 +42,9 @@
 namespace fcl {
 namespace detail {
 
+#ifndef FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_CYLINDER_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereCylinderIntersect(const Sphere<double>& sphere,
                              const Transform3<double>& X_FS,
                              const Cylinder<double>& cylinder,
@@ -53,13 +54,14 @@ bool sphereCylinderIntersect(const Sphere<double>& sphere,
 //==============================================================================
 
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereCylinderDistance(const Sphere<double>& sphere,
                             const Transform3<double>& X_FS,
                             const Cylinder<double>& cylinder,
                             const Transform3<double>& X_FC,
                             double* distance, Vector3<double>* p_FSc,
                             Vector3<double>* p_FCs);
+#endif
 
 //==============================================================================
 

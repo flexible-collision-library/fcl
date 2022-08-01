@@ -44,8 +44,10 @@ namespace fcl {
 namespace detail {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_DETAIL_SPATIAL_HASH_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API SpatialHash<double>;
+struct FCL_EXPORT_EXPL_INST_DECL SpatialHash<double>;
+#endif
 
 //==============================================================================
 template <typename S>

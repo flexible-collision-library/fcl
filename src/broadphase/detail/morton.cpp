@@ -36,6 +36,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_DETAIL_MORTON_BUILDING
 #include "fcl/broadphase/detail/morton-inl.h"
 
 namespace fcl
@@ -47,7 +48,7 @@ namespace detail
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 uint32 quantize(double x, uint32 n);
 
 //==============================================================================
@@ -87,11 +88,11 @@ uint64 morton_code60(uint32 x, uint32 y, uint32 z)
 
 //==============================================================================
 template
-struct FCL_INSTANTIATION_DEF_API morton_functor<double, uint32>;
+struct FCL_EXPORT morton_functor<double, uint32>;
 
 //==============================================================================
 template
-struct FCL_INSTANTIATION_DEF_API morton_functor<double, uint64>;
+struct FCL_EXPORT morton_functor<double, uint64>;
 
 } // namespace detail
 /// @endcond

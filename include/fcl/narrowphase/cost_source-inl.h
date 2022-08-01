@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_COST_SOURCE_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API CostSource<double>;
+struct FCL_EXPORT_EXPL_INST_DECL CostSource<double>;
+#endif
 
 //==============================================================================
 template <typename S>

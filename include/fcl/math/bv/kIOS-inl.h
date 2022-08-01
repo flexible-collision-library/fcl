@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_BV_KIOS_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API kIOS<double>;
+class FCL_EXPORT_EXPL_INST_DECL kIOS<double>;
+#endif
 
 //==============================================================================
 template <typename S>

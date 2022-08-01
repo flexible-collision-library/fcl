@@ -45,18 +45,20 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_TAYLOR_MODEL_INTERVAL_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API Interval<double>;
+struct FCL_EXPORT_EXPL_INST_DECL Interval<double>;
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 Interval<double> bound(const Interval<double>& i, double v);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 Interval<double> bound(const Interval<double>& i, const Interval<double>& other);
+#endif
 
 //==============================================================================
 template <typename S>

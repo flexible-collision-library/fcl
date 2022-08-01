@@ -64,41 +64,51 @@ namespace OBB_fit_functions {
 template <typename S>
 void fit1(const Vector3<S>* ps, OBB<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit1(const Vector3d* ps, OBB<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit2(const Vector3<S>* ps, OBB<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit2(const Vector3d* ps, OBB<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit3(const Vector3<S>* ps, OBB<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit3(const Vector3d* ps, OBB<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit6(const Vector3<S>* ps, OBB<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit6(const Vector3d* ps, OBB<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fitn(const Vector3<S>* ps, int n, OBB<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fitn(const Vector3d* ps, int n, OBB<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
@@ -191,41 +201,51 @@ namespace RSS_fit_functions {
 template <typename S>
 void fit1(const Vector3<S>* ps, RSS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit1(const Vector3d* ps, RSS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit2(const Vector3<S>* ps, RSS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit2(const Vector3d* ps, RSS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit3(const Vector3<S>* ps, RSS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit3(const Vector3d* ps, RSS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit6(const Vector3<S>* ps, RSS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit6(const Vector3d* ps, RSS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fitn(const Vector3<S>* ps, int n, RSS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fitn(const Vector3d* ps, int n, RSS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
@@ -320,33 +340,41 @@ namespace kIOS_fit_functions {
 template <typename S>
 void fit1(const Vector3<S>* ps, kIOS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit1(const Vector3d* ps, kIOS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit2(const Vector3<S>* ps, kIOS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit2(const Vector3d* ps, kIOS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit3(const Vector3<S>* ps, kIOS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit3(const Vector3d* ps, kIOS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fitn(const Vector3<S>* ps, int n, kIOS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fitn(const Vector3d* ps, int n, kIOS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
@@ -520,33 +548,41 @@ namespace OBBRSS_fit_functions {
 template <typename S>
 void fit1(const Vector3<S>* ps, OBBRSS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit1(const Vector3d* ps, OBBRSS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit2(const Vector3<S>* ps, OBBRSS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit2(const Vector3d* ps, OBBRSS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fit3(const Vector3<S>* ps, OBBRSS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fit3(const Vector3d* ps, OBBRSS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
 void fitn(const Vector3<S>* ps, int n, OBBRSS<S>& bv);
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void fitn(const Vector3d* ps, int n, OBBRSS<double>& bv);
+#endif
 
 //==============================================================================
 template <typename S>
@@ -598,8 +634,10 @@ struct Fitter<S, OBB<S>>
   static void fit(const Vector3<S>* ps, int n, OBB<S>& bv);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API Fitter<double, OBB<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL Fitter<double, OBB<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -608,8 +646,10 @@ struct Fitter<S, RSS<S>>
   static void fit(const Vector3<S>* ps, int n, RSS<S>& bv);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API Fitter<double, RSS<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL Fitter<double, RSS<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -618,8 +658,10 @@ struct Fitter<S, kIOS<S>>
   static void fit(const Vector3<S>* ps, int n, kIOS<S>& bv);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API Fitter<double, kIOS<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL Fitter<double, kIOS<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -628,8 +670,10 @@ struct Fitter<S, OBBRSS<S>>
   static void fit(const Vector3<S>* ps, int n, OBBRSS<S>& bv);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API Fitter<double, OBBRSS<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL Fitter<double, OBBRSS<double>>;
+#endif
 
 //==============================================================================
 template <typename S, typename BV>
@@ -764,8 +808,10 @@ public:
   static void run(const AABB<S>& bv1, const Transform3<S>& tf1, AABB<S>& bv2);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, AABB<double>, AABB<double>>;
+class FCL_EXPORT_EXPL_INST_DECL ConvertBVImpl<double, AABB<double>, AABB<double>>;
+#endif
 
 //==============================================================================
 template <typename S, typename BV1>
@@ -783,8 +829,10 @@ public:
   static void run(const AABB<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, AABB<double>, OBB<double>>;
+class FCL_EXPORT_EXPL_INST_DECL ConvertBVImpl<double, AABB<double>, OBB<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -794,8 +842,10 @@ public:
   static void run(const OBB<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, OBB<double>, OBB<double>>;
+class FCL_EXPORT_EXPL_INST_DECL ConvertBVImpl<double, OBB<double>, OBB<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -805,8 +855,10 @@ public:
   static void run(const OBBRSS<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, OBBRSS<double>, OBB<double>>;
+class FCL_EXPORT_EXPL_INST_DECL ConvertBVImpl<double, OBBRSS<double>, OBB<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -816,8 +868,10 @@ public:
   static void run(const RSS<S>& bv1, const Transform3<S>& tf1, OBB<S>& bv2);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, RSS<double>, OBB<double>>;
+class FCL_EXPORT_EXPL_INST_DECL ConvertBVImpl<double, RSS<double>, OBB<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -827,8 +881,10 @@ public:
   static void run(const OBB<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, OBB<double>, RSS<double>>;
+class FCL_EXPORT_EXPL_INST_DECL ConvertBVImpl<double, OBB<double>, RSS<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -838,8 +894,10 @@ public:
   static void run(const RSS<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, RSS<double>, RSS<double>>;
+class FCL_EXPORT_EXPL_INST_DECL ConvertBVImpl<double, RSS<double>, RSS<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -849,8 +907,10 @@ public:
   static void run(const OBBRSS<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, OBBRSS<double>, RSS<double>>;
+class FCL_EXPORT_EXPL_INST_DECL ConvertBVImpl<double, OBBRSS<double>, RSS<double>>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -860,8 +920,10 @@ public:
   static void run(const AABB<S>& bv1, const Transform3<S>& tf1, RSS<S>& bv2);
 };
 
+#ifndef FCL_MATH_BV_UTILITY_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API ConvertBVImpl<double, AABB<double>, RSS<double>>;
+class FCL_EXPORT_EXPL_INST_DECL ConvertBVImpl<double, AABB<double>, RSS<double>>;
+#endif
 
 //==============================================================================
 template <typename S, typename BV1, typename BV2>

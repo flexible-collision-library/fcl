@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_BV_KDOP_BUILDING
 #include "fcl/math/bv/kDOP-inl.h"
 
 namespace fcl
@@ -42,39 +43,39 @@ namespace fcl
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API KDOP<double, 16>;
+class FCL_EXPORT KDOP<double, 16>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API KDOP<double, 18>;
+class FCL_EXPORT KDOP<double, 18>;
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API KDOP<double, 24>;
+class FCL_EXPORT KDOP<double, 24>;
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void minmax(double a, double b, double& minv, double& maxv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void minmax(double p, double& minv, double& maxv);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void getDistances<double, 5>(const Vector3<double>& p, double* d);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void getDistances<double, 6>(const Vector3<double>& p, double* d);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void getDistances<double, 9>(const Vector3<double>& p, double* d);
 
 } // namespace fcl

@@ -49,8 +49,10 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_TRAVERSAL_COLLISION_TRAVERSAL_NODE_BASE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API CollisionTraversalNodeBase<double>;
+class FCL_EXPORT_EXPL_INST_DECL CollisionTraversalNodeBase<double>;
+#endif
 
 //==============================================================================
 template <typename S>

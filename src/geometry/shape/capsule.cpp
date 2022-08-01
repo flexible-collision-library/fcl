@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_CAPSULE_BUILDING
 #include "fcl/geometry/shape/capsule-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API Capsule<double>;
+class FCL_EXPORT Capsule<double>;
 
 } // namespace fcl

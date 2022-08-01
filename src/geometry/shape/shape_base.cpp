@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_BASE_BUILDING
 #include "fcl/geometry/shape/shape_base-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API ShapeBase<double>;
+class FCL_EXPORT ShapeBase<double>;
 
 } // namespace fcl

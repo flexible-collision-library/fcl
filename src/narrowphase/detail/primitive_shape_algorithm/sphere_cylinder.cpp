@@ -34,6 +34,7 @@
 
 /** @author Sean Curtis (sean@tri.global) (2018) */
 
+#define FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_CYLINDER_BUILDING
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_cylinder-inl.h"
 
 namespace fcl
@@ -43,7 +44,7 @@ namespace detail
 {
 
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool sphereCylinderIntersect(const Sphere<double>& sphere,
                              const Transform3<double>& X_FS,
                              const Cylinder<double>& cylinder,
@@ -53,7 +54,7 @@ bool sphereCylinderIntersect(const Sphere<double>& sphere,
 //==============================================================================
 
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool sphereCylinderDistance(const Sphere<double>& sphere,
                             const Transform3<double>& X_FS,
                             const Cylinder<double>& cylinder,

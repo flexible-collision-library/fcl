@@ -169,10 +169,10 @@ public:
 };
 
 /// @brief initialize GJK Triangle
-FCL_API
+FCL_EXPORT
 GJKSupportFunction triGetSupportFunction();
 
-FCL_API
+FCL_EXPORT
 GJKCenterFunction triGetCenterFunction();
 
 template <typename S>
@@ -181,7 +181,7 @@ void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vecto
 template <typename S>
 void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf);
 
-FCL_API
+FCL_EXPORT
 void triDeleteGJKObject(void* o);
 
 /// @brief GJK collision algorithm

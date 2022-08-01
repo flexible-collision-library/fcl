@@ -64,8 +64,10 @@ public:
 using it_recursion_nodef = it_recursion_node<float>;
 using it_recursion_noded = it_recursion_node<double>;
 
+#ifndef FCL_BROADPHASE_DETAIL_INTERVAL_TREE_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API it_recursion_node<double>;
+struct FCL_EXPORT_EXPL_INST_DECL it_recursion_node<double>;
+#endif
 
 /// @brief Interval tree
 template <typename S>

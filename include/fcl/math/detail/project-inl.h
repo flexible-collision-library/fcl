@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_NARROWPHASE_DETAIL_PROJECT_INL_H
-#define FCL_NARROWPHASE_DETAIL_PROJECT_INL_H
+#ifndef FCL_MATH_DETAIL_PROJECT_INL_H
+#define FCL_MATH_DETAIL_PROJECT_INL_H
 
 #include "fcl/math/detail/project.h"
 
@@ -47,8 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_MATH_DETAIL_PROJECT_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API Project<double>;
+class FCL_EXPORT_EXPL_INST_DECL Project<double>;
+#endif
 
 //==============================================================================
 template <typename S>

@@ -48,8 +48,9 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_COLLISION_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 std::size_t collide(
     const CollisionObject<double>* o1,
     const CollisionObject<double>* o2,
@@ -58,7 +59,7 @@ std::size_t collide(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 std::size_t collide(
     const CollisionGeometry<double>* o1,
     const Transform3<double>& tf1,
@@ -66,6 +67,7 @@ std::size_t collide(
     const Transform3<double>& tf2,
     const CollisionRequest<double>& request,
     CollisionResult<double>& result);
+#endif
 
 //==============================================================================
 template<typename GJKSolver>

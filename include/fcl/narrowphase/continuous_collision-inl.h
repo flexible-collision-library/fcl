@@ -55,8 +55,9 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_CONTINUOUS_COLLISION_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double continuousCollide(
     const CollisionGeometry<double>* o1,
     const MotionBase<double>* motion1,
@@ -67,7 +68,7 @@ double continuousCollide(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double continuousCollide(
     const CollisionGeometry<double>* o1,
     const Transform3<double>& tf1_beg,
@@ -80,7 +81,7 @@ double continuousCollide(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double continuousCollide(
     const CollisionObject<double>* o1,
     const Transform3<double>& tf1_end,
@@ -91,12 +92,13 @@ double continuousCollide(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double collide(
     const ContinuousCollisionObject<double>* o1,
     const ContinuousCollisionObject<double>* o2,
     const ContinuousCollisionRequest<double>& request,
     ContinuousCollisionResult<double>& result);
+#endif
 
 //==============================================================================
 template<typename GJKSolver>

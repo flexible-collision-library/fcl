@@ -46,8 +46,10 @@ namespace fcl {
 namespace detail {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_DETAIL_INTERVAL_TREE_NODE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API IntervalTreeNode<double>;
+class FCL_EXPORT_EXPL_INST_DECL IntervalTreeNode<double>;
+#endif
 
 //==============================================================================
 template <typename S>

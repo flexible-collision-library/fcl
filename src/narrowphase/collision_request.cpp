@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_COLLISION_REQUEST_BUILDING
 #include "fcl/narrowphase/collision_request-inl.h"
 
 namespace fcl
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API CollisionRequest<double>;
+struct FCL_EXPORT CollisionRequest<double>;
 
 } // namespace fcl

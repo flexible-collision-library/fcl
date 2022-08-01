@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_SAP_BUILDING
 #include "fcl/broadphase/broadphase_SaP-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API SaPCollisionManager<double>;
+class FCL_EXPORT SaPCollisionManager<double>;
 
 } // namespace fcl

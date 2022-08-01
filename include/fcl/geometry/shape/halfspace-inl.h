@@ -44,13 +44,15 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_HALFSPACE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API Halfspace<double>;
+class FCL_EXPORT_EXPL_INST_DECL Halfspace<double>;
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 Halfspace<double> transform(const Halfspace<double>& a, const Transform3<double>& tf);
+#endif
 
 //==============================================================================
 template <typename S>

@@ -57,84 +57,86 @@
 namespace fcl {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const AABB<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const OBB<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const OBBRSS<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const kIOS<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const RSS<double>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const KDOP<double, 16>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const KDOP<double, 18>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const KDOP<double, 24>& bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const AABB<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const OBB<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const OBBRSS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const kIOS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const RSS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const KDOP<double, 16>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const KDOP<double, 18>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void constructBox(const KDOP<double, 24>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
+#endif
 
 //==============================================================================
 namespace detail {
@@ -334,120 +336,122 @@ struct ComputeBVImpl<S, AABB<S>, TriangleP<S>>
 };
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_UTILITY_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, AABB<double>, Box<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, AABB<double>, Box<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBB<double>, Box<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBB<double>, Box<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, AABB<double>, Capsule<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, AABB<double>, Capsule<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBB<double>, Capsule<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBB<double>, Capsule<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, AABB<double>, Cone<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, AABB<double>, Cone<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBB<double>, Cone<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBB<double>, Cone<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, AABB<double>, Cylinder<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, AABB<double>, Cylinder<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBB<double>, Cylinder<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBB<double>, Cylinder<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, AABB<double>, Ellipsoid<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, AABB<double>, Ellipsoid<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBB<double>, Ellipsoid<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBB<double>, Ellipsoid<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, AABB<double>, Halfspace<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, AABB<double>, Halfspace<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBB<double>, Halfspace<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBB<double>, Halfspace<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, RSS<double>, Halfspace<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, RSS<double>, Halfspace<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBBRSS<double>, Halfspace<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBBRSS<double>, Halfspace<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, kIOS<double>, Halfspace<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, kIOS<double>, Halfspace<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, KDOP<double, 16>, Halfspace<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, KDOP<double, 16>, Halfspace<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, KDOP<double, 18>, Halfspace<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, KDOP<double, 18>, Halfspace<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, KDOP<double, 24>, Halfspace<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, KDOP<double, 24>, Halfspace<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, AABB<double>, Plane<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, AABB<double>, Plane<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBB<double>, Plane<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBB<double>, Plane<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, RSS<double>, Plane<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, RSS<double>, Plane<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBBRSS<double>, Plane<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBBRSS<double>, Plane<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, kIOS<double>, Plane<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, kIOS<double>, Plane<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, KDOP<double, 16>, Plane<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, KDOP<double, 16>, Plane<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, KDOP<double, 18>, Plane<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, KDOP<double, 18>, Plane<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, KDOP<double, 24>, Plane<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, KDOP<double, 24>, Plane<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, AABB<double>, Sphere<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, AABB<double>, Sphere<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, OBB<double>, Sphere<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, OBB<double>, Sphere<double>>;
 
 //==============================================================================
 extern template
-struct FCL_EXTERN_TEMPLATE_API ComputeBVImpl<double, AABB<double>, TriangleP<double>>;
+struct FCL_EXPORT_EXPL_INST_DECL ComputeBVImpl<double, AABB<double>, TriangleP<double>>;
+#endif
 
 //==============================================================================
 template <typename S, typename BV, typename Shape>

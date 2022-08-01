@@ -66,8 +66,10 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_GJK_SOLVER_INDEP_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API GJKSolver_indep<double>;
+struct FCL_EXPORT_EXPL_INST_DECL GJKSolver_indep<double>;
+#endif
 
 //==============================================================================
 template <typename S>

@@ -47,8 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_TRAVERSAL_DISTANCE_CONSERVATIVE_ADVANCEMENT_STACK_DATA_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API ConservativeAdvancementStackData<double>;
+struct FCL_EXPORT_EXPL_INST_DECL ConservativeAdvancementStackData<double>;
+#endif
 
 //==============================================================================
 template <typename S>

@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_INTERVAL_TREE_BUILDING
 #include "fcl/broadphase/broadphase_interval_tree-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API IntervalTreeCollisionManager<double>;
+class FCL_EXPORT IntervalTreeCollisionManager<double>;
 
 } // namespace fcl

@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_SAMPLER_BASE_BUILDING
 #include "fcl/math/sampler/sampler_base.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API SamplerBase<double>;
+class FCL_EXPORT SamplerBase<double>;
 
 } // namespace fcl

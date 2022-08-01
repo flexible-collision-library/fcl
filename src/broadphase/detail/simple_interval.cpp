@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_DETAIL_SIMPLE_INTERVAL_BUILDING
 #include "fcl/broadphase/detail/simple_interval-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API SimpleInterval<double>;
+struct FCL_EXPORT SimpleInterval<double>;
 
 } // namespace detail
 } // namespace fcl

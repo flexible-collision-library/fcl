@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_SPLINE_MOTION_BUILDING
 #include "fcl/math/motion/spline_motion-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API SplineMotion<double>;
+class FCL_EXPORT SplineMotion<double>;
 
 } // namespace fcl

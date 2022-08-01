@@ -49,25 +49,26 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_BOX_BOX_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void lineClosestApproach(const Vector3<double>& pa, const Vector3<double>& ua,
                          const Vector3<double>& pb, const Vector3<double>& ub,
                          double* alpha, double* beta);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 int intersectRectQuad2(double h[2], double p[8], double ret[16]);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void cullPoints2(int n, double p[], int m, int i0, int iret[]);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 int boxBox2(
     const Vector3<double>& side1,
     const Transform3<double>& tf1,
@@ -81,10 +82,11 @@ int boxBox2(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool boxBoxIntersect(const Box<double>& s1, const Transform3<double>& tf1,
                      const Box<double>& s2, const Transform3<double>& tf2,
                      std::vector<ContactPoint<double>>* contacts_);
+#endif
 
 //==============================================================================
 template <typename S>

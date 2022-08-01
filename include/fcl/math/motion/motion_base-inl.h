@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_BASE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API MotionBase<double>;
+class FCL_EXPORT_EXPL_INST_DECL MotionBase<double>;
+#endif
 
 //==============================================================================
 template <typename S>

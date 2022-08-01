@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DISTANCE_RESULT_BUILDING
 #include "fcl/narrowphase/distance_result-inl.h"
 
 namespace fcl
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API DistanceResult<double>;
+struct FCL_EXPORT DistanceResult<double>;
 
 } // namespace fcl

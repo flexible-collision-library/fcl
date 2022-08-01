@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_CONTACT_BUILDING
 #include "fcl/narrowphase/contact-inl.h"
 
 namespace fcl
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API Contact<double>;
+struct FCL_EXPORT Contact<double>;
 
 } // namespace fcl

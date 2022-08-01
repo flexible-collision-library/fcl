@@ -38,6 +38,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_TAYLOR_MODEL_BUILDING
 #include "fcl/math/motion/taylor_model/taylor_model-inl.h"
 
 namespace fcl
@@ -45,36 +46,36 @@ namespace fcl
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API TaylorModel<double>;
+class FCL_EXPORT TaylorModel<double>;
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 TaylorModel<double> operator * (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 TaylorModel<double> operator + (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 TaylorModel<double> operator - (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void generateTaylorModelForCosFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void generateTaylorModelForSinFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void generateTaylorModelForLinearFunc(TaylorModel<double>& tm, double p, double v);
 
 } // namespace fcl

@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_CAPSULE_BUILDING
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_capsule-inl.h"
 
 namespace fcl
@@ -45,7 +46,7 @@ namespace detail
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void lineSegmentPointClosestToPoint(
     const Vector3<double> &p,
     const Vector3<double> &s1,
@@ -54,14 +55,14 @@ void lineSegmentPointClosestToPoint(
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool sphereCapsuleIntersect(const Sphere<double>& s1, const Transform3<double>& tf1,
                             const Capsule<double>& s2, const Transform3<double>& tf2,
                             std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool sphereCapsuleDistance(const Sphere<double>& s1, const Transform3<double>& tf1,
                            const Capsule<double>& s2, const Transform3<double>& tf2,
                            double* dist, Vector3<double>* p1, Vector3<double>* p2);

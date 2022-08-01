@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_DISTANCE_CONSERVATIVE_ADVANCEMENT_STACK_DATA_BUILDING
 #include "fcl/narrowphase/detail/traversal/distance/conservative_advancement_stack_data-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API ConservativeAdvancementStackData<double>;
+struct FCL_EXPORT ConservativeAdvancementStackData<double>;
 
 } // namespace detail
 } // namespace fcl

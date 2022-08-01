@@ -47,13 +47,14 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_CAPSULE_CAPSULE_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double clamp(double n, double min, double max);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double closestPtSegmentSegment(const Vector3d& p_FP1,
                                const Vector3d& p_FQ1,
                                const Vector3d& p_FP2,
@@ -63,11 +64,12 @@ double closestPtSegmentSegment(const Vector3d& p_FP1,
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool capsuleCapsuleDistance(
     const Capsule<double>& s1, const Transform3<double>& tf1,
     const Capsule<double>& s2, const Transform3<double>& tf2,
     double* dist, Vector3d* p1_res, Vector3d* p2_res);
+#endif
 
 //==============================================================================
 template <typename S>

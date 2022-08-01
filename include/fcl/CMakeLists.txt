@@ -35,20 +35,12 @@ set(GENERATED_FILE_MARKER "GENERATED FILE DO NOT EDIT")
 
 configure_file(config.h.in config.h @ONLY)
 
-set(FCL_EXPORT_MACRO_NAME "FCL_API")
+set(FCL_EXPORT_MACRO_NAME "FCL_EXPORT")
 set(EXPORT_INSTANTIATION_TEMPLATE_MACROS "
-#ifdef ${PROJECT_NAME}_EXPORTS
-    /* We are building this library */
-#  ifdef _MSC_VER
-#    define FCL_EXTERN_TEMPLATE_API
-#    define FCL_INSTANTIATION_DEF_API ${FCL_EXPORT_MACRO_NAME}
-#  else
-#    define FCL_EXTERN_TEMPLATE_API ${FCL_EXPORT_MACRO_NAME}
-#    define FCL_INSTANTIATION_DEF_API
-#  endif
+#if defined(${PROJECT_NAME}_EXPORTS) && defined(_MSC_VER)
+#  define FCL_EXPORT_EXPL_INST_DECL
 #else
-    /* We are using this library */
-#  define FCL_EXTERN_TEMPLATE_API ${FCL_EXPORT_MACRO_NAME}
+#  define FCL_EXPORT_EXPL_INST_DECL ${FCL_EXPORT_MACRO_NAME}
 #endif
 ")
 generate_export_header(${PROJECT_NAME}

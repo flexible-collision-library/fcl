@@ -50,8 +50,10 @@ public:
   mutable RNG<S> rng;
 };
 
+#ifndef FCL_MATH_SAMPLER_BASE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API SamplerBase<double>;
+class FCL_EXPORT_EXPL_INST_DECL SamplerBase<double>;
+#endif
 
 } // namespace fcl
 

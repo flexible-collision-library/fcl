@@ -59,11 +59,11 @@ template <typename S>
 S halfspaceIntersectTolerance();
 
 template <>
-FCL_API
+FCL_EXPORT
 float halfspaceIntersectTolerance();
 
 template <>
-FCL_API
+FCL_EXPORT
 double halfspaceIntersectTolerance();
 
 template <typename S>

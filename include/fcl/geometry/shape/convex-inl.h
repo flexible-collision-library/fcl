@@ -49,8 +49,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_CONVEX_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API Convex<double>;
+class FCL_EXPORT_EXPL_INST_DECL Convex<double>;
+#endif
 
 //==============================================================================
 template <typename S>

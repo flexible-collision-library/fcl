@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_CONE_BUILDING
 #include "fcl/geometry/shape/cone-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API Cone<double>;
+class FCL_EXPORT Cone<double>;
 
 } // namespace fcl

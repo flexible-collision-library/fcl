@@ -46,7 +46,7 @@
 namespace fcl
 {
 
-class FCL_API Exception : public std::runtime_error
+class FCL_EXPORT Exception : public std::runtime_error
 {
 public:
 

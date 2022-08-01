@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_DETAIL_SPATIAL_HASH_BUILDING
 #include "fcl/broadphase/detail/spatial_hash-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API SpatialHash<double>;
+struct FCL_EXPORT SpatialHash<double>;
 
 } // namespace detail
 } // namespace fcl

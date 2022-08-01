@@ -46,7 +46,7 @@ namespace fcl
 namespace detail
 {
 
-class FCL_API Seed
+class FCL_EXPORT Seed
 {
 public:
 

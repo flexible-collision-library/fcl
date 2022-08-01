@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_SAMPLER_SE2_DISK_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API SamplerSE2_disk<double>;
+class FCL_EXPORT_EXPL_INST_DECL SamplerSE2_disk<double>;
+#endif
 
 //==============================================================================
 template <typename S>

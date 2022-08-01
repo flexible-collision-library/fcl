@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_CONTINUOUS_COLLISION_MANAGER_BUILDING
 #include "fcl/broadphase/broadphase_continuous_collision_manager-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API BroadPhaseContinuousCollisionManager<double>;
+class FCL_EXPORT BroadPhaseContinuousCollisionManager<double>;
 
 } // namespace fcl

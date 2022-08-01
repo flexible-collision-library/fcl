@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_COLLISION_OBJECT_BUILDING
 #include "fcl/narrowphase/collision_object-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API CollisionObject<double>;
+class FCL_EXPORT CollisionObject<double>;
 
 } // namespace fcl

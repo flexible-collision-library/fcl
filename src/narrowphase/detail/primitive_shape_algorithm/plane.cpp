@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_PLANE_BUILDING
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/plane-inl.h"
 
 namespace fcl
@@ -59,75 +60,75 @@ float planeIntersectTolerance()
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool spherePlaneIntersect(const Sphere<double>& s1, const Transform3<double>& tf1,
                           const Plane<double>& s2, const Transform3<double>& tf2,
                           std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool ellipsoidPlaneIntersect(const Ellipsoid<double>& s1, const Transform3<double>& tf1,
                              const Plane<double>& s2, const Transform3<double>& tf2,
                              std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool boxPlaneIntersect(const Box<double>& s1, const Transform3<double>& tf1,
                        const Plane<double>& s2, const Transform3<double>& tf2,
                        std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool capsulePlaneIntersect(const Capsule<double>& s1, const Transform3<double>& tf1,
                            const Plane<double>& s2, const Transform3<double>& tf2);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool capsulePlaneIntersect(const Capsule<double>& s1, const Transform3<double>& tf1,
                            const Plane<double>& s2, const Transform3<double>& tf2,
                            std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool cylinderPlaneIntersect(const Cylinder<double>& s1, const Transform3<double>& tf1,
                             const Plane<double>& s2, const Transform3<double>& tf2);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool cylinderPlaneIntersect(const Cylinder<double>& s1, const Transform3<double>& tf1,
                             const Plane<double>& s2, const Transform3<double>& tf2,
                             std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool conePlaneIntersect(const Cone<double>& s1, const Transform3<double>& tf1,
                         const Plane<double>& s2, const Transform3<double>& tf2,
                         std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool convexPlaneIntersect(const Convex<double>& s1, const Transform3<double>& tf1,
                           const Plane<double>& s2, const Transform3<double>& tf2,
                           Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool planeTriangleIntersect(const Plane<double>& s1, const Transform3<double>& tf1,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, const Transform3<double>& tf2,
                             Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool planeIntersect(const Plane<double>& s1, const Transform3<double>& tf1,
                     const Plane<double>& s2, const Transform3<double>& tf2,
                     std::vector<ContactPoint<double>>* contacts);

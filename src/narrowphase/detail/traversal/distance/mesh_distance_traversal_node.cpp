@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_DISTANCE_MESH_DISTANCE_TRAVERSAL_NODE_BUILDING
 #include "fcl/narrowphase/detail/traversal/distance/mesh_distance_traversal_node-inl.h"
 
 namespace fcl
@@ -45,11 +46,11 @@ namespace detail
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API MeshDistanceTraversalNodeRSS<double>;
+class FCL_EXPORT MeshDistanceTraversalNodeRSS<double>;
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool initialize(
     MeshDistanceTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -61,11 +62,11 @@ bool initialize(
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API MeshDistanceTraversalNodekIOS<double>;
+class FCL_EXPORT MeshDistanceTraversalNodekIOS<double>;
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool initialize(
     MeshDistanceTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -77,11 +78,11 @@ bool initialize(
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API MeshDistanceTraversalNodeOBBRSS<double>;
+class FCL_EXPORT MeshDistanceTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool initialize(
     MeshDistanceTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

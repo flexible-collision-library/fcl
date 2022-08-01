@@ -50,12 +50,13 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_TRAVERSAL_DISTANCE_MESH_CONSERVATIVE_ADVANCEMENT_TRAVERSAL_NODE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API MeshConservativeAdvancementTraversalNodeRSS<double>;
+class FCL_EXPORT_EXPL_INST_DECL MeshConservativeAdvancementTraversalNodeRSS<double>;
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -66,11 +67,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXTERN_TEMPLATE_API MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
+class FCL_EXPORT_EXPL_INST_DECL MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,
@@ -78,6 +79,7 @@ bool initialize(
     const BVHModel<OBBRSS<double>>& model2,
     const Transform3<double>& tf2,
     double w);
+#endif
 
 //==============================================================================
 template <typename BV>

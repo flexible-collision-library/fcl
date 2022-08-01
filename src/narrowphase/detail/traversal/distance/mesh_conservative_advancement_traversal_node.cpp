@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_DISTANCE_MESH_CONSERVATIVE_ADVANCEMENT_TRAVERSAL_NODE_BUILDING
 #include "fcl/narrowphase/detail/traversal/distance/mesh_conservative_advancement_traversal_node-inl.h"
 
 namespace fcl
@@ -45,11 +46,11 @@ namespace detail
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API MeshConservativeAdvancementTraversalNodeRSS<double>;
+class FCL_EXPORT MeshConservativeAdvancementTraversalNodeRSS<double>;
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -60,11 +61,11 @@ bool initialize(
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
+class FCL_EXPORT MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

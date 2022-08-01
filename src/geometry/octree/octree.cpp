@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_OCTREE_BUILDING
 #include "fcl/geometry/octree/octree-inl.h"
 
 #include "fcl/config.h"
@@ -46,11 +47,11 @@ namespace fcl
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API OcTree<double>;
+class FCL_EXPORT OcTree<double>;
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 void computeChildBV(const AABB<double>& root_bv, unsigned int i, AABB<double>& child_bv);
 
 } // namespace fcl

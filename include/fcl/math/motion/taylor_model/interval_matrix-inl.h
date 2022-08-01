@@ -44,13 +44,15 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_TAYLOR_MODEL_INTERVAL_MATRIX_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API IMatrix3<double>;
+struct FCL_EXPORT_EXPL_INST_DECL IMatrix3<double>;
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 IMatrix3<double> rotationConstrain(const IMatrix3<double>& m);
+#endif
 
 //==============================================================================
 template <typename S>

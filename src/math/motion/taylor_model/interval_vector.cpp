@@ -35,6 +35,7 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_TAYLOR_MODEL_INTERVAL_VECTOR_BUILDING
 #include "fcl/math/motion/taylor_model/interval_vector-inl.h"
 
 namespace fcl
@@ -42,16 +43,16 @@ namespace fcl
 
 //==============================================================================
 template
-struct FCL_INSTANTIATION_DEF_API IVector3<double>;
+struct FCL_EXPORT IVector3<double>;
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 IVector3<double> bound(const IVector3<double>& i, const Vector3<double>& v);
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 IVector3<double> bound(const IVector3<double>& i, const IVector3<double>& v);
 
 } // namespace fcl

@@ -46,16 +46,18 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_BHV_UTILITY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void BVHExpand(
     BVHModel<OBB<double>>& model, const Variance3<double>* ucs, double r);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void BVHExpand(
     BVHModel<RSS<double>>& model, const Variance3<double>* ucs, double r);
+#endif
 
 //==============================================================================
 template <typename S, typename BV>

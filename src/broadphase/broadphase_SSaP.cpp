@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_SSAP_BUILDING
 #include "fcl/broadphase/broadphase_SSaP-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API SSaPCollisionManager<double>;
+class FCL_EXPORT SSaPCollisionManager<double>;
 
 } // namespace

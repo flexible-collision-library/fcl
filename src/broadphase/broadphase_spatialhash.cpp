@@ -35,13 +35,14 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_SPATIALHASH_BUILDING
 #include "fcl/broadphase/broadphase_spatialhash-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API SpatialHashingCollisionManager<
+class FCL_EXPORT SpatialHashingCollisionManager<
     double,
     detail::SimpleHashTable<
         AABB<double>, CollisionObject<double>*, detail::SpatialHash<double>>>;

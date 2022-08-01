@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_CONTINUOUS_COLLISION_RESULT_BUILDING
 #include "fcl/narrowphase/continuous_collision_result-inl.h"
 
 namespace fcl
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API ContinuousCollisionResult<double>;
+struct FCL_EXPORT ContinuousCollisionResult<double>;
 
 } // namespace fcl

@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_SAMPLER_SE3_QUAT_BALL_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API SamplerSE3Quat_ball<double>;
+class FCL_EXPORT_EXPL_INST_DECL SamplerSE3Quat_ball<double>;
+#endif
 
 //==============================================================================
 template <typename S>

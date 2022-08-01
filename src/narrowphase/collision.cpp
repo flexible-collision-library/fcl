@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_COLLISION_BUILDING
 #include "fcl/narrowphase/collision-inl.h"
 
 namespace fcl
@@ -42,7 +43,7 @@ namespace fcl
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 std::size_t collide(
     const CollisionObject<double>* o1,
     const CollisionObject<double>* o2,
@@ -51,7 +52,7 @@ std::size_t collide(
 
 //==============================================================================
 template
-FCL_INSTANTIATION_DEF_API
+FCL_EXPORT
 std::size_t collide(
     const CollisionGeometry<double>* o1,
     const Transform3<double>& tf1,

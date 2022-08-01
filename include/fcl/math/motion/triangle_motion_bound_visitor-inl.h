@@ -50,8 +50,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_TRIANGLE_MOTION_BOUND_VISITOR_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API TriangleMotionBoundVisitor<double>;
+class FCL_EXPORT_EXPL_INST_DECL TriangleMotionBoundVisitor<double>;
+#endif
 
 //==============================================================================
 template<typename S>

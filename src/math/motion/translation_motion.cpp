@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_TRANSLATION_MOTION_BUILDING
 #include "fcl/math/motion/translation_motion-inl.h"
 
 namespace fcl
 {
 
 template
-class FCL_INSTANTIATION_DEF_API TranslationMotion<double>;
+class FCL_EXPORT TranslationMotion<double>;
 
 } // namespace fcl

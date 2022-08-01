@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_TAYLOR_MODEL_TIME_INTERVAL_BUILDING
 extern template
-struct FCL_EXTERN_TEMPLATE_API TimeInterval<double>;
+struct FCL_EXPORT_EXPL_INST_DECL TimeInterval<double>;
+#endif
 
 //==============================================================================
 template <typename S>

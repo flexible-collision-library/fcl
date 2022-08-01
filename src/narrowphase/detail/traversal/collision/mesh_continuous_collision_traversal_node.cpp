@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_COLLISION_MESH_CONTINUOUS_COLLISION_TRAVERSAL_NODE_BUILDING
 #include "fcl/narrowphase/detail/traversal/collision/mesh_continuous_collision_traversal_node-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API BVHContinuousCollisionPair<double>;
+struct FCL_EXPORT BVHContinuousCollisionPair<double>;
 
 } // namespace detail
 } // namespace fcl

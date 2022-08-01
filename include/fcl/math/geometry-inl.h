@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_BV_DETAIL_UTILITY_INL_H
-#define FCL_BV_DETAIL_UTILITY_INL_H
+#ifndef FCL_MATH_GEOMETRY_INL_H
+#define FCL_MATH_GEOMETRY_INL_H
 
 #include "fcl/math/geometry.h"
 #include "fcl/math/constants.h"
@@ -44,46 +44,47 @@
 namespace fcl {
 
 //==============================================================================
+#ifndef FCL_MATH_GEOMETRY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void normalize(Vector3d& v, bool* signal);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void hat(Matrix3d& mat, const Vector3d& vec);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void eigen(const Matrix3d& m, Vector3d& dout, Matrix3d& vout);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void eigen_old(const Matrix3d& m, Vector3d& dout, Matrix3d& vout);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void axisFromEigen(
     const Matrix3d& eigenV, const Vector3d& eigenS, Matrix3d& axis);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void axisFromEigen(const Matrix3d& eigenV,
                    const Vector3d& eigenS,
                    Transform3d& tf);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 Matrix3d generateCoordinateSystem(const Vector3d& x_axis);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void getRadiusAndOriginAndRectangleSize(
     const Vector3d* const ps,
     const Vector3d* const ps2,
@@ -97,7 +98,7 @@ void getRadiusAndOriginAndRectangleSize(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void getRadiusAndOriginAndRectangleSize(
     const Vector3d* const ps,
     const Vector3d* const ps2,
@@ -110,7 +111,7 @@ void getRadiusAndOriginAndRectangleSize(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void circumCircleComputation(
     const Vector3d& a,
     const Vector3d& b,
@@ -120,7 +121,7 @@ void circumCircleComputation(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double maximumDistance(
     const Vector3d* const ps,
     const Vector3d* const ps2,
@@ -131,7 +132,7 @@ double maximumDistance(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void getExtentAndCenter(
     const Vector3d* const ps,
     const Vector3d* const ps2,
@@ -144,13 +145,14 @@ void getExtentAndCenter(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void getCovariance(
     const Vector3d* const ps,
     const Vector3d* const ps2,
     Triangle* ts,
     unsigned int* indices,
     int n, Matrix3d& M);
+#endif
 
 //==============================================================================
 namespace detail {
@@ -371,8 +373,9 @@ void getExtentAndCenter_mesh(
 }
 
 //==============================================================================
+#ifndef FCL_MATH_GEOMETRY_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double maximumDistance_mesh(
     const Vector3d* const ps,
     const Vector3d* const ps2,
@@ -383,7 +386,7 @@ double maximumDistance_mesh(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 double maximumDistance_pointcloud(
     const Vector3d* const ps,
     const Vector3d* const ps2,
@@ -393,7 +396,7 @@ double maximumDistance_pointcloud(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void getExtentAndCenter_pointcloud(
     const Vector3d* const ps,
     const Vector3d* const ps2,
@@ -405,7 +408,7 @@ void getExtentAndCenter_pointcloud(
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void getExtentAndCenter_mesh(
     const Vector3d* const ps,
     const Vector3d* const ps2,
@@ -415,6 +418,7 @@ void getExtentAndCenter_mesh(
     const Matrix3d& axis,
     Vector3d& center,
     Vector3d& extent);
+#endif
 
 //==============================================================================
 } // namespace detail

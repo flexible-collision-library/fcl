@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_SPHERE_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API Sphere<double>;
+class FCL_EXPORT_EXPL_INST_DECL Sphere<double>;
+#endif
 
 //==============================================================================
 template <typename S>

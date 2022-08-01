@@ -47,18 +47,20 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_SPHERE_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereSphereIntersect(const Sphere<double>& s1, const Transform3<double>& tf1,
                            const Sphere<double>& s2, const Transform3<double>& tf2,
                            std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 bool sphereSphereDistance(const Sphere<double>& s1, const Transform3<double>& tf1,
                           const Sphere<double>& s2, const Transform3<double>& tf2,
                           double* dist, Vector3<double>* p1, Vector3<double>* p2);
+#endif
 
 //==============================================================================
 template <typename S>

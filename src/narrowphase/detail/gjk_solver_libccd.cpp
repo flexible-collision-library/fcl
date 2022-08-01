@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_GJK_SOLVER_LIBCCD_BUILDING
 #include "fcl/narrowphase/detail/gjk_solver_libccd-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API GJKSolver_libccd<double>;
+struct FCL_EXPORT GJKSolver_libccd<double>;
 
 } // namespace detail
 } // namespace fcl

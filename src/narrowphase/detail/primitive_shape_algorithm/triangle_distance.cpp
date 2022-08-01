@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_TRIANGLE_DISTANCE_BUILDING
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/triangle_distance-inl.h"
 
 namespace fcl
@@ -45,7 +46,7 @@ namespace detail
 
 //==============================================================================
 template
-class FCL_INSTANTIATION_DEF_API TriangleDistance<double>;
+class FCL_EXPORT TriangleDistance<double>;
 
 } // namespace detail
 } // namespace fcl

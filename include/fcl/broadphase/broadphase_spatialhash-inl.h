@@ -44,11 +44,13 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_SPATIALHASH_BUILDING
 extern template
-class FCL_EXTERN_TEMPLATE_API SpatialHashingCollisionManager<
+class FCL_EXPORT_EXPL_INST_DECL SpatialHashingCollisionManager<
     double,
     detail::SimpleHashTable<
         AABB<double>, CollisionObject<double>*, detail::SpatialHash<double>>>;
+#endif
 
 //==============================================================================
 template<typename S, typename HashTable>

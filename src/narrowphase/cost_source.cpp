@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_COST_SOURCE_BUILDING
 #include "fcl/narrowphase/cost_source-inl.h"
 
 namespace fcl
 {
 
 template
-struct FCL_INSTANTIATION_DEF_API CostSource<double>;
+struct FCL_EXPORT CostSource<double>;
 
 } // namespace fcl

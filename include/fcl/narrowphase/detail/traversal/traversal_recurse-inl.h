@@ -51,39 +51,41 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_TRAVERSAL_RECURSE_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void collisionRecurse(CollisionTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void collisionRecurse(MeshCollisionTraversalNodeOBB<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void collisionRecurse(MeshCollisionTraversalNodeRSS<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void selfCollisionRecurse(CollisionTraversalNodeBase<double>* node, int b, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void distanceRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void distanceQueueRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
+#endif
 
 //==============================================================================
 template <typename S>

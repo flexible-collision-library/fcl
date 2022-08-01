@@ -48,29 +48,31 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_TRAVERSAL_COLLISION_NODE_BUILDING
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void collide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void selfCollide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void distance(DistanceTraversalNodeBase<double>* node, BVHFrontList* front_list, int qsize);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void collide2(MeshCollisionTraversalNodeOBB<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 extern template
-FCL_EXTERN_TEMPLATE_API
+FCL_EXPORT_EXPL_INST_DECL
 void collide2(MeshCollisionTraversalNodeRSS<double>* node, BVHFrontList* front_list);
+#endif
 
 //==============================================================================
 template <typename S>
