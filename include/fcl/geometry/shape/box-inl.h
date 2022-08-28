@@ -50,7 +50,7 @@ class FCL_EXPORT Box<double>;
 //==============================================================================
 template <typename S>
 Box<S>::Box(S x, S y, S z)
-  : ShapeBase<S>(), side(x, y, z)
+  : ShapeBase<S>(), side(x, y, z), h_side(0.5 * x, 0.5 * y, 0.5 * z)
 {
   // Do nothing
 }
@@ -58,7 +58,7 @@ Box<S>::Box(S x, S y, S z)
 //==============================================================================
 template <typename S>
 Box<S>::Box(const Vector3<S>& side_)
-  : ShapeBase<S>(), side(side_)
+  : ShapeBase<S>(), side(side_), h_side(0.5 * side_)
 {
   // Do nothing
 }
@@ -66,7 +66,7 @@ Box<S>::Box(const Vector3<S>& side_)
 //==============================================================================
 template <typename S>
 Box<S>::Box()
-  : ShapeBase<S>(), side(Vector3<S>::Zero())
+  : ShapeBase<S>(), side(Vector3<S>::Zero()), h_side(Vector3<S>::Zero())
 {
   // Do nothing
 }
@@ -75,9 +75,8 @@ Box<S>::Box()
 template <typename S>
 void Box<S>::computeLocalAABB()
 {
-  const Vector3<S> v_delta = 0.5 * side;
-  this->aabb_local.max_ = v_delta;
-  this->aabb_local.min_ = -v_delta;
+  this->aabb_local.max_ = h_side;
+  this->aabb_local.min_ = -h_side;
 
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
@@ -107,7 +106,7 @@ Matrix3<S> Box<S>::computeMomentofInertia() const
   S b2 = side[1] * side[1] * V;
   S c2 = side[2] * side[2] * V;
 
-  Vector3<S> I((b2 + c2) / 12, (a2 + c2) / 12, (a2 + b2) / 12);
+  Vector3<S> I((b2 + c2) / 12.0, (a2 + c2) / 12.0, (a2 + b2) / 12.0);
 
   return I.asDiagonal();
 }
@@ -118,9 +117,9 @@ std::vector<Vector3<S>> Box<S>::getBoundVertices(
     const Transform3<S>& tf) const
 {
   std::vector<Vector3<S>> result(8);
-  auto a = side[0] / 2;
-  auto b = side[1] / 2;
-  auto c = side[2] / 2;
+  auto a = h_side[0];
+  auto b = h_side[1];
+  auto c = h_side[2];
   result[0] = tf * Vector3<S>(a, b, c);
   result[1] = tf * Vector3<S>(a, b, -c);
   result[2] = tf * Vector3<S>(a, -b, c);
@@ -131,6 +130,20 @@ std::vector<Vector3<S>> Box<S>::getBoundVertices(
   result[7] = tf * Vector3<S>(-a, -b, -c);
 
   return result;
+}
+
+template <typename S>
+Vector3<S> Box<S>::localGetSupportingVertex(const Vector3<S>& vec) const
+{
+  // Use a customized sign function, so that the support of the box always
+  // appears in one of the box vertices.
+  // Picking support vertices on the interior of faces/edges can lead to
+  // degenerate triangles in the EPA algorithm and are no more correct than just
+  // picking box corners.
+  auto sign = [](S x) -> S {
+    return x > S(0.0) ? S(1.0) : (x < S(0.0) ? S(-1.0) : S(0.0));
+  };
+  return Vector3<S>(sign(vec[0]) * h_side[0], sign(vec[1]) * h_side[1], sign(vec[2]) * h_side[2]);
 }
 
 } // namespace fcl

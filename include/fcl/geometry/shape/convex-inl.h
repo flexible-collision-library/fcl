@@ -430,6 +430,13 @@ void Convex<S>::FindVertexNeighbors() {
   }
 }
 
+template <typename S>
+Vector3<S> Convex<S>::localGetSupportingVertex(const Vector3<S>& vec) const
+{
+  const Vector3<S> v = findExtremeVertex(vec);
+  return Vector3<S>(v[0], v[1], v[2]);
+}
+
 } // namespace fcl
 
 #endif

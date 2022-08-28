@@ -78,6 +78,8 @@ public:
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
 
+  virtual Vector3<S> localGetSupportingVertex(const Vector3<S>& vec) const override;
+
   friend
   std::ostream& operator<<(std::ostream& out, const Ellipsoid& ellipsoid) {
     out << "Ellipsoid(radii: " << ellipsoid.radii.transpose() << ")";

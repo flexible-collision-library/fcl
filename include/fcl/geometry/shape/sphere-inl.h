@@ -115,6 +115,11 @@ std::vector<Vector3<S>> Sphere<S>::getBoundVertices(
   return result;
 }
 
+template <typename S>
+Vector3<S> Sphere<S>::localGetSupportingVertex(const Vector3<S>& vec) const
+{
+  return radius * vec;
+}
 } // namespace fcl
 
 #endif

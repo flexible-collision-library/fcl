@@ -175,6 +175,8 @@ public:
   ///         in the  %Convex polytope's set of vertices.
   const Vector3<S>& findExtremeVertex(const Vector3<S>& v_C) const;
 
+  virtual Vector3<S> localGetSupportingVertex(const Vector3<S>& vec) const override;
+
   friend
   std::ostream& operator<<(std::ostream& out, const Convex& convex) {
     out << "Convex(v count: " << convex.vertices_->size() << ", f count: "

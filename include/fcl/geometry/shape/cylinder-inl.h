@@ -50,7 +50,7 @@ class FCL_EXPORT Cylinder<double>;
 //==============================================================================
 template <typename S>
 Cylinder<S>::Cylinder(S radius, S lz)
-  : ShapeBase<S>(), radius(radius), lz(lz)
+  : ShapeBase<S>(), radius(radius), lz(lz), height(0.5 * lz)
 {
   // Do nothing
 }
@@ -59,7 +59,7 @@ Cylinder<S>::Cylinder(S radius, S lz)
 template <typename S>
 void Cylinder<S>::computeLocalAABB()
 {
-  const Vector3<S> v_delta(radius, radius, 0.5 * lz);
+  const Vector3<S> v_delta(radius, radius, height);
   this->aabb_local.max_ = v_delta;
   this->aabb_local.min_ = -v_delta;
 
@@ -99,7 +99,7 @@ std::vector<Vector3<S>> Cylinder<S>::getBoundVertices(
 {
   std::vector<Vector3<S>> result(12);
 
-  auto hl = lz * 0.5;
+  auto hl = height;
   auto r2 = radius * 2 / std::sqrt(3.0);
   auto a = 0.5 * r2;
   auto b = radius;
@@ -121,6 +121,23 @@ std::vector<Vector3<S>> Cylinder<S>::getBoundVertices(
   return result;
 }
 
+template <typename S>
+Vector3<S> Cylinder<S>::localGetSupportingVertex(const Vector3<S>& vec) const
+{
+  Vector3<S> v(0.0, 0.0, 0.0);
+  S zdist = std::sqrt(1.0 - vec[2] * vec[2]);
+  if (zdist > std::numeric_limits<S>::epsilon())
+  {
+    S rad = radius / zdist;
+    v[0] = rad * vec[0];
+    v[1] = rad * vec[1];
+  }
+  if (vec[2] > 0.0)
+      v[2] = height;
+  else if (vec[2] < 0.0)
+      v[2] = -height;
+  return v;
+}
 } // namespace fcl
 
 #endif

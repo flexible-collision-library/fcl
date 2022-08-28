@@ -83,6 +83,18 @@ public:
 
   /// @brief Project origin (0) onto tetrahedran a-b-c-d
   static ProjectResult projectTetrahedraOrigin(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c, const Vector3<S>& d);
+
+  /// @brief Project point p onto line a-b
+  static S pointSegmentDist2(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& p, Vector3<S> &witness);
+
+  /// @brief Project point p onto triangle a-b-c
+  static S pointTriDist2(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c, const Vector3<S>& p, Vector3<S> &witness);
+
+  /// @brief Project point p onto line a-b
+  static S originSegmentDist2(const Vector3<S>& a, const Vector3<S>& b, Vector3<S> &witness);
+
+  /// @brief Project point p onto triangle a-b-c
+  static S originTriDist2(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c, Vector3<S> &witness);
 };
 
 using Projectf = Project<float>;

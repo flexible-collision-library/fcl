@@ -117,8 +117,11 @@ struct ShapeIntersectLibccdImpl
       const Shape2& s2, const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
-    void* o1 = detail::GJKInitializer<S, Shape1>::createGJKObject(s1, tf1);
-    void* o2 = detail::GJKInitializer<S, Shape2>::createGJKObject(s2, tf2);
+    detail::MinkowskiDiff<S> shape;
+    shape.shapes[0] = &s1;
+    shape.shapes[1] = &s2;
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     bool res;
 
@@ -128,11 +131,7 @@ struct ShapeIntersectLibccdImpl
       Vector3<S> point;
       S depth;
       res = detail::GJKCollide<S>(
-            o1,
-            detail::GJKInitializer<S, Shape1>::getSupportFunction(),
-            detail::GJKInitializer<S, Shape1>::getCenterFunction(),
-            o2, detail::GJKInitializer<S, Shape2>::getSupportFunction(),
-            detail::GJKInitializer<S, Shape2>::getCenterFunction(),
+            shape,
             gjkSolver.max_collision_iterations,
             gjkSolver.collision_tolerance,
             &point,
@@ -143,21 +142,13 @@ struct ShapeIntersectLibccdImpl
     else
     {
       res = detail::GJKCollide<S>(
-            o1,
-            detail::GJKInitializer<S, Shape1>::getSupportFunction(),
-            detail::GJKInitializer<S, Shape1>::getCenterFunction(),
-            o2,
-            detail::GJKInitializer<S, Shape2>::getSupportFunction(),
-            detail::GJKInitializer<S, Shape2>::getCenterFunction(),
+            shape,
             gjkSolver.max_collision_iterations,
             gjkSolver.collision_tolerance,
             nullptr,
             nullptr,
             nullptr);
     }
-
-    detail::GJKInitializer<S, Shape1>::deleteGJKObject(o1);
-    detail::GJKInitializer<S, Shape2>::deleteGJKObject(o2);
 
     return res;
   }
@@ -359,24 +350,20 @@ struct ShapeTriangleIntersectLibccdImpl
       S* penetration_depth,
       Vector3<S>* normal)
   {
-    void* o1 = detail::GJKInitializer<S, Shape>::createGJKObject(s, tf);
-    void* o2 = detail::triCreateGJKObject(P1, P2, P3);
+    TriangleP<S> tri(P1, P2, P3);
+    detail::MinkowskiDiff<S> shape;
+    shape.shapes[0] = &s;
+    shape.shapes[1] = &tri;
+    shape.toshape1 = tf.linear();
+    shape.toshape0 = tf.inverse(Eigen::Isometry);
 
     bool res = detail::GJKCollide<S>(
-          o1,
-          detail::GJKInitializer<S, Shape>::getSupportFunction(),
-          detail::GJKInitializer<S, Shape>::getCenterFunction(),
-          o2,
-          detail::triGetSupportFunction(),
-          detail::triGetCenterFunction(),
+          shape,
           gjkSolver.max_collision_iterations,
           gjkSolver.collision_tolerance,
           contact_points,
           penetration_depth,
           normal);
-
-    detail::GJKInitializer<S, Shape>::deleteGJKObject(o1);
-    detail::triDeleteGJKObject(o2);
 
     return res;
   }
@@ -434,24 +421,21 @@ struct ShapeTransformedTriangleIntersectLibccdImpl
       S* penetration_depth,
       Vector3<S>* normal)
   {
-    void* o1 = detail::GJKInitializer<S, Shape>::createGJKObject(s, tf1);
-    void* o2 = detail::triCreateGJKObject(P1, P2, P3, tf2);
+    TriangleP<S> tri(P1, P2, P3);
+
+    detail::MinkowskiDiff<S> shape;
+    shape.shapes[0] = &s;
+    shape.shapes[1] = &tri;
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     bool res = detail::GJKCollide<S>(
-          o1,
-          detail::GJKInitializer<S, Shape>::getSupportFunction(),
-          detail::GJKInitializer<S, Shape>::getCenterFunction(),
-          o2,
-          detail::triGetSupportFunction(),
-          detail::triGetCenterFunction(),
+          shape,
           gjkSolver.max_collision_iterations,
           gjkSolver.collision_tolerance,
           contact_points,
           penetration_depth,
           normal);
-
-    detail::GJKInitializer<S, Shape>::deleteGJKObject(o1);
-    detail::triDeleteGJKObject(o2);
 
     return res;
   }
@@ -557,22 +541,19 @@ struct ShapeSignedDistanceLibccdImpl
       Vector3<S>* p1,
       Vector3<S>* p2)
   {
-    void* o1 = detail::GJKInitializer<S, Shape1>::createGJKObject(s1, tf1);
-    void* o2 = detail::GJKInitializer<S, Shape2>::createGJKObject(s2, tf2);
+    detail::MinkowskiDiff<S> shape;
+    shape.shapes[0] = &s1;
+    shape.shapes[1] = &s2;
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     bool res = detail::GJKSignedDistance(
-          o1,
-          detail::GJKInitializer<S, Shape1>::getSupportFunction(),
-          o2,
-          detail::GJKInitializer<S, Shape2>::getSupportFunction(),
+          shape,
           gjkSolver.max_distance_iterations,
           gjkSolver.distance_tolerance,
           dist,
           p1,
           p2);
-
-    detail::GJKInitializer<S, Shape1>::deleteGJKObject(o1);
-    detail::GJKInitializer<S, Shape2>::deleteGJKObject(o2);
 
     return res;
   }
@@ -614,22 +595,19 @@ struct ShapeDistanceLibccdImpl
       Vector3<S>* p1,
       Vector3<S>* p2)
   {
-    void* o1 = detail::GJKInitializer<S, Shape1>::createGJKObject(s1, tf1);
-    void* o2 = detail::GJKInitializer<S, Shape2>::createGJKObject(s2, tf2);
+    detail::MinkowskiDiff<S> shape;
+    shape.shapes[0] = &s1;
+    shape.shapes[1] = &s2;
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     bool res =  detail::GJKDistance(
-          o1,
-          detail::GJKInitializer<S, Shape1>::getSupportFunction(),
-          o2,
-          detail::GJKInitializer<S, Shape2>::getSupportFunction(),
+          shape,
           gjkSolver.max_distance_iterations,
           gjkSolver.distance_tolerance,
           dist,
           p1,
           p2);
-
-    detail::GJKInitializer<S, Shape1>::deleteGJKObject(o1);
-    detail::GJKInitializer<S, Shape2>::deleteGJKObject(o2);
 
     return res;
   }
@@ -833,22 +811,20 @@ struct ShapeTriangleDistanceLibccdImpl
       Vector3<S>* p1,
       Vector3<S>* p2)
   {
-    void* o1 = detail::GJKInitializer<S, Shape>::createGJKObject(s, tf);
-    void* o2 = detail::triCreateGJKObject(P1, P2, P3);
+    TriangleP<S> tri(P1, P2, P3);
+    detail::MinkowskiDiff<S> shape;
+    shape.shapes[0] = &s;
+    shape.shapes[1] = &tri;
+    shape.toshape1 = tf.linear();
+    shape.toshape0 = tf.inverse(Eigen::Isometry);
 
     bool res = detail::GJKDistance(
-          o1,
-          detail::GJKInitializer<S, Shape>::getSupportFunction(),
-          o2,
-          detail::triGetSupportFunction(),
+          shape,
           gjkSolver.max_distance_iterations,
           gjkSolver.distance_tolerance,
           dist,
           p1,
           p2);
-
-    detail::GJKInitializer<S, Shape>::deleteGJKObject(o1);
-    detail::triDeleteGJKObject(o2);
 
     return res;
   }
@@ -906,22 +882,21 @@ struct ShapeTransformedTriangleDistanceLibccdImpl
       Vector3<S>* p1,
       Vector3<S>* p2)
   {
-    void* o1 = detail::GJKInitializer<S, Shape>::createGJKObject(s, tf1);
-    void* o2 = detail::triCreateGJKObject(P1, P2, P3, tf2);
+    TriangleP<S> tri(P1, P2, P3);
+
+    detail::MinkowskiDiff<S> shape;
+    shape.shapes[0] = &s;
+    shape.shapes[1] = &tri;
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     bool res = detail::GJKDistance(
-          o1,
-          detail::GJKInitializer<S, Shape>::getSupportFunction(),
-          o2,
-          detail::triGetSupportFunction(),
+          shape,
           gjkSolver.max_distance_iterations,
           gjkSolver.distance_tolerance,
           dist,
           p1,
           p2);
-
-    detail::GJKInitializer<S, Shape>::deleteGJKObject(o1);
-    detail::triDeleteGJKObject(o2);
 
     return res;
   }

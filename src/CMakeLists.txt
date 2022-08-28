@@ -75,15 +75,6 @@ if (FCL_HIDE_ALL_SYMBOLS)
  add_definitions("-DFCL_STATIC_DEFINE")
 endif()
 
-# Use the IMPORTED target from newer versions of ccd-config.cmake if available,
-# otherwise fall back to CCD_INCLUDE_DIRS and CCD_LIBRARIES
-if(TARGET ccd)
-  target_link_libraries(${PROJECT_NAME} PUBLIC ccd)
-else()
-  target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC "${CCD_INCLUDE_DIRS}")
-  target_link_libraries(${PROJECT_NAME} PUBLIC "${CCD_LIBRARIES}")
-endif()
-
 # Use the IMPORTED target from newer versions of Eigen3Config.cmake if
 # available, otherwise fall back to EIGEN3_INCLUDE_DIRS from older versions of
 # Eigen3Config.cmake or EIGEN3_INCLUDE_DIR from FindEigen3.cmake

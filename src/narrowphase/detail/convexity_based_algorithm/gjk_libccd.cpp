@@ -45,54 +45,7 @@ namespace detail
 
 //==============================================================================
 template
-class GJKInitializer<double, Cylinder<double>>;
-
-//==============================================================================
-template
-class GJKInitializer<double, Sphere<double>>;
-
-//==============================================================================
-template
-class GJKInitializer<double, Ellipsoid<double>>;
-
-//==============================================================================
-template
-class GJKInitializer<double, Box<double>>;
-
-//==============================================================================
-template
-class GJKInitializer<double, Capsule<double>>;
-
-//==============================================================================
-template
-class GJKInitializer<double, Cone<double>>;
-
-//==============================================================================
-template
-class GJKInitializer<double, Convex<double>>;
-
-//==============================================================================
-template
-void* triCreateGJKObject(
-    const Vector3d& P1, const Vector3d& P2, const Vector3d& P3);
-
-//==============================================================================
-template
-void* triCreateGJKObject(
-    const Vector3d& P1,
-    const Vector3d& P2,
-    const Vector3d& P3,
-    const Transform3d& tf);
-
-//==============================================================================
-template
-bool GJKCollide(
-    void* obj1,
-    ccd_support_fn supp1,
-    ccd_center_fn cen1,
-    void* obj2,
-    ccd_support_fn supp2,
-    ccd_center_fn cen2,
+bool GJKCollide(const MinkowskiDiffd& shape, 
     unsigned int max_iterations,
     double tolerance,
     Vector3d* contact_points,
@@ -101,35 +54,17 @@ bool GJKCollide(
 
 //==============================================================================
 template
-bool GJKDistance(
-    void* obj1,
-    ccd_support_fn supp1,
-    void* obj2,
-    ccd_support_fn supp2,
-    unsigned int max_iterations,
-    double tolerance,
-    double* dist,
-    Vector3d* p1,
-    Vector3d* p2);
+bool GJKDistance(const MinkowskiDiffd& shape, unsigned int max_iterations, double tolerance,
+                 double *res, Vector3d *p1, Vector3d *p2);
+
+/*
+template
+bool GJKDistanceS(const MinkowskiDiffd& shape, unsigned int max_iterations, double tolerance,
+                 double *res, Vector3d *p1, Vector3d *p2);
+*/
 
 template
-bool GJKDistanceS(
-    void* obj1,
-    ccd_support_fn supp1,
-    void* obj2,
-    ccd_support_fn supp2,
-    unsigned int max_iterations,
-    double tolerance,
-    double* dist,
-    Vector3d* p1,
-    Vector3d* p2);
-
-template
-bool GJKSignedDistance(
-    void* obj1,
-    ccd_support_fn supp1,
-    void* obj2,
-    ccd_support_fn supp2,
+bool GJKSignedDistance(const MinkowskiDiffd& shape, 
     unsigned int max_iterations,
     double tolerance,
     double* dist,

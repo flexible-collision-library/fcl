@@ -55,6 +55,8 @@ public:
 
   /// @brief Get object type: a geometric shape
   OBJECT_TYPE getObjectType() const;
+
+  virtual Vector3<S> localGetSupportingVertex(const Vector3<S>& vec) const;
 };
 
 using ShapeBasef = ShapeBase<float>;

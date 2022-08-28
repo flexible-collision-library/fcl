@@ -53,7 +53,7 @@ TriangleP<S>::TriangleP(
     const Vector3<S>& a,
     const Vector3<S>& b,
     const Vector3<S>& c)
-  : ShapeBase<S>(), a(a), b(b), c(c)
+  : ShapeBase<S>(), a(a), b(b), c(c), center((a + b + c) / 3.0)
 {
   // Do nothing
 }
@@ -88,6 +88,27 @@ std::vector<Vector3<S>> TriangleP<S>::getBoundVertices(
   return result;
 }
 
+template <typename S>
+Vector3<S> TriangleP<S>::localGetSupportingVertex(const Vector3<S>& vec) const
+{
+  S dota = vec.dot(a);
+  S dotb = vec.dot(b);
+  S dotc = vec.dot(c);
+  if (dota > dotb)
+  {
+      if (dotc > dota)
+          return c;
+      else
+          return a;
+  }
+  else
+  {
+      if(dotc > dotb)
+          return c;
+      else
+          return b;
+  }
+}
 } // namespace fcl
 
 #endif

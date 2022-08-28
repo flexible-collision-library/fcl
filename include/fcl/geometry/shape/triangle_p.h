@@ -66,10 +66,13 @@ public:
   Vector3<S> a;
   Vector3<S> b;
   Vector3<S> c;
+  Vector3<S> center;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+
+  virtual Vector3<S> localGetSupportingVertex(const Vector3<S>& vec) const override;
 
   friend
   std::ostream& operator<<(std::ostream& out, const TriangleP& tri) {

@@ -91,7 +91,7 @@ void MeshShapeCollisionTraversalNode<BV, Shape, NarrowPhaseSolver>::leafTesting(
     }
     else
     {
-      S penetration;
+      S penetration = 0.0;
       Vector3<S> normal;
       Vector3<S> contactp;
 
@@ -232,7 +232,7 @@ void meshShapeCollisionOrientedNodeLeafTesting(
     }
     else
     {
-      S penetration;
+      S penetration = 0.0;
       Vector3<S> normal;
       Vector3<S> contactp;
 

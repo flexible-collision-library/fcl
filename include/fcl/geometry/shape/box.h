@@ -63,7 +63,7 @@ public:
   Box();
 
   /// @brief box side length
-  Vector3<S> side;
+  Vector3<S> side, h_side;
 
   /// @brief Compute AABB
   void computeLocalAABB() override;
@@ -80,6 +80,8 @@ public:
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+
+  virtual Vector3<S> localGetSupportingVertex(const Vector3<S>& vec) const override;
 
   friend
   std::ostream& operator<<(std::ostream& out, const Box& box) {

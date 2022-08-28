@@ -41,11 +41,7 @@ FCL has the following features
 
 ## Installation
 
-Before compiling FCL, please make sure Eigen and libccd (for collision checking
-between convex objects and is available here https://github.com/danfis/libccd)
-are installed. For libccd, make sure to compile from github version instead of
-the zip file from the webpage, because one bug fixing is not included in the
-zipped version.
+Before compiling FCL, please make sure Eigen is installed.
 
 Some optional libraries need to be installed for some optional capability of
 FCL. For octree collision, please install the octomap library from

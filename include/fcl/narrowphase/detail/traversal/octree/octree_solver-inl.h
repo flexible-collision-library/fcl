@@ -651,7 +651,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<S>
         else
         {
           Vector3<S> contact;
-          S depth;
+          S depth = 0.0;
           Vector3<S> normal;
 
           if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, &contact, &depth, &normal))

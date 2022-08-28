@@ -59,15 +59,34 @@ typename Project<S>::ProjectResult Project<S>::projectLine(const Vector3<S>& a, 
   const Vector3<S> d = b - a;
   const S l = d.squaredNorm();
 
-  if(l > 0)
+  if (l > 0.0)
   {
     const S t = (p - a).dot(d);
-    res.parameterization[1] = (t >= l) ? 1 : ((t <= 0) ? 0 : (t / l));
-    res.parameterization[0] = 1 - res.parameterization[1];
-    if(t >= l) { res.sqr_distance = (p - b).squaredNorm(); res.encode = 2; /* 0x10 */ }
-    else if(t <= 0) { res.sqr_distance = (p - a).squaredNorm(); res.encode = 1; /* 0x01 */ }
-    else { res.sqr_distance = (a + d * res.parameterization[1] - p).squaredNorm(); res.encode = 3; /* 0x00 */ }
+    if (t >= l) /* 0x10 */
+    {
+      res.parameterization[1] = 1.0;
+      res.sqr_distance = (p - b).squaredNorm(); res.encode = 2;
+    }
+    else if (t <= 0.0) /* 0x01 */
+    {
+      res.parameterization[1] = 0.0;
+      res.sqr_distance = (p - a).squaredNorm(); res.encode = 1;
+    }
+    else /* 0x11 */
+    {
+      res.parameterization[1] = t / l;
+      res.sqr_distance = (a + d * res.parameterization[1] - p).squaredNorm(); res.encode = 3;
+    }
+    res.parameterization[0] = 1.0 - res.parameterization[1];
   }
+  /*
+  else
+  {
+    res.parameterization[1] = 0.0;
+    res.parameterization[0] = 1.0;
+    res.sqr_distance = (p - a).squaredNorm(); res.encode = 1;
+  }
+  */
 
   return res;
 }
@@ -84,28 +103,28 @@ typename Project<S>::ProjectResult Project<S>::projectTriangle(const Vector3<S>&
   const Vector3<S>& n = dl[0].cross(dl[1]);
   const S l = n.squaredNorm();
 
-  if(l > 0)
+  if (l > 0.0)
   {
-    S mindist = -1;
-    for(size_t i = 0; i < 3; ++i)
+    S mindist = -1.0;
+    for (size_t i = 0; i < 3; ++i)
     {
-      if((*vt[i] - p).dot(dl[i].cross(n)) > 0) // origin is to the outside part of the triangle edge, then the optimal can only be on the edge
+      if ((*vt[i] - p).dot(dl[i].cross(n)) > 0.0) // origin is to the outside part of the triangle edge, then the optimal can only be on the edge
       {
         size_t j = nexti[i];
         ProjectResult res_line = projectLine(*vt[i], *vt[j], p);
 
-        if(mindist < 0 || res_line.sqr_distance < mindist)
+        if (mindist < 0.0 || res_line.sqr_distance < mindist)
         {
           mindist = res_line.sqr_distance;
           res.encode = static_cast<size_t>(((res_line.encode&1)?1<<i:0) + ((res_line.encode&2)?1<<j:0));
           res.parameterization[i] = res_line.parameterization[0];
           res.parameterization[j] = res_line.parameterization[1];
-          res.parameterization[nexti[j]] = 0;
+          res.parameterization[nexti[j]] = 0.0;
         }
       }
     }
 
-    if(mindist < 0) // the origin project is within the triangle
+    if (mindist < 0.0) // the origin project is within the triangle
     {
       S d = (a - p).dot(n);
       S s = sqrt(l);
@@ -187,15 +206,34 @@ typename Project<S>::ProjectResult Project<S>::projectLineOrigin(const Vector3<S
   const Vector3<S> d = b - a;
   const S l = d.squaredNorm();
 
-  if(l > 0)
+  if (l > 0.0)
   {
-    const S t = - a.dot(d);
-    res.parameterization[1] = (t >= l) ? 1 : ((t <= 0) ? 0 : (t / l));
-    res.parameterization[0] = 1 - res.parameterization[1];
-    if(t >= l) { res.sqr_distance = b.squaredNorm(); res.encode = 2; /* 0x10 */ }
-    else if(t <= 0) { res.sqr_distance = a.squaredNorm(); res.encode = 1; /* 0x01 */ }
-    else { res.sqr_distance = (a + d * res.parameterization[1]).squaredNorm(); res.encode = 3; /* 0x00 */ }
+    const S t = -a.dot(d);
+    if (t >= l) /* 0x10 */
+    {
+      res.parameterization[1] = 1.0;
+      res.sqr_distance = b.squaredNorm(); res.encode = 2;
+    }
+    else if (t <= 0.0) /* 0x01 */
+    {
+      res.parameterization[1] = 0.0;
+      res.sqr_distance = a.squaredNorm(); res.encode = 1;
+    }
+    else /* 0x11 */
+    {
+      res.parameterization[1] = t / l;
+      res.sqr_distance = (a + d * res.parameterization[1]).squaredNorm(); res.encode = 3;
+    }
+    res.parameterization[0] = 1.0 - res.parameterization[1];
   }
+  /*
+  else
+  {
+    res.parameterization[0] = 1.0;
+    res.parameterization[1] = 0.0;
+    res.sqr_distance = a.squaredNorm(); res.encode = 1;
+  }
+  */
 
   return res;
 }
@@ -304,6 +342,151 @@ typename Project<S>::ProjectResult Project<S>::projectTetrahedraOrigin(const Vec
     res.parameterization[3] = 0;
   }
   return res;
+}
+
+//==============================================================================
+template <typename S>
+S Project<S>::pointSegmentDist2(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& p, Vector3<S> &witness)
+{
+  const Vector3<S> d = b - a;
+  const S l = d.squaredNorm();
+
+  if (l > 0.0)
+  {
+    const S t = (p - a).dot(d);
+    if (t >= l)
+      witness = b;
+    else if (t <= 0.0)
+      witness = a;
+    else
+      witness = a + t / l * d;
+  }
+  else
+    witness = a;
+  return (p - witness).squaredNorm();
+}
+
+//==============================================================================
+template <typename S>
+S Project<S>::pointTriDist2(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c, const Vector3<S>& p, Vector3<S> &witness)
+{
+  static const size_t nexti[3] = {1, 2, 0};
+  const Vector3<S>* vt[] = {&a, &b, &c};
+  const Vector3<S> dl[] = {a - b, b - c, c - a};
+  const Vector3<S>& n = dl[0].cross(dl[1]);
+  const S l = n.squaredNorm();
+
+  S mindist = -1.0;
+  if (l > 0.0)
+  {
+    for (size_t i = 0; i < 3; ++i)
+    {
+      if ((*vt[i] - p).dot(dl[i].cross(n)) > 0.0) // origin is to the outside part of the triangle edge, then the optimal can only be on the edge
+      {
+        size_t j = nexti[i];
+        Vector3<S> temp;
+        S sqr_distance = pointSegmentDist2(*vt[i], *vt[j], p, temp);
+        if (mindist < 0.0 || sqr_distance < mindist)
+        {
+          mindist = sqr_distance;
+          witness = temp;
+        }
+      }
+    }
+
+    if (mindist < 0.0) // the origin project is within the triangle
+    {
+      S d = (a - p).dot(n);
+      Vector3<S> p_to_project = n * (d / l);
+      mindist = p_to_project.squaredNorm();
+      witness = p + p_to_project;
+    }
+  }
+  else 
+  {
+    mindist = pointSegmentDist2(a, b, p, witness);
+    Vector3<S> temp;
+    S sqr_distance = pointSegmentDist2(b, c, p, temp);
+    if (sqr_distance < mindist)
+    {
+        mindist = sqr_distance;
+        witness = temp;
+    }
+  }
+
+  return  mindist;
+}
+
+//==============================================================================
+template <typename S>
+S Project<S>::originSegmentDist2(const Vector3<S>& a, const Vector3<S>& b, Vector3<S> &witness)
+{
+  const Vector3<S> d = b - a;
+  const S l = d.squaredNorm();
+
+  if (l > 0.0)
+  {
+    const S t = -a.dot(d);
+    if (t >= l)
+      witness = b;
+    else if (t <= 0.0)
+      witness = a;
+    else
+      witness = a + t / l * d;
+  }
+  else
+    witness = a;
+  return witness.squaredNorm();
+}
+
+//==============================================================================
+template <typename S>
+S Project<S>::originTriDist2(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c, Vector3<S> &witness)
+{
+  static const size_t nexti[3] = {1, 2, 0};
+  const Vector3<S>* vt[] = {&a, &b, &c};
+  const Vector3<S> dl[] = {a - b, b - c, c - a};
+  const Vector3<S>& n = dl[0].cross(dl[1]);
+  const S l = n.squaredNorm();
+
+  S mindist = -1.0;
+  if (l > 0.0)
+  {
+    for (size_t i = 0; i < 3; ++i)
+    {
+      if (vt[i]->dot(dl[i].cross(n)) > 0.0) // origin is to the outside part of the triangle edge, then the optimal can only be on the edge
+      {
+        size_t j = nexti[i];
+        Vector3<S> temp;
+        S sqr_distance = originSegmentDist2(*vt[i], *vt[j], temp);
+        if (mindist < 0.0 || sqr_distance < mindist)
+        {
+          mindist = sqr_distance;
+          witness = temp;
+        }
+      }
+    }
+
+    if (mindist < 0.0) // the origin project is within the triangle
+    {
+      S d = a.dot(n);
+      witness = n * (d / l);
+      mindist = witness.squaredNorm();
+    }
+  }
+  else 
+  {
+    mindist = originSegmentDist2(a, b, witness);
+    Vector3<S> temp;
+    S sqr_distance = originSegmentDist2(b, c, temp);
+    if (sqr_distance < mindist)
+    {
+        mindist = sqr_distance;
+        witness = temp;
+    }
+  }
+
+  return  mindist;
 }
 
 //==============================================================================

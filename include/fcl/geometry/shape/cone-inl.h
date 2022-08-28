@@ -50,7 +50,7 @@ class FCL_EXPORT Cone<double>;
 //==============================================================================
 template <typename S>
 Cone<S>::Cone(S radius, S lz)
-  : ShapeBase<S>(), radius(radius), lz(lz)
+  : ShapeBase<S>(), radius(radius), lz(lz), height(0.5 * lz)
 {
   // Do nothing
 }
@@ -59,7 +59,7 @@ Cone<S>::Cone(S radius, S lz)
 template <typename S>
 void Cone<S>::computeLocalAABB()
 {
-  const Vector3<S> v_delta(radius, radius, 0.5 * lz);
+  const Vector3<S> v_delta(radius, radius, height);
   this->aabb_local.max_ = v_delta;
   this->aabb_local.min_ = -v_delta;
 
@@ -78,7 +78,7 @@ NODE_TYPE Cone<S>::getNodeType() const
 template <typename S>
 S Cone<S>::computeVolume() const
 {
-  return constants<S>::pi() * radius * radius * lz / 3;
+  return constants<S>::pi() * radius * radius * lz / 3.0;
 }
 
 //==============================================================================
@@ -86,7 +86,7 @@ template <typename S>
 Matrix3<S> Cone<S>::computeMomentofInertia() const
 {
   S V = computeVolume();
-  S ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
+  S ix = V * (0.1 * lz * lz + 3.0 * radius * radius / 20.0);
   S iz = 0.3 * V * radius * radius;
 
   return Vector3<S>(ix, ix, iz).asDiagonal();
@@ -96,7 +96,7 @@ Matrix3<S> Cone<S>::computeMomentofInertia() const
 template <typename S>
 Vector3<S> Cone<S>::computeCOM() const
 {
-  return Vector3<S>(0, 0, -0.25 * lz);
+  return Vector3<S>(0.0, 0.0, -0.25 * lz);
 }
 
 //==============================================================================
@@ -106,7 +106,7 @@ std::vector<Vector3<S>> Cone<S>::getBoundVertices(
 {
   std::vector<Vector3<S>> result(7);
 
-  auto hl = lz * 0.5;
+  auto hl = height;
   auto r2 = radius * 2 / std::sqrt(3.0);
   auto a = 0.5 * r2;
   auto b = radius;
@@ -123,6 +123,23 @@ std::vector<Vector3<S>> Cone<S>::getBoundVertices(
   return result;
 }
 
+template <typename S>
+Vector3<S> Cone<S>::localGetSupportingVertex(const Vector3<S>& vec) const
+{
+  Vector3<S> v;
+  S zdist = std::sqrt(1.0 - vec[2] * vec[2]);
+  S sin_a = radius / std::sqrt(radius * radius + lz * lz);
+  if (vec[2] > sin_a)
+    v = Vector3<S>(0.0, 0.0, height);
+  else if (zdist > 0.0)
+  {
+    S rad = radius / zdist;
+    v = Vector3<S>(rad * vec[0], rad * vec[1], -height);
+  }
+  else
+    v = Vector3<S>(0.0, 0.0, -height);
+  return v;
+}
 } // namespace fcl
 
 #endif

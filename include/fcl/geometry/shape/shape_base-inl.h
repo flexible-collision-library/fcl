@@ -62,6 +62,12 @@ OBJECT_TYPE ShapeBase<S>::getObjectType() const
   return OT_GEOM;
 }
 
+template <typename S>
+Vector3<S> ShapeBase<S>::localGetSupportingVertex(const Vector3<S>& /*vec*/) const
+{
+  return Vector3<S>::Zero();
+}
+
 } // namespace fcl
 
 #endif

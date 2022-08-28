@@ -143,6 +143,12 @@ std::vector<Vector3<S>> Ellipsoid<S>::getBoundVertices(
   return result;
 }
 
+template <typename S>
+Vector3<S> Ellipsoid<S>::localGetSupportingVertex(const Vector3<S>& vec) const
+{
+  Vector3<S> v(radii[0] * radii[0] * vec[0], radii[1] * radii[1] * vec[1], radii[2] * radii[2] * vec[2]);
+  return v / std::sqrt(v.dot(vec));
+}
 } // namespace fcl
 
 #endif

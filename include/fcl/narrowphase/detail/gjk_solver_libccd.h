@@ -113,7 +113,6 @@ struct FCL_EXPORT GJKSolver_libccd
       Vector3<S>* p1 = nullptr,
       Vector3<S>* p2 = nullptr) const;
 
-
   template<typename Shape1, typename Shape2>
   bool shapeSignedDistance(
       const Shape1& s1,

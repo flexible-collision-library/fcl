@@ -50,7 +50,7 @@ class FCL_EXPORT Capsule<double>;
 //==============================================================================
 template <typename S>
 Capsule<S>::Capsule(S radius, S lz)
-  : ShapeBase<S>(), radius(radius), lz(lz)
+  : ShapeBase<S>(), radius(radius), lz(lz), height(0.5 * lz)
 {
   // Do nothing
 }
@@ -59,7 +59,7 @@ Capsule<S>::Capsule(S radius, S lz)
 template <typename S>
 void Capsule<S>::computeLocalAABB()
 {
-  const Vector3<S> v_delta(radius, radius, 0.5 * lz + radius);
+  const Vector3<S> v_delta(radius, radius, height + radius);
   this->aabb_local.max_ = v_delta;
   this->aabb_local.min_ = -v_delta;
 
@@ -78,7 +78,7 @@ NODE_TYPE Capsule<S>::getNodeType() const
 template <typename S>
 S Capsule<S>::computeVolume() const
 {
-  return constants<S>::pi() * radius * radius *(lz + radius * 4/3.0);
+  return constants<S>::pi() * radius * radius *(lz + radius * 4.0/3.0);
 }
 
 //==============================================================================
@@ -106,7 +106,7 @@ std::vector<Vector3<S>> Capsule<S>::getBoundVertices(
   std::vector<Vector3<S>> result(36);
   const auto m = (1 + std::sqrt(5.0)) / 2.0;
 
-  auto hl = lz * 0.5;
+  auto hl = height;
   auto edge_size = radius * 6 / (std::sqrt(27.0) + std::sqrt(15.0));
   auto a = edge_size;
   auto b = m * edge_size;
@@ -157,6 +157,16 @@ std::vector<Vector3<S>> Capsule<S>::getBoundVertices(
   return result;
 }
 
+template <typename S>
+Vector3<S> Capsule<S>::localGetSupportingVertex(const Vector3<S>& vec) const
+{
+  Vector3<S> v = radius * vec;
+  if (vec[2] > 0.0)
+      v[2] += height;
+  else if (vec[2] < 0.0)
+      v[2] -= height;
+  return v;
+}
 } // namespace fcl
 
 #endif
