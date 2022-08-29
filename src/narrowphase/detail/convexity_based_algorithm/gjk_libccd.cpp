@@ -57,11 +57,9 @@ template
 bool GJKDistance(const MinkowskiDiffd& shape, unsigned int max_iterations, double tolerance,
                  double *res, Vector3d *p1, Vector3d *p2);
 
-/*
 template
 bool GJKDistanceS(const MinkowskiDiffd& shape, unsigned int max_iterations, double tolerance,
                  double *res, Vector3d *p1, Vector3d *p2);
-*/
 
 template
 bool GJKSignedDistance(const MinkowskiDiffd& shape, 

@@ -161,9 +161,9 @@ template <typename S>
 Vector3<S> Capsule<S>::localGetSupportingVertex(const Vector3<S>& vec) const
 {
   Vector3<S> v = radius * vec;
-  if (vec[2] > 0.0)
+  if (vec[2] >= 0.0)
       v[2] += height;
-  else if (vec[2] < 0.0)
+  else
       v[2] -= height;
   return v;
 }

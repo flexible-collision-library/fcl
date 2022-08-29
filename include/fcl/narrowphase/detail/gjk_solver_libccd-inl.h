@@ -580,6 +580,53 @@ bool GJKSolver_libccd<S>::shapeSignedDistance(
   return result;
 }
 
+//==============================================================================
+template<typename S, typename Shape1, typename Shape2>
+struct ShapeDistanceLibccdImplS
+{
+  static bool run(
+      const GJKSolver_libccd<S>& gjkSolver,
+      const Shape1& s1,
+      const Transform3<S>& tf1,
+      const Shape2& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    detail::MinkowskiDiff<S> shape;
+    shape.shapes[0] = &s1;
+    shape.shapes[1] = &s2;
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
+
+    bool res =  detail::GJKDistanceS(
+          shape,
+          gjkSolver.max_distance_iterations,
+          gjkSolver.distance_tolerance,
+          dist,
+          p1,
+          p2);
+
+    return res;
+  }
+};
+
+template<typename S>
+template<typename Shape1, typename Shape2>
+bool GJKSolver_libccd<S>::shapeDistanceS(
+    const Shape1& s1,
+    const Transform3<S>& tf1,
+    const Shape2& s2,
+    const Transform3<S>& tf2,
+    S* dist,
+    Vector3<S>* p1,
+    Vector3<S>* p2) const
+{
+  return ShapeDistanceLibccdImplS<S, Shape1, Shape2>::run(
+        *this, s1, tf1, s2, tf2, dist, p1, p2);
+}
+
 
 //==============================================================================
 template<typename S, typename Shape1, typename Shape2>
@@ -653,148 +700,148 @@ bool GJKSolver_libccd<S>::shapeDistance(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 //==============================================================================
-template<typename S>
-struct ShapeDistanceLibccdImpl<S, Sphere<S>, Box<S>>
-{
-  static bool run(
-      const GJKSolver_libccd<S>& /*gjkSolver*/,
-      const Sphere<S>& s1,
-      const Transform3<S>& tf1,
-      const Box<S>& s2,
-      const Transform3<S>& tf2,
-      S* dist,
-      Vector3<S>* p1,
-      Vector3<S>* p2)
-  {
-    return detail::sphereBoxDistance(s1, tf1, s2, tf2, dist, p1, p2);
-  }
-};
-
-//==============================================================================
-template<typename S>
-struct ShapeDistanceLibccdImpl<S, Box<S>, Sphere<S>>
-{
-  static bool run(
-      const GJKSolver_libccd<S>& /*gjkSolver*/,
-      const Box<S>& s1,
-      const Transform3<S>& tf1,
-      const Sphere<S>& s2,
-      const Transform3<S>& tf2,
-      S* dist,
-      Vector3<S>* p1,
-      Vector3<S>* p2)
-  {
-    return detail::sphereBoxDistance(s2, tf2, s1, tf1, dist, p2, p1);
-  }
-};
-
-//==============================================================================
-template<typename S>
-struct ShapeDistanceLibccdImpl<S, Sphere<S>, Capsule<S>>
-{
-  static bool run(
-      const GJKSolver_libccd<S>& /*gjkSolver*/,
-      const Sphere<S>& s1,
-      const Transform3<S>& tf1,
-      const Capsule<S>& s2,
-      const Transform3<S>& tf2,
-      S* dist,
-      Vector3<S>* p1,
-      Vector3<S>* p2)
-  {
-    return detail::sphereCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
-  }
-};
-
-//==============================================================================
-template<typename S>
-struct ShapeDistanceLibccdImpl<S, Capsule<S>, Sphere<S>>
-{
-  static bool run(
-      const GJKSolver_libccd<S>& /*gjkSolver*/,
-      const Capsule<S>& s1,
-      const Transform3<S>& tf1,
-      const Sphere<S>& s2,
-      const Transform3<S>& tf2,
-      S* dist,
-      Vector3<S>* p1,
-      Vector3<S>* p2)
-  {
-    return detail::sphereCapsuleDistance(s2, tf2, s1, tf1, dist, p2, p1);
-  }
-};
-
-//==============================================================================
-template<typename S>
-struct ShapeDistanceLibccdImpl<S, Sphere<S>, Cylinder<S>>
-{
-  static bool run(
-      const GJKSolver_libccd<S>& /*gjkSolver*/,
-      const Sphere<S>& s1,
-      const Transform3<S>& tf1,
-      const Cylinder<S>& s2,
-      const Transform3<S>& tf2,
-      S* dist,
-      Vector3<S>* p1,
-      Vector3<S>* p2)
-  {
-    return detail::sphereCylinderDistance(s1, tf1, s2, tf2, dist, p1, p2);
-  }
-};
-
-//==============================================================================
-template<typename S>
-struct ShapeDistanceLibccdImpl<S, Cylinder<S>, Sphere<S>>
-{
-  static bool run(
-      const GJKSolver_libccd<S>& /*gjkSolver*/,
-      const Cylinder<S>& s1,
-      const Transform3<S>& tf1,
-      const Sphere<S>& s2,
-      const Transform3<S>& tf2,
-      S* dist,
-      Vector3<S>* p1,
-      Vector3<S>* p2)
-  {
-    return detail::sphereCylinderDistance(s2, tf2, s1, tf1, dist, p2, p1);
-  }
-};
-
-//==============================================================================
-template<typename S>
-struct ShapeDistanceLibccdImpl<S, Sphere<S>, Sphere<S>>
-{
-  static bool run(
-      const GJKSolver_libccd<S>& /*gjkSolver*/,
-      const Sphere<S>& s1,
-      const Transform3<S>& tf1,
-      const Sphere<S>& s2,
-      const Transform3<S>& tf2,
-      S* dist,
-      Vector3<S>* p1,
-      Vector3<S>* p2)
-  {
-    return detail::sphereSphereDistance(s1, tf1, s2, tf2, dist, p1, p2);
-  }
-};
-
-//==============================================================================
-template<typename S>
-struct ShapeDistanceLibccdImpl<S, Capsule<S>, Capsule<S>>
-{
-  static bool run(
-      const GJKSolver_libccd<S>& /*gjkSolver*/,
-      const Capsule<S>& s1,
-      const Transform3<S>& tf1,
-      const Capsule<S>& s2,
-      const Transform3<S>& tf2,
-      S* dist,
-      Vector3<S>* p1,
-      Vector3<S>* p2)
-  {
-    return detail::capsuleCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
-  }
-};
+//template<typename S>
+//struct ShapeDistanceLibccdImpl<S, Sphere<S>, Box<S>>
+//{
+//  static bool run(
+//      const GJKSolver_libccd<S>& /*gjkSolver*/,
+//      const Sphere<S>& s1,
+//      const Transform3<S>& tf1,
+//      const Box<S>& s2,
+//      const Transform3<S>& tf2,
+//      S* dist,
+//      Vector3<S>* p1,
+//      Vector3<S>* p2)
+//  {
+//    return detail::sphereBoxDistance(s1, tf1, s2, tf2, dist, p1, p2);
+//  }
+//};
+//
+////==============================================================================
+//template<typename S>
+//struct ShapeDistanceLibccdImpl<S, Box<S>, Sphere<S>>
+//{
+//  static bool run(
+//      const GJKSolver_libccd<S>& /*gjkSolver*/,
+//      const Box<S>& s1,
+//      const Transform3<S>& tf1,
+//      const Sphere<S>& s2,
+//      const Transform3<S>& tf2,
+//      S* dist,
+//      Vector3<S>* p1,
+//      Vector3<S>* p2)
+//  {
+//    return detail::sphereBoxDistance(s2, tf2, s1, tf1, dist, p2, p1);
+//  }
+//};
+//
+////==============================================================================
+//template<typename S>
+//struct ShapeDistanceLibccdImpl<S, Sphere<S>, Capsule<S>>
+//{
+//  static bool run(
+//      const GJKSolver_libccd<S>& /*gjkSolver*/,
+//      const Sphere<S>& s1,
+//      const Transform3<S>& tf1,
+//      const Capsule<S>& s2,
+//      const Transform3<S>& tf2,
+//      S* dist,
+//      Vector3<S>* p1,
+//      Vector3<S>* p2)
+//  {
+//    return detail::sphereCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
+//  }
+//};
+//
+////==============================================================================
+//template<typename S>
+//struct ShapeDistanceLibccdImpl<S, Capsule<S>, Sphere<S>>
+//{
+//  static bool run(
+//      const GJKSolver_libccd<S>& /*gjkSolver*/,
+//      const Capsule<S>& s1,
+//      const Transform3<S>& tf1,
+//      const Sphere<S>& s2,
+//      const Transform3<S>& tf2,
+//      S* dist,
+//      Vector3<S>* p1,
+//      Vector3<S>* p2)
+//  {
+//    return detail::sphereCapsuleDistance(s2, tf2, s1, tf1, dist, p2, p1);
+//  }
+//};
+//
+////==============================================================================
+//template<typename S>
+//struct ShapeDistanceLibccdImpl<S, Sphere<S>, Cylinder<S>>
+//{
+//  static bool run(
+//      const GJKSolver_libccd<S>& /*gjkSolver*/,
+//      const Sphere<S>& s1,
+//      const Transform3<S>& tf1,
+//      const Cylinder<S>& s2,
+//      const Transform3<S>& tf2,
+//      S* dist,
+//      Vector3<S>* p1,
+//      Vector3<S>* p2)
+//  {
+//    return detail::sphereCylinderDistance(s1, tf1, s2, tf2, dist, p1, p2);
+//  }
+//};
+//
+////==============================================================================
+//template<typename S>
+//struct ShapeDistanceLibccdImpl<S, Cylinder<S>, Sphere<S>>
+//{
+//  static bool run(
+//      const GJKSolver_libccd<S>& /*gjkSolver*/,
+//      const Cylinder<S>& s1,
+//      const Transform3<S>& tf1,
+//      const Sphere<S>& s2,
+//      const Transform3<S>& tf2,
+//      S* dist,
+//      Vector3<S>* p1,
+//      Vector3<S>* p2)
+//  {
+//    return detail::sphereCylinderDistance(s2, tf2, s1, tf1, dist, p2, p1);
+//  }
+//};
+//
+////==============================================================================
+//template<typename S>
+//struct ShapeDistanceLibccdImpl<S, Sphere<S>, Sphere<S>>
+//{
+//  static bool run(
+//      const GJKSolver_libccd<S>& /*gjkSolver*/,
+//      const Sphere<S>& s1,
+//      const Transform3<S>& tf1,
+//      const Sphere<S>& s2,
+//      const Transform3<S>& tf2,
+//      S* dist,
+//      Vector3<S>* p1,
+//      Vector3<S>* p2)
+//  {
+//    return detail::sphereSphereDistance(s1, tf1, s2, tf2, dist, p1, p2);
+//  }
+//};
+//
+////==============================================================================
+//template<typename S>
+//struct ShapeDistanceLibccdImpl<S, Capsule<S>, Capsule<S>>
+//{
+//  static bool run(
+//      const GJKSolver_libccd<S>& /*gjkSolver*/,
+//      const Capsule<S>& s1,
+//      const Transform3<S>& tf1,
+//      const Capsule<S>& s2,
+//      const Transform3<S>& tf2,
+//      S* dist,
+//      Vector3<S>* p1,
+//      Vector3<S>* p2)
+//  {
+//    return detail::capsuleCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
+//  }
+//};
 
 //==============================================================================
 template<typename S, typename Shape>

@@ -141,7 +141,7 @@ Vector3<S> Box<S>::localGetSupportingVertex(const Vector3<S>& vec) const
   // degenerate triangles in the EPA algorithm and are no more correct than just
   // picking box corners.
   auto sign = [](S x) -> S {
-    return x > S(0.0) ? S(1.0) : (x < S(0.0) ? S(-1.0) : S(0.0));
+    return x >= S(0.0) ? S(1.0) : S(-1.0);
   };
   return Vector3<S>(sign(vec[0]) * h_side[0], sign(vec[1]) * h_side[1], sign(vec[2]) * h_side[2]);
 }

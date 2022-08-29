@@ -132,9 +132,9 @@ Vector3<S> Cylinder<S>::localGetSupportingVertex(const Vector3<S>& vec) const
     v[0] = rad * vec[0];
     v[1] = rad * vec[1];
   }
-  if (vec[2] > 0.0)
+  if (vec[2] >= 0.0)
       v[2] = height;
-  else if (vec[2] < 0.0)
+  else
       v[2] = -height;
   return v;
 }

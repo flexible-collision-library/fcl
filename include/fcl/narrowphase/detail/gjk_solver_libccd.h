@@ -113,6 +113,17 @@ struct FCL_EXPORT GJKSolver_libccd
       Vector3<S>* p1 = nullptr,
       Vector3<S>* p2 = nullptr) const;
 
+  /// @brief distance computation between two shapes
+  template<typename Shape1, typename Shape2>
+  bool shapeDistanceS(
+      const Shape1& s1,
+      const Transform3<S>& tf1,
+      const Shape2& s2,
+      const Transform3<S>& tf2,
+      S* dist = nullptr,
+      Vector3<S>* p1 = nullptr,
+      Vector3<S>* p2 = nullptr) const;
+
   template<typename Shape1, typename Shape2>
   bool shapeSignedDistance(
       const Shape1& s1,

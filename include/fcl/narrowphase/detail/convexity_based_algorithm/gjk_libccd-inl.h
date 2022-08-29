@@ -64,11 +64,9 @@ extern template
 bool GJKDistance(const MinkowskiDiffd& shape, unsigned int max_iterations, double tolerance,
     double* dist, Vector3d* p1, Vector3d* p2);
 
-/*
 extern template
 bool GJKDistanceS(const MinkowskiDiffd& shape, unsigned int max_iterations, double tolerance,
     double* dist, Vector3d* p1, Vector3d* p2);
-*/
 
 extern template
 bool GJKSignedDistance(const MinkowskiDiffd& shape, unsigned int max_iterations, double tolerance,
@@ -786,7 +784,7 @@ static inline S _ccdDist(const MinkowskiDiff<S>& shape, Simplex<S> &simplex, uns
         Vector3<S> &p1, Vector3<S> &p2)
 {
     S last_dist = std::numeric_limits<S>::max();
-    for (unsigned int iterations = 0UL; iterations < max_iterations; ++iterations)
+    for (unsigned int iterations = 0u; iterations < max_iterations; ++iterations)
     {
         Vector3<S> closest_p; // The point on the simplex that is closest to the
         // origin.
@@ -814,157 +812,114 @@ static inline S _ccdDist(const MinkowskiDiff<S>& shape, Simplex<S> &simplex, uns
     return -S(1.0);
 }
 
-/*
-static inline S _ccdDistS(const MinkowskiDiff<S>& shape, Simplex &simplex, unsigned int max_iterations, S tol,
+template <typename S>
+static inline S _ccdDistS(const MinkowskiDiff<S>& shape, Simplex<S> &simplex, unsigned int max_iterations, S tol,
         Vector3<S> &p1, Vector3<S> &p2)
 {
-    S last_dist = -CCD_REAL_MAX, last_distp = CCD_REAL_MAX, dist = last_dist;
-    S gratio = 0.5 * (CCD_SQRT(5.0) - 1.0), gratio2 = 1.0 - gratio;
+    S last_dist = -std::numeric_limits<S>::max(), dist = last_dist, distp = -last_dist;
 
-    Vector3<S> closest_p; // The point on the simplex that is closest to the origin.
     Vector3<S> dir, best_dir; // direction vector
-    Support<S> last; // last support point
+    Support<S> last, best_support; // last support point
 
-    { // initial process
-        _simplexClosestP(simplex, &closest_p, last_distp);
-        _ccdSupport(obj1, obj2, ccd, &closest_p, &dir, &last);
-        if (_ccdOptimal(&closest_p, &dir, &last, ccd->dist_tolerance))
-        {
-            extractClosestPoints(simplex, p1, p2, &closest_p);
-            return last_distp;
-        }
-        dist = -ccdVec3Dot(&dir, &last.v);
-        last_dist = dist;
-        ccdVec3Copy(&best_dir, &dir);
-        if (ccdSimplexSize(simplex) > 1)
-        {
-            Support<S> first;
-            ccdVec3Copy(&first.v, &closest_p);
-            extractClosestPoints(simplex, &first.v1, &first.v2, &first.v);
-            ccdSimplexInit(simplex);
-            ccdSimplexAdd(simplex, &first);
-        }
-        ccdSimplexAdd(simplex, &last);
-    }
-    unsigned long iterations = 0UL;
-    for (; iterations < ccd->max_iterations; ++iterations)
+    bool simplified = false;
+    for (unsigned int iterations = 0u; iterations < max_iterations; ++iterations)
     {
-        _ccdSupport(obj1, obj2, ccd, &ccdSimplexPoint(simplex, 1)->v, &dir, &last);
+        if (simplified)
+            _ccdSupport(shape, best_support.v, dir, last);
+        else 
+        {
+            Vector3<S> closest_p; 
+            _simplexClosestP(simplex, closest_p, distp);
+            _ccdSupport(shape, closest_p, dir, last);
+            if (_ccdOptimal(closest_p, dir, last, tol)) // termination one 
+            {
+                extractClosestPoints(simplex, p1, p2, closest_p);
+                return distp;
+            }
+        }
 
-        dist = -ccdVec3Dot(&dir, &last.v);
-        Vector3<S> p_A, p_B, p_BA;
-        bool right = true;
+        dist = -dir.dot(last.v);
+        if (dist < 0.0 || iterations == 0u) // todo
+        {
+            simplified = true;
+            if (dist > last_dist)
+            {
+                last_dist = dist;
+                best_dir = dir;
+                best_support = last;
+            }
+            if (dist < 0.0)
+            {
+                simplified = false;
+                simplex.add(last);
+            }
+            continue;
+        }
+
+        Vector3<S> p_B, p_BA;
+        bool right = true, bisection = false;
         if (dist > last_dist)
         {
-            ccdVec3Copy(&p_B, &dir);
-            ccdVec3Copy(&p_A, &best_dir);
+            p_B = dir; p_BA = best_dir - p_B;
+            bisection = p_BA.dot(last.v) < -tol;
         }
         else
         {
             right = false;
-            ccdVec3Copy(&p_B, &best_dir);
-            ccdVec3Copy(&p_A, &dir);
+            p_B = best_dir; p_BA = dir - p_B;
+            bisection = p_BA.dot(best_support.v) < -tol;
         }
-        ccdVec3Sub2(&p_BA, &p_A, &p_B);
 
-        Support<S> temp;
-        ccdSupportCopy(&temp, &last);
-        if (right ? ccdVec3Dot(&last.v, &p_BA) < -ccd->dist_tolerance :
-                    ccdVec3Dot(&ccdSimplexPoint(simplex, 1)->v, &p_BA) < -ccd->dist_tolerance)
+        if (bisection) // core part
         {
-            if (right)
-                last_dist = dist;
-            bool update = false;
-            S low = 0.0, high = 1.0, s = 0.5, bests = s;
-            while (low + ccd->dist_tolerance < high)
+            S best_dist = right ? dist : last_dist;
+            S s = 0.9, d1 = -std::numeric_limits<S>::max();
+            while (tol < s)
             {
-                s = gratio * low + gratio2 * high;
-                Vector3<S> sBA;
-                ccdVec3Copy(&sBA, &p_BA);
-                ccdVec3Scale(&sBA, s);
-                ccdVec3Copy(&dir, &p_B);
-                ccdVec3Add(&dir, &sBA);
-                ccdVec3Normalize(&dir);
-                __ccdSupport(obj1, obj2, &dir, ccd, &last);
-                dist = -ccdVec3Dot(&dir, &last.v);
-                if (dist > last_dist)
+                Vector3<S> dir1 = (p_B + s * p_BA).normalized();
+                Support<S> temp = shape.supportS(dir1);
+                S d = -dir1.dot(temp.v);
+                if (d > best_dist)
                 {
-                    update = true;
-                    bests = s;
-                    last_dist = dist;
-                    ccdVec3Copy(&best_dir, &dir);
-                    ccdSupportCopy(&temp, &last);
+                    dist = best_dist = d1 = d;
+                    dir = dir1; last = temp; s *= 0.5;
+                    continue;
                 }
-                if (ccdVec3Dot(&last.v, &p_BA) <= CCD_ZERO)
-                    low = s;
-                else
-                    high = s;
+                if (d <= d1 || p_BA.dot(temp.v) <= 0.0)
+                    break;
+                if (temp.v.isApprox(best_support.v) || temp.v.isApprox(last.v)) // box
+                    break;
+                d1 = d; s *= 0.5;
             }
-            if (update)
-            {
-                if (right)
-                {
-                    ccdVec3Copy(&p_B, &ccdSimplexPoint(simplex, 1)->v);
-                    ccdVec3Copy(&p_A, &ccdSimplexPoint(simplex, 0)->v);
-                }
-                else
-                {
-                    ccdVec3Copy(&p_B, &ccdSimplexPoint(simplex, 0)->v);
-                    ccdVec3Copy(&p_A, &ccdSimplexPoint(simplex, 1)->v);
-                }
-                ccdVec3Sub2(&p_BA, &p_A, &p_B);
-                S l_B = CCD_SQRT(ccdVec3Len2(&p_B));
-                S l_A = CCD_SQRT(ccdVec3Len2(&p_A));
-                bests = bests / (bests + (1.0 - bests) * l_A / l_B);
-                ccdVec3Scale(&p_BA, bests);
-                Support<S> first;
-                ccdVec3Copy(&first.v, &p_B);
-                ccdVec3Add(&first.v, &p_BA);
-                extractClosestPoints(simplex, &first.v1, &first.v2, &first.v);
-                ccdSimplexInit(simplex);
-                ccdSimplexAdd(simplex, &first);
-                ccdSimplexAdd(simplex, &temp);
-            }
-            else 
-                std::cout << "Error!" << std::endl;
         }
-        else if (dist > last_dist)
+
+        if (dist >= last_dist && dist - last_dist < tol) // termination two
         {
-            ccdVec3Copy(&best_dir, &dir);
-            ccdSimplexSet(simplex, 0, ccdSimplexPoint(simplex, 1));
-            ccdSimplexSet(simplex, 1, &last);
+            p1 = shape.support0(dir).dot(dir)*dir;
+            p2 = shape.support1(-dir).dot(dir)*dir;
+            return dist;
+        }
+        if (dist > last_dist)
+        {
+            simplified = true;
+            best_dir = dir;
+            best_support = last;
+            last_dist = dist;
         }
         else
         {
-            ccdSimplexAdd(simplex, &last);
-            break;
-        }
-
-        if (dist >= last_dist) // termination two // todo
-        {
-            if (_ccdOptimal(&ccdSimplexPoint(simplex, 0)->v, &best_dir, ccdSimplexPoint(simplex, 1), ccd->dist_tolerance))
+            if (simplified)
             {
-                //extractClosestPoints(simplex, p1, p2, &closest_p); // todo
-                return dist;
+                simplex.set(0, best_support);
+                simplex.setSize(1);
             }
-            last_dist = dist;
-        }
-    }
-
-    for (; iterations < ccd->max_iterations; ++iterations)
-    {
-        _simplexClosestP(simplex, &closest_p, last_distp);
-        _ccdSupport(obj1, obj2, ccd, &closest_p, &dir, &last);
-        if (_ccdOptimal(&closest_p, &dir, &last, ccd->dist_tolerance))
-        {
-            extractClosestPoints(simplex, p1, p2, &closest_p);
-            return last_distp;
+            simplex.add(last);
+            simplified = false;
         }
     }
 
     return last_dist;
 }
-*/
 
 // Computes the distance between two non-penetrating convex objects, `obj1` and
 // `obj2`, returning the distance and
@@ -1089,7 +1044,6 @@ bool GJKDistance(const MinkowskiDiff<S>& shape, unsigned int max_iterations, S t
     return true;
 }
 
-/*
 template <typename S>
 bool GJKDistanceS(const MinkowskiDiff<S>& shape, unsigned int max_iterations, S tolerance,
                  S* res, Vector3<S>* p1, Vector3<S>* p2)
@@ -1109,7 +1063,6 @@ bool GJKDistanceS(const MinkowskiDiff<S>& shape, unsigned int max_iterations, S 
   else
     return true;
 }
-*/
 
 /**
  * Compute the signed distance between two mesh objects. When the objects are

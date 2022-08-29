@@ -88,12 +88,10 @@ FCL_EXPORT
 bool GJKDistance(const MinkowskiDiff<S>& shape, unsigned int max_iterations, S tolerance,
                  S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
-/*
 template <typename S>
 FCL_EXPORT
 bool GJKDistanceS(const MinkowskiDiff<S>& shape, unsigned int max_iterations, S tolerance,
                  S* dist, Vector3<S>* p1, Vector3<S>* p2);
-*/
 
 /** Compute the signed distance between two objects using GJK and EPA algorithm.
  * @param[in] obj1 A convex geometric object.
