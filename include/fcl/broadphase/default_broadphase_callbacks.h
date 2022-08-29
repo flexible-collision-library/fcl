@@ -92,7 +92,7 @@ bool DefaultCollisionFunction(CollisionObject<S>* o1, CollisionObject<S>* o2,
   const CollisionRequest<S>& request = collision_data->request;
   CollisionResult<S>& result = collision_data->result;
 
-  if(collision_data->done) return true;
+  if (collision_data->done) return true;
 
   collide(o1, o2, request, result);
 
@@ -103,7 +103,6 @@ bool DefaultCollisionFunction(CollisionObject<S>* o1, CollisionObject<S>* o2,
 
   return collision_data->done;
 }
-
 
 /// @brief Collision data for use with the DefaultContinuousCollisionFunction.
 /// It stores the collision request and the result given by the collision
@@ -117,7 +116,6 @@ struct DefaultContinuousCollisionData {
   /// If `true`, requests that the broadphase evaluation stop.
   bool done{false};
 };
-
 
 /// @brief Provides a simple callback for the continuous collision query in the
 /// BroadPhaseCollisionManager. It assumes the `data` parameter is non-null and

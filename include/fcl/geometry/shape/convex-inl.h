@@ -48,12 +48,10 @@
 #include "fcl/geometry/shape/convex.h"
 #include "fcl/geometry/shape/representation.h"
 
-namespace fcl
-{
+namespace fcl {
 
 //==============================================================================
-extern template
-class FCL_EXPORT Convex<double>;
+extern template class FCL_EXPORT Convex<double>;
 
 //==============================================================================
 template <typename S>
@@ -114,9 +112,8 @@ Matrix3<S> Convex<S>::computeMomentofInertia() const {
   Matrix3<S> C = Matrix3<S>::Zero();
 
   Matrix3<S> C_canonical;
-  C_canonical << 1/ 60.0, 1/120.0, 1/120.0,
-      1/120.0, 1/ 60.0, 1/120.0,
-      1/120.0, 1/120.0, 1/ 60.0;
+  C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0, 1 / 120.0,
+      1 / 120.0, 1 / 120.0, 1 / 60.0;
 
   S vol_times_six = 0;
   int face_index = 0;
@@ -140,11 +137,11 @@ Matrix3<S> Convex<S>::computeMomentofInertia() const {
       const Vector3<S>& v1 = vertices[e_first];
       const Vector3<S>& v2 = vertices[e_second];
       S d_six_vol = (v1.cross(v2)).dot(v3);
-      Matrix3<S> A; // this is A' in the original document
+      Matrix3<S> A;  // this is A' in the original document
       A.row(0) = v1;
       A.row(1) = v2;
       A.row(2) = v3;
-      C += A.transpose() * C_canonical * A * d_six_vol; // change accordingly
+      C += A.transpose() * C_canonical * A * d_six_vol;  // change accordingly
       vol_times_six += d_six_vol;
     }
 
@@ -154,9 +151,8 @@ Matrix3<S> Convex<S>::computeMomentofInertia() const {
   S trace_C = C(0, 0) + C(1, 1) + C(2, 2);
 
   Matrix3<S> m;
-  m << trace_C - C(0, 0), -C(0, 1), -C(0, 2),
-      -C(1, 0), trace_C - C(1, 1), -C(1, 2),
-      -C(2, 0), -C(2, 1), trace_C - C(2, 2);
+  m << trace_C - C(0, 0), -C(0, 1), -C(0, 2), -C(1, 0), trace_C - C(1, 1),
+      -C(1, 2), -C(2, 0), -C(2, 1), trace_C - C(2, 2);
 
   return m * (6 / vol_times_six);
 }
@@ -198,11 +194,12 @@ Vector3<S> Convex<S>::computeCOM() const {
     face_index += vertex_count + 1;
   }
 
-  return com / (vol * 4); // here we choose zero as the reference
+  return com / (vol * 4);  // here we choose zero as the reference
 }
 
 //==============================================================================
-template <typename S> S Convex<S>::computeVolume() const {
+template <typename S>
+S Convex<S>::computeVolume() const {
   const std::vector<Vector3<S>>& vertices = *vertices_;
   const std::vector<int>& faces = *faces_;
   S vol = 0;
@@ -367,8 +364,8 @@ void Convex<S>::ValidateTopology(bool throw_on_error) {
   // To simplify the code, we define an edge as a pair of ints (A, B) such that
   // A < B must be true.
   auto make_edge = [](int v0, int v1) {
-      if (v0 > v1) std::swap(v0, v1);
-      return std::make_pair(v0, v1);
+    if (v0 > v1) std::swap(v0, v1);
+    return std::make_pair(v0, v1);
   };
 
   bool all_connected = true;
@@ -389,7 +386,7 @@ void Convex<S>::ValidateTopology(bool throw_on_error) {
     for (int n_index = neighbor_start + 1;
          n_index <= neighbor_start + neighbor_count; ++n_index) {
       const int n = neighbors_[n_index];
-        per_edge_face_count[make_edge(v, n)] = 0;
+      per_edge_face_count[make_edge(v, n)] = 0;
     }
   }
 
@@ -400,14 +397,14 @@ void Convex<S>::ValidateTopology(bool throw_on_error) {
   const std::vector<int>& faces = *faces_;
   int face_index = 0;
   for (int f = 0; f < num_faces_; ++f) {
-      const int vertex_count = faces[face_index];
-      int prev_v = faces[face_index + vertex_count];
-      for (int i = face_index + 1; i <= face_index + vertex_count; ++i) {
-          const int v = faces[i];
-          ++per_edge_face_count[make_edge(v, prev_v)];
-          prev_v = v;
-      }
-      face_index += vertex_count + 1;
+    const int vertex_count = faces[face_index];
+    int prev_v = faces[face_index + vertex_count];
+    for (int i = face_index + 1; i <= face_index + vertex_count; ++i) {
+      const int v = faces[i];
+      ++per_edge_face_count[make_edge(v, prev_v)];
+      prev_v = v;
+    }
+    face_index += vertex_count + 1;
   }
 
   // Now examine the results.
@@ -468,6 +465,6 @@ void Convex<S>::FindVertexNeighbors() {
   }
 }
 
-} // namespace fcl
+}  // namespace fcl
 
 #endif
