@@ -464,6 +464,24 @@ bool GJKSolver_libccd<S>::shapeSignedDistance(
     const Shape1& s1, const Transform3<S>& tf1, const Shape2& s2,
     const Transform3<S>& tf2, S* dist, Vector3<S>* p1, Vector3<S>* p2) const {
   bool result = false;
+  if (s1->getNodeType() == fcl::GEOM_HALFSPACE ||
+      s2->getNodeType() == fcl::GEOM_HALFSPACE) {
+    throw std::logic_error(
+        "Signed distance queries on halfspaces are not currently supported. "
+        "Try using a plane instead.");
+  }
+  elif ((s1->getNodeType() == fcl::GEOM_PLANE &&
+         !(s2->getNodeType() == fcl::GEOM_BOX ||
+           s2->getNodeType() == fcl::GEOM_PLANE ||
+           s2->getNodeType() == fcl::GEOM_CONVEX)) ||
+        (s2->getNodeType() == fcl::GEOM_PLANE &&
+         !(s1->getNodeType() == fcl::GEOM_BOX ||
+           s1->getNodeType() == fcl::GEOM_PLANE ||
+           s1->getNodeType() == fcl::GEOM_CONVEX))) {
+    throw std::logic_error(
+        "Signed distance queries on planes are not currently supported except"
+        " between planes, boxes, and convex objects.");
+  }
   try {
     result = ShapeSignedDistanceLibccdImpl<S, Shape1, Shape2>::run(
         *this, s1, tf1, s2, tf2, dist, p1, p2);
@@ -558,6 +576,24 @@ bool GJKSolver_libccd<S>::shapeDistance(const Shape1& s1,
                                         const Shape2& s2,
                                         const Transform3<S>& tf2, S* dist,
                                         Vector3<S>* p1, Vector3<S>* p2) const {
+  if (s1->getNodeType() == fcl::GEOM_HALFSPACE ||
+      s2->getNodeType() == fcl::GEOM_HALFSPACE) {
+    throw std::logic_error(
+        "Distance queries on halfspaces are not currently supported. "
+        "Try using a plane instead.");
+  }
+  elif ((s1->getNodeType() == fcl::GEOM_PLANE &&
+         !(s2->getNodeType() == fcl::GEOM_BOX ||
+           s2->getNodeType() == fcl::GEOM_PLANE ||
+           s2->getNodeType() == fcl::GEOM_CONVEX)) ||
+        (s2->getNodeType() == fcl::GEOM_PLANE &&
+         !(s1->getNodeType() == fcl::GEOM_BOX ||
+           s1->getNodeType() == fcl::GEOM_PLANE ||
+           s1->getNodeType() == fcl::GEOM_CONVEX))) {
+    throw std::logic_error(
+        "Distance queries on planes are not currently supported except"
+        " between planes, boxes, and convex objects.");
+  }
   return ShapeDistanceLibccdImpl<S, Shape1, Shape2>::run(*this, s1, tf1, s2,
                                                          tf2, dist, p1, p2);
 }
