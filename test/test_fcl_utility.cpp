@@ -116,13 +116,13 @@ double Timer::getElapsedTimeInMicroSec()
 //==============================================================================
 double Timer::getElapsedTimeInMilliSec()
 {
-  return this->getElapsedTimeInMicroSec() * 0.001;
+  return this->getElapsedTimeInMicroSec() * 1E-3;
 }
 
 //==============================================================================
 double Timer::getElapsedTimeInSec()
 {
-  return this->getElapsedTimeInMicroSec() * 0.000001;
+  return this->getElapsedTimeInMicroSec() * 1E-6;
 }
 
 //==============================================================================

@@ -47,14 +47,14 @@ namespace detail
 template <>
 float halfspaceIntersectTolerance()
 {
-  return 0.0001f;
+  return 1E-4f;
 }
 
 //==============================================================================
 template <>
 double halfspaceIntersectTolerance()
 {
-  return 0.0000001;
+  return 1E-7;
 }
 
 //==============================================================================
