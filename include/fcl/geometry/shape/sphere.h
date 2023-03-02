@@ -40,7 +40,8 @@
 
 #include "fcl/geometry/shape/shape_base.h"
 
-#include <iostream>
+#include <ostream>
+#include <string>
 
 namespace fcl
 {
@@ -71,6 +72,11 @@ public:
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
+
+  /// @brief  Create a string that should be sufficient to recreate this shape.
+  /// This is akin to the repr() implementation in python.
+  /// @return The string representation of this instance.
+  std::string Representation() const;
 
   friend
   std::ostream& operator<<(std::ostream& out, const Sphere& sphere) {

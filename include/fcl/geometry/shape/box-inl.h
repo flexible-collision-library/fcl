@@ -38,6 +38,9 @@
 #ifndef FCL_SHAPE_BOX_INL_H
 #define FCL_SHAPE_BOX_INL_H
 
+#include <sstream>
+#include <type_traits>
+
 #include "fcl/geometry/shape/box.h"
 
 namespace fcl
@@ -131,6 +134,18 @@ std::vector<Vector3<S>> Box<S>::getBoundVertices(
   result[7] = tf * Vector3<S>(-a, -b, -c);
 
   return result;
+}
+
+//==============================================================================
+template <typename S>
+std::string Box<S>::Representation() const {
+  const std::string S_str = std::is_same<S, double>::value  ? "double"
+                            : std::is_same<S, float>::value ? "float"
+                                                            : "S";
+  std::stringstream ss;
+  ss << "Box<" << S_str << ">(" << side[0] << ", " << side[1] << ", " << side[2]
+     << ");";
+  return ss.str();
 }
 
 } // namespace fcl

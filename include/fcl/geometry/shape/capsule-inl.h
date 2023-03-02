@@ -40,6 +40,9 @@
 
 #include "fcl/geometry/shape/capsule.h"
 
+#include <sstream>
+#include <type_traits>
+
 namespace fcl
 {
 
@@ -155,6 +158,17 @@ std::vector<Vector3<S>> Capsule<S>::getBoundVertices(
   result[35] = tf * Vector3<S>(c, -d, -hl);
 
   return result;
+}
+
+//==============================================================================
+template <typename S>
+std::string Capsule<S>::Representation() const {
+  const std::string S_str = std::is_same<S, double>::value  ? "double"
+                            : std::is_same<S, float>::value ? "float"
+                                                            : "S";
+  std::stringstream ss;
+  ss << "Capsule<" << S_str << ">(" << radius << ", " << lz << ");";
+  return ss.str();
 }
 
 } // namespace fcl

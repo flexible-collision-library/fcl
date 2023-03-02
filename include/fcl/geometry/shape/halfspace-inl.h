@@ -38,6 +38,9 @@
 #ifndef FCL_SHAPE_HALFSPACE_INL_H
 #define FCL_SHAPE_HALFSPACE_INL_H
 
+#include <sstream>
+#include <type_traits>
+
 #include "fcl/geometry/shape/halfspace.h"
 
 namespace fcl
@@ -128,6 +131,18 @@ template <typename S>
 NODE_TYPE Halfspace<S>::getNodeType() const
 {
   return GEOM_HALFSPACE;
+}
+
+//==============================================================================
+template <typename S>
+std::string Halfspace<S>::Representation() const {
+  const std::string S_str = std::is_same<S, double>::value  ? "double"
+                            : std::is_same<S, float>::value ? "float"
+                                                            : "S";
+  std::stringstream ss;
+  ss << "Halfspace<" << S_str << ">(" << n[0] << ", " << n[1] << ", " << n[2]
+     << ", " << d << ");";
+  return ss.str();
 }
 
 //==============================================================================

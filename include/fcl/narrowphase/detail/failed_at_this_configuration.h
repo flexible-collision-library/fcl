@@ -39,11 +39,12 @@
 
 #include <exception>
 #include <iomanip>
-#include <iostream>
+#include <ostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 
+#include "fcl/common/types.h"
 #include "fcl/export.h"
 
 namespace fcl {
@@ -85,6 +86,44 @@ class FCL_EXPORT FailedAtThisConfiguration final
 FCL_EXPORT void ThrowFailedAtThisConfiguration(
     const std::string& message, const char* func, const char* file, int line);
 
+/** Works in conjuction with ThrowDetailedConfiguration() to format the pose
+ in a more python-like repr() way (facilitating error reproduction). In this
+ case, just doing comma-delimited print outs makes copying-and-pasting the
+ error message contents into code easier.
+
+ The intention is that the matrix is printed out as:
+
+      a, b, c, d,
+      e, f, g, h,
+      i, j, k, l,
+      m, n, o, p;
+
+ so, that it can easily be copied and pasted into code like this:
+
+ Transform3<S> X;
+ X.matrix() << a, b, c, d,
+               e, f, g, h,
+               i, j, k, l,
+               m, n, o, p; */
+template <typename S>
+void WriteCommaSeparated(std::stringstream* sstream, const Transform3<S>& p) {
+  const auto& m = p.matrix();
+  std::stringstream& ss = *sstream;
+  for (int row = 0; row < 4; ++row) {
+    for (int col = 0; col < 4; ++col) {
+      ss << m(row, col);
+      if (col < 3) {
+        ss << ", ";
+      }
+    }
+    if (row < 3) {
+      ss << ",\n";
+    } else {
+      ss << ";";
+    }
+  }
+}
+
 /** Helper class for propagating a low-level exception upwards but with
  configuration-specific details appended. The parameters
  
@@ -99,19 +138,21 @@ FCL_EXPORT void ThrowFailedAtThisConfiguration(
  @tparam Solver   The solver type (with scalar type erase).
  @tparam Pose     The pose type (a Transform<S> with scalar type erased).
  */
-template <typename Shape1, typename Shape2, typename Solver, typename Pose>
-void ThrowDetailedConfiguration(const Shape1& s1, const Pose& X_FS1,
-                                const Shape2& s2, const Pose& X_FS2,
+template <typename Shape1, typename Shape2, typename Solver, typename S>
+void ThrowDetailedConfiguration(const Shape1& s1, const Transform3<S>& X_FS1,
+                                const Shape2& s2, const Transform3<S>& X_FS2,
                                 const Solver& solver, const std::exception& e) {
   std::stringstream ss;
   ss << std::setprecision(20);
   ss << "Error with configuration"
      << "\n  Original error message: " << e.what()
-     << "\n  Shape 1: " << s1
-     << "\n  X_FS1\n" << X_FS1.matrix()
-     << "\n  Shape 2: " << s2
-     << "\n  X_FS2\n" << X_FS2.matrix()
-     << "\n  Solver: " << solver;
+     << "\n  Shape 1:\n" << s1.Representation()
+     << "\n  X_FS1\n";
+  WriteCommaSeparated(&ss, X_FS1);
+  ss << "\n  Shape 2:\n" << s2.Representation()
+     << "\n  X_FS2\n";
+  WriteCommaSeparated(&ss, X_FS2);
+  ss << "\n  Solver: " << solver;
   throw std::logic_error(ss.str());
 }
 

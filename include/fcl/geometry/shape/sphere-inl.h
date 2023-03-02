@@ -38,6 +38,9 @@
 #ifndef FCL_SHAPE_SPHERE_INL_H
 #define FCL_SHAPE_SPHERE_INL_H
 
+#include <sstream>
+#include <type_traits>
+
 #include "fcl/geometry/shape/sphere.h"
 
 namespace fcl
@@ -113,6 +116,17 @@ std::vector<Vector3<S>> Sphere<S>::getBoundVertices(
   result[11] = tf * Vector3<S>(-b, 0, -a);
 
   return result;
+}
+
+//==============================================================================
+template <typename S>
+std::string Sphere<S>::Representation() const {
+  const std::string S_str = std::is_same<S, double>::value  ? "double"
+                            : std::is_same<S, float>::value ? "float"
+                                                            : "S";
+  std::stringstream ss;
+  ss << "Sphere<" << S_str << ">(" << radius << ");";
+  return ss.str();
 }
 
 } // namespace fcl

@@ -38,6 +38,9 @@
 #ifndef FCL_SHAPE_CONE_INL_H
 #define FCL_SHAPE_CONE_INL_H
 
+#include <sstream>
+#include <type_traits>
+
 #include "fcl/geometry/shape/cone.h"
 
 namespace fcl
@@ -121,6 +124,17 @@ std::vector<Vector3<S>> Cone<S>::getBoundVertices(
   result[6] = tf * Vector3<S>(0, 0, hl);
 
   return result;
+}
+
+//==============================================================================
+template <typename S>
+std::string Cone<S>::Representation() const {
+  const std::string S_str = std::is_same<S, double>::value  ? "double"
+                            : std::is_same<S, float>::value ? "float"
+                                                            : "S";
+  std::stringstream ss;
+  ss << "Cone<" << S_str << ">(" << radius << ", " << lz << ");";
+  return ss.str();
 }
 
 } // namespace fcl

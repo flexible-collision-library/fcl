@@ -38,6 +38,9 @@
 #ifndef FCL_SHAPE_CYLINDER_INL_H
 #define FCL_SHAPE_CYLINDER_INL_H
 
+#include <sstream>
+#include <type_traits>
+
 #include "fcl/geometry/shape/cylinder.h"
 
 namespace fcl
@@ -119,6 +122,17 @@ std::vector<Vector3<S>> Cylinder<S>::getBoundVertices(
   result[11] = tf * Vector3<S>(a, -b, hl);
 
   return result;
+}
+
+//==============================================================================
+template <typename S>
+std::string Cylinder<S>::Representation() const {
+  const std::string S_str = std::is_same<S, double>::value  ? "double"
+                            : std::is_same<S, float>::value ? "float"
+                                                            : "S";
+  std::stringstream ss;
+  ss << "Cylinder<" << S_str << ">(" << radius << ", " << lz << ");";
+  return ss.str();
 }
 
 } // namespace fcl

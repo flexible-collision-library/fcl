@@ -38,6 +38,9 @@
 #ifndef FCL_SHAPE_ELLIPSOID_INL_H
 #define FCL_SHAPE_ELLIPSOID_INL_H
 
+#include <sstream>
+#include <type_traits>
+
 #include "fcl/geometry/shape/ellipsoid.h"
 
 namespace fcl
@@ -141,6 +144,18 @@ std::vector<Vector3<S>> Ellipsoid<S>::getBoundVertices(
   result[11] = tf * Vector3<S>(-Ab, 0, -Ca);
 
   return result;
+}
+
+//==============================================================================
+template <typename S>
+std::string Ellipsoid<S>::Representation() const {
+  const std::string S_str = std::is_same<S, double>::value  ? "double"
+                            : std::is_same<S, float>::value ? "float"
+                                                            : "S";
+  std::stringstream ss;
+  ss << "Ellipsoid<" << S_str << ">(" << radii[0] << ", " << radii[1] << ", "
+     << radii[2] << ");";
+  return ss.str();
 }
 
 } // namespace fcl
