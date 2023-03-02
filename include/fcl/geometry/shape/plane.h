@@ -38,7 +38,8 @@
 #ifndef FCL_SHAPE_PLANE_H
 #define FCL_SHAPE_PLANE_H
 
-#include <iostream>
+#include <ostream>
+#include <string>
 
 #include "fcl/geometry/shape/shape_base.h"
 
@@ -76,6 +77,13 @@ public:
 
   /// @brief Plane offset 
   S d;
+
+  /// @brief Create a string that should be sufficient to recreate this shape.
+  /// This is akin to the repr() implementation in python.
+  /// @param precision The requested digits of precision for the numerical
+  ///                  measures (same semantics as std::setprecision()).
+  /// @return The string representation of this instance.
+  std::string representation(int precision = 20) const;
 
   friend
   std::ostream& operator<<(std::ostream& out, const Plane& plane) {

@@ -39,8 +39,9 @@
 #ifndef FCL_SHAPE_CONVEX_H
 #define FCL_SHAPE_CONVEX_H
 
-#include <iostream>
+#include <ostream>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "fcl/geometry/shape/shape_base.h"
@@ -175,6 +176,13 @@ public:
   ///         in the  %Convex polytope's set of vertices.
   const Vector3<S>& findExtremeVertex(const Vector3<S>& v_C) const;
 
+  /// @brief Create a string that should be sufficient to recreate this shape.
+  /// This is akin to the repr() implementation in python.
+  /// @param precision The requested digits of precision for the numerical
+  ///                  measures (same semantics as std::setprecision()).
+  /// @return The string representation of this instance.
+  std::string representation(int precision = 20) const;
+
   friend
   std::ostream& operator<<(std::ostream& out, const Convex& convex) {
     out << "Convex(v count: " << convex.vertices_->size() << ", f count: "
@@ -225,6 +233,8 @@ public:
   const std::shared_ptr<const std::vector<Vector3<S>>> vertices_;
   const int num_faces_;
   const std::shared_ptr<const std::vector<int>> faces_;
+  // This is stored to support representation().
+  const bool throw_if_invalid_{};
   Vector3<S> interior_point_;
 
   /* The encoding of vertex adjacency in the mesh. The encoding is as follows:

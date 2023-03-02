@@ -38,7 +38,11 @@
 #ifndef FCL_SHAPE_CYLINDER_INL_H
 #define FCL_SHAPE_CYLINDER_INL_H
 
+#include <iomanip>
+#include <sstream>
+
 #include "fcl/geometry/shape/cylinder.h"
+#include "fcl/geometry/shape/representation.h"
 
 namespace fcl
 {
@@ -119,6 +123,16 @@ std::vector<Vector3<S>> Cylinder<S>::getBoundVertices(
   result[11] = tf * Vector3<S>(a, -b, hl);
 
   return result;
+}
+
+//==============================================================================
+template <typename S>
+std::string Cylinder<S>::representation(int precision) const {
+  const char* S_str = detail::ScalarRepr<S>::value();
+  std::stringstream ss;
+  ss << std::setprecision(precision);
+  ss << "Cylinder<" << S_str << ">(" << radius << ", " << lz << ");";
+  return ss.str();
 }
 
 } // namespace fcl

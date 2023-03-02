@@ -1,5 +1,6 @@
 set(tests
     test_collision_func_matrix.cpp
+    test_failed_at_this_configuration.cpp
     )
 
 # Build all the tests

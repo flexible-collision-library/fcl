@@ -46,6 +46,7 @@
 #include "eigen_matrix_compare.h"
 #include "expect_throws_message.h"
 #include "fcl/common/types.h"
+#include "geometry/shape/representation_util.h"
 
 namespace fcl {
 class ConvexTester {
@@ -870,6 +871,22 @@ GTEST_TEST(ConvexGeometry, UseEdgeWalkingConditions) {
 //   well-known closed-form values for the tensor product. Confirm that as
 //   the tesselation gets finer, that the answer converges to the reference
 //   solution.
+
+GTEST_TEST(ConvexGeometry, Representation) {
+  // This defines the `shape` and `code_string` variables used in the test.
+  INSTANTIATE_AND_SAVE_STRING(
+      Convex<double>(
+          std::make_shared<std::vector<Vector3<double>>>(
+              std::initializer_list<Vector3<double>>{
+                  Vector3<double>(0, 0, 0), Vector3<double>(1.5, 0, 0),
+                  Vector3<double>(0, 1.5, 0), Vector3<double>(1, 1.5, 0),}),
+          2,
+          std::make_shared<std::vector<int>>(
+              std::initializer_list<int>{ 3, 0, 1, 2, 3, 1, 3, 2,}),
+          false);)
+
+  EXPECT_TRUE(detail::ValidateRepresentation(shape, code_string));
+}
 
 }  // namespace
 }  // namespace fcl

@@ -38,7 +38,11 @@
 #ifndef FCL_SHAPE_HALFSPACE_INL_H
 #define FCL_SHAPE_HALFSPACE_INL_H
 
+#include <iomanip>
+#include <sstream>
+
 #include "fcl/geometry/shape/halfspace.h"
+#include "fcl/geometry/shape/representation.h"
 
 namespace fcl
 {
@@ -128,6 +132,17 @@ template <typename S>
 NODE_TYPE Halfspace<S>::getNodeType() const
 {
   return GEOM_HALFSPACE;
+}
+
+//==============================================================================
+template <typename S>
+std::string Halfspace<S>::representation(int precision) const {
+  const char* S_str = detail::ScalarRepr<S>::value();
+  std::stringstream ss;
+  ss << std::setprecision(precision);
+  ss << "Halfspace<" << S_str << ">(" << n[0] << ", " << n[1] << ", " << n[2]
+     << ", " << d << ");";
+  return ss.str();
 }
 
 //==============================================================================
