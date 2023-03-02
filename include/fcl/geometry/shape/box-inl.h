@@ -38,7 +38,11 @@
 #ifndef FCL_SHAPE_BOX_INL_H
 #define FCL_SHAPE_BOX_INL_H
 
+#include <iomanip>
+#include <sstream>
+
 #include "fcl/geometry/shape/box.h"
+#include "fcl/geometry/shape/representation.h"
 
 namespace fcl
 {
@@ -131,6 +135,17 @@ std::vector<Vector3<S>> Box<S>::getBoundVertices(
   result[7] = tf * Vector3<S>(-a, -b, -c);
 
   return result;
+}
+
+//==============================================================================
+template <typename S>
+std::string Box<S>::representation(int precision) const {
+  const char* S_str = detail::ScalarRepr<S>::value();
+  std::stringstream ss;
+  ss << std::setprecision(precision);
+  ss << "Box<" << S_str << ">(" << side[0] << ", " << side[1] << ", " << side[2]
+     << ");";
+  return ss.str();
 }
 
 } // namespace fcl

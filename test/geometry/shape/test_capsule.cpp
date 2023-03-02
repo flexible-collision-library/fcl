@@ -44,6 +44,7 @@
 #include <gtest/gtest.h>
 
 #include "eigen_matrix_compare.h"
+#include "geometry/shape/representation_util.h"
 
 namespace fcl {
 namespace {
@@ -174,6 +175,13 @@ GTEST_TEST(Capsule, MomentOfInertia_Capsule) {
     Capsulef capsule_f(rf, lf);
     testMomentOfInertiaComputation(capsule_f, 1e-6f);
   }
+}
+
+GTEST_TEST(Capsule, Representation) {
+  // This defines the `shape` and `code_string` variables used in the test.
+  INSTANTIATE_AND_SAVE_STRING(Capsule<double>(2.5, 3.5);)
+
+  EXPECT_TRUE(detail::ValidateRepresentation(shape, code_string));
 }
 
 }  // namespace

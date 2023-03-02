@@ -39,11 +39,14 @@
 #ifndef FCL_SHAPE_CONVEX_INL_H
 #define FCL_SHAPE_CONVEX_INL_H
 
+#include <iomanip>
 #include <map>
 #include <set>
+#include <sstream>
 #include <utility>
 
 #include "fcl/geometry/shape/convex.h"
+#include "fcl/geometry/shape/representation.h"
 
 namespace fcl
 {
@@ -62,6 +65,7 @@ Convex<S>::Convex(
       vertices_(vertices),
       num_faces_(num_faces),
       faces_(faces),
+      throw_if_invalid_(throw_if_invalid),
       find_extreme_via_neighbors_{vertices->size() >
                                   kMinVertCountForEdgeWalking} {
   assert(vertices != nullptr);
@@ -307,6 +311,40 @@ const Vector3<S>& Convex<S>::findExtremeVertex(const Vector3<S>& v_C) const {
     }
   }
   return vertices[extreme_index];
+}
+
+//==============================================================================
+template <typename S>
+std::string Convex<S>::representation(int precision) const {
+  const char* S_str = detail::ScalarRepr<S>::value();
+  std::stringstream ss;
+  ss << std::setprecision(precision);
+  ss << "Convex<" << S_str << ">("
+     << "\n  std::make_shared<std::vector<Vector3<" << S_str << ">>>("
+     << "\n    std::initializer_list<Vector3<" << S_str << ">>{";
+  for (const Vector3<S>& p_GV : *vertices_) {
+    ss << "\n      Vector3<" << S_str << ">(" << p_GV[0] << ", " << p_GV[1]
+       << ", " << p_GV[2] << "),";
+  }
+  ss << "}),";
+  ss << "\n    " << num_faces_ << ",";
+  ss << "\n    std::make_shared<std::vector<int>>("
+     << "\n        std::initializer_list<int>{"
+     << "\n            ";
+  const std::vector<int>& faces = *faces_;
+  int face_index = 0;
+  for (int i = 0; i < num_faces_; ++i) {
+    const int vertex_count = faces[face_index];
+    ss << " " << vertex_count << ",";
+    for (int j = 1; j <= vertex_count; ++j) {
+      ss << " " << faces[face_index + j] << ",";
+    }
+    face_index += vertex_count + 1;
+  }
+  ss << "}),"
+     << "\n    " << std::boolalpha << throw_if_invalid_ << ");";
+
+  return ss.str();
 }
 
 //==============================================================================
