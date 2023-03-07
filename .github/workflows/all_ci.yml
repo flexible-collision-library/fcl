@@ -1,0 +1,48 @@
+name: ubuntu-ci
+run-name: Build and Test Ubuntu (partial) @${{ github.actor }}
+
+# In principle, we'd want to only run CI on meaningful changes; e.g., don't run
+# CI if the only thing we change is `CHANGELOG.md` or if we push to a side
+# branch. We could do this by filtering on branch (master) and on files
+# (excluding **.md files). However, runs that get filtered never return
+# successful status (blocking merging if the check is required). See:
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-including-paths
+# There is a solution if this type of optimization is preferred. See:
+# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+on: [push, pull-request]
+
+# This allows a subsequently queued workflow run to interrupt previous runs.
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  ubuntu:
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        build: [Release, Debug]
+        os: ['ubuntu-20.04']
+    uses: ./.github/workflows/generic_ci.yml
+    with:
+      install-name: 'install_linux.sh'
+      os: ${{ matrix.os }}
+      compiler: ${{ matrix.compiler }}
+      build: ${{ matrix.build }}
+
+  mac:
+    strategy:
+      matrix:
+        build: [Release, Debug]
+    uses: ./.github/workflows/generic_ci.yml
+    with:
+      install-name: 'install_osx.sh'
+      os: 'macos-11'
+      compiler: 'clang'
+      build: ${{ matrix.build }}
+
+# TODO:
+#  - Revisit coveralls.
+#  - Improve caching of dependencies.
+#  - Investigate rolling windows into this (instead of appveyor).
+
