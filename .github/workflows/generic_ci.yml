@@ -1,4 +1,4 @@
-name: Common build & test workflow
+name: Callable build & test workflow (do not use directly)
 
 on:
   workflow_call:
@@ -33,9 +33,7 @@ jobs:
         run: mkdir ${{github.workspace}}/build
 
       - name: Configure CMake
-        # Clang spews warning errors on googletest. Once gtest is updated,
-        # promote warnings to errors for gcc and clang.
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ inputs.build }} -DFCL_TREAT_WARNINGS_AS_ERRORS=${{ inputs.compiler == 'gcc' && 'ON' || 'OFF' }} -DFCL_COVERALLS=OFF
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ inputs.build }} -DFCL_TREAT_WARNINGS_AS_ERRORS=ON -DFCL_COVERALLS=OFF
 
       - name: Build
         run: cmake --build build -j2

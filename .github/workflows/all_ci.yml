@@ -36,12 +36,14 @@ jobs:
   mac:
     strategy:
       matrix:
+        compiler: [clang]
         build: [Release, Debug]
+        os: ['macos-11']
     uses: ./.github/workflows/generic_ci.yml
     with:
       install-name: 'install_osx.sh'
-      os: 'macos-11'
-      compiler: 'clang'
+      os: ${{ matrix.os }}
+      compiler: ${{ matrix.compiler }}
       build: ${{ matrix.build }}
 
 # TODO:
