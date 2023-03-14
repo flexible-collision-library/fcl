@@ -1,5 +1,5 @@
-name: ubuntu-ci
-run-name: Build and Test Ubuntu (partial) @${{ github.actor }}
+name: mac-linux-ci
+run-name: Mac and Linux CI
 
 # In principle, we'd want to only run CI on meaningful changes; e.g., don't run
 # CI if the only thing we change is `CHANGELOG.md` or if we push to a side
@@ -9,7 +9,7 @@ run-name: Build and Test Ubuntu (partial) @${{ github.actor }}
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-including-paths
 # There is a solution if this type of optimization is preferred. See:
 # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
-on: [push, pull-request]
+on: [push, pull_request]
 
 # This allows a subsequently queued workflow run to interrupt previous runs.
 concurrency:
@@ -17,6 +17,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Note: The name in the web gui will automatically get the matrix variables
+  # appended (e.g., ubuntu (clang, Debug, ubuntu-20-04)), so no further
+  # naming is required.
   ubuntu:
     strategy:
       matrix:
