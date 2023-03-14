@@ -18,7 +18,7 @@ on:
 
 jobs:
   common-build-and-test:
-    name: ${{ format('{0}-{1}-{2}', inputs.os, inputs.compiler, inputs.build) }}
+    name: ci
     runs-on: ${{ inputs.os }}
     env:
       CC: ${{ inputs.compiler == 'gcc' && 'gcc' || 'clang' }}
