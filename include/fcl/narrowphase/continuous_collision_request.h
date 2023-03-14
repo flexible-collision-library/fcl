@@ -49,7 +49,7 @@ enum CCDMotionType {CCDM_TRANS, CCDM_LINEAR, CCDM_SCREW, CCDM_SPLINE};
 enum CCDSolverType {CCDC_NAIVE, CCDC_CONSERVATIVE_ADVANCEMENT, CCDC_RAY_SHOOTING, CCDC_POLYNOMIAL_SOLVER};
 
 template <typename S>
-struct FCL_EXPORT ContinuousCollisionRequest
+struct ContinuousCollisionRequest
 {
   /// @brief maximum num of iterations
   std::size_t num_max_iterations;

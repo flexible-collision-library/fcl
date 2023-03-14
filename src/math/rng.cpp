@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_RNG_BUILDING
 #include "fcl/math/rng-inl.h"
 
 namespace fcl
@@ -42,6 +43,6 @@ namespace fcl
 
 //==============================================================================
 template
-class RNG<double>;
+class FCL_EXPORT RNG<double>;
 
 } // namespace fcl

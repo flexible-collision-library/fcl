@@ -44,24 +44,30 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_TAYLOR_MODEL_TAYLOR_VECTOR_BUILDING
 extern template
-class FCL_EXPORT TVector3<double>;
+class FCL_EXPORT_EXPL_INST_DECL TVector3<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 void generateTVector3ForLinearFunc(TVector3<double>& v, const Vector3<double>& position, const Vector3<double>& velocity);
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 TVector3<double> operator * (const Vector3<double>& v, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 TVector3<double> operator + (const Vector3<double>& v1, const TVector3<double>& v2);
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 TVector3<double> operator - (const Vector3<double>& v1, const TVector3<double>& v2);
+#endif
 
 //==============================================================================
 template <typename S>

@@ -49,7 +49,7 @@ namespace fcl
 
 /// @brief collision result
 template <typename S>
-struct FCL_EXPORT CollisionResult
+struct CollisionResult
 {
 private:
   /// @brief contact information

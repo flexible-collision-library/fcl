@@ -108,7 +108,6 @@ bool ShapeMeshDistanceTraversalNode<Shape, BV, NarrowPhaseSolver>::canStop(S c) 
 
 //==============================================================================
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
-FCL_EXPORT
 bool initialize(
     ShapeMeshDistanceTraversalNode<Shape, BV, NarrowPhaseSolver>& node,
     const Shape& model1,
@@ -349,7 +348,6 @@ static bool setupShapeMeshDistanceOrientedNode(OrientedNode<Shape, NarrowPhaseSo
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-FCL_EXPORT
 bool initialize(ShapeMeshDistanceTraversalNodeRSS<Shape, NarrowPhaseSolver>& node,
                 const Shape& model1, const Transform3<typename Shape::S>& tf1,
                 const BVHModel<RSS<typename Shape::S>>& model2, const Transform3<typename Shape::S>& tf2,
@@ -362,7 +360,6 @@ bool initialize(ShapeMeshDistanceTraversalNodeRSS<Shape, NarrowPhaseSolver>& nod
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-FCL_EXPORT
 bool initialize(ShapeMeshDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>& node,
                 const Shape& model1, const Transform3<typename Shape::S>& tf1,
                 const BVHModel<kIOS<typename Shape::S>>& model2, const Transform3<typename Shape::S>& tf2,
@@ -375,7 +372,6 @@ bool initialize(ShapeMeshDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>& no
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-FCL_EXPORT
 bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& node,
                 const Shape& model1, const Transform3<typename Shape::S>& tf1,
                 const BVHModel<OBBRSS<typename Shape::S>>& model2, const Transform3<typename Shape::S>& tf2,

@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_SCREW_MOTION_BUILDING
 #include "fcl/math/motion/screw_motion-inl.h"
 
 namespace fcl
 {
 
 template
-class ScrewMotion<double>;
+class FCL_EXPORT ScrewMotion<double>;
 
 } // namespace fcl

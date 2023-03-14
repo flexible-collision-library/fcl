@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_SAMPLER_SE2_DISK_BUILDING
 #include "fcl/math/sampler/sampler_se2_disk-inl.h"
 
 namespace fcl
 {
 
 template
-class SamplerSE2_disk<double>;
+class FCL_EXPORT SamplerSE2_disk<double>;
 
 } // namespace fcl

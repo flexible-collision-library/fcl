@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_CAPSULE_BUILDING
 extern template
-class FCL_EXPORT Capsule<double>;
+class FCL_EXPORT_EXPL_INST_DECL Capsule<double>;
+#endif
 
 //==============================================================================
 template <typename S>

@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_PLANE_BUILDING
 #include "fcl/geometry/shape/plane-inl.h"
 
 namespace fcl
@@ -42,10 +43,11 @@ namespace fcl
 
 //==============================================================================
 template
-class Plane<double>;
+class FCL_EXPORT Plane<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 Plane<double> transform(const Plane<double>& a, const Transform3<double>& tf);
 
 } // namespace fcl

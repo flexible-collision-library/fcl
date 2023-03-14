@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_NARROWPHASE_DETAIL_PROJECT_H
-#define FCL_NARROWPHASE_DETAIL_PROJECT_H
+#ifndef FCL_MATH_DETAIL_PROJECT_H
+#define FCL_MATH_DETAIL_PROJECT_H
 
 #include "fcl/common/types.h"
 #include "fcl/math/geometry.h"
@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Project functions
 template <typename S>
-class FCL_EXPORT Project
+class Project
 {
 public:
   struct ProjectResult

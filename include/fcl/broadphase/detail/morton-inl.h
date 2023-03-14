@@ -46,16 +46,19 @@ namespace fcl {
 namespace detail {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_DETAIL_MORTON_BUILDING
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 uint32 quantize(double x, uint32 n);
 
 //==============================================================================
 extern template
-struct morton_functor<double, uint32>;
+struct FCL_EXPORT_EXPL_INST_DECL morton_functor<double, uint32>;
 
 //==============================================================================
 extern template
-struct morton_functor<double, uint64>;
+struct FCL_EXPORT_EXPL_INST_DECL morton_functor<double, uint64>;
+#endif
 
 //==============================================================================
 template <typename S>

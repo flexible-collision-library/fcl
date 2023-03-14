@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_CONVEXITY_BASED_ALGORITHM_GJK_LIBCCD_BUILDING
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd-inl.h"
 
 namespace fcl
@@ -45,39 +46,41 @@ namespace detail
 
 //==============================================================================
 template
-class GJKInitializer<double, Cylinder<double>>;
+class FCL_EXPORT GJKInitializer<double, Cylinder<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Sphere<double>>;
+class FCL_EXPORT GJKInitializer<double, Sphere<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Ellipsoid<double>>;
+class FCL_EXPORT GJKInitializer<double, Ellipsoid<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Box<double>>;
+class FCL_EXPORT GJKInitializer<double, Box<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Capsule<double>>;
+class FCL_EXPORT GJKInitializer<double, Capsule<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Cone<double>>;
+class FCL_EXPORT GJKInitializer<double, Cone<double>>;
 
 //==============================================================================
 template
-class GJKInitializer<double, Convex<double>>;
+class FCL_EXPORT GJKInitializer<double, Convex<double>>;
 
 //==============================================================================
 template
+FCL_EXPORT
 void* triCreateGJKObject(
     const Vector3d& P1, const Vector3d& P2, const Vector3d& P3);
 
 //==============================================================================
 template
+FCL_EXPORT
 void* triCreateGJKObject(
     const Vector3d& P1,
     const Vector3d& P2,
@@ -86,6 +89,7 @@ void* triCreateGJKObject(
 
 //==============================================================================
 template
+FCL_EXPORT
 bool GJKCollide(
     void* obj1,
     ccd_support_fn supp1,
@@ -101,6 +105,7 @@ bool GJKCollide(
 
 //==============================================================================
 template
+FCL_EXPORT
 bool GJKDistance(
     void* obj1,
     ccd_support_fn supp1,
@@ -113,6 +118,7 @@ bool GJKDistance(
     Vector3d* p2);
 
 template
+FCL_EXPORT
 bool GJKSignedDistance(
     void* obj1,
     ccd_support_fn supp1,

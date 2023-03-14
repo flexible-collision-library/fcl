@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_BV_OBBRSS_BUILDING
 #include "fcl/math/bv/OBBRSS-inl.h"
 
 namespace fcl
@@ -42,10 +43,11 @@ namespace fcl
 
 //==============================================================================
 template
-class OBBRSS<double>;
+class FCL_EXPORT OBBRSS<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 OBBRSS<double> translate(const OBBRSS<double>& bv, const Vector3<double>& t);
 
 } // namespace fcl

@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_SAMPLER_SE3_QUAT_BUILDING
 #include "fcl/math/sampler/sampler_se3_quat-inl.h"
 
 namespace fcl
 {
 
 template
-class SamplerSE3Quat<double>;
+class FCL_EXPORT SamplerSE3Quat<double>;
 
 } // namespace fcl

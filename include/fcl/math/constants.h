@@ -126,7 +126,7 @@ struct ScalarTrait<float> {
 ///
 /// \tparam S The scalar type for which constant values will be retrieved.
 template <typename S>
-struct FCL_EXPORT constants
+struct constants
 {
 typedef typename detail::ScalarTrait<S>::type Real;
 

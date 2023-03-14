@@ -42,22 +42,26 @@
 namespace fcl {
 namespace detail {
 
-extern template FCL_EXPORT bool
-sphereCylinderIntersect(const Sphere<double>& sphere,
-                        const Transform3<double>& X_FS,
-                        const Cylinder<double>& cylinder,
-                        const Transform3<double>& X_FC,
-                        std::vector<ContactPoint<double>>* contacts);
+#ifndef FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_CYLINDER_BUILDING
+extern template
+FCL_EXPORT_EXPL_INST_DECL
+bool sphereCylinderIntersect(const Sphere<double>& sphere,
+                             const Transform3<double>& X_FS,
+                             const Cylinder<double>& cylinder,
+                             const Transform3<double>& X_FC,
+                             std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 
-extern template FCL_EXPORT bool
-sphereCylinderDistance(const Sphere<double>& sphere,
-                       const Transform3<double>& X_FS,
-                       const Cylinder<double>& cylinder,
-                       const Transform3<double>& X_FC,
-                       double* distance, Vector3<double>* p_FSc,
-                       Vector3<double>* p_FCs);
+extern template
+FCL_EXPORT_EXPL_INST_DECL
+bool sphereCylinderDistance(const Sphere<double>& sphere,
+                            const Transform3<double>& X_FS,
+                            const Cylinder<double>& cylinder,
+                            const Transform3<double>& X_FC,
+                            double* distance, Vector3<double>* p_FSc,
+                            Vector3<double>* p_FCs);
+#endif
 
 //==============================================================================
 
@@ -111,7 +115,7 @@ bool nearestPointInCylinder(const S& height, const S& radius,
 //==============================================================================
 
 template <typename S>
-FCL_EXPORT bool sphereCylinderIntersect(
+bool sphereCylinderIntersect(
     const Sphere<S>& sphere, const Transform3<S>& X_FS,
     const Cylinder<S>& cylinder, const Transform3<S>& X_FC,
     std::vector<ContactPoint<S>>* contacts) {
@@ -223,11 +227,11 @@ FCL_EXPORT bool sphereCylinderIntersect(
 //==============================================================================
 
 template <typename S>
-FCL_EXPORT bool sphereCylinderDistance(const Sphere<S>& sphere,
-                                       const Transform3<S>& X_FS,
-                                       const Cylinder<S>& cylinder,
-                                       const Transform3<S>& X_FC, S* distance,
-                                       Vector3<S>* p_FSc, Vector3<S>* p_FCs) {
+bool sphereCylinderDistance(const Sphere<S>& sphere,
+                            const Transform3<S>& X_FS,
+                            const Cylinder<S>& cylinder,
+                            const Transform3<S>& X_FC, S* distance,
+                            Vector3<S>* p_FSc, Vector3<S>* p_FCs) {
   // Find the sphere center S in the cylinder's frame.
   const Transform3<S> X_CS = X_FC.inverse() * X_FS;
   const Vector3<S> p_CS = X_CS.translation();

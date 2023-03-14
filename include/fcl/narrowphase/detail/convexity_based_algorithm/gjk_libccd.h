@@ -73,7 +73,7 @@ using GJKCenterFunction = void (*)(const void* obj, ccd_vec3_t* c);
 
 /// @brief initialize GJK stuffs
 template <typename S, typename T>
-class FCL_EXPORT GJKInitializer
+class GJKInitializer
 {
 public:
   /// @brief Get GJK support function
@@ -93,7 +93,7 @@ public:
 
 /// @brief initialize GJK Cylinder<S>
 template <typename S>
-class FCL_EXPORT GJKInitializer<S, Cylinder<S>>
+class GJKInitializer<S, Cylinder<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
@@ -104,7 +104,7 @@ public:
 
 /// @brief initialize GJK Sphere<S>
 template <typename S>
-class FCL_EXPORT GJKInitializer<S, Sphere<S>>
+class GJKInitializer<S, Sphere<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
@@ -115,7 +115,7 @@ public:
 
 /// @brief initialize GJK Ellipsoid<S>
 template <typename S>
-class FCL_EXPORT GJKInitializer<S, Ellipsoid<S>>
+class GJKInitializer<S, Ellipsoid<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
@@ -126,7 +126,7 @@ public:
 
 /// @brief initialize GJK Box<S>
 template <typename S>
-class FCL_EXPORT GJKInitializer<S, Box<S>>
+class GJKInitializer<S, Box<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
@@ -137,7 +137,7 @@ public:
 
 /// @brief initialize GJK Capsule<S>
 template <typename S>
-class FCL_EXPORT GJKInitializer<S, Capsule<S>>
+class GJKInitializer<S, Capsule<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
@@ -148,7 +148,7 @@ public:
 
 /// @brief initialize GJK Cone<S>
 template <typename S>
-class FCL_EXPORT GJKInitializer<S, Cone<S>>
+class GJKInitializer<S, Cone<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
@@ -159,7 +159,7 @@ public:
 
 /// @brief initialize GJK Convex<S>
 template <typename S>
-class FCL_EXPORT GJKInitializer<S, Convex<S>>
+class GJKInitializer<S, Convex<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
@@ -176,11 +176,9 @@ FCL_EXPORT
 GJKCenterFunction triGetCenterFunction();
 
 template <typename S>
-FCL_EXPORT
 void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3);
 
 template <typename S>
-FCL_EXPORT
 void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf);
 
 FCL_EXPORT
@@ -188,7 +186,6 @@ void triDeleteGJKObject(void* o);
 
 /// @brief GJK collision algorithm
 template <typename S>
-FCL_EXPORT
 bool GJKCollide(
     void* obj1,
     ccd_support_fn supp1,
@@ -221,7 +218,6 @@ bool GJKCollide(
  * @retval is_separated True if the objects are separated, false otherwise.
  */
 template <typename S>
-FCL_EXPORT
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
                  unsigned int max_iterations, S tolerance,
@@ -247,7 +243,6 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
  * @retval is_separated True if the objects are separated, false otherwise.
  */
 template <typename S>
-FCL_EXPORT
 bool GJKSignedDistance(void* obj1, ccd_support_fn supp1,
                        void* obj2, ccd_support_fn supp2,
                        unsigned int max_iterations, S tolerance,

@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_SAMPLER_SE2_BUILDING
 extern template
-class FCL_EXPORT SamplerSE2<double>;
+class FCL_EXPORT_EXPL_INST_DECL SamplerSE2<double>;
+#endif
 
 //==============================================================================
 template <typename S>

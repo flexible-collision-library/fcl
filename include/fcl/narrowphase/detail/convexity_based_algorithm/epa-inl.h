@@ -47,8 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_CONVEXITY_BASED_ALGORITHM_EPA_BUILDING
 extern template
-struct EPA<double>;
+struct FCL_EXPORT_EXPL_INST_DECL EPA<double>;
+#endif
 
 //==============================================================================
 template <typename S>

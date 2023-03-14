@@ -51,11 +51,13 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_TRAVERSAL_COLLISION_MESH_COLLISION_TRAVERSAL_NODE_BUILDING
 extern template
-class FCL_EXPORT MeshCollisionTraversalNodeOBB<double>;
+class FCL_EXPORT_EXPL_INST_DECL MeshCollisionTraversalNodeOBB<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 bool initialize(
     MeshCollisionTraversalNodeOBB<double>& node,
     const BVHModel<OBB<double>>& model1,
@@ -67,10 +69,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshCollisionTraversalNodeRSS<double>;
+class FCL_EXPORT_EXPL_INST_DECL MeshCollisionTraversalNodeRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 bool initialize(
     MeshCollisionTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -82,10 +85,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshCollisionTraversalNodekIOS<double>;
+class FCL_EXPORT_EXPL_INST_DECL MeshCollisionTraversalNodekIOS<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 bool initialize(
     MeshCollisionTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -97,10 +101,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshCollisionTraversalNodeOBBRSS<double>;
+class FCL_EXPORT_EXPL_INST_DECL MeshCollisionTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 bool initialize(
     MeshCollisionTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,
@@ -109,6 +114,7 @@ bool initialize(
     const Transform3<double>& tf2,
     const CollisionRequest<double>& request,
     CollisionResult<double>& result);
+#endif
 
 //==============================================================================
 template <typename BV>

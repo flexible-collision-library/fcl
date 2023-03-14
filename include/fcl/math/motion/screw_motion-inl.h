@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_SCREW_MOTION_BUILDING
 extern template
-class FCL_EXPORT ScrewMotion<double>;
+class FCL_EXPORT_EXPL_INST_DECL ScrewMotion<double>;
+#endif
 
 //==============================================================================
 template <typename S>

@@ -35,6 +35,7 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_TAYLOR_MODEL_TAYLOR_VECTOR_BUILDING
 #include "fcl/math/motion/taylor_model/taylor_vector-inl.h"
 
 namespace fcl
@@ -42,22 +43,26 @@ namespace fcl
 
 //==============================================================================
 template
-class TVector3<double>;
+class FCL_EXPORT TVector3<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 void generateTVector3ForLinearFunc(TVector3<double>& v, const Vector3<double>& position, const Vector3<double>& velocity);
 
 //==============================================================================
 template
+FCL_EXPORT
 TVector3<double> operator * (const Vector3<double>& v, const TaylorModel<double>& a);
 
 //==============================================================================
 template
+FCL_EXPORT
 TVector3<double> operator + (const Vector3<double>& v1, const TVector3<double>& v2);
 
 //==============================================================================
 template
+FCL_EXPORT
 TVector3<double> operator - (const Vector3<double>& v1, const TVector3<double>& v2);
 
 } // namespace fcl

@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_CYLINDER_BUILDING
 #include "fcl/geometry/shape/cylinder-inl.h"
 
 namespace fcl
 {
 
 template
-class Cylinder<double>;
+class FCL_EXPORT Cylinder<double>;
 
 } // namespace fcl

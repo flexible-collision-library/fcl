@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Contact information returned by collision
 template <typename S>
-struct FCL_EXPORT Contact
+struct Contact
 {
   /// @brief collision object 1
   const CollisionGeometry<S>* o1;
@@ -81,6 +81,16 @@ struct FCL_EXPORT Contact
   static const int NONE = -1;
 
   Contact();
+
+  ~Contact();
+
+  Contact(const Contact<S>&);
+
+  Contact<S>& operator=(const Contact<S>&);
+
+  Contact(Contact<S>&&) noexcept;
+
+  Contact<S>& operator=(Contact<S>&&) noexcept;
 
   Contact(const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_);
 

@@ -55,7 +55,7 @@ Vector3<S> getSupport(
 
 /// @brief Minkowski difference class of two shapes
 template <typename S>
-struct FCL_EXPORT MinkowskiDiff
+struct MinkowskiDiff
 {
   /// @brief points to two shapes
   const ShapeBase<S>* shapes[2];

@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_RECURSE_BUILDING
 #include "fcl/narrowphase/detail/traversal/traversal_recurse-inl.h"
 
 namespace fcl
@@ -45,30 +46,37 @@ namespace detail
 
 //==============================================================================
 template
+FCL_EXPORT
 void collisionRecurse(CollisionTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_EXPORT
 void collisionRecurse(MeshCollisionTraversalNodeOBB<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_EXPORT
 void collisionRecurse(MeshCollisionTraversalNodeRSS<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_EXPORT
 void selfCollisionRecurse(CollisionTraversalNodeBase<double>* node, int b, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_EXPORT
 void distanceRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_EXPORT
 void distanceQueueRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
 //==============================================================================
 template
+FCL_EXPORT
 void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 } // namespace detail

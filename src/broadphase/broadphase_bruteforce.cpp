@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_BRUTEFORCE_BUILDING
 #include "fcl/broadphase/broadphase_bruteforce-inl.h"
 
 namespace fcl
 {
 
 template
-class NaiveCollisionManager<double>;
+class FCL_EXPORT NaiveCollisionManager<double>;
 
 } // namespace fcl

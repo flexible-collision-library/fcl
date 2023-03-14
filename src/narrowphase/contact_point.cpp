@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_CONTACT_POINT_BUILDING
 #include "fcl/narrowphase/contact_point-inl.h"
 
 namespace fcl
@@ -42,15 +43,17 @@ namespace fcl
 
 //==============================================================================
 template
-struct ContactPoint<double>;
+struct FCL_EXPORT ContactPoint<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 bool comparePenDepth(
     const ContactPoint<double>& _cp1, const ContactPoint<double>& _cp2);
 
 //==============================================================================
 template
+FCL_EXPORT
 void flipNormal(std::vector<ContactPoint<double>>& contacts);
 
 } // namespace fcl

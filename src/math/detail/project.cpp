@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_DETAIL_PROJECT_BUILDING
 #include "fcl/math/detail/project-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-class Project<double>;
+class FCL_EXPORT Project<double>;
 
 } // namespace detail
 } // namespace fcl

@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_DETAIL_POLYSOLVER_BUILDING
 #include "fcl/math/detail/polysolver-inl.h"
 
 namespace fcl
@@ -43,7 +44,7 @@ namespace fcl
 namespace detail {
 
 template
-class PolySolver<double>;
+class FCL_EXPORT PolySolver<double>;
 
 } // namespace detail
 } // namespace fcl

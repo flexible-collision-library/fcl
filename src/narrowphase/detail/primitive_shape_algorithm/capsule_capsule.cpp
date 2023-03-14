@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_CAPSULE_CAPSULE_BUILDING
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule-inl.h"
 
 namespace fcl
@@ -45,18 +46,22 @@ namespace detail
 
 //==============================================================================
 template
+FCL_EXPORT
 double clamp(double n, double min, double max);
 
 //==============================================================================
-template double closestPtSegmentSegment(const Vector3d& p_FP1,
-                                        const Vector3d& p_FQ1,
-                                        const Vector3d& p_FP2,
-                                        const Vector3d& p_FQ2, double* s,
-                                        double* t, Vector3d* p_FC1,
-                                        Vector3d* p_FC2);
+template
+FCL_EXPORT
+double closestPtSegmentSegment(const Vector3d& p_FP1,
+                               const Vector3d& p_FQ1,
+                               const Vector3d& p_FP2,
+                               const Vector3d& p_FQ2, double* s,
+                               double* t, Vector3d* p_FC1,
+                               Vector3d* p_FC2);
 
 //==============================================================================
 template
+FCL_EXPORT
 bool capsuleCapsuleDistance(
     const Capsule<double>& s1, const Transform3<double>& tf1,
     const Capsule<double>& s2, const Transform3<double>& tf2,

@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_NARROWPHASE_DETAIL_POLYSOLVER_INL_H
-#define FCL_NARROWPHASE_DETAIL_POLYSOLVER_INL_H
+#ifndef FCL_MATH_DETAIL_POLYSOLVER_INL_H
+#define FCL_MATH_DETAIL_POLYSOLVER_INL_H
 
 #include "fcl/math/detail/polysolver.h"
 
@@ -49,8 +49,10 @@ namespace fcl
 namespace detail {
 
 //==============================================================================
+#ifndef FCL_MATH_DETAIL_POLYSOLVER_BUILDING
 extern template
-class FCL_EXPORT PolySolver<double>;
+class FCL_EXPORT_EXPL_INST_DECL PolySolver<double>;
+#endif
 
 //==============================================================================
 template <typename S>

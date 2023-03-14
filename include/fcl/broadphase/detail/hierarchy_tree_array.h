@@ -58,7 +58,7 @@ namespace implementation_array
 
 /// @brief Class for hierarchy tree structure
 template<typename BV>
-class FCL_EXPORT HierarchyTree
+class HierarchyTree
 {
   using S = typename BV::S;
   typedef NodeBase<BV> NodeType;

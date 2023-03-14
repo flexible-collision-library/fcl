@@ -48,8 +48,9 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_COLLISION_BUILDING
 extern template
-FCL_EXPORT
+FCL_EXPORT_EXPL_INST_DECL
 std::size_t collide(
     const CollisionObject<double>* o1,
     const CollisionObject<double>* o2,
@@ -58,7 +59,7 @@ std::size_t collide(
 
 //==============================================================================
 extern template
-FCL_EXPORT
+FCL_EXPORT_EXPL_INST_DECL
 std::size_t collide(
     const CollisionGeometry<double>* o1,
     const Transform3<double>& tf1,
@@ -66,6 +67,7 @@ std::size_t collide(
     const Transform3<double>& tf2,
     const CollisionRequest<double>& request,
     CollisionResult<double>& result);
+#endif
 
 //==============================================================================
 template<typename GJKSolver>
@@ -77,7 +79,6 @@ detail::CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
 
 //==============================================================================
 template <typename S, typename NarrowPhaseSolver>
-FCL_EXPORT
 std::size_t collide(
     const CollisionObject<S>* o1,
     const CollisionObject<S>* o2,
@@ -91,7 +92,6 @@ std::size_t collide(
 
 //==============================================================================
 template <typename S, typename NarrowPhaseSolver>
-FCL_EXPORT
 std::size_t collide(
     const CollisionGeometry<S>* o1,
     const Transform3<S>& tf1,
@@ -150,7 +150,6 @@ std::size_t collide(
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 std::size_t collide(const CollisionObject<S>* o1, const CollisionObject<S>* o2,
                     const CollisionRequest<S>& request, CollisionResult<S>& result)
 {
@@ -176,7 +175,6 @@ std::size_t collide(const CollisionObject<S>* o1, const CollisionObject<S>* o2,
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 std::size_t collide(
     const CollisionGeometry<S>* o1,
     const Transform3<S>& tf1,

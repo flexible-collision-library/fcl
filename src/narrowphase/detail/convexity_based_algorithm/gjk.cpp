@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_CONVEXITY_BASED_ALGORITHM_GJK_BUILDING
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-struct GJK<double>;
+struct FCL_EXPORT GJK<double>;
 
 } // namespace detail
 } // namespace fcl

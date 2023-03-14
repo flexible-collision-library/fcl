@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_SHAPE_TRIANGLE_P_BUILDING
 extern template
-class FCL_EXPORT TriangleP<double>;
+class FCL_EXPORT_EXPL_INST_DECL TriangleP<double>;
+#endif
 
 //==============================================================================
 template <typename S>

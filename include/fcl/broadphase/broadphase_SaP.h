@@ -48,7 +48,7 @@ namespace fcl
 
 /// @brief Rigorous SAP collision manager
 template <typename S>
-class FCL_EXPORT SaPCollisionManager : public BroadPhaseCollisionManager<S>
+class SaPCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
 
@@ -119,10 +119,10 @@ protected:
   struct SaPPair;
 
   /// @brief Functor to help unregister one object
-  class FCL_EXPORT isUnregistered;
+  class isUnregistered;
 
   /// @brief Functor to help remove collision pairs no longer valid (i.e., should be culled away)
-  class FCL_EXPORT isNotValidPair;
+  class isNotValidPair;
 
   void update_(SaPAABB* updated_aabb);
 
@@ -215,7 +215,7 @@ struct SaPCollisionManager<S>::SaPPair
 
 /// @brief Functor to help unregister one object
 template <typename S>
-class FCL_EXPORT SaPCollisionManager<S>::isUnregistered
+class SaPCollisionManager<S>::isUnregistered
 {
   CollisionObject<S>* obj;
 
@@ -227,7 +227,7 @@ public:
 
 /// @brief Functor to help remove collision pairs no longer valid (i.e., should be culled away)
 template <typename S>
-class FCL_EXPORT SaPCollisionManager<S>::isNotValidPair
+class SaPCollisionManager<S>::isNotValidPair
 {
   CollisionObject<S>* obj1;
   CollisionObject<S>* obj2;

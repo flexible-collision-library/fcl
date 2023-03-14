@@ -51,7 +51,7 @@ namespace detail
 
 /// @brief collision and distance solver based on libccd library.
 template <typename S_>
-struct FCL_EXPORT GJKSolver_libccd
+struct GJKSolver_libccd
 {
   using S = S_;
 

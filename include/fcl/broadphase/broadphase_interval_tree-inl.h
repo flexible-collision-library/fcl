@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_INTERVAL_TREE_BUILDING
 extern template
-class FCL_EXPORT IntervalTreeCollisionManager<double>;
+class FCL_EXPORT_EXPL_INST_DECL IntervalTreeCollisionManager<double>;
+#endif
 
 //==============================================================================
 template <typename S>

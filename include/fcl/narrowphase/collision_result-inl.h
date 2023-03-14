@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_COLLISION_RESULT_BUILDING
 extern template
-struct CollisionResult<double>;
+struct FCL_EXPORT_EXPL_INST_DECL CollisionResult<double>;
+#endif
 
 //==============================================================================
 template <typename S>

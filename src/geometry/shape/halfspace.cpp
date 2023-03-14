@@ -35,15 +35,17 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_HALFSPACE_BUILDING
 #include "fcl/geometry/shape/halfspace-inl.h"
 
 namespace fcl
 {
 
 template
-class Halfspace<double>;
+class FCL_EXPORT Halfspace<double>;
 
 template
+FCL_EXPORT
 Halfspace<double> transform(const Halfspace<double>& a, const Transform3<double>& tf);
 
 } // namespace fcl

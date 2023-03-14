@@ -34,6 +34,7 @@
 
 /** @author Sean Curtis (sean@tri.global) (2018) */
 
+#define FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_BOX_BUILDING
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_box-inl.h"
 
 namespace fcl
@@ -43,18 +44,20 @@ namespace detail
 {
 
 //==============================================================================
-template bool
-sphereBoxIntersect(const Sphere<double>& sphere, const Transform3<double>& X_FS,
-                   const Box<double>& box, const Transform3<double>& X_FB,
-                   std::vector<ContactPoint<double>>* contacts);
+template
+FCL_EXPORT
+bool sphereBoxIntersect(const Sphere<double>& sphere, const Transform3<double>& X_FS,
+                        const Box<double>& box, const Transform3<double>& X_FB,
+                        std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 
-template bool
-sphereBoxDistance(const Sphere<double>& sphere, const Transform3<double>& X_FS,
-                  const Box<double>& box, const Transform3<double>& X_FB,
-                  double* distance, Vector3<double>* p_FSb,
-                  Vector3<double>* p_FBs);
+template
+FCL_EXPORT
+bool sphereBoxDistance(const Sphere<double>& sphere, const Transform3<double>& X_FS,
+                       const Box<double>& box, const Transform3<double>& X_FB,
+                       double* distance, Vector3<double>* p_FSb,
+                       Vector3<double>* p_FBs);
 
 } // namespace detail
 } // namespace fcl

@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_COLLISION_INTERSECT_BUILDING
 #include "fcl/narrowphase/detail/traversal/collision/intersect-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-class Intersect<double>;
+class FCL_EXPORT Intersect<double>;
 
 } // namespace detail
 } // namespace fcl

@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_BV_KIOS_BUILDING
 #include "fcl/math/bv/kIOS-inl.h"
 
 namespace fcl
 {
  
 template
-class kIOS<double>;
+class FCL_EXPORT kIOS<double>;
 
 } // namespace fcl

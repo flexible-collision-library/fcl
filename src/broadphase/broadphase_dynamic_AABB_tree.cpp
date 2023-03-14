@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_DYNAMIC_AABB_TREE_BUILDING
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree-inl.h"
 
 namespace fcl
 {
 
 template
-class DynamicAABBTreeCollisionManager<double>;
+class FCL_EXPORT DynamicAABBTreeCollisionManager<double>;
 
 } // namespace fcl

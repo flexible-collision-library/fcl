@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief class for GJK algorithm
 template <typename S>
-struct FCL_EXPORT GJK
+struct GJK
 {
   struct SimplexV
   {

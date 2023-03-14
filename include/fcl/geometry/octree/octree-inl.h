@@ -50,12 +50,15 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_GEOMETRY_OCTREE_BUILDING
 extern template
-class FCL_EXPORT OcTree<double>;
+class FCL_EXPORT_EXPL_INST_DECL OcTree<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 void computeChildBV(const AABB<double>& root_bv, unsigned int i, AABB<double>& child_bv);
+#endif
 
 //==============================================================================
 template <typename S>

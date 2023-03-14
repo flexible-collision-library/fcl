@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_CONTACT_BUILDING
 extern template
-struct Contact<double>;
+struct FCL_EXPORT_EXPL_INST_DECL Contact<double>;
+#endif
 
 //==============================================================================
 template <typename S>
@@ -57,6 +59,26 @@ Contact<S>::Contact()
 {
   // Do nothing
 }
+
+//==============================================================================
+template <typename S>
+Contact<S>::~Contact() = default;
+
+//==============================================================================
+template <typename S>
+Contact<S>::Contact(const Contact<S>&) = default;
+
+//==============================================================================
+template <typename S>
+Contact<S>& Contact<S>::operator=(const Contact<S>&) = default;
+
+//==============================================================================
+template <typename S>
+Contact<S>::Contact(Contact<S>&&) noexcept = default;
+
+//==============================================================================
+template <typename S>
+Contact<S>& Contact<S>::operator=(Contact<S>&&) noexcept = default;
 
 //==============================================================================
 template <typename S>

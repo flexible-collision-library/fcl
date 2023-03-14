@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_TRIANGLE_P_BUILDING
 #include "fcl/geometry/shape/triangle_p-inl.h"
 
 namespace fcl
 {
 
 template
-class TriangleP<double>;
+class FCL_EXPORT TriangleP<double>;
 
 } // namespace fcl

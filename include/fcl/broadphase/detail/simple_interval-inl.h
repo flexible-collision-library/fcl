@@ -44,8 +44,10 @@ namespace fcl {
 namespace detail {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_DETAIL_SIMPLE_INTERVAL_BUILDING
 extern template
-struct SimpleInterval<double>;
+struct FCL_EXPORT_EXPL_INST_DECL SimpleInterval<double>;
+#endif
 
 //==============================================================================
 template <typename S>

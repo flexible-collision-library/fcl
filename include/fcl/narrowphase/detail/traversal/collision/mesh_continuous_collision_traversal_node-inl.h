@@ -49,8 +49,10 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_TRAVERSAL_COLLISION_MESH_CONTINUOUS_COLLISION_TRAVERSAL_NODE_BUILDING
 extern template
-struct BVHContinuousCollisionPair<double>;
+struct FCL_EXPORT_EXPL_INST_DECL BVHContinuousCollisionPair<double>;
+#endif
 
 //==============================================================================
 template <typename S>

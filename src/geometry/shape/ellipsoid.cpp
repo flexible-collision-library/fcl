@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_ELLIPSOID_BUILDING
 #include "fcl/geometry/shape/ellipsoid-inl.h"
 
 namespace fcl
 {
 
 template
-class Ellipsoid<double>;
+class FCL_EXPORT Ellipsoid<double>;
 
 } // namespace fcl

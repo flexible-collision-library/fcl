@@ -56,7 +56,6 @@ namespace detail
 {
 
 template <typename S>
-FCL_EXPORT
 S halfspaceIntersectTolerance();
 
 template <>
@@ -68,13 +67,11 @@ FCL_EXPORT
 double halfspaceIntersectTolerance();
 
 template <typename S>
-FCL_EXPORT
 bool sphereHalfspaceIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
                               const Halfspace<S>& s2, const Transform3<S>& tf2,
                               std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
-FCL_EXPORT
 bool ellipsoidHalfspaceIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf1,
                                  const Halfspace<S>& s2, const Transform3<S>& tf2,
                                  std::vector<ContactPoint<S>>* contacts);
@@ -85,36 +82,30 @@ bool ellipsoidHalfspaceIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf
 /// check whether d - n * T - (R^T n) (a v1 + b v2 + c v3) >= 0 for some a, b, c
 /// the max value of left side is d - n * T + |(R^T n) (a v1 + b v2 + c v3)|, check that is enough
 template <typename S>
-FCL_EXPORT
 bool boxHalfspaceIntersect(const Box<S>& s1, const Transform3<S>& tf1,
                            const Halfspace<S>& s2, const Transform3<S>& tf2);
 
 template <typename S>
-FCL_EXPORT
 bool boxHalfspaceIntersect(const Box<S>& s1, const Transform3<S>& tf1,
                            const Halfspace<S>& s2, const Transform3<S>& tf2,
                            std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
-FCL_EXPORT
 bool capsuleHalfspaceIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
                                const Halfspace<S>& s2, const Transform3<S>& tf2,
                                std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
-FCL_EXPORT
 bool cylinderHalfspaceIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
                                 const Halfspace<S>& s2, const Transform3<S>& tf2,
                                 std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
-FCL_EXPORT
 bool coneHalfspaceIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
                             const Halfspace<S>& s2, const Transform3<S>& tf2,
                             std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
-FCL_EXPORT
 bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
                               const Halfspace<S>& s2, const Transform3<S>& tf2,
                               Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal);
@@ -160,13 +151,12 @@ bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
 /// @return `true` if the two geometries are intersecting.
 /// @tparam S The computational scalar.
 template <typename S>
-FCL_EXPORT bool convexHalfspaceIntersect(
+bool convexHalfspaceIntersect(
     const Convex<S>& convex_C, const Transform3<S>& X_FC,
     const Halfspace<S>& half_space_H, const Transform3<S>& X_FH,
     std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
-FCL_EXPORT
 bool halfspaceTriangleIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
                                 const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf2,
                                 Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal);
@@ -179,7 +169,6 @@ bool halfspaceTriangleIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1
 /// if not parallel
 ///     return the intersection ray, return code 3. ray origin is p and direction is d
 template <typename S>
-FCL_EXPORT
 bool planeHalfspaceIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
                              const Halfspace<S>& s2, const Transform3<S>& tf2,
                              Plane<S>& pl,
@@ -188,7 +177,6 @@ bool planeHalfspaceIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
                              int& ret);
 
 template <typename S>
-FCL_EXPORT
 bool halfspacePlaneIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
                              const Plane<S>& s2, const Transform3<S>& tf2,
                              Plane<S>& pl, Vector3<S>& p, Vector3<S>& d,
@@ -204,7 +192,6 @@ bool halfspacePlaneIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
 /// if the separation planes of the two halfspaces are not parallel, return intersection ray, return code 4. ray origin is p and direction is d
 /// collision free return code 0
 template <typename S>
-FCL_EXPORT
 bool halfspaceIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
                         const Halfspace<S>& s2, const Transform3<S>& tf2,
                         Vector3<S>& p, Vector3<S>& d,

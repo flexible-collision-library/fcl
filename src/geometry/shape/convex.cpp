@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_CONVEX_BUILDING
 #include "fcl/geometry/shape/convex-inl.h"
 
 namespace fcl
 {
 
 template
-class Convex<double>;
+class FCL_EXPORT Convex<double>;
 
 } // namespace fcl

@@ -47,7 +47,7 @@ namespace fcl
 
 /// @brief Center at zero cone 
 template <typename S_>
-class FCL_EXPORT Cone : public ShapeBase<S_>
+class Cone : public ShapeBase<S_>
 {
 public:
 

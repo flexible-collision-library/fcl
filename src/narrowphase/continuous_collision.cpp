@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_CONTINUOUS_COLLISION_BUILDING
 #include "fcl/narrowphase/continuous_collision-inl.h"
 
 namespace fcl
@@ -42,6 +43,7 @@ namespace fcl
 
 //==============================================================================
 template
+FCL_EXPORT
 double continuousCollide(
     const CollisionGeometry<double>* o1,
     const MotionBase<double>* motion1,
@@ -52,6 +54,7 @@ double continuousCollide(
 
 //==============================================================================
 template
+FCL_EXPORT
 double continuousCollide(
     const CollisionGeometry<double>* o1,
     const Transform3<double>& tf1_beg,
@@ -64,6 +67,7 @@ double continuousCollide(
 
 //==============================================================================
 template
+FCL_EXPORT
 double continuousCollide(
     const CollisionObject<double>* o1,
     const Transform3<double>& tf1_end,
@@ -74,6 +78,7 @@ double continuousCollide(
 
 //==============================================================================
 template
+FCL_EXPORT
 double collide(
     const ContinuousCollisionObject<double>* o1,
     const ContinuousCollisionObject<double>* o2,

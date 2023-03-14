@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_TRIANGLE_BUILDING
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_triangle-inl.h"
 
 namespace fcl
@@ -45,31 +46,37 @@ namespace detail
 
 //==============================================================================
 template
+FCL_EXPORT
 double segmentSqrDistance(const Vector3<double>& from, const Vector3<double>& to,const Vector3<double>& p, Vector3<double>& nearest);
 
 //==============================================================================
 template
+FCL_EXPORT
 bool projectInTriangle(const Vector3<double>& p1, const Vector3<double>& p2, const Vector3<double>& p3, const Vector3<double>& normal, const Vector3<double>& p);
 
 //==============================================================================
 template
+FCL_EXPORT
 bool sphereTriangleIntersect(const Sphere<double>& s, const Transform3<double>& tf,
                              const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal_);
 
 //==============================================================================
 template
+FCL_EXPORT
 bool sphereTriangleDistance(const Sphere<double>& sp, const Transform3<double>& tf,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3,
                             double* dist);
 
 //==============================================================================
 template
+FCL_EXPORT
 bool sphereTriangleDistance(const Sphere<double>& sp, const Transform3<double>& tf,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3,
                             double* dist, Vector3<double>* p1, Vector3<double>* p2);
 
 //==============================================================================
 template
+FCL_EXPORT
 bool sphereTriangleDistance(const Sphere<double>& sp, const Transform3<double>& tf1,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, const Transform3<double>& tf2,
                             double* dist, Vector3<double>* p1, Vector3<double>* p2);

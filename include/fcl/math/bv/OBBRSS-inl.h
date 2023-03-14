@@ -44,12 +44,15 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_BV_OBBRSS_BUILDING
 extern template
-class FCL_EXPORT OBBRSS<double>;
+class FCL_EXPORT_EXPL_INST_DECL OBBRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 OBBRSS<double> translate(const OBBRSS<double>& bv, const Vector3<double>& t);
+#endif
 
 //==============================================================================
 template <typename S>

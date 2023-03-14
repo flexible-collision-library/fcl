@@ -46,9 +46,7 @@ configure_file(CTestCustom.cmake.in CTestCustom.cmake @ONLY)
 
 option(FCL_ENABLE_PROFILING "Enable profiling" OFF)
 option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
-# Option for some bundle-like build system in order not to expose
-# any FCL binary symbols in their public ABI
-option(FCL_HIDE_ALL_SYMBOLS "Hide all binary symbols" OFF)
+option(FCL_HIDE_ALL_SYMBOLS "Hide all binary symbols" ON)
 
 # set the default build type
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -65,7 +63,11 @@ if(MSVC OR MSVC90 OR MSVC10)
     set(MSVC ON)
 endif (MSVC OR MSVC90 OR MSVC10)
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+if(WIN32)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+else()
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+endif()
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
@@ -378,7 +380,8 @@ if(NOT FCL_BUILD_TESTS STREQUAL "DEFAULT")
   unset(_BUILD_TESTING)
 endif()
 
-if(BUILD_TESTING AND NOT FCL_HIDE_ALL_SYMBOLS)
+if(BUILD_TESTING)
+    enable_testing()
     add_subdirectory(test)
 endif()
 

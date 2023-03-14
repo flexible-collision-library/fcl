@@ -49,7 +49,7 @@ struct CollisionResult;
 
 /// @brief Parameters for performing collision request.
 template <typename S>
-struct FCL_EXPORT CollisionRequest
+struct CollisionRequest
 {
   /// The underlying numerical representation of the request's scalar (e.g.,
   /// float or double).

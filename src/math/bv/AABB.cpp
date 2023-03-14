@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_BV_AABB_BUILDING
 #include "fcl/math/bv/AABB-inl.h"
 
 namespace fcl
 {
 
 template
-class AABB<double>;
+class FCL_EXPORT AABB<double>;
 
 } // namespace fcl

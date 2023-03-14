@@ -61,7 +61,7 @@ namespace fcl
 /// fcl/config.h if and only if octomap was found. Doxygen documentation will
 /// be generated whether or not octomap was found.
 template <typename S>
-class FCL_EXPORT OcTree : public CollisionGeometry<S>
+class OcTree : public CollisionGeometry<S>
 {
 private:
   std::shared_ptr<const octomap::OcTree> tree;
@@ -190,7 +190,6 @@ using OcTreed = OcTree<double>;
 
 /// @brief compute the bounding volume of an octree node's i-th child
 template <typename S>
-FCL_EXPORT
 void computeChildBV(const AABB<S>& root_bv, unsigned int i, AABB<S>& child_bv);
 
 } // namespace fcl

@@ -48,7 +48,7 @@ namespace detail
 
 /// @brief Node structure encoding the information required for traversal.
 template <typename S>
-class FCL_EXPORT TraversalNodeBase
+class TraversalNodeBase
 {
 public:
   virtual ~TraversalNodeBase();

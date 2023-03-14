@@ -34,6 +34,7 @@
 
 /** @author Sean Curtis (sean@tri.global) (2018) */
 
+#define FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_SPHERE_CYLINDER_BUILDING
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_cylinder-inl.h"
 
 namespace fcl
@@ -42,22 +43,24 @@ namespace fcl
 namespace detail
 {
 
-template bool
-sphereCylinderIntersect(const Sphere<double>& sphere,
-                        const Transform3<double>& X_FS,
-                        const Cylinder<double>& cylinder,
-                        const Transform3<double>& X_FC,
-                        std::vector<ContactPoint<double>>* contacts);
+template
+FCL_EXPORT
+bool sphereCylinderIntersect(const Sphere<double>& sphere,
+                             const Transform3<double>& X_FS,
+                             const Cylinder<double>& cylinder,
+                             const Transform3<double>& X_FC,
+                             std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
 
-template bool
-sphereCylinderDistance(const Sphere<double>& sphere,
-                       const Transform3<double>& X_FS,
-                       const Cylinder<double>& cylinder,
-                       const Transform3<double>& X_FC,
-                       double* distance, Vector3<double>* p_FSc,
-                       Vector3<double>* p_FCs);
+template
+FCL_EXPORT
+bool sphereCylinderDistance(const Sphere<double>& sphere,
+                            const Transform3<double>& X_FS,
+                            const Cylinder<double>& cylinder,
+                            const Transform3<double>& X_FC,
+                            double* distance, Vector3<double>* p_FSc,
+                            Vector3<double>* p_FCs);
 
 } // namespace detail
 } // namespace fcl

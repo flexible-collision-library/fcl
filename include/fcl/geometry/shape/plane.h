@@ -47,7 +47,7 @@ namespace fcl
 
 /// @brief Infinite plane 
 template <typename S_>
-class FCL_EXPORT Plane : public ShapeBase<S_>
+class Plane : public ShapeBase<S_>
 {
 public:
 
@@ -93,7 +93,6 @@ using Planef = Plane<float>;
 using Planed = Plane<double>;
 
 template <typename S>
-FCL_EXPORT
 Plane<S> transform(const Plane<S>& a, const Transform3<S>& tf);
 
 } // namespace fcl

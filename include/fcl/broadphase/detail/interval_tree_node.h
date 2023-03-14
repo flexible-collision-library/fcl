@@ -48,11 +48,11 @@ namespace detail
 {
 
 template <typename S>
-class FCL_EXPORT IntervalTree;
+class IntervalTree;
 
 /// @brief The node for interval tree
 template <typename S>
-class FCL_EXPORT IntervalTreeNode
+class IntervalTreeNode
 {
 public:
 

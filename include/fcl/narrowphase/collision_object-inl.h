@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_COLLISION_OBJECT_BUILDING
 extern template
-class FCL_EXPORT CollisionObject<double>;
+class FCL_EXPORT_EXPL_INST_DECL CollisionObject<double>;
+#endif
 
 //==============================================================================
 template <typename S>

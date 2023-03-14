@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_CONTINUOUS_COLLISION_REQUEST_BUILDING
 #include "fcl/narrowphase/continuous_collision_request-inl.h"
 
 namespace fcl
 {
 
 template
-struct ContinuousCollisionRequest<double>;
+struct FCL_EXPORT ContinuousCollisionRequest<double>;
 
 } // namespace fcl

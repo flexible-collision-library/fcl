@@ -45,8 +45,10 @@
 namespace fcl {
 
 //==============================================================================
+#ifndef FCL_BROADPHASE_BRUTEFORCE_BUILDING
 extern template
-class FCL_EXPORT NaiveCollisionManager<double>;
+class FCL_EXPORT_EXPL_INST_DECL NaiveCollisionManager<double>;
+#endif
 
 //==============================================================================
 template <typename S>

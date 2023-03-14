@@ -52,7 +52,7 @@ namespace detail
 
 /// @brief Interface for fitting a bv given the triangles or points inside it.
 template <typename BV>
-class FCL_EXPORT BVFitterBase
+class BVFitterBase
 {
 public:
 

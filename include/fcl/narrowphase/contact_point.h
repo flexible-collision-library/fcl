@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Minimal contact information returned by collision
 template <typename S>
-struct FCL_EXPORT ContactPoint
+struct ContactPoint
 {
   /// @brief Contact normal, pointing from o1 to o2
   Vector3<S> normal;
@@ -56,8 +56,23 @@ struct FCL_EXPORT ContactPoint
   /// @brief Penetration depth
   S penetration_depth;
 
-  /// @brief Constructor
+  /// @brief Default Constructor
   ContactPoint();
+
+  /// @brief Destructor
+  ~ContactPoint();
+
+  /// @brief Copy Constructor
+  ContactPoint(const ContactPoint<S>&);
+
+  /// @brief Copy assignment operator
+  ContactPoint<S>& operator=(const ContactPoint<S>&);
+
+  /// @brief Move Constructor
+  ContactPoint(ContactPoint<S>&&) noexcept;
+
+  /// @brief Move assignment operator
+  ContactPoint<S>& operator=(ContactPoint<S>&&) noexcept;
 
   /// @brief Constructor
   ContactPoint(const Vector3<S>& n_, const Vector3<S>& p_, S d_);
@@ -68,12 +83,10 @@ using ContactPointd = ContactPoint<double>;
 
 /// @brief Return true if _cp1's penentration depth is less than _cp2's.
 template <typename S>
-FCL_EXPORT
 bool comparePenDepth(
     const ContactPoint<S>& _cp1, const ContactPoint<S>& _cp2);
 
 template <typename S>
-FCL_EXPORT
 void flipNormal(std::vector<ContactPoint<S>>& contacts);
 
 } // namespace fcl

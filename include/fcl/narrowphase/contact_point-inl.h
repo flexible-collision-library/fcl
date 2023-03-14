@@ -44,17 +44,21 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_CONTACT_POINT_BUILDING
 extern template
-struct ContactPoint<double>;
+struct FCL_EXPORT_EXPL_INST_DECL ContactPoint<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 bool comparePenDepth(
     const ContactPoint<double>& _cp1, const ContactPoint<double>& _cp2);
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 void flipNormal(std::vector<ContactPoint<double>>& contacts);
+#endif
 
 //==============================================================================
 template <typename S>
@@ -65,6 +69,26 @@ ContactPoint<S>::ContactPoint()
 {
   // Do nothing
 }
+
+//==============================================================================
+template <typename S>
+ContactPoint<S>::~ContactPoint() = default;
+
+//==============================================================================
+template <typename S>
+ContactPoint<S>::ContactPoint(const ContactPoint<S>&) = default;
+
+//==============================================================================
+template <typename S>
+ContactPoint<S>& ContactPoint<S>::operator=(const ContactPoint<S>&) = default;
+
+//==============================================================================
+template <typename S>
+ContactPoint<S>::ContactPoint(ContactPoint<S>&&) noexcept = default;
+
+//==============================================================================
+template <typename S>
+ContactPoint<S>& ContactPoint<S>::operator=(ContactPoint<S>&&) noexcept = default;
 
 //==============================================================================
 template <typename S>

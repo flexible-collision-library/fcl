@@ -47,32 +47,40 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_TAYLOR_MODEL_BUILDING
 extern template
-class FCL_EXPORT TaylorModel<double>;
+class FCL_EXPORT_EXPL_INST_DECL TaylorModel<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 TaylorModel<double> operator * (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 TaylorModel<double> operator + (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 TaylorModel<double> operator - (double d, const TaylorModel<double>& a);
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 void generateTaylorModelForCosFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 void generateTaylorModelForSinFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 void generateTaylorModelForLinearFunc(TaylorModel<double>& tm, double p, double v);
+#endif
 
 //==============================================================================
 template <typename S>

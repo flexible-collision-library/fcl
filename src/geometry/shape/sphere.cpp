@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_SPHERE_BUILDING
 #include "fcl/geometry/shape/sphere-inl.h"
 
 namespace fcl
 {
 
 template
-class Sphere<double>;
+class FCL_EXPORT Sphere<double>;
 
 } // namespace fcl

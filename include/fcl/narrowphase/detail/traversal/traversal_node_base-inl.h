@@ -49,8 +49,10 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_TRAVERSAL_NODE_BASE_BUILDING
 extern template
-class FCL_EXPORT TraversalNodeBase<double>;
+class FCL_EXPORT_EXPL_INST_DECL TraversalNodeBase<double>;
+#endif
 
 //==============================================================================
 template <typename S>

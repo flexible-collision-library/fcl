@@ -63,7 +63,7 @@ using DistanceCallBack = bool (*)(
 /// collision/distance between N objects. Also support self collision, self
 /// distance and collision/distance with another M objects.
 template <typename S>
-class FCL_EXPORT BroadPhaseCollisionManager
+class BroadPhaseCollisionManager
 {
 public:
   BroadPhaseCollisionManager();

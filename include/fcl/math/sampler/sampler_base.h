@@ -44,14 +44,16 @@ namespace fcl
 {
 
 template <typename S>
-class FCL_EXPORT SamplerBase
+class SamplerBase
 {
 public:
   mutable RNG<S> rng;
 };
 
+#ifndef FCL_MATH_SAMPLER_BASE_BUILDING
 extern template
-class FCL_EXPORT SamplerBase<double>;
+class FCL_EXPORT_EXPL_INST_DECL SamplerBase<double>;
+#endif
 
 } // namespace fcl
 

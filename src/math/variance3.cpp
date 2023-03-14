@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_VARIANCE3_BUILDING
 #include "fcl/math/variance3-inl.h"
 
 namespace fcl
 {
 
 template
-class Variance3<double>;
+class FCL_EXPORT Variance3<double>;
 
 } // namespace fcl

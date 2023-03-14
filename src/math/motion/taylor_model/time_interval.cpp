@@ -35,12 +35,13 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_TAYLOR_MODEL_TIME_INTERVAL_BUILDING
 #include "fcl/math/motion/taylor_model/time_interval-inl.h"
 
 namespace fcl
 {
 
 template
-struct TimeInterval<double>;
+struct FCL_EXPORT TimeInterval<double>;
 
 } // namespace fcl

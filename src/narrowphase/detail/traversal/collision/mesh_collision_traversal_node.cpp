@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_COLLISION_MESH_COLLISION_TRAVERSAL_NODE_BUILDING
 #include "fcl/narrowphase/detail/traversal/collision/mesh_collision_traversal_node-inl.h"
 
 namespace fcl
@@ -45,10 +46,11 @@ namespace detail
 
 //==============================================================================
 template
-class MeshCollisionTraversalNodeOBB<double>;
+class FCL_EXPORT MeshCollisionTraversalNodeOBB<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 bool initialize(
     MeshCollisionTraversalNodeOBB<double>& node,
     const BVHModel<OBB<double>>& model1,
@@ -60,10 +62,11 @@ bool initialize(
 
 //==============================================================================
 template
-class MeshCollisionTraversalNodeRSS<double>;
+class FCL_EXPORT MeshCollisionTraversalNodeRSS<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 bool initialize(
     MeshCollisionTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -75,10 +78,11 @@ bool initialize(
 
 //==============================================================================
 template
-class MeshCollisionTraversalNodekIOS<double>;
+class FCL_EXPORT MeshCollisionTraversalNodekIOS<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 bool initialize(
     MeshCollisionTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -90,10 +94,11 @@ bool initialize(
 
 //==============================================================================
 template
-class MeshCollisionTraversalNodeOBBRSS<double>;
+class FCL_EXPORT MeshCollisionTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 bool initialize(
     MeshCollisionTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

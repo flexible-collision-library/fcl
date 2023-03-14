@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_CONVEXITY_BASED_ALGORITHM_EPA_BUILDING
 #include "fcl/narrowphase/detail/convexity_based_algorithm/epa-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-struct EPA<double>;
+struct FCL_EXPORT EPA<double>;
 
 } // namespace detail
 } // namespace fcl

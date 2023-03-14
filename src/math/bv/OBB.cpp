@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_BV_OBB_BUILDING
 #include "fcl/math/bv/OBB-inl.h"
 
 namespace fcl
@@ -42,22 +43,26 @@ namespace fcl
 
 //==============================================================================
 template
-class OBB<double>;
+class FCL_EXPORT OBB<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 void computeVertices(const OBB<double>& b, Vector3<double> vertices[8]);
 
 //==============================================================================
 template
+FCL_EXPORT
 OBB<double> merge_largedist(const OBB<double>& b1, const OBB<double>& b2);
 
 //==============================================================================
 template
+FCL_EXPORT
 OBB<double> merge_smalldist(const OBB<double>& b1, const OBB<double>& b2);
 
 //==============================================================================
 template
+FCL_EXPORT
 bool obbDisjoint(
     const Matrix3<double>& B,
     const Vector3<double>& T,
@@ -66,6 +71,7 @@ bool obbDisjoint(
 
 //==============================================================================
 template
+FCL_EXPORT
 bool obbDisjoint(
     const Transform3<double>& tf,
     const Vector3<double>& a,

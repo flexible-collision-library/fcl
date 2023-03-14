@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_COLLISION_GEOMETRY_BUILDING
 #include "fcl/geometry/collision_geometry-inl.h"
 
 namespace fcl
 {
 
 template
-class CollisionGeometry<double>;
+class FCL_EXPORT CollisionGeometry<double>;
 
 } // namespace fcl

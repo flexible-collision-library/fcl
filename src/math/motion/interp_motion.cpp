@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_INTERP_MOTION_BUILDING
 #include "fcl/math/motion/interp_motion-inl.h"
 
 namespace fcl
 {
 
 template
-class InterpMotion<double>;
+class FCL_EXPORT InterpMotion<double>;
 
 } // namespace fcl

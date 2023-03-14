@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_BASE_BUILDING
 #include "fcl/math/motion/motion_base-inl.h"
 
 namespace fcl
 {
 
 template
-class MotionBase<double>;
+class FCL_EXPORT MotionBase<double>;
 
 } // namespace fcl

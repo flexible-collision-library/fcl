@@ -47,11 +47,13 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_TRAVERSAL_DISTANCE_MESH_DISTANCE_TRAVERSAL_NODE_BUILDING
 extern template
-class FCL_EXPORT MeshDistanceTraversalNodeRSS<double>;
+class FCL_EXPORT_EXPL_INST_DECL MeshDistanceTraversalNodeRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 bool initialize(
     MeshDistanceTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -63,10 +65,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshDistanceTraversalNodekIOS<double>;
+class FCL_EXPORT_EXPL_INST_DECL MeshDistanceTraversalNodekIOS<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 bool initialize(
     MeshDistanceTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -78,10 +81,11 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_EXPORT MeshDistanceTraversalNodeOBBRSS<double>;
+class FCL_EXPORT_EXPL_INST_DECL MeshDistanceTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 extern template
+FCL_EXPORT_EXPL_INST_DECL
 bool initialize(
     MeshDistanceTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,
@@ -90,6 +94,7 @@ bool initialize(
     const Transform3<double>& tf2,
     const DistanceRequest<double>& request,
     DistanceResult<double>& result);
+#endif
 
 //==============================================================================
 template <typename BV>

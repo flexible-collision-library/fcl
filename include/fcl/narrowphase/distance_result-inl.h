@@ -44,12 +44,13 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DISTANCE_RESULT_BUILDING
 extern template
-struct DistanceResult<double>;
+struct FCL_EXPORT_EXPL_INST_DECL DistanceResult<double>;
+#endif
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 DistanceResult<S>::DistanceResult(S min_distance_)
   : min_distance(min_distance_),
     o1(nullptr),
@@ -62,7 +63,6 @@ DistanceResult<S>::DistanceResult(S min_distance_)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DistanceResult<S>::update(
     S distance,
     const CollisionGeometry<S>* o1_,
@@ -82,7 +82,6 @@ void DistanceResult<S>::update(
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DistanceResult<S>::update(
     S distance,
     const CollisionGeometry<S>* o1_,
@@ -106,7 +105,6 @@ void DistanceResult<S>::update(
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DistanceResult<S>::update(const DistanceResult& other_result)
 {
   if(min_distance > other_result.min_distance)
@@ -123,7 +121,6 @@ void DistanceResult<S>::update(const DistanceResult& other_result)
 
 //==============================================================================
 template <typename S>
-FCL_EXPORT
 void DistanceResult<S>::clear()
 {
   min_distance = std::numeric_limits<S>::max();

@@ -35,6 +35,7 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_TAYLOR_MODEL_TAYLOR_MATRIX_BUILDING
 #include "fcl/math/motion/taylor_model/taylor_matrix-inl.h"
 
 namespace fcl
@@ -42,34 +43,41 @@ namespace fcl
 
 //==============================================================================
 template
-class TMatrix3<double>;
+class FCL_EXPORT TMatrix3<double>;
 
 //==============================================================================
 template
+FCL_EXPORT
 TMatrix3<double> rotationConstrain(const TMatrix3<double>& m);
 
 //==============================================================================
 template
+FCL_EXPORT
 TMatrix3<double> operator * (const Matrix3<double>& m, const TaylorModel<double>& a);
 
 //==============================================================================
 template
+FCL_EXPORT
 TMatrix3<double> operator * (const TaylorModel<double>& a, const Matrix3<double>& m);
 
 //==============================================================================
 template
+FCL_EXPORT
 TMatrix3<double> operator * (const TaylorModel<double>& a, const TMatrix3<double>& m);
 
 //==============================================================================
 template
+FCL_EXPORT
 TMatrix3<double> operator * (double d, const TMatrix3<double>& m);
 
 //==============================================================================
 template
+FCL_EXPORT
 TMatrix3<double> operator + (const Matrix3<double>& m1, const TMatrix3<double>& m2);
 
 //==============================================================================
 template
+FCL_EXPORT
 TMatrix3<double> operator - (const Matrix3<double>& m1, const TMatrix3<double>& m2);
 
 } // namespace fcl

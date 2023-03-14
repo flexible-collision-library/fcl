@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_BROADPHASE_DETAIL_INTERVAL_TREE_BUILDING
 #include "fcl/broadphase/detail/interval_tree-inl.h"
 
 namespace fcl
@@ -44,10 +45,10 @@ namespace detail
 {
 
 template
-struct it_recursion_node<double>;
+struct FCL_EXPORT it_recursion_node<double>;
 
 template
-class IntervalTree<double>;
+class FCL_EXPORT IntervalTree<double>;
 
 } // namespace detail
 } // namespace fcl

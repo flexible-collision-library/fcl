@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_NODE_BASE_BUILDING
 #include "fcl/narrowphase/detail/traversal/traversal_node_base-inl.h"
 
 namespace fcl
@@ -44,7 +45,7 @@ namespace detail
 {
 
 template
-class TraversalNodeBase<double>;
+class FCL_EXPORT TraversalNodeBase<double>;
 
 } // namespace detail
 } // namespace fcl

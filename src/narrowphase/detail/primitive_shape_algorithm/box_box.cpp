@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_PRIMITIVE_SHAPE_ALGORITHM_BOX_BOX_BUILDING
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/box_box-inl.h"
 
 namespace fcl
@@ -45,20 +46,24 @@ namespace detail
 
 //==============================================================================
 template
+FCL_EXPORT
 void lineClosestApproach(const Vector3<double>& pa, const Vector3<double>& ua,
                          const Vector3<double>& pb, const Vector3<double>& ub,
                          double* alpha, double* beta);
 
 //==============================================================================
 template
+FCL_EXPORT
 int intersectRectQuad2(double h[2], double p[8], double ret[16]);
 
 //==============================================================================
 template
+FCL_EXPORT
 void cullPoints2(int n, double p[], int m, int i0, int iret[]);
 
 //==============================================================================
 template
+FCL_EXPORT
 int boxBox2(
     const Vector3<double>& side1,
     const Transform3<double>& tf1,
@@ -72,6 +77,7 @@ int boxBox2(
 
 //==============================================================================
 template
+FCL_EXPORT
 bool boxBoxIntersect(const Box<double>& s1, const Transform3<double>& tf1,
                      const Box<double>& s2, const Transform3<double>& tf2,
                      std::vector<ContactPoint<double>>* contacts_);

@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_MATH_MOTION_TRIANGLE_MOTION_BOUND_VISITOR_BUILDING
 #include "fcl/math/motion/triangle_motion_bound_visitor-inl.h"
 
 namespace fcl
 {
 
 template
-class TriangleMotionBoundVisitor<double>;
+class FCL_EXPORT TriangleMotionBoundVisitor<double>;
 
 } // namespace fcl

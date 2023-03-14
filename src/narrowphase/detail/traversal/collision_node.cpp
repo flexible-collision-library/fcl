@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_NARROWPHASE_DETAIL_TRAVERSAL_COLLISION_NODE_BUILDING
 #include "fcl/narrowphase/detail/traversal/collision_node-inl.h"
 
 namespace fcl
@@ -45,22 +46,27 @@ namespace detail
 
 //==============================================================================
 template
+FCL_EXPORT
 void collide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_EXPORT
 void selfCollide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_EXPORT
 void distance(DistanceTraversalNodeBase<double>* node, BVHFrontList* front_list, int qsize);
 
 //==============================================================================
 template
+FCL_EXPORT
 void collide2(MeshCollisionTraversalNodeOBB<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
 template
+FCL_EXPORT
 void collide2(MeshCollisionTraversalNodeRSS<double>* node, BVHFrontList* front_list);
 
 } // namespace detail

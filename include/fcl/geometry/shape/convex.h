@@ -80,7 +80,7 @@ namespace fcl
 ///
 /// @tparam S_  The scalar type; must be a valid Eigen scalar.
 template <typename S_>
-class FCL_EXPORT Convex : public ShapeBase<S_>
+class Convex : public ShapeBase<S_>
 {
 public:
 

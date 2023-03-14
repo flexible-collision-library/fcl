@@ -44,8 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+#ifndef FCL_MATH_MOTION_INTERP_MOTION_BUILDING
 extern template
-class FCL_EXPORT InterpMotion<double>;
+class FCL_EXPORT_EXPL_INST_DECL InterpMotion<double>;
+#endif
 
 //==============================================================================
 template <typename S>

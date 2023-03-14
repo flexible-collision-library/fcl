@@ -55,7 +55,7 @@ namespace fcl
 /// threads. It is also guaranteed that all created instances will
 /// have a different random seed.
 template <typename S>
-class FCL_EXPORT RNG
+class RNG
 {
 public:
   /// @brief Constructor. Always sets a different random seed

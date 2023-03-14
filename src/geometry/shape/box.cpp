@@ -35,12 +35,13 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_SHAPE_BOX_BUILDING
 #include "fcl/geometry/shape/box-inl.h"
 
 namespace fcl
 {
 
 template
-class Box<double>;
+class FCL_EXPORT Box<double>;
 
 } // namespace fcl

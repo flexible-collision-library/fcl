@@ -35,6 +35,7 @@
 
 /** @author Jia Pan */
 
+#define FCL_GEOMETRY_BHV_UTILITY_BUILDING
 #include "fcl/geometry/bvh/BVH_utility-inl.h"
 
 namespace fcl
@@ -42,11 +43,13 @@ namespace fcl
 
 //==============================================================================
 template
+FCL_EXPORT
 void BVHExpand(
     BVHModel<OBB<double>>& model, const Variance3<double>* ucs, double r);
 
 //==============================================================================
 template
+FCL_EXPORT
 void BVHExpand(
     BVHModel<RSS<double>>& model, const Variance3<double>* ucs, double r);
 

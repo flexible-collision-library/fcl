@@ -58,12 +58,13 @@ namespace detail
 {
 
 //==============================================================================
+#ifndef FCL_NARROWPHASE_DETAIL_CONVEXITY_BASED_ALGORITHM_MINKOWSKI_DIFF_BUILDING
 extern template
-struct MinkowskiDiff<double>;
+struct FCL_EXPORT_EXPL_INST_DECL MinkowskiDiff<double>;
+#endif
 
 //==============================================================================
 template <typename S, typename Derived>
-FCL_EXPORT
 Vector3<S> getSupport(
     const ShapeBase<S>* shape,
     const Eigen::MatrixBase<Derived>& dir)
