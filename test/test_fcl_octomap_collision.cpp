@@ -359,6 +359,11 @@ void octomap_collision_test_contact_primitive_id(
 {
   std::vector<CollisionObject<S>*> env;
   test::generateEnvironmentsMesh(env, env_scale, env_size);
+  // An epsilon which scales with the domain of the of the octree.
+  // TODO(SeanCurtis-TRI): Figure out why this needs to be float
+  // tolerance, even for S = double (note previous spellings also used
+  // float tolerance).
+  const S kEps = env_scale * std::numeric_limits<float>::epsilon();
 
   std::shared_ptr<const octomap::OcTree> octree(
       test::generateOcTree(resolution));
@@ -393,10 +398,10 @@ void octomap_collision_test_contact_primitive_id(
       double cell_size = octree->getNodeSize(depth);
       for (unsigned i = 0; i < 3; ++i)
       {
-        EXPECT_FLOAT_EQ(
-            aabb.min_[i], center_octomap_point(i) - cell_size / 2.0);
-        EXPECT_FLOAT_EQ(
-            aabb.max_[i], center_octomap_point(i) + cell_size / 2.0);
+        EXPECT_NEAR(aabb.min_[i], center_octomap_point(i) - cell_size / 2.0,
+                    kEps);
+        EXPECT_NEAR(aabb.max_[i], center_octomap_point(i) + cell_size / 2.0,
+                    kEps);
       }
       auto octree_node = octree->search(key, depth);
       EXPECT_TRUE(octree_node == get_node_rv);
