@@ -9,4 +9,4 @@ Description: @PKG_DESC@
 Version: @FCL_VERSION@
 Requires: @PKG_EXTERNAL_DEPS@
 Libs: -L${libdir} -l@PROJECT_NAME@
-Cflags: @PKG_CFLAGS@ -I${includedir}
+Cflags: -I${includedir}
