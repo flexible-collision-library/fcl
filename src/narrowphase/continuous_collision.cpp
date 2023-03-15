@@ -42,6 +42,15 @@ namespace fcl
 
 //==============================================================================
 template
+float continuousCollide(
+    const CollisionGeometry<float>* o1,
+    const MotionBase<float>* motion1,
+    const CollisionGeometry<float>* o2,
+    const MotionBase<float>* motion2,
+    const ContinuousCollisionRequest<float>& request,
+    ContinuousCollisionResult<float>& result);
+
+template
 double continuousCollide(
     const CollisionGeometry<double>* o1,
     const MotionBase<double>* motion1,
@@ -51,6 +60,17 @@ double continuousCollide(
     ContinuousCollisionResult<double>& result);
 
 //==============================================================================
+template
+float continuousCollide(
+    const CollisionGeometry<float>* o1,
+    const Transform3<float>& tf1_beg,
+    const Transform3<float>& tf1_end,
+    const CollisionGeometry<float>* o2,
+    const Transform3<float>& tf2_beg,
+    const Transform3<float>& tf2_end,
+    const ContinuousCollisionRequest<float>& request,
+    ContinuousCollisionResult<float>& result);
+
 template
 double continuousCollide(
     const CollisionGeometry<double>* o1,
@@ -64,6 +84,15 @@ double continuousCollide(
 
 //==============================================================================
 template
+float continuousCollide(
+    const CollisionObject<float>* o1,
+    const Transform3<float>& tf1_end,
+    const CollisionObject<float>* o2,
+    const Transform3<float>& tf2_end,
+    const ContinuousCollisionRequest<float>& request,
+    ContinuousCollisionResult<float>& result);
+
+template
 double continuousCollide(
     const CollisionObject<double>* o1,
     const Transform3<double>& tf1_end,
@@ -73,6 +102,13 @@ double continuousCollide(
     ContinuousCollisionResult<double>& result);
 
 //==============================================================================
+template
+float collide(
+    const ContinuousCollisionObject<float>* o1,
+    const ContinuousCollisionObject<float>* o2,
+    const ContinuousCollisionRequest<float>& request,
+    ContinuousCollisionResult<float>& result);
+
 template
 double collide(
     const ContinuousCollisionObject<double>* o1,
