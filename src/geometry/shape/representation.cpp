@@ -1,8 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
- *  Copyright (c) 2014-2016, Open Source Robotics Foundation
+ *  Copyright (c) 2023, Toyota Research Institute
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -33,65 +32,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Jia Pan */
+/** @author Sean Curtis */
 
-#ifndef FCL_SHAPE_SPHERE_H
-#define FCL_SHAPE_SPHERE_H
+#include "fcl/geometry/shape/representation.h"
 
-#include "fcl/geometry/shape/shape_base.h"
+namespace fcl {
+namespace detail {
 
-#include <ostream>
-#include <string>
 
-namespace fcl
-{
-
-/// @brief Center at zero point sphere
-template <typename S_>
-class FCL_EXPORT Sphere : public ShapeBase<S_>
-{
-public:
-
-  using S = S_;
-
-  Sphere(S radius);
-
-  /// @brief Radius of the sphere
-  S radius;
-
-  /// @brief Compute AABB<S>
-  void computeLocalAABB() override;
-
-  /// @brief Get node type: a sphere
-  NODE_TYPE getNodeType() const override;
-
-  Matrix3<S> computeMomentofInertia() const override;
-
-  S computeVolume() const override;
-
-  /// @brief get the vertices of some convex shape which can bound this shape in
-  /// a specific configuration
-  std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
-
-  /// @brief Create a string that should be sufficient to recreate this shape.
-  /// This is akin to the repr() implementation in python.
-  /// @param precision The requested digits of precision for the numerical
-  ///                  measures (same semantics as std::setprecision()).
-  /// @return The string representation of this instance.
-  std::string representation(int precision = 20) const;
-
-  friend
-  std::ostream& operator<<(std::ostream& out, const Sphere& sphere) {
-    out << "Sphere(" << sphere.radius << ")";
-    return out;
-  }
-};
-
-using Spheref = Sphere<float>;
-using Sphered = Sphere<double>;
-
-} // namespace fcl
-
-#include "fcl/geometry/shape/sphere-inl.h"
-
-#endif
+}  // namespace detail
+}  // namespace fcl

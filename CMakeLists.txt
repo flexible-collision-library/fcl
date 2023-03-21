@@ -31,7 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
 project(fcl CXX)
 
@@ -341,9 +341,9 @@ add_subdirectory(src)
 add_subdirectory(include/fcl)
 
 set(PKG_DESC "Flexible Collision Library")
-if(NOT MSVC)
-    set(PKG_CFLAGS "-std=c++11")
-endif()
+
+set(CMAKE_CXX_STANDARD 14)
+
 configure_file(fcl.pc.in fcl.pc @ONLY)
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc"

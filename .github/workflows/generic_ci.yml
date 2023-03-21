@@ -1,0 +1,49 @@
+name: Callable build & test workflow (do not use directly)
+
+on:
+  workflow_call:
+    inputs:
+      install-name:
+        required: true
+        type: string
+      os:
+        required: true
+        type: string
+      build:
+        required: true
+        type: string
+      compiler:
+        required: true
+        type: string
+
+jobs:
+  common-build-and-test:
+    name: ci
+    runs-on: ${{ inputs.os }}
+    env:
+      CC: ${{ inputs.compiler == 'gcc' && 'gcc' || 'clang' }}
+      CXX: ${{ inputs.compiler == 'gcc' && 'g++' || 'clang++' }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Prerequisites
+        run: ${{ format('{0}/ci/{1}', github.workspace, inputs.install-name) }}
+
+      - name: Create Build Directory
+        run: mkdir ${{github.workspace}}/build
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ inputs.build }} -DFCL_TREAT_WARNINGS_AS_ERRORS=ON -DFCL_COVERALLS=OFF
+
+      - name: Build
+        run: cmake --build build -j2
+
+      - name: Run Tests
+        working-directory: ${{github.workspace}}/build
+        run: ctest -j2 --output-on-failure
+
+      - name: Install and Uninstall
+        working-directory: ${{github.workspace}}/build
+        run: |
+          sudo make -j2 install
+          sudo make -j2 uninstall

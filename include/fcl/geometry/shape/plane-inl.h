@@ -38,7 +38,11 @@
 #ifndef FCL_SHAPE_PLANE_INL_H
 #define FCL_SHAPE_PLANE_INL_H
 
+#include <iomanip>
+#include <sstream>
+
 #include "fcl/geometry/shape/plane.h"
+#include "fcl/geometry/shape/representation.h"
 
 namespace fcl
 {
@@ -128,6 +132,17 @@ template <typename S>
 NODE_TYPE Plane<S>::getNodeType() const
 {
   return GEOM_PLANE;
+}
+
+//==============================================================================
+template <typename S>
+std::string Plane<S>::representation(int precision) const {
+  const char* S_str = detail::ScalarRepr<S>::value();
+  std::stringstream ss;
+  ss << std::setprecision(precision);
+  ss << "Plane<" << S_str << ">(" << n[0] << ", " << n[1] << ", " << n[2]
+     << ", " << d << ");";
+  return ss.str();
 }
 
 //==============================================================================

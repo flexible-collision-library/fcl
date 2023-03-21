@@ -68,7 +68,7 @@ class SegmentSegmentNearestPtTest : public ::testing::Test {
 
 using ScalarTypes = ::testing::Types<double, float>;
 
-TYPED_TEST_CASE(SegmentSegmentNearestPtTest, ScalarTypes);
+TYPED_TEST_SUITE(SegmentSegmentNearestPtTest, ScalarTypes);
 
 TYPED_TEST(SegmentSegmentNearestPtTest, BothZeroLength) {
   using S = TypeParam;
@@ -725,7 +725,7 @@ class CapsuleCapsuleSegmentTest : public ::testing::Test {
   Vector3<S> expected_p_FW2_;
 };
 
-TYPED_TEST_CASE(CapsuleCapsuleSegmentTest, ScalarTypes);
+TYPED_TEST_SUITE(CapsuleCapsuleSegmentTest, ScalarTypes);
 
 // The nominal case will create two unique capsules with a straight forward
 // relationship. Making sure the transforms are *not* identity will sufficiently
