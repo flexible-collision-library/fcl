@@ -20,6 +20,8 @@ jobs:
   common-build-and-test:
     name: ci
     runs-on: ${{ inputs.os }}
+    # Don't inflict actual CI work on forks that happen to have actions enabled.
+    if: github.repository_owner == 'flexible-collision-library'
     env:
       CC: ${{ inputs.compiler == 'gcc' && 'gcc' || 'clang' }}
       CXX: ${{ inputs.compiler == 'gcc' && 'g++' || 'clang++' }}

@@ -9,7 +9,13 @@ run-name: Mac and Linux CI
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-including-paths
 # There is a solution if this type of optimization is preferred. See:
 # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 # This allows a subsequently queued workflow run to interrupt previous runs.
 concurrency:
