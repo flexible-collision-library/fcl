@@ -38,6 +38,8 @@
 #ifndef FCL_TRAVERSAL_SHAPECONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 #define FCL_TRAVERSAL_SHAPECONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 
+#include "fcl/math/bv/RSS.h"
+#include "fcl/math/motion/motion_base.h"
 #include "fcl/narrowphase/detail/traversal/distance/shape_distance_traversal_node.h"
 
 namespace fcl
