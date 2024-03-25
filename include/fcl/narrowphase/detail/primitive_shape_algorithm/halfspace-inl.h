@@ -62,6 +62,13 @@ bool ellipsoidHalfspaceIntersect(
 
 //==============================================================================
 extern template
+bool boxHalfspaceDistance(
+    const Box<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_b, Vector3<double>* closest_pts_h);
+
+//==============================================================================
+extern template
 bool boxHalfspaceIntersect(
     const Box<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2);
@@ -219,6 +226,51 @@ bool ellipsoidHalfspaceIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf
   {
     return false;
   }
+}
+
+//==============================================================================
+template <typename S>
+bool boxHalfspaceDistance(const Box<S>& s1, const Transform3<S>& tf1,
+                          const Halfspace<S>& s2, const Transform3<S>& tf2,
+                          S* distance, Vector3<S>* closest_pts_b, Vector3<S>* closest_pts_h)
+{
+  Halfspace<S> new_s2 = transform(s2, tf2);
+
+  const Matrix3<S>& R = tf1.linear();
+  const Vector3<S>& T = tf1.translation();
+
+  Vector3<S> Q = R.transpose() * new_s2.n;
+  Vector3<S> A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
+  Vector3<S> B = A.cwiseAbs();
+
+  S depth = 0.5 * (B[0] + B[1] + B[2]) - new_s2.signedDistance(T);
+  *distance = -depth;  // depth is penetration depth
+  
+  if (*distance >= 0) {
+    // calculate the closest points
+    // first, find the 8 vertices of the box
+    Vector3<S> p[8];
+    p[0] = T + R * Vector3<S>(0.5 * s1.side[0], 0.5 * s1.side[1], 0.5 * s1.side[2]);
+    p[1] = T + R * Vector3<S>(0.5 * s1.side[0], 0.5 * s1.side[1], -0.5 * s1.side[2]);
+    p[2] = T + R * Vector3<S>(0.5 * s1.side[0], -0.5 * s1.side[1], 0.5 * s1.side[2]);
+    p[3] = T + R * Vector3<S>(0.5 * s1.side[0], -0.5 * s1.side[1], -0.5 * s1.side[2]);
+    p[4] = T + R * Vector3<S>(-0.5 * s1.side[0], 0.5 * s1.side[1], 0.5 * s1.side[2]);
+    p[5] = T + R * Vector3<S>(-0.5 * s1.side[0], 0.5 * s1.side[1], -0.5 * s1.side[2]);
+    p[6] = T + R * Vector3<S>(-0.5 * s1.side[0], -0.5 * s1.side[1], 0.5 * s1.side[2]);
+    p[7] = T + R * Vector3<S>(-0.5 * s1.side[0], -0.5 * s1.side[1], -0.5 * s1.side[2]);
+    // then, iterate and find the closest points
+    S cloest_distance = std::numeric_limits<S>::max();
+    for (int i = 0; i < 8; ++i) {
+      S d = new_s2.signedDistance(p[i]);
+      if (d < cloest_distance) {
+        cloest_distance = d;
+        *closest_pts_b = p[i];
+        *closest_pts_h = p[i] - new_s2.n * d;
+      }
+    }
+  }
+
+  return depth >= 0;
 }
 
 //==============================================================================

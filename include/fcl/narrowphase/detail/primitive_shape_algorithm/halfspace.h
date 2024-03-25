@@ -79,6 +79,13 @@ bool ellipsoidHalfspaceIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf
                                  const Halfspace<S>& s2, const Transform3<S>& tf2,
                                  std::vector<ContactPoint<S>>* contacts);
 
+template <typename S>
+FCL_EXPORT
+bool boxHalfspaceDistance(
+    const Box<S>& s1, const Transform3<S>& tf1,
+    const Halfspace<S>& s2, const Transform3<S>& tf2,
+    S* distance, Vector3<S>* closest_pts_b, Vector3<S>* closest_pts_h);
+
 /// @brief box half space, a, b, c  = +/- edge size
 /// n^T * (R(o + a v1 + b v2 + c v3) + T) <= d
 /// so (R^T n) (a v1 + b v2 + c v3) + n * T <= d
