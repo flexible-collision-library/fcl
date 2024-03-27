@@ -43,7 +43,7 @@ using namespace std;
 using namespace fcl;
 
 template <typename S>
-void test_collision_box_half_space(fcl::GJKSolverType solver_type)
+void test_distance_box_half_space(fcl::GJKSolverType solver_type)
 {
   // Numerical precision expected in the results.
   const double kTolerance = 20 * std::numeric_limits<double>::epsilon();
@@ -119,14 +119,89 @@ void test_collision_box_half_space(fcl::GJKSolverType solver_type)
   EXPECT_NEAR(distance_result.min_distance, 0.001, kTolerance);
 }
 
+template <typename S>
+void test_distance_sphere_half_space(fcl::GJKSolverType solver_type)
+{
+  // Numerical precision expected in the results.
+  const double kTolerance = 20 * std::numeric_limits<double>::epsilon();
+
+  const S radius = 0.1;
+  auto sphere = std::make_shared<Sphere<S>>(radius);
+  auto half_space = std::make_shared<Halfspace<S>>(Vector3<S>::UnitZ(), 0.0);
+
+  // Pose of sphere frame S in the world frame W.
+  Transform3<S> X_WS(Translation3<S>(Vector3<S>(0.0, 0.0, 0.11)));
+  // Pose of half space frame H in the world frame W.
+  Transform3<S> X_WH = Transform3<S>::Identity();
+  
+  CollisionObject<S> sphere_obj(sphere, X_WS);
+  CollisionObject<S> half_space_obj(half_space, X_WH);
+
+  fcl::DistanceResult<S> distance_result;
+  fcl::DistanceRequest<S> distance_request;
+  distance_request.gjk_solver_type = solver_type;
+  distance_request.enable_nearest_points = true;
+  fcl::distance(&half_space_obj, &sphere_obj, distance_request, distance_result);
+
+  // The sphere is not touching the half space
+  EXPECT_NEAR(distance_result.min_distance, 0.01, kTolerance);
+}
+
+template <typename S>
+void test_distance_ellipsoid_half_space(fcl::GJKSolverType solver_type)
+{
+  // Numerical precision expected in the results.
+  const double kTolerance = 20 * std::numeric_limits<double>::epsilon();
+
+  const S radii[3] = {0.1, 0.1, 0.2};
+  auto ellipsoid = std::make_shared<Ellipsoid<S>>(radii[0], radii[1], radii[2]);
+  auto half_space = std::make_shared<Halfspace<S>>(Vector3<S>::UnitZ(), 0.0);
+
+  // Pose of ellipsoid frame S in the world frame W.
+  Transform3<S> X_WE(Translation3<S>(Vector3<S>(0.0, 0.0, 0.21)));
+  // Pose of half space frame H in the world frame W.
+  Transform3<S> X_WH = Transform3<S>::Identity();
+  
+  CollisionObject<S> ellipsoid_obj(ellipsoid, X_WE);
+  CollisionObject<S> half_space_obj(half_space, X_WH);
+
+  fcl::DistanceResult<S> distance_result;
+  fcl::DistanceRequest<S> distance_request;
+  distance_request.gjk_solver_type = solver_type;
+  distance_request.enable_nearest_points = true;
+  fcl::distance(&half_space_obj, &ellipsoid_obj, distance_request, distance_result);
+
+  // The sphere is not touching the half space
+  EXPECT_NEAR(distance_result.min_distance, 0.01, kTolerance);
+
+  // Now perform the same test but with the ellipsoid's x axis pointing down.
+  X_WE.linear() = AngleAxis<S>(fcl::constants<S>::pi() / 2,
+                               Vector3d::UnitX()).matrix();
+  ellipsoid_obj.setTransform(X_WE);
+
+  distance_result.clear();
+  fcl::distance(&half_space_obj, &ellipsoid_obj, distance_request, distance_result);
+  EXPECT_NEAR(distance_result.min_distance, 0.11, kTolerance);
+}
+
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, collision_ellipsoid_half_space_libccd)
+{
+  test_distance_ellipsoid_half_space<double>(fcl::GJKSolverType::GST_LIBCCD);
+}
+
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, collision_sphere_half_space_libccd)
+{
+  test_distance_sphere_half_space<double>(fcl::GJKSolverType::GST_LIBCCD);
+}
+
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, collision_box_half_space_libccd)
 {
-  test_collision_box_half_space<double>(fcl::GJKSolverType::GST_LIBCCD);
+  test_distance_box_half_space<double>(fcl::GJKSolverType::GST_LIBCCD);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, collision_box_half_space_indep)
 {
-  test_collision_box_half_space<double>(fcl::GJKSolverType::GST_INDEP);
+  test_distance_box_half_space<double>(fcl::GJKSolverType::GST_INDEP);
 }
 
 int main(int argc, char* argv[])

@@ -570,6 +570,8 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   distance_matrix[GEOM_HALFSPACE][GEOM_CONVEX] = &ShapeShapeDistance<Halfspace<S>, Convex<S>, NarrowPhaseSolver>;
   distance_matrix[GEOM_HALFSPACE][GEOM_PLANE] = &ShapeShapeDistance<Halfspace<S>, Plane<S>, NarrowPhaseSolver>;
   distance_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] = &ShapeShapeDistance<Halfspace<S>, Halfspace<S>, NarrowPhaseSolver>;
+  distance_matrix[GEOM_HALFSPACE][GEOM_ELLIPSOID] = &ShapeShapeDistance<Halfspace<S>, Ellipsoid<S>, NarrowPhaseSolver>;
+
 
   /* AABB distance not implemented */
   /*

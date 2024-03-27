@@ -48,10 +48,24 @@ namespace detail
 
 //==============================================================================
 extern template
+bool sphereHalfspaceDistance(
+    const Sphere<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_s, Vector3<double>* closest_pts_h);
+
+//==============================================================================
+extern template
 bool sphereHalfspaceIntersect(
     const Sphere<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
     std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+extern template
+bool ellipsoidHalfspaceDistance(
+    const Ellipsoid<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_e, Vector3<double>* closest_pts_h);
 
 //==============================================================================
 extern template
@@ -64,13 +78,6 @@ bool ellipsoidHalfspaceIntersect(
 extern template
 bool boxHalfspaceDistance(
     const Box<double>& s1, const Transform3<double>& tf1,
-    const Halfspace<double>& s2, const Transform3<double>& tf2,
-    double* distance, Vector3<double>* closest_pts_b, Vector3<double>* closest_pts_h);
-
-//==============================================================================
-extern template
-bool sphereHalfspaceDistance(
-    const Sphere<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
     double* distance, Vector3<double>* closest_pts_b, Vector3<double>* closest_pts_h);
 
@@ -166,6 +173,24 @@ S halfspaceIntersectTolerance()
 
 //==============================================================================
 template <typename S>
+bool sphereHalfspaceDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
+                             const Halfspace<S>& s2, const Transform3<S>& tf2,
+                             S* distance, Vector3<S>* closest_pts_s, Vector3<S>* closest_pts_h)
+{
+  const Halfspace<S> new_s2 = transform(s2, tf2);
+  const Vector3<S>& center = tf1.translation();
+  const S depth = s1.radius - new_s2.signedDistance(center);
+
+  *distance = -depth;
+  if (*distance >= 0) {
+    *closest_pts_s = center - s1.radius * new_s2.n;
+    *closest_pts_h = *closest_pts_s - (*distance) * new_s2.n;
+  }
+  return depth >= 0;
+}
+
+//==============================================================================
+template <typename S>
 bool sphereHalfspaceIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
                               const Halfspace<S>& s2, const Transform3<S>& tf2,
                               std::vector<ContactPoint<S>>* contacts)
@@ -191,6 +216,37 @@ bool sphereHalfspaceIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
   {
     return false;
   }
+}
+
+//==============================================================================
+template <typename S>
+bool ellipsoidHalfspaceDistance(const Ellipsoid<S>& s1, const Transform3<S>& tf1,
+                                const Halfspace<S>& s2, const Transform3<S>& tf2,
+                                S* distance, Vector3<S>* closest_pts_e, Vector3<S>* closest_pts_h)
+{
+  // We first compute a single contact in the ellipsoid coordinates, tf1, then
+  // will transform it to the world frame. So we use a new halfspace that is
+  // expressed in the ellipsoid coordinates.
+  const Halfspace<S>& new_s2 = transform(s2, tf1.inverse(Eigen::Isometry) * tf2);
+
+  // Compute distance between the ellipsoid's center and a contact plane, whose
+  // normal is equal to the halfspace's normal.
+  const Vector3<S> normal2(std::pow(new_s2.n[0], 2), std::pow(new_s2.n[1], 2), std::pow(new_s2.n[2], 2));
+  const Vector3<S> radii2(std::pow(s1.radii[0], 2), std::pow(s1.radii[1], 2), std::pow(s1.radii[2], 2));
+  const S center_to_contact_plane = std::sqrt(normal2.dot(radii2));
+
+  // Depth is the distance between the contact plane and the halfspace.
+  const S depth = center_to_contact_plane + new_s2.d;
+
+  *distance = -depth;
+  if (*distance >= 0) {
+    auto center = tf1.translation();
+    auto s2_standard = transform(s2, tf2);
+    auto standard_normal = s2_standard.n;
+    *closest_pts_e = center - center_to_contact_plane * standard_normal;
+    *closest_pts_h = *closest_pts_e - (*distance) * standard_normal;
+  }
+  return depth >= 0;
 }
 
 //==============================================================================
@@ -277,24 +333,6 @@ bool boxHalfspaceDistance(const Box<S>& s1, const Transform3<S>& tf1,
     }
   }
 
-  return depth >= 0;
-}
-
-//==============================================================================
-template <typename S>
-bool sphereHalfspaceDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
-                             const Halfspace<S>& s2, const Transform3<S>& tf2,
-                             S* distance, Vector3<S>* closest_pts_s, Vector3<S>* closest_pts_h)
-{
-  const Halfspace<S> new_s2 = transform(s2, tf2);
-  const Vector3<S>& center = tf1.translation();
-  const S depth = s1.radius - new_s2.signedDistance(center);
-
-  *distance = -depth;
-  if (*distance >= 0) {
-    *closest_pts_s = center - new_s2.n * s1.radius;
-    *closest_pts_h = center - new_s2.n * (*distance);
-  }
   return depth >= 0;
 }
 

@@ -56,6 +56,12 @@ double halfspaceIntersectTolerance()
 {
   return 0.0000001;
 }
+//==============================================================================
+template
+bool sphereHalfspaceDistance(
+    const Sphere<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_s, Vector3<double>* closest_pts_h);
 
 //==============================================================================
 template
@@ -63,6 +69,13 @@ bool sphereHalfspaceIntersect(
     const Sphere<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
     std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+template
+bool ellipsoidHalfspaceDistance(
+    const Ellipsoid<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_e, Vector3<double>* closest_pts_h);
 
 //==============================================================================
 template
@@ -77,14 +90,6 @@ bool boxHalfspaceDistance(
     const Box<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
     double* distance, Vector3<double>* closest_pts_b, Vector3<double>* closest_pts_h);
-
-//==============================================================================
-template
-bool sphereHalfspaceDistance(
-    const Sphere<double>& s1, const Transform3<double>& tf1,
-    const Halfspace<double>& s2, const Transform3<double>& tf2,
-    double* distance, Vector3<double>* closest_pts_b, Vector3<double>* closest_pts_h);
-
 
 //==============================================================================
 template

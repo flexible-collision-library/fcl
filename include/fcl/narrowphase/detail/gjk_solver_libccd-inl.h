@@ -657,7 +657,7 @@ bool GJKSolver_libccd<S>::shapeDistance(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | box        |     |   O    |           |         |      |          |       |     O      |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |           |    O    |      |    O     |       |     x      |     O    |
+// | sphere     |/////|   O    |           |    O    |      |    O     |       |     O      |     O    |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | ellipsoid  |/////|////////|           |         |      |          |       |     x      |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
@@ -693,7 +693,6 @@ struct ShapeDistanceLibccdImpl<S, Box<S>, Halfspace<S>>
 };
 
 //==============================================================================
-
 template<typename S>
 struct ShapeDistanceLibccdImpl<S, Halfspace<S>, Box<S>>
 {
@@ -744,6 +743,42 @@ struct ShapeDistanceLibccdImpl<S, Halfspace<S>, Sphere<S>>
       Vector3<S>* p2)
   {
     return detail::sphereHalfspaceDistance(s2, tf2, s1, tf1, dist, p2, p1);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Ellipsoid<S>, Halfspace<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Ellipsoid<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::ellipsoidHalfspaceDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Halfspace<S>, Ellipsoid<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Ellipsoid<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::ellipsoidHalfspaceDistance(s2, tf2, s1, tf1, dist, p2, p1);
   }
 };
 
