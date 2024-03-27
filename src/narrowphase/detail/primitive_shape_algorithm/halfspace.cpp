@@ -80,6 +80,14 @@ bool boxHalfspaceDistance(
 
 //==============================================================================
 template
+bool sphereHalfspaceDistance(
+    const Sphere<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_b, Vector3<double>* closest_pts_h);
+
+
+//==============================================================================
+template
 bool boxHalfspaceIntersect(
     const Box<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2);

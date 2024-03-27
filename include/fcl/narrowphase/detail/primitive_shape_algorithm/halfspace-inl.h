@@ -69,6 +69,13 @@ bool boxHalfspaceDistance(
 
 //==============================================================================
 extern template
+bool sphereHalfspaceDistance(
+    const Sphere<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_b, Vector3<double>* closest_pts_h);
+
+//==============================================================================
+extern template
 bool boxHalfspaceIntersect(
     const Box<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2);
@@ -270,6 +277,24 @@ bool boxHalfspaceDistance(const Box<S>& s1, const Transform3<S>& tf1,
     }
   }
 
+  return depth >= 0;
+}
+
+//==============================================================================
+template <typename S>
+bool sphereHalfspaceDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
+                             const Halfspace<S>& s2, const Transform3<S>& tf2,
+                             S* distance, Vector3<S>* closest_pts_s, Vector3<S>* closest_pts_h)
+{
+  const Halfspace<S> new_s2 = transform(s2, tf2);
+  const Vector3<S>& center = tf1.translation();
+  const S depth = s1.radius - new_s2.signedDistance(center);
+
+  *distance = -depth;
+  if (*distance >= 0) {
+    *closest_pts_s = center - new_s2.n * s1.radius;
+    *closest_pts_h = center - new_s2.n * (*distance);
+  }
   return depth >= 0;
 }
 
