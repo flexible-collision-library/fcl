@@ -659,17 +659,17 @@ bool GJKSolver_libccd<S>::shapeDistance(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | sphere     |/////|   O    |           |    O    |      |    O     |       |     O      |     O    |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | ellipsoid  |/////|////////|           |         |      |          |       |     x      |          |
+// | ellipsoid  |/////|////////|           |         |      |          |       |     O      |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | capsule    |/////|////////|///////////|    O    |      |          |       |     x      |          |
+// | capsule    |/////|////////|///////////|    O    |      |          |       |     O      |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | cone       |/////|////////|///////////|/////////|      |          |       |     x      |          |
+// | cone       |/////|////////|///////////|/////////|      |          |       |     O      |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | cylinder   |/////|////////|///////////|/////////|//////|          |       |     x      |          |
+// | cylinder   |/////|////////|///////////|/////////|//////|          |       |     O      |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | plane      |/////|////////|///////////|/////////|//////|//////////|       |     x      |          |
+// | plane      |/////|////////|///////////|/////////|//////|//////////|       |     O      |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
-// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|     x      |          |
+// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|     O      |          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
@@ -783,7 +783,168 @@ struct ShapeDistanceLibccdImpl<S, Halfspace<S>, Ellipsoid<S>>
 };
 
 //==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Capsule<S>, Halfspace<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Capsule<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::capsuleHalfspaceDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  }
+};
 
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Halfspace<S>, Capsule<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Capsule<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::capsuleHalfspaceDistance(s2, tf2, s1, tf1, dist, p2, p1);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Cone<S>, Halfspace<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Cone<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::coneHalfspaceDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Halfspace<S>, Cone<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Cone<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::coneHalfspaceDistance(s2, tf2, s1, tf1, dist, p2, p1);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Cylinder<S>, Halfspace<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Cylinder<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::cylinderHalfspaceDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Halfspace<S>, Cylinder<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Cylinder<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::cylinderHalfspaceDistance(s2, tf2, s1, tf1, dist, p2, p1);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Plane<S>, Halfspace<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Plane<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::planeHalfspaceDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Halfspace<S>, Plane<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Plane<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::planeHalfspaceDistance(s2, tf2, s1, tf1, dist, p2, p1);
+  }
+};
+
+//==============================================================================
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Halfspace<S>, Halfspace<S>>
+{
+  static bool run(
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    return detail::halfspaceHalfspaceDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  }
+};
+
+//==============================================================================
 template<typename S>
 struct ShapeDistanceLibccdImpl<S, Sphere<S>, Box<S>>
 {

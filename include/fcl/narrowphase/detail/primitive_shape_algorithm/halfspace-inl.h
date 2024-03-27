@@ -96,6 +96,13 @@ bool boxHalfspaceIntersect(
 
 //==============================================================================
 extern template
+bool capsuleHalfspaceDistance(
+    const Capsule<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_c, Vector3<double>* closest_pts_h);
+
+//==============================================================================
+extern template
 bool capsuleHalfspaceIntersect(
     const Capsule<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -103,10 +110,24 @@ bool capsuleHalfspaceIntersect(
 
 //==============================================================================
 extern template
+bool cylinderHalfspaceDistance(
+    const Cylinder<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_c, Vector3<double>* closest_pts_h);
+
+//==============================================================================
+extern template
 bool cylinderHalfspaceIntersect(
     const Cylinder<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
     std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+extern template
+bool coneHalfspaceDistance(
+    const Cone<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_c, Vector3<double>* closest_pts_h);
 
 //==============================================================================
 extern template
@@ -137,6 +158,13 @@ bool halfspaceTriangleIntersect(
 
 //==============================================================================
 extern template
+bool planeHalfspaceDistance(
+    const Plane<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_p, Vector3<double>* closest_pts_h);
+
+//==============================================================================
+extern template
 bool planeHalfspaceIntersect(
     const Plane<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,
@@ -153,6 +181,13 @@ bool halfspacePlaneIntersect(
     Plane<double>& pl, Vector3<double>& p, Vector3<double>& d,
     double& penetration_depth,
     int& ret);
+
+//==============================================================================
+extern template
+bool halfspaceHalfspaceDistance(
+    const Halfspace<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    double* distance, Vector3<double>* closest_pts_h1, Vector3<double>* closest_pts_h2);
 
 //==============================================================================
 extern template
@@ -427,6 +462,51 @@ bool boxHalfspaceIntersect(const Box<S>& s1, const Transform3<S>& tf1,
 
 //==============================================================================
 template <typename S>
+bool capsuleHalfspaceDistance(const Capsule<S>& s1, const Transform3<S>& tf1,
+                              const Halfspace<S>& s2, const Transform3<S>& tf2,
+                              S* distance, Vector3<S>* closest_pts_c, Vector3<S>* closest_pts_h)
+{
+  Halfspace<S> new_s2 = transform(s2, tf2);
+
+  const Matrix3<S>& R = tf1.linear();
+  const Vector3<S>& T = tf1.translation();
+
+  Vector3<S> dir_z = R.col(2);
+
+  S cosa = dir_z.dot(new_s2.n);
+  if(std::abs(cosa) < halfspaceIntersectTolerance<S>())
+  {
+    S signed_dist = new_s2.signedDistance(T);
+    S depth = s1.radius - signed_dist;
+    
+    *distance = -depth;
+    if (*distance >= 0) {
+      *closest_pts_c = T - dir_z * (s1.lz * 0.5) - new_s2.n * s1.radius;
+      *closest_pts_h = *closest_pts_c - (*distance) * new_s2.n;
+    }
+
+    return depth >= 0;
+  }
+  else
+  {
+    int sign = (cosa > 0) ? -1 : 1;
+    Vector3<S> p = T + dir_z * (s1.lz * 0.5 * sign);
+
+    S signed_dist = new_s2.signedDistance(p);
+    S depth = s1.radius - signed_dist;
+    
+    *distance = -depth;
+    if (*distance >= 0) {
+      *closest_pts_c = p - new_s2.n * s1.radius;
+      *closest_pts_h = *closest_pts_c - (*distance) * new_s2.n;
+    }
+
+    return depth >= 0;
+  }
+}
+
+//==============================================================================
+template <typename S>
 bool capsuleHalfspaceIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
                                const Halfspace<S>& s2, const Transform3<S>& tf2,
                                std::vector<ContactPoint<S>>* contacts)
@@ -475,6 +555,60 @@ bool capsuleHalfspaceIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
     }
 
     return true;
+  }
+}
+
+//==============================================================================
+template <typename S>
+bool cylinderHalfspaceDistance(const Cylinder<S>& s1, const Transform3<S>& tf1,
+                               const Halfspace<S>& s2, const Transform3<S>& tf2,
+                               S* distance, Vector3<S>* closest_pts_c, Vector3<S>* closest_pts_h)
+{
+  Halfspace<S> new_s2 = transform(s2, tf2);
+
+  const Matrix3<S>& R = tf1.linear();
+  const Vector3<S>& T = tf1.translation();
+
+  Vector3<S> dir_z = R.col(2);
+  S cosa = dir_z.dot(new_s2.n);
+
+  if(std::abs(cosa) < halfspaceIntersectTolerance<S>())
+  {
+    S signed_dist = new_s2.signedDistance(T);
+    S depth = s1.radius - signed_dist;
+    
+    *distance = -depth;
+    if (*distance >= 0) {
+      *closest_pts_c = T - dir_z * (s1.lz * 0.5) - new_s2.n * s1.radius;
+      *closest_pts_h = *closest_pts_c - (*distance) * new_s2.n;
+    }
+
+    return depth >= 0;
+  }
+  else
+  {
+    Vector3<S> C = dir_z * cosa - new_s2.n;
+    if(std::abs(cosa + 1) < halfspaceIntersectTolerance<S>() || std::abs(cosa - 1) < halfspaceIntersectTolerance<S>())
+      C = Vector3<S>(0, 0, 0);
+    else
+    {
+      S s = C.norm();
+      s = s1.radius / s;
+      C *= s;
+    }
+
+    int sign = (cosa > 0) ? -1 : 1;
+    // deepest point
+    Vector3<S> p = T + dir_z * (s1.lz * 0.5 * sign) + C;
+    S depth = -new_s2.signedDistance(p);
+    
+    *distance = -depth;
+    if (*distance >= 0) {
+      *closest_pts_c = p - new_s2.n * s1.radius;
+      *closest_pts_h = *closest_pts_c - (*distance) * new_s2.n;
+    }
+
+    return depth >= 0;
   }
 }
 
@@ -539,6 +673,63 @@ bool cylinderHalfspaceIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
 
       return true;
     }
+  }
+}
+
+//==============================================================================
+template <typename S>
+bool coneHalfspaceDistance(const Cone<S>& s1, const Transform3<S>& tf1,
+                           const Halfspace<S>& s2, const Transform3<S>& tf2,
+                           S* distance, Vector3<S>* closest_pts_c, Vector3<S>* closest_pts_h)
+{
+  Halfspace<S> new_s2 = transform(s2, tf2);
+
+  const Matrix3<S>& R = tf1.linear();
+  const Vector3<S>& T = tf1.translation();
+
+  Vector3<S> dir_z = R.col(2);
+  S cosa = dir_z.dot(new_s2.n);
+
+  if(cosa < halfspaceIntersectTolerance<S>())
+  {
+    S signed_dist = new_s2.signedDistance(T);
+    S depth = s1.radius - signed_dist;
+    
+    *distance = -depth;
+
+    if (*distance >= 0) {
+      *closest_pts_c = T - dir_z * (s1.lz * 0.5) - new_s2.n * s1.radius;
+      *closest_pts_h = *closest_pts_c - (*distance) * new_s2.n;
+    }
+
+    return depth >= 0;
+  }
+  else
+  {
+    Vector3<S> C = dir_z * cosa - new_s2.n;
+    if(std::abs(cosa + 1) < halfspaceIntersectTolerance<S>() || std::abs(cosa - 1) < halfspaceIntersectTolerance<S>())
+      C = Vector3<S>(0, 0, 0);
+    else
+    {
+      S s = C.norm();
+      s = s1.radius / s;
+      C *= s;
+    }
+
+    Vector3<S> p1 = T + dir_z * (0.5 * s1.lz);
+    Vector3<S> p2 = T - dir_z * (0.5 * s1.lz) + C;
+
+    S d1 = new_s2.signedDistance(p1);
+    S d2 = new_s2.signedDistance(p2);
+
+    *distance = std::min(d1, d2);
+
+    if (*distance >= 0) {
+      *closest_pts_c = ((d1 < d2) ? p1 : p2);
+      *closest_pts_h = *closest_pts_c - (*distance) * new_s2.n;
+    }
+
+    return *distance < 0;
   }
 }
 
@@ -736,6 +927,32 @@ bool halfspaceTriangleIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1
 
 //==============================================================================
 template <typename S>
+bool planeHalfspaceDistance(
+    const Plane<S>& s1, const Transform3<S>& tf1,
+    const Halfspace<S>& s2, const Transform3<S>& tf2,
+    S* distance, Vector3<S>* closest_pts_p, Vector3<S>* closest_pts_h)
+{
+  Plane<S> new_s1 = transform(s1, tf1);
+  Halfspace<S> new_s2 = transform(s2, tf2);
+
+  Vector3<S> dir = (new_s1.n).cross(new_s2.n);
+  S dir_norm = dir.squaredNorm();
+  if(dir_norm < std::numeric_limits<S>::epsilon()) // parallel
+  {
+    *distance = new_s1.d - new_s2.d;
+    if (*distance >= 0) {
+      *closest_pts_p = new_s1.n * new_s1.d;
+      *closest_pts_h = *closest_pts_p - (*distance) * new_s2.n;
+    }
+    return *distance < 0;
+  }
+
+  *distance = 0;
+  return true;
+}
+
+//==============================================================================
+template <typename S>
 bool planeHalfspaceIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
                              const Halfspace<S>& s2, const Transform3<S>& tf2,
                              Plane<S>& pl,
@@ -799,6 +1016,40 @@ bool halfspacePlaneIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
                              int& ret)
 {
   return planeHalfspaceIntersect(s2, tf2, s1, tf1, pl, p, d, penetration_depth, ret);
+}
+
+//==============================================================================
+template <typename S>
+bool halfspaceHalfspaceDistance(
+    const Halfspace<S>& s1, const Transform3<S>& tf1,
+    const Halfspace<S>& s2, const Transform3<S>& tf2,
+    S* distance, Vector3<S>* closest_pts_h1, Vector3<S>* closest_pts_h2)
+{
+  Halfspace<S> new_s1 = transform(s1, tf1);
+  Halfspace<S> new_s2 = transform(s2, tf2);
+
+  Vector3<S> dir = (new_s1.n).cross(new_s2.n);
+  S dir_norm = dir.squaredNorm();
+  if(dir_norm < std::numeric_limits<S>::epsilon()) // parallel
+  {
+    S dot_prod = (new_s1.n).dot(new_s2.n);
+    if(dot_prod > 0)
+    {
+      *distance = 0;
+    }
+    else if(new_s1.d + new_s2.d > 0)
+    {
+      *distance = new_s1.d + new_s2.d;
+      *closest_pts_h1 = new_s1.n * new_s1.d;
+      *closest_pts_h2 = new_s2.n * new_s2.d;
+    }
+  }
+  else
+  {
+    *distance = 0;
+  }
+
+  return *distance <= 0;
 }
 
 //==============================================================================
