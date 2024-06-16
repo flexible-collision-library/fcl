@@ -38,6 +38,7 @@
 #ifndef FCL_DATA_TYPES_H
 #define FCL_DATA_TYPES_H
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <vector>
