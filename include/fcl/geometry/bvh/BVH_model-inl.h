@@ -881,7 +881,7 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
 
   if(num_primitives == 1)
   {
-    bvnode->first_child = -((*cur_primitive_indices) + 1);
+    bvnode->first_child = -(static_cast<int>(*cur_primitive_indices) + 1);
   }
   else
   {
