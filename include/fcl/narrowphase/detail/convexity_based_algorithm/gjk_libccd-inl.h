@@ -1085,7 +1085,7 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
 }
 
 // Return true if the point `pt` is on the outward side of the half-plane, on
-// which the triangle `f1 lives. Notice if the point `pt` is exactly on the
+// which the triangle `f` lives. Notice if the point `pt` is exactly on the
 // half-plane, the return is false.
 // @param f A triangle on a polytope.
 // @param pt A point.
@@ -1688,14 +1688,6 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
   std::array<ccd_vec3_t, 2> face_normals;
   std::array<double, 2> origin_to_face_distance;
 
-  // We define the plane equation using vertex[0]. If vertex[0] is far away
-  // from the origin, it can magnify rounding error. We scale epsilon to account
-  // for this possibility.
-  const ccd_real_t v0_dist =
-      std::sqrt(ccdVec3Len2(&nearest_edge->vertex[0]->v.v));
-  const ccd_real_t plane_threshold =
-      kEps * std::max(static_cast<ccd_real_t>(1.0), v0_dist);
-
   for (int i = 0; i < 2; ++i) {
     face_normals[i] =
         faceNormalPointingOutward(polytope, nearest_edge->faces[i]);
@@ -1704,22 +1696,6 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
     // n̂ ⋅ (o - vₑ) ≤ 0 or, with simplification, -n̂ ⋅ vₑ ≤ 0 (since n̂ ⋅ o = 0).
     origin_to_face_distance[i] =
         -ccdVec3Dot(&face_normals[i], &nearest_edge->vertex[0]->v.v);
-    // If the origin lies *on* the edge, then it also lies on the two adjacent
-    // faces. Rather than failing on strictly *positive* signed distance, we
-    // introduce an epsilon threshold. This usage of epsilon is to account for a
-    // discrepancy in the signed distance computation. How GJK (and partially
-    // EPA) compute the signed distance from origin to face may *not* be exactly
-    // the same as done in this test (i.e. for a given set of vertices, the
-    // plane equation can be defined various ways. Those ways are
-    // *mathematically* equivalent but numerically will differ due to rounding).
-    // We account for those differences by allowing a very small positive signed
-    // distance to be considered zero. We assume that the GJK/EPA code
-    // ultimately classifies inside/outside around *zero* and *not* epsilon.
-    if (origin_to_face_distance[i] > plane_threshold) {
-      FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
-          "The origin is outside of the polytope. This should already have "
-          "been identified as separating.");
-    }
   }
 
   // We know the reported squared distance to the edge. If that distance is
