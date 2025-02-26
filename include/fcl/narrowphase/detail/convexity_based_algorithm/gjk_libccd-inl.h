@@ -42,6 +42,10 @@
 #include "fcl/narrowphase/detail/failed_at_this_configuration.h"
 
 #include <array>
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -185,6 +189,91 @@ struct ccd_triangle_t : public ccd_obj_t
 
 namespace libccd_extension
 {
+static std::string to_string(const ccd_vec3_t& v, const std::string& separator=", ") {
+  std::ostringstream s;
+  s << std::setprecision(15) << v.v[0] << separator << std::setprecision(15) << v.v[1] << separator << std::setprecision(15) << v.v[2];
+  return s.str();
+}
+
+static bool Eq(const ccd_vec3_t& v1, const ccd_vec3_t& v2) {
+  if (v1.v[0] == v2.v[0] && v1.v[1] == v2.v[1] && v1.v[2] == v2.v[2]) {
+    return true;
+  }
+  return false;
+}
+
+static int find_third_vertex(const ccd_pt_face_t& face) {
+  if (Eq(face.edge[1]->vertex[0]->v.v, face.edge[0]->vertex[0]->v.v) ||
+      Eq(face.edge[1]->vertex[0]->v.v, face.edge[0]->vertex[1]->v.v)) {
+    return 1;
+  }
+  return 0;
+}
+
+static std::string to_string(const ccd_pt_edge_t& e) {
+  std::ostringstream s;
+  s << to_string(e.vertex[0]->v.v) << "\n" << to_string(e.vertex[1]->v.v);
+  return s.str();
+}
+
+static std::string to_numpy_string(const ccd_pt_edge_t& e) {
+  std::ostringstream s;
+  s << "np.array([[" << to_string(e.vertex[0]->v.v) << "],["
+    << to_string(e.vertex[1]->v.v) << "]])";
+  return s.str();
+}
+
+static std::string to_obj_string(const ccd_pt_t& polytope) {
+  std::ostringstream s;
+  ccd_pt_face_t* f;
+  int face_count = 0;
+  ccdListForEachEntry(&polytope.faces, f, ccd_pt_face_t, list) {
+    s << "v " << to_string(f->edge[0]->vertex[0]->v.v, " ") << "\nv "
+      << to_string(f->edge[0]->vertex[1]->v.v, " ") << "\n";
+    const int third_vertex = find_third_vertex(*f);
+    s << "v " << to_string(f->edge[1]->vertex[third_vertex]->v.v, " ") << "\n";
+    s << "f " << face_count * 3 + 1 << " " << face_count * 3 + 2 << " " << face_count * 3 + 3 << "\n";
+    face_count++;
+  }
+  return s.str();
+}
+
+static std::string to_string(const ccd_pt_face_t& face) {
+  std::ostringstream s;
+  const int third_vertex = find_third_vertex(face);
+  s << to_string(face.edge[0]->vertex[0]->v.v) << "\n"
+    << to_string(face.edge[0]->vertex[1]->v.v) << "\n"
+    << to_string(face.edge[1]->vertex[third_vertex]->v.v) << "\n";
+  return s.str();
+}
+
+static std::string to_numpy_string(const ccd_pt_face_t& face) {
+  std::ostringstream s;
+  const int third_vertex = find_third_vertex(face);
+  s << "np.array([[" << to_string(face.edge[0]->vertex[0]->v.v) << "],["
+    << to_string(face.edge[0]->vertex[1]->v.v) << "],["
+    << to_string(face.edge[1]->vertex[third_vertex]->v.v) << "]])";
+  return s.str();
+}
+
+static std::string to_string(const ccd_pt_t& polytope) {
+  std::ostringstream s;
+  ccd_pt_face_t* f;
+  ccdListForEachEntry(&polytope.faces, f, ccd_pt_face_t, list) {
+    s << to_string(*f) << "\n";
+  }
+  return s.str();
+}
+
+static std::string to_numpy_string(const ccd_pt_t& polytope) {
+  std::ostringstream s;
+  ccd_pt_face_t* f;
+  ccdListForEachEntry(&polytope.faces, f, ccd_pt_face_t, list) {
+    s << to_numpy_string(*f) << ",\n";
+  }
+  return s.str();
+}
+
 
 static ccd_real_t simplexReduceToTriangle(ccd_simplex_t *simplex,
                                           ccd_real_t dist,
@@ -508,16 +597,28 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   // intersect
   dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v,
                                       &point_projection_on_triangle_unused);
-  if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
+  if (isAbsValueLessThanEpsSquared((dist_squared))) {
+    std::cout << "Origin on ABC\n";
+    return 1;
+  }
   dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v,
                                       &point_projection_on_triangle_unused);
-  if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
+  if (isAbsValueLessThanEpsSquared((dist_squared))) {
+    std::cout << "Origin on ACD\n";
+    return 1;
+  }
   dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v,
                                       &point_projection_on_triangle_unused);
-  if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
+  if (isAbsValueLessThanEpsSquared(dist_squared)) {
+    std::cout << "Origin on ABD\n";
+    return 1;
+  }
   dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v,
                                       &point_projection_on_triangle_unused);
-  if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
+  if (isAbsValueLessThanEpsSquared(dist_squared)) {
+    std::cout << "Origin on BCD\n";
+    return 1;
+  }
 
   // compute AO, AB, AC, AD segments and ABC, ACD, ADB normal vectors
   ccdVec3Copy(&AO, &A->v);
@@ -528,21 +629,29 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   ccdVec3Cross(&ABC, &AB, &AC);
   ccdVec3Cross(&ACD, &AC, &AD);
   ccdVec3Cross(&ADB, &AD, &AB);
+  std::cout << "A: " << to_string(A->v) << "\n";
+  std::cout << "B: " << to_string(B->v) << "\n";
+  std::cout << "C: " << to_string(C->v) << "\n";
+  std::cout << "D: " << to_string(D->v) << "\n";
 
   // side (positive or negative) of B, C, D relative to planes ACD, ADB
   // and ABC respectively
   B_on_ACD = ccdSign(ccdVec3Dot(&ACD, &AB));
   C_on_ADB = ccdSign(ccdVec3Dot(&ADB, &AC));
   D_on_ABC = ccdSign(ccdVec3Dot(&ABC, &AD));
+  std::cout << "B_on_ACD: " << B_on_ACD << "\n";
+  std::cout << "C_on_ADB: " << C_on_ADB << "\n";
+  std::cout << "D_on_ABC: " << D_on_ABC << "\n";
 
   // whether origin is on same side of ACD, ADB, ABC as B, C, D
   // respectively
-  AB_O = ccdSign(ccdVec3Dot(&ACD, &AO)) == B_on_ACD;
-  AC_O = ccdSign(ccdVec3Dot(&ADB, &AO)) == C_on_ADB;
-  AD_O = ccdSign(ccdVec3Dot(&ABC, &AO)) == D_on_ABC;
+  AB_O = ccdSign(ccdVec3Dot(&ACD, &AO)) == B_on_ACD && B_on_ACD != 0;
+  AC_O = ccdSign(ccdVec3Dot(&ADB, &AO)) == C_on_ADB && C_on_ADB != 0;
+  AD_O = ccdSign(ccdVec3Dot(&ABC, &AO)) == D_on_ABC && D_on_ABC != 0;
 
   if (AB_O && AC_O && AD_O){
     // origin is in tetrahedron
+    std::cout << "Origin is in tetrahedron\n";
     return 1;
 
     // rearrange simplex to triangle and call doSimplex3()
@@ -838,20 +947,28 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
   c = ccdSimplexPoint(simplex, 2);
   d = ccdSimplexPoint(simplex, 3);
 
+  std::cout << "a: " << std::setprecision(15) << to_string(a->v) << "\n";
+  std::cout << "b: " << std::setprecision(15) << to_string(b->v) << "\n";
+  std::cout << "c: " << std::setprecision(15) << to_string(c->v) << "\n";
+  std::cout << "d: " << std::setprecision(15) << to_string(d->v) << "\n";
+
   // The origin can lie on any of the tetrahedra faces. In fact, for a
   // degenerate tetrahedron, it could be considered to lie on multiple faces
   // simultaneously. If it lies on any face, we can simply reduce the dimension
   // of the simplex to that face and then attempt to construct the polytope from
   // the resulting face. We simply take the first face which exhibited the
   // trait.
+  ccd_vec3_t witness;
   ccd_real_t dist_squared =
-      ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &c->v, NULL);
+      ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &c->v, &witness);
+  std::cout << "dist_to_abc_squared: " << std::setprecision(20) << dist_squared << "\n";
   if (isAbsValueLessThanEpsSquared(dist_squared)) {
     use_polytope3 = true;
   }
   if (!use_polytope3) {
     dist_squared =
-        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &c->v, &d->v, NULL);
+        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &c->v, &d->v, &witness);
+    std::cout << "dist_to_acd_squared: " << std::setprecision(20) << dist_squared << "\n";
     if (isAbsValueLessThanEpsSquared(dist_squared)) {
       use_polytope3 = true;
       ccdSimplexSet(simplex, 1, c);
@@ -860,7 +977,8 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
   }
   if (!use_polytope3) {
     dist_squared =
-        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &d->v, NULL);
+        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &d->v, &witness);
+    std::cout << "dist_to_abd_squared: " << std::setprecision(20) << dist_squared << "\n";
     if (isAbsValueLessThanEpsSquared(dist_squared)) {
       use_polytope3 = true;
       ccdSimplexSet(simplex, 2, d);
@@ -868,7 +986,8 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
   }
   if (!use_polytope3) {
     dist_squared =
-        ccdVec3PointTriDist2(ccd_vec3_origin, &b->v, &c->v, &d->v, NULL);
+        ccdVec3PointTriDist2(ccd_vec3_origin, &b->v, &c->v, &d->v, &witness);
+    std::cout << "dist_to_bcd_squared: " << std::setprecision(20) << dist_squared << "\n";
     if (isAbsValueLessThanEpsSquared(dist_squared)) {
       use_polytope3 = true;
       ccdSimplexSet(simplex, 0, b);
@@ -878,6 +997,7 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
   }
 
   if (use_polytope3) {
+    std::cout << "use_polytope3\n";
     ccdSimplexSetSize(simplex, 3);
     return convert2SimplexToTetrahedron(obj1, obj2, ccd, simplex, pt, nearest);
   }
@@ -885,6 +1005,7 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
   // no touching contact - simply create tetrahedron
   for (i = 0; i < 4; i++) {
     v[i] = ccdPtAddVertex(pt, ccdSimplexPoint(simplex, i));
+    std::cout << "v[ " << i << "]: " << to_string((v[i]->v.v)) << "\n";
   }
 
   e[0] = ccdPtAddEdge(pt, v[0], v[1]);
@@ -1243,6 +1364,7 @@ static void ComputeVisiblePatchRecursive(
 
   // Face `g` has not been classified yet. Try to classify it as visible (i.e.,
   // the `query_point` lies outside of this face).
+  std::cout << "is query_point outside of g\n";
   is_visible = isOutsidePolytopeFace(&polytope, g, &query_point);
   if (!is_visible) {
     // Face `g` is *apparently* not visible from the query point. However, it
@@ -1324,6 +1446,7 @@ static void ComputeVisiblePatch(
   assert(border_edges->empty());
   assert(visible_faces->empty());
   assert(internal_edges->empty());
+  std::cout << "is query_point outside of f\n";
   assert(isOutsidePolytopeFace(&polytope, &f, &query_point));
   std::unordered_set<ccd_pt_face_t*> hidden_faces;
   visible_faces->insert(&f);
@@ -1369,7 +1492,7 @@ static void ComputeVisiblePatch(
  * one or more adjacent faces with no area.
  */
 static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
-                          const ccd_support_t *newv)
+                          const ccd_support_t *newv, std::ostringstream* oss = nullptr)
 {
   // The outline of the algorithm is as follows:
   //  1. Compute the visible patch relative to the new vertex (See
@@ -1387,6 +1510,10 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   // faces on the polytope. We focus on the correctness in the first place.
   // Later when we make sure that the whole EPA implementation is bug free, we
   // will improve the performance.
+  if (oss != nullptr) {
+    *oss << "newv\n" << to_string(newv->v) << "\n";
+    *oss << "polytope\n" << to_string(*polytope) << "end polytope\n";
+  }
 
   ccd_pt_face_t* start_face = NULL;
 
@@ -1398,10 +1525,22 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   // Start with the face on which the closest point lives
   if (el->type == CCD_PT_FACE) {
     start_face = reinterpret_cast<ccd_pt_face_t*>(el);
+    if (oss != nullptr) {
+      *oss << "nearest feature\n";
+      *oss << to_string(*start_face) <<"\n";
+      *oss << "end nearest feature\n";
+    }
   } else if (el->type == CCD_PT_EDGE) {
     // Check the two neighbouring faces of the edge.
     ccd_pt_face_t* f[2];
     ccdPtEdgeFaces(reinterpret_cast<ccd_pt_edge_t*>(el), &f[0], &f[1]);
+    if (oss != nullptr) {
+      ccd_pt_edge_t* nearest_edge = reinterpret_cast<ccd_pt_edge_t*>(el);
+      *oss << "nearest feature\n";
+      *oss << to_string(*nearest_edge) << "\n";
+      *oss << "end nearest feature\n";
+    }
+    std::cout << "is newv->v outside of f[0]\n";
     if (isOutsidePolytopeFace(polytope, f[0], &newv->v)) {
       start_face = f[0];
     } else if (isOutsidePolytopeFace(polytope, f[1], &newv->v)) {
@@ -1414,11 +1553,30 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
     }
   }
 
+  if (oss != nullptr) {
+    *oss << "start face\n";
+    *oss << to_string(*start_face) << "\n";
+  }
+
   std::unordered_set<ccd_pt_face_t*> visible_faces;
   std::unordered_set<ccd_pt_edge_t*> internal_edges;
   std::unordered_set<ccd_pt_edge_t*> border_edges;
   ComputeVisiblePatch(*polytope, *start_face, newv->v, &border_edges,
                       &visible_faces, &internal_edges);
+
+  if (oss != nullptr) {
+    *oss << "border edges\n";
+    for (const auto& e : border_edges) {
+      *oss << to_string(*e) << "\n\n";
+    }
+    *oss << "end border edges\n";
+
+    *oss << "internal edges\n";
+    for (const auto& e : internal_edges) {
+      *oss << to_string(*e) << "\n\n";
+    }
+    *oss << "end internal edges\n";
+  }
 
   // Now remove all the obsolete faces.
   // TODO(hongkai.dai@tri.global): currently we need to loop through each face
@@ -1462,6 +1620,9 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
       if (it == map_vertex_to_new_edge.end()) {
         // This edge has not been added yet.
         e[i] = ccdPtAddEdge(polytope, new_vertex, border_edge->vertex[i]);
+        if (oss != nullptr) {
+          *oss << "new edge\n" << to_string(*e[i]) << "\n";
+        }
         map_vertex_to_new_edge.emplace_hint(it, border_edge->vertex[i],
                                             e[i]);
       } else {
@@ -1469,7 +1630,23 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
       }
     }
     // Now add the face.
-    ccdPtAddFace(polytope, border_edge, e[0], e[1]);
+    ccd_pt_face_t* new_face = ccdPtAddFace(polytope, border_edge, e[0], e[1]);
+    //std::cout << "is origin outside of new_face\n";
+    //if (isOutsidePolytopeFace(polytope, new_face, ccd_vec3_origin)) {
+        //std::cout << "newv " << to_string(newv->v) << "\n";
+        //std::cout << "new face\n" << to_string(*new_face);
+        //std::cout << "polytope\n" << to_numpy_string(*polytope);
+        //std::cout << "border edge\n";
+        //for (const auto& edge : border_edges) {
+        //  std::cout << to_numpy_string(*edge) << "\n";
+        //}
+        //throw std::runtime_error("origin is outside of the new face");
+     //   }
+  }
+
+  if (oss != nullptr) {
+    *oss << "new polytope\n";
+    *oss << to_string(*polytope) << "\nend polytope";
   }
 
   return 0;
@@ -1495,7 +1672,9 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
   pointing outward from the polytope.
   */
   ccd_vec3_t dir;
+  //std::cout << "\nsupportEPADirection\n";
   if (ccdIsZero(nearest_feature->dist)) {
+    //std::cout << "feature is close to origin\n";
     // nearest point is the origin.
     switch (nearest_feature->type) {
       case CCD_PT_VERTEX: {
@@ -1505,6 +1684,7 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
         break;
       }
       case CCD_PT_EDGE: {
+        //std::cout << "feature is edge\n";
         // When the nearest point is on an edge, the origin must be on that
         // edge. The support direction could be in the range between
         // edge.faces[0].normal and edge.faces[1].normal, where the face normals
@@ -1516,6 +1696,7 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
         break;
       }
       case CCD_PT_FACE: {
+        //std::cout << "feature is face\n";
         // If origin is an interior point of a face, then choose the normal of
         // that face as the sample direction.
         const ccd_pt_face_t* face =
@@ -1525,9 +1706,17 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
       }
     }
   } else {
+    //std::cout << "feature is away from origin\n";
+    //std::cout << "witness: " << to_string(nearest_feature->witness) << "\n";
+    if (nearest_feature->type == CCD_PT_FACE) {
+      //std::cout << "feature is face\n";
+      //const ccd_pt_face_t* face = reinterpret_cast<const ccd_pt_face_t*>(nearest_feature);
+      //std::cout << to_string(*face);
+    }
     ccdVec3Copy(&dir, &(nearest_feature->witness));
   }
   ccdVec3Normalize(&dir);
+  //std::cout << "dir: " << to_string(dir) << "\n";
   return dir;
 }
 
@@ -1564,11 +1753,15 @@ static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
   // Compute distance of support point in the support direction, so we can
   // determine whether we expanded a polytope surrounding the origin a bit.
   const ccd_real_t dist = ccdVec3Dot(&out->v, &dir);
+  //std::cout << "out->v " << to_string(out->v) << "\n";
 
   // el->dist is the squared distance from the feature "el" to the origin..
   // dist is an upper bound on the distance from the boundary of the Minkowski
   // difference to the origin, and sqrt(el->dist) is a lower bound of that
   // distance.
+  //std::cout << "dist " << dist << "\n";
+  //std::cout << "sqrt(el->dist) " << std::sqrt(el->dist) << "\n";
+  //std::cout << "gap: " << dist - std::sqrt(el->dist) << "\n";
   if (dist - std::sqrt(el->dist) < ccd->epa_tolerance) return -1;
 
   ccd_real_t dist_squared{};
@@ -1688,6 +1881,42 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
   std::array<ccd_vec3_t, 2> face_normals;
   std::array<double, 2> origin_to_face_distance;
 
+  // We define the plane equation using vertex[0]. If vertex[0] is far away
+  // from the origin, it can magnify rounding error. We scale epsilon to account
+  // for this possibility.
+  const ccd_real_t v0_dist =
+      std::sqrt(ccdVec3Len2(&nearest_edge->vertex[0]->v.v));
+  const ccd_real_t plane_threshold =
+      kEps * std::max(static_cast<ccd_real_t>(1.0), v0_dist);
+
+  for (int i = 0; i < 2; ++i) {
+    face_normals[i] =
+        faceNormalPointingOutward(polytope, nearest_edge->faces[i]);
+    ccdVec3Normalize(&face_normals[i]);
+    // If the origin o is on the "inner" side of the face, then
+    // n̂ ⋅ (o - vₑ) ≤ 0 or, with simplification, -n̂ ⋅ vₑ ≤ 0 (since n̂ ⋅ o = 0).
+    origin_to_face_distance[i] =
+        -ccdVec3Dot(&face_normals[i], &nearest_edge->vertex[0]->v.v);
+    // If the origin lies *on* the edge, then it also lies on the two adjacent
+    // faces. Rather than failing on strictly *positive* signed distance, we
+    // introduce an epsilon threshold. This usage of epsilon is to account for a
+    // discrepancy in the signed distance computation. How GJK (and partially
+    // EPA) compute the signed distance from origin to face may *not* be exactly
+    // the same as done in this test (i.e. for a given set of vertices, the
+    // plane equation can be defined various ways. Those ways are
+    // *mathematically* equivalent but numerically will differ due to rounding).
+    // We account for those differences by allowing a very small positive signed
+    // distance to be considered zero. We assume that the GJK/EPA code
+    // ultimately classifies inside/outside around *zero* and *not* epsilon.
+    if (origin_to_face_distance[i] > plane_threshold) {
+      //std::cout << "origin_to_face_distance[" << i << "]=" << origin_to_face_distance[i] << "\n";
+      //std::cout << "face[0]\n" << to_string(*(nearest_edge->faces[0]));
+      //std::cout << "face[1]\n" << to_string(*(nearest_edge->faces[1]));
+      throw std::runtime_error(
+          "The origin is outside of the polytope. This should already have "
+          "been identified as separating.");
+    }
+  }
   for (int i = 0; i < 2; ++i) {
     face_normals[i] =
         faceNormalPointingOutward(polytope, nearest_edge->faces[i]);
@@ -1734,6 +1963,7 @@ static int __ccdEPA(const void *obj1, const void *obj2,
 
     // transform simplex to polytope - simplex won't be used anymore
     size = ccdSimplexSize(simplex);
+    std::cout << "EPA initial simplex size: " << size << "\n";
     if (size == 4){
         ret = simplexToPolytope4(obj1, obj2, ccd, simplex, polytope, nearest);
     } else if (size == 3) {
@@ -1743,6 +1973,23 @@ static int __ccdEPA(const void *obj1, const void *obj2,
         ret = simplexToPolytope2(obj1, obj2, ccd, simplex, polytope, nearest);
     }
 
+    std::ostringstream oss_init;
+    oss_init << "polytope\n";
+    oss_init << to_string(*polytope) << "\n";
+    oss_init << "end polytope\n";
+    std::ofstream output_file_init("/home/hongkaidai/tmp/fcl_epa_init.txt");
+    if (output_file_init.is_open()) {
+      output_file_init << oss_init.str();
+      output_file_init.close();
+    }
+
+    ccd_pt_face_t* face;
+    ccdListForEachEntry(&polytope->faces, face, ccd_pt_face_t, list) {
+      std::cout << "is origin outside of face\n";
+      if (size == 4 &&isOutsidePolytopeFace(polytope, face, ccd_vec3_origin)) {
+        //throw std::runtime_error("origin is outside of the polytope at the beginning of EPA.");
+      }
+    }
 
     if (ret == -1){
         // touching contact
@@ -1751,7 +1998,7 @@ static int __ccdEPA(const void *obj1, const void *obj2,
         // failed memory allocation
         return -2;
     }
-
+    int epa_iter = 0;
     while (1) {
       // get triangle nearest to origin
       *nearest = ccdPtNearest(polytope);
@@ -1770,7 +2017,19 @@ static int __ccdEPA(const void *obj1, const void *obj2,
       }
 
       // expand nearest triangle using new point - supp
-      if (expandPolytope(polytope, *nearest, &supp) != 0) return -2;
+      std::ostringstream oss;
+      if (expandPolytope(polytope, *nearest, &supp, &oss)) {
+        return -2;
+      }
+      std::ostringstream filename_ss;
+      filename_ss << "/home/hongkaidai/tmp/fcl_epa" << epa_iter << ".txt";
+      std::ofstream output_file(filename_ss.str());
+      if (output_file.is_open()) {
+        output_file << oss.str();
+        output_file.close();
+      }
+
+      epa_iter++;
     }
 
     return 0;
