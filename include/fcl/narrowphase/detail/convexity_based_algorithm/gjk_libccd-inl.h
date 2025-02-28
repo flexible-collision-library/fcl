@@ -38,15 +38,17 @@
 #ifndef FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
 #define FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
 
-#include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
-#include "fcl/narrowphase/detail/failed_at_this_configuration.h"
-
 #include <array>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 
 #include "fcl/common/unused.h"
 #include "fcl/common/warning.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
+#include "fcl/narrowphase/detail/failed_at_this_configuration.h"
 
 namespace fcl
 {
@@ -844,14 +846,21 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
   // of the simplex to that face and then attempt to construct the polytope from
   // the resulting face. We simply take the first face which exhibited the
   // trait.
-  ccd_real_t dist_squared =
-      ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &c->v, NULL);
+
+  // When calling ccdVec3PointTriDist2, the distance is slightly different when
+  // passing a witness point versus passing a null pointer, due to finite
+  // precision numerical errors. We use the version with the witness point, to
+  // get a numerical robust distance. See
+  // https://github.com/danfis/libccd/issues/55 for an explanation.
+  ccd_vec3_t witness_unused;
+  ccd_real_t dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v,
+                                                 &c->v, &witness_unused);
   if (isAbsValueLessThanEpsSquared(dist_squared)) {
     use_polytope3 = true;
   }
   if (!use_polytope3) {
-    dist_squared =
-        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &c->v, &d->v, NULL);
+    dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &c->v, &d->v,
+                                        &witness_unused);
     if (isAbsValueLessThanEpsSquared(dist_squared)) {
       use_polytope3 = true;
       ccdSimplexSet(simplex, 1, c);
@@ -859,16 +868,16 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
     }
   }
   if (!use_polytope3) {
-    dist_squared =
-        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &d->v, NULL);
+    dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &d->v,
+                                        &witness_unused);
     if (isAbsValueLessThanEpsSquared(dist_squared)) {
       use_polytope3 = true;
       ccdSimplexSet(simplex, 2, d);
     }
   }
   if (!use_polytope3) {
-    dist_squared =
-        ccdVec3PointTriDist2(ccd_vec3_origin, &b->v, &c->v, &d->v, NULL);
+    dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &b->v, &c->v, &d->v,
+                                        &witness_unused);
     if (isAbsValueLessThanEpsSquared(dist_squared)) {
       use_polytope3 = true;
       ccdSimplexSet(simplex, 0, b);
@@ -1716,9 +1725,12 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
     // distance to be considered zero. We assume that the GJK/EPA code
     // ultimately classifies inside/outside around *zero* and *not* epsilon.
     if (origin_to_face_distance[i] > plane_threshold) {
-      FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
-          "The origin is outside of the polytope. This should already have "
-          "been identified as separating.");
+      std::ostringstream oss;
+      oss << "The origin is outside of the polytope by "
+          << origin_to_face_distance[i] << ", exceeding the threshold "
+          << plane_threshold
+          << ". This should already have been identified as separating.";
+      FCL_THROW_FAILED_AT_THIS_CONFIGURATION(oss.str());
     }
   }
 
