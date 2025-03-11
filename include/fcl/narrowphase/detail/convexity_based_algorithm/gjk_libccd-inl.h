@@ -204,7 +204,7 @@ ccd_real_t ccdVec3PointTriDist2NoWitness(const ccd_vec3_t* P,
                                          const ccd_vec3_t* b,
                                          const ccd_vec3_t* c) {
   ccd_vec3_t unused;
-  return ccdVec3PointTriDist2(cP, a, b, c, &unused);
+  return ccdVec3PointTriDist2(P, a, b, c, &unused);
 }
 
 static ccd_real_t simplexReduceToTriangle(ccd_simplex_t *simplex,
