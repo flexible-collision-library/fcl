@@ -188,23 +188,44 @@ struct ccd_triangle_t : public ccd_obj_t
 namespace libccd_extension
 {
 
-// When called, ccdVec3PointTriDist2 can optionally compute the value of the
-// "witness" point. When we don't need the witness point, we skip it. However,
-// the libccd implementation takes two different code paths based on whether
-// we request the witness point producing different answers due to numerical
-// precision issues. So, when FCL doesn't want/need a witness point, we use
-// this wrapper to force the witness point to get a more consistent and
-// reliable answer. See
-// https://github.com/danfis/libccd/issues/55 for an explanation.
-//
-// Any actual invocation of ccdVec3PointTriDist2() in the code should request
-// a witness point *or* call this invocation.
-ccd_real_t ccdVec3PointTriDist2NoWitness(const ccd_vec3_t* P,
-                                         const ccd_vec3_t* a,
-                                         const ccd_vec3_t* b,
-                                         const ccd_vec3_t* c) {
+// These two functions contain the only "valid" invocations of
+// ccdVec3PointTriDist2(). Any other invocations should be considered a defect.
+// We can remove these safety layers if/when the issue noted below gets
+// resolved upstream.
+
+// The code in this file (and elsewhere if it comes up), should *not* ever call
+// `ccdVec3PointTriDist2()` directly. It has some precision quirks. For those
+// invocations that want the squared distance without a witness point, call
+// *this* function.
+static ccd_real_t ccdVec3PointTriDist2NoWitness(const ccd_vec3_t* P,
+                                                const ccd_vec3_t* a,
+                                                const ccd_vec3_t* b,
+                                                const ccd_vec3_t* c) {
+  // When called, ccdVec3PointTriDist2 can optionally compute the value of the
+  // "witness" point. When we don't need the witness point, we skip it. However,
+  // the libccd implementation takes two different code paths based on whether
+  // we request the witness point producing different answers due to numerical
+  // precision issues. So, when FCL doesn't want/need a witness point, we use
+  // this wrapper to force the witness point to get a more consistent and
+  // reliable answer. See
+  // https://github.com/danfis/libccd/issues/55 for an explanation.
+  //
+  // Any actual invocation of ccdVec3PointTriDist2() in the code should request
+  // a witness point *or* call this invocation.
   ccd_vec3_t unused;
   return ccdVec3PointTriDist2(P, a, b, c, &unused);
+}
+
+// The code in this file (and elsewhere if it comes up), should *not* ever call
+// `ccdVec3PointTriDist2()` directly. It has some precision quirks. For those
+// invocations that want the squared distance *with* a witness point, call
+// *this* function.
+static ccd_real_t ccdVec3PointTriDist2WithWitness(const ccd_vec3_t* P,
+                                                  const ccd_vec3_t* a,
+                                                  const ccd_vec3_t* b,
+                                                  const ccd_vec3_t* c,
+                                                  ccd_vec3_t* w) {
+  return ccdVec3PointTriDist2(P, a, b, c, w);
 }
 
 static ccd_real_t simplexReduceToTriangle(ccd_simplex_t *simplex,
@@ -218,11 +239,10 @@ static ccd_real_t simplexReduceToTriangle(ccd_simplex_t *simplex,
 
   // try the fourth point in all three positions
   for (i = 0; i < 3; i++){
-    newdist = ccdVec3PointTriDist2(ccd_vec3_origin,
-                                   &ccdSimplexPoint(simplex, (i == 0 ? 3 : 0))->v,
-                                   &ccdSimplexPoint(simplex, (i == 1 ? 3 : 1))->v,
-                                   &ccdSimplexPoint(simplex, (i == 2 ? 3 : 2))->v,
-                                   &witness);
+    newdist = ccdVec3PointTriDist2WithWitness(
+        ccd_vec3_origin, &ccdSimplexPoint(simplex, (i == 0 ? 3 : 0))->v,
+        &ccdSimplexPoint(simplex, (i == 1 ? 3 : 1))->v,
+        &ccdSimplexPoint(simplex, (i == 2 ? 3 : 2))->v, &witness);
     newdist = CCD_SQRT(newdist);
 
     // record the best triangle
@@ -2077,11 +2097,10 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     }
     else if (ccdSimplexSize(simplex) == 3)
     {
-      dist = ccdVec3PointTriDist2(ccd_vec3_origin,
-                                  &ccdSimplexPoint(simplex, 0)->v,
-                                  &ccdSimplexPoint(simplex, 1)->v,
-                                  &ccdSimplexPoint(simplex, 2)->v,
-                                  &closest_p);
+      dist = ccdVec3PointTriDist2WithWitness(
+          ccd_vec3_origin, &ccdSimplexPoint(simplex, 0)->v,
+          &ccdSimplexPoint(simplex, 1)->v, &ccdSimplexPoint(simplex, 2)->v,
+          &closest_p);
       dist = CCD_SQRT(dist);
     }
     else
