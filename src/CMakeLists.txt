@@ -54,6 +54,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   VERSION ${FCL_VERSION}
   SOVERSION ${FCL_ABI_VERSION})
 
+if (NOT UNIX)
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+    INSTALL_NAME_DIR "@rpath")
+endif()
+
 # Hide symbols by default
 #################################################
 # Macro to check for visibility capability in compiler

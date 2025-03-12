@@ -35,7 +35,7 @@ jobs:
         run: mkdir ${{github.workspace}}/build
 
       - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ inputs.build }} -DFCL_TREAT_WARNINGS_AS_ERRORS=ON -DFCL_COVERALLS=OFF -DCMAKE_MACOSX_RPATH=/usr/lib
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ inputs.build }} -DFCL_TREAT_WARNINGS_AS_ERRORS=ON -DFCL_COVERALLS=OFF -DCMAKE_INSTALL_NAME_DIR=/usr/local/lib
 
       - name: Build
         run: cmake --build build -j2
