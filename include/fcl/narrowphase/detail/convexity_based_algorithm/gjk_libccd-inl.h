@@ -38,15 +38,17 @@
 #ifndef FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
 #define FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
 
-#include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
-#include "fcl/narrowphase/detail/failed_at_this_configuration.h"
-
 #include <array>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 
 #include "fcl/common/unused.h"
 #include "fcl/common/warning.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
+#include "fcl/narrowphase/detail/failed_at_this_configuration.h"
 
 namespace fcl
 {
@@ -186,6 +188,46 @@ struct ccd_triangle_t : public ccd_obj_t
 namespace libccd_extension
 {
 
+// These two functions contain the only "valid" invocations of
+// ccdVec3PointTriDist2(). Any other invocations should be considered a defect.
+// We can remove these safety layers if/when the issue noted below gets
+// resolved upstream.
+
+// The code in this file (and elsewhere if it comes up), should *not* ever call
+// `ccdVec3PointTriDist2()` directly. It has some precision quirks. For those
+// invocations that want the squared distance without a witness point, call
+// *this* function.
+static ccd_real_t ccdVec3PointTriDist2NoWitness(const ccd_vec3_t* P,
+                                                const ccd_vec3_t* a,
+                                                const ccd_vec3_t* b,
+                                                const ccd_vec3_t* c) {
+  // When called, ccdVec3PointTriDist2 can optionally compute the value of the
+  // "witness" point. When we don't need the witness point, we skip it. However,
+  // the libccd implementation takes two different code paths based on whether
+  // we request the witness point producing different answers due to numerical
+  // precision issues. So, when FCL doesn't want/need a witness point, we use
+  // this wrapper to force the witness point to get a more consistent and
+  // reliable answer. See
+  // https://github.com/danfis/libccd/issues/55 for an explanation.
+  //
+  // Any actual invocation of ccdVec3PointTriDist2() in the code should request
+  // a witness point *or* call this invocation.
+  ccd_vec3_t unused;
+  return ccdVec3PointTriDist2(P, a, b, c, &unused);
+}
+
+// The code in this file (and elsewhere if it comes up), should *not* ever call
+// `ccdVec3PointTriDist2()` directly. It has some precision quirks. For those
+// invocations that want the squared distance *with* a witness point, call
+// *this* function.
+static ccd_real_t ccdVec3PointTriDist2WithWitness(const ccd_vec3_t* P,
+                                                  const ccd_vec3_t* a,
+                                                  const ccd_vec3_t* b,
+                                                  const ccd_vec3_t* c,
+                                                  ccd_vec3_t* w) {
+  return ccdVec3PointTriDist2(P, a, b, c, w);
+}
+
 static ccd_real_t simplexReduceToTriangle(ccd_simplex_t *simplex,
                                           ccd_real_t dist,
                                           ccd_vec3_t *best_witness)
@@ -197,11 +239,10 @@ static ccd_real_t simplexReduceToTriangle(ccd_simplex_t *simplex,
 
   // try the fourth point in all three positions
   for (i = 0; i < 3; i++){
-    newdist = ccdVec3PointTriDist2(ccd_vec3_origin,
-                                   &ccdSimplexPoint(simplex, (i == 0 ? 3 : 0))->v,
-                                   &ccdSimplexPoint(simplex, (i == 1 ? 3 : 1))->v,
-                                   &ccdSimplexPoint(simplex, (i == 2 ? 3 : 2))->v,
-                                   &witness);
+    newdist = ccdVec3PointTriDist2WithWitness(
+        ccd_vec3_origin, &ccdSimplexPoint(simplex, (i == 0 ? 3 : 0))->v,
+        &ccdSimplexPoint(simplex, (i == 1 ? 3 : 1))->v,
+        &ccdSimplexPoint(simplex, (i == 2 ? 3 : 2))->v, &witness);
     newdist = CCD_SQRT(newdist);
 
     // record the best triangle
@@ -398,13 +439,8 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   C = ccdSimplexPoint(simplex, 0);
 
   // check touching contact
-  // Compute origin_projection as well. Without computing the origin projection,
-  // libccd could give inaccurate result. See
-  // https://github.com/danfis/libccd/issues/55.
-  ccd_vec3_t origin_projection_unused;
-
-  const ccd_real_t dist_squared = ccdVec3PointTriDist2(
-      ccd_vec3_origin, &A->v, &B->v, &C->v, &origin_projection_unused);
+  const ccd_real_t dist_squared = ccdVec3PointTriDist2NoWitness(
+      ccd_vec3_origin, &A->v, &B->v, &C->v);
   if (isAbsValueLessThanEpsSquared(dist_squared)) {
     return 1;
   }
@@ -493,30 +529,25 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   // check if tetrahedron is really tetrahedron (has volume > 0)
   // if it is not simplex can't be expanded and thus no intersection is
   // found.
-  // point_projection_on_triangle_unused is not used. We ask
-  // ccdVec3PointTriDist2 to compute this witness point, so as to get a
-  // numerical robust dist_squared. See
-  // https://github.com/danfis/libccd/issues/55 for an explanation.
-  ccd_vec3_t point_projection_on_triangle_unused;
-  ccd_real_t dist_squared = ccdVec3PointTriDist2(
-      &A->v, &B->v, &C->v, &D->v, &point_projection_on_triangle_unused);
+  ccd_real_t dist_squared = ccdVec3PointTriDist2NoWitness(
+      &A->v, &B->v, &C->v, &D->v);
   if (isAbsValueLessThanEpsSquared(dist_squared)) {
     return -1;
   }
 
   // check if origin lies on some of tetrahedron's face - if so objects
   // intersect
-  dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v,
-                                      &point_projection_on_triangle_unused);
+  dist_squared =
+      ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &A->v, &B->v, &C->v);
   if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
-  dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v,
-                                      &point_projection_on_triangle_unused);
+  dist_squared =
+      ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &A->v, &C->v, &D->v);
   if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
-  dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v,
-                                      &point_projection_on_triangle_unused);
+  dist_squared =
+      ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &A->v, &B->v, &D->v);
   if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
-  dist_squared = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v,
-                                      &point_projection_on_triangle_unused);
+  dist_squared =
+      ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &B->v, &C->v, &D->v);
   if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
 
   // compute AO, AB, AC, AD segments and ABC, ACD, ADB normal vectors
@@ -757,15 +788,14 @@ static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
   ccdVec3Sub2(&ac, &c->v, &a->v);
   ccdVec3Cross(&dir, &ab, &ac);
   __ccdSupport(obj1, obj2, &dir, ccd, &d);
-  ccd_vec3_t point_projection_on_triangle_unused;
-  const ccd_real_t dist_squared = ccdVec3PointTriDist2(
-      &d.v, &a->v, &b->v, &c->v, &point_projection_on_triangle_unused);
+  const ccd_real_t dist_squared =
+      ccdVec3PointTriDist2NoWitness(&d.v, &a->v, &b->v, &c->v);
 
   // and second one take in opposite direction
   ccdVec3Scale(&dir, -CCD_ONE);
   __ccdSupport(obj1, obj2, &dir, ccd, &d2);
-  const ccd_real_t dist_squared_opposite = ccdVec3PointTriDist2(
-      &d2.v, &a->v, &b->v, &c->v, &point_projection_on_triangle_unused);
+  const ccd_real_t dist_squared_opposite =
+      ccdVec3PointTriDist2NoWitness(&d2.v, &a->v, &b->v, &c->v);
 
   // check if face isn't already on edge of minkowski sum and thus we
   // have touching contact
@@ -844,14 +874,15 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
   // of the simplex to that face and then attempt to construct the polytope from
   // the resulting face. We simply take the first face which exhibited the
   // trait.
+
   ccd_real_t dist_squared =
-      ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &c->v, NULL);
+      ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &a->v, &b->v, &c->v);
   if (isAbsValueLessThanEpsSquared(dist_squared)) {
     use_polytope3 = true;
   }
   if (!use_polytope3) {
     dist_squared =
-        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &c->v, &d->v, NULL);
+        ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &a->v, &c->v, &d->v);
     if (isAbsValueLessThanEpsSquared(dist_squared)) {
       use_polytope3 = true;
       ccdSimplexSet(simplex, 1, c);
@@ -860,7 +891,7 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
   }
   if (!use_polytope3) {
     dist_squared =
-        ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &d->v, NULL);
+        ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &a->v, &b->v, &d->v);
     if (isAbsValueLessThanEpsSquared(dist_squared)) {
       use_polytope3 = true;
       ccdSimplexSet(simplex, 2, d);
@@ -868,7 +899,7 @@ static int simplexToPolytope4(const void* obj1, const void* obj2,
   }
   if (!use_polytope3) {
     dist_squared =
-        ccdVec3PointTriDist2(ccd_vec3_origin, &b->v, &c->v, &d->v, NULL);
+        ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &b->v, &c->v, &d->v);
     if (isAbsValueLessThanEpsSquared(dist_squared)) {
       use_polytope3 = true;
       ccdSimplexSet(simplex, 0, b);
@@ -1583,9 +1614,7 @@ static int nextSupport(const ccd_pt_t* polytope, const void* obj1,
     ccdPtFaceVec3(reinterpret_cast<const ccd_pt_face_t*>(el), &a, &b, &c);
 
     // check if new point can significantly expand polytope
-    ccd_vec3_t point_projection_on_triangle_unused;
-    dist_squared = ccdVec3PointTriDist2(&out->v, a, b, c,
-                                        &point_projection_on_triangle_unused);
+    dist_squared = ccdVec3PointTriDist2NoWitness(&out->v, a, b, c);
   }
 
   if (std::sqrt(dist_squared) < ccd->epa_tolerance) return -1;
@@ -1716,9 +1745,12 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
     // distance to be considered zero. We assume that the GJK/EPA code
     // ultimately classifies inside/outside around *zero* and *not* epsilon.
     if (origin_to_face_distance[i] > plane_threshold) {
-      FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
-          "The origin is outside of the polytope. This should already have "
-          "been identified as separating.");
+      std::ostringstream oss;
+      oss << "The origin is outside of the polytope by "
+          << origin_to_face_distance[i] << ", exceeding the threshold "
+          << plane_threshold
+          << ". This should already have been identified as separating.";
+      FCL_THROW_FAILED_AT_THIS_CONFIGURATION(oss.str());
     }
   }
 
@@ -2065,11 +2097,10 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     }
     else if (ccdSimplexSize(simplex) == 3)
     {
-      dist = ccdVec3PointTriDist2(ccd_vec3_origin,
-                                  &ccdSimplexPoint(simplex, 0)->v,
-                                  &ccdSimplexPoint(simplex, 1)->v,
-                                  &ccdSimplexPoint(simplex, 2)->v,
-                                  &closest_p);
+      dist = ccdVec3PointTriDist2WithWitness(
+          ccd_vec3_origin, &ccdSimplexPoint(simplex, 0)->v,
+          &ccdSimplexPoint(simplex, 1)->v, &ccdSimplexPoint(simplex, 2)->v,
+          &closest_p);
       dist = CCD_SQRT(dist);
     }
     else

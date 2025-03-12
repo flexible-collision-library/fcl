@@ -476,6 +476,31 @@ void test_distance_box_box_regression6() {
   test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2, &expected_distance);
 }
 
+
+template <typename S>
+void test_distance_box_box_regression7() {
+  // This is reported in https://github.com/RobotLocomotion/drake/issues/21673#issuecomment-2373031038
+  SCOPED_TRACE("test_distance_box_box_regression7");
+  const Vector3<S> box1_size(0.050000000000000002776, 0.55000000000000004441, 0.2999999999999999889);
+  Transform3<S> X_WB1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB1.matrix() << 0.00079632671073326442932, -0.99999968293183538748, 0, 0.75000000000000055511,
+  0.99999968293183538748, 0.00079632671073326442932, 0, -2.4083553715553102684e-15,
+  0, 0, 1, 0.14999999999999999445,
+  0, 0, 0, 1;
+  // clang-format on
+  const Vector3<S> box2_size(0.25, 0.2000000000000000111,
+                             0.14999999999999999445);
+  Transform3<S> X_WB2 = Transform3<S>::Identity();
+  // clang-format off
+  X_WB2.matrix() << 6.1232339957367660359e-17, 0, 1, 0.75,
+  -1, 6.1232339957367660359e-17, 6.1232339957367660359e-17, 0,
+  -6.1232339957367660359e-17, -1, 3.7493994566546440196e-33, 0.14999999999999999445,
+  0, 0, 0, 1;
+  // clang-format on;
+  test_distance_box_box_helper(box1_size, X_WB1, box2_size, X_WB2);
+}
+
 // Issue #493 outlines a number of scenarios that caused signed distance
 // failure. They consisted of two identical, stacked boxes. The boxes are
 // slightly tilted. The boxes were essentially touching but were separated by
@@ -567,6 +592,463 @@ void test_distance_sphere_box_regression1() {
               request.distance_tolerance);
 }
 
+template <typename S>
+void test_distance_convex_to_convex1() {
+  // This is a real world failure reported in
+  // https://github.com/RobotLocomotion/drake/issues/21673#issuecomment-2679026288.
+  // The two convex shapes are almost in penetration.
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
+  CollisionGeometryPtr_t convex_geo1(new fcl::Convex<S>(
+      std::make_shared<const std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(0.5, 0.70710700000000004106, -0.70710700000000004106),
+              Vector3<S>(0.5, -0, -1),
+              Vector3<S>(0.5, 1, 0),
+              Vector3<S>(0.5, -1, 0),
+              Vector3<S>(0.5, -0.70710700000000004106, -0.70710700000000004106),
+              Vector3<S>(-0.5, 0, 1),
+              Vector3<S>(-0.5, -0.70710700000000004106, 0.70710700000000004106),
+              Vector3<S>(-0.5, 0.70710700000000004106, 0.70710700000000004106),
+              Vector3<S>(0.5, 0, 1),
+              Vector3<S>(-0.5, -1, 0),
+              Vector3<S>(-0.5, 0.70710700000000004106, -0.70710700000000004106),
+              Vector3<S>(-0.5, -0, -1),
+              Vector3<S>(-0.5, -0.70710700000000004106,
+                         -0.70710700000000004106),
+              Vector3<S>(-0.5, 1, 0),
+              Vector3<S>(0.5, 0.70710700000000004106, 0.70710700000000004106),
+              Vector3<S>(0.5, -0.70710700000000004106, 0.70710700000000004106),
+          }),
+      10,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          4,  4,  12, 11, 1,  4,  13, 7,  14, 2,  4,  2, 0,  10, 13,
+          4,  11, 10, 0,  1,  8,  2,  14, 8,  15, 3,  4, 1,  0,  4,
+          3,  9,  12, 4,  4,  15, 6,  9,  3,  8,  12, 9, 6,  5,  7,
+          13, 10, 11, 4,  14, 7,  5,  8,  4,  8,  5,  6, 15,
+      }),
+      false));
+  Transform3<S> X_WG1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WG1.matrix() << -2.0399676677885372849e-09, 0.77129744817973977522, -0.63647485922966484662, 11.477445682202462862,
+  2.4720879917217940548e-09, 0.63647485922966484662, 0.77129744817973977522, 9.7785056920756936449,
+  1, 0, -3.2051032938795742666e-09, 0,
+  0, 0, 0, 1;
+  // clang-format on
+  fcl::CollisionObject<S> convex1(convex_geo1, X_WG1);
+
+  CollisionGeometryPtr_t convex_geo2(new fcl::Convex<S>(
+      std::make_shared<std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(10.294759000000000881, 8.9321570000000001244, -0.5),
+              Vector3<S>(11.618370999999999782, 9.4565629999999991639, -0.5),
+              Vector3<S>(11.452372999999999692, 8.2276720000000000965, -0.5),
+              Vector3<S>(10.294759000000000881, 8.9321570000000001244, 0.5),
+              Vector3<S>(11.452372999999999692, 8.2276720000000000965, 0.5),
+              Vector3<S>(11.618370999999999782, 9.4565629999999991639, 0.5),
+          }),
+      5,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          3, 3, 4, 5, 4, 4, 2, 1, 5, 3, 2, 0, 1, 4, 3, 0, 2, 4, 4, 1, 0, 3, 5,
+      }),
+      false));
+  const Transform3<S> X_WS2 = Transform3<S>::Identity();
+  fcl::CollisionObject<S> convex2(convex_geo2, X_WS2);
+  fcl::DistanceRequest<S> request;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+  request.distance_tolerance = 1e-6;
+  request.enable_signed_distance = true;
+  fcl::DistanceResult<S> result;
+  ASSERT_NO_THROW(fcl::distance(&convex1, &convex2, request, result));
+  EXPECT_NEAR(abs(result.min_distance),
+              (result.nearest_points[0] - result.nearest_points[1]).norm(),
+              request.distance_tolerance);
+}
+
+template <typename S>
+void test_distance_convex_to_convex2() {
+  // This is a real world failure reported in
+  // https://github.com/RobotLocomotion/drake/issues/21673#issuecomment-2688753008
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
+  CollisionGeometryPtr_t convex_geo1(new fcl::Convex<S>(
+      std::make_shared<const std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(0.5, 0.5, -0.86602500000000004476),
+              Vector3<S>(0.5, -0.5, -0.86602500000000004476),
+              Vector3<S>(0.5, 1, 0),
+              Vector3<S>(-0.5, -0.5, 0.86602500000000004476),
+              Vector3<S>(-0.5, 0.5, 0.86602500000000004476),
+              Vector3<S>(-0.5, -1, 0),
+              Vector3<S>(0.5, -0.5, 0.86602500000000004476),
+              Vector3<S>(-0.5, 0.5, -0.86602500000000004476),
+              Vector3<S>(-0.5, -0.5, -0.86602500000000004476),
+              Vector3<S>(-0.5, 1, 0),
+              Vector3<S>(0.5, -1, 0),
+              Vector3<S>(0.5, 0.5, 0.86602500000000004476),
+          }),
+      8,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          4, 10, 5, 8, 1, 6, 2, 11, 6,  10, 1, 0,  4, 0,  7,
+          9, 2,  4, 1, 8, 7, 0, 4,  2,  9,  4, 11, 6, 8,  5,
+          3, 4,  9, 7, 4, 6, 3, 5,  10, 4,  4, 3,  6, 11,
+      }),
+      false));
+  Transform3<S> X_WG1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WG1.matrix() << 
+    -3.0140487242790098936e-09, 0.34009658459984087875, -0.94039051098122172778, 4.2864836941313040342,
+    1.090044683538143324e-09, 0.94039051098122172778, 0.34009658459984087875, 7.3869576872253679412,
+    1, 0, -3.2051032938795742666e-09, 0,
+    0, 0, 0, 1;
+  // clang-format on
+  fcl::CollisionObject<S> convex1(convex_geo1, X_WG1);
+
+  CollisionGeometryPtr_t convex_geo2(new fcl::Convex<S>(
+      std::make_shared<std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(4.1494020000000002568, 8.4937090000000008416, -0.5),
+              Vector3<S>(5.1884509999999997021, 7.476263000000000325, -0.5),
+              Vector3<S>(3.9316469999999998919, 7.3745029999999998083, -0.5),
+              Vector3<S>(4.1494020000000002568, 8.4937090000000008416, 0.5),
+              Vector3<S>(3.9316469999999998919, 7.3745029999999998083, 0.5),
+              Vector3<S>(5.1884509999999997021, 7.476263000000000325, 0.5),
+          }),
+      5,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          3, 5, 3, 4, 4, 2, 1, 5, 4, 3, 2, 0, 1, 4, 3, 0, 2, 4, 4, 1, 0, 3, 5,
+      }),
+      false));
+  const Transform3<S> X_WS2 = Transform3<S>::Identity();
+  fcl::CollisionObject<S> convex2(convex_geo2, X_WS2);
+  fcl::DistanceRequest<S> request;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+  request.distance_tolerance = 1e-6;
+  request.enable_signed_distance = true;
+  fcl::DistanceResult<S> result;
+  ASSERT_NO_THROW(fcl::distance(&convex1, &convex2, request, result));
+  EXPECT_NEAR(abs(result.min_distance),
+              (result.nearest_points[0] - result.nearest_points[1]).norm(),
+              request.distance_tolerance);
+}
+
+template <typename S>
+void test_distance_convex_to_convex3() {
+  // This is a real world failure reported in
+  // https://github.com/RobotLocomotion/drake/issues/21673#issuecomment-2689035046
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
+  CollisionGeometryPtr_t convex_geo1(new fcl::Convex<S>(
+      std::make_shared<const std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(0.5, 1, 0),
+              Vector3<S>(0.5, 0.62348999999999998867, -0.7818310000000000537),
+              Vector3<S>(0.5, -0.22252099999999999658, -0.97492800000000001681),
+              Vector3<S>(0.5, 0.62348999999999998867, 0.7818310000000000537),
+              Vector3<S>(-0.5, -0.90096900000000001985, 0.4338839999999999919),
+              Vector3<S>(-0.5, -0.22252099999999999658, 0.97492800000000001681),
+              Vector3<S>(-0.5, -0.90096900000000001985, -0.4338839999999999919),
+              Vector3<S>(0.5, -0.90096900000000001985, 0.4338839999999999919),
+              Vector3<S>(-0.5, 0.62348999999999998867, -0.7818310000000000537),
+              Vector3<S>(-0.5, 0.62348999999999998867, 0.7818310000000000537),
+              Vector3<S>(-0.5, -0.22252099999999999658,
+                         -0.97492800000000001681),
+              Vector3<S>(-0.5, 1, 0),
+              Vector3<S>(0.5, -0.90096900000000001985, -0.4338839999999999919),
+              Vector3<S>(0.5, -0.22252099999999999658, 0.97492800000000001681),
+          }),
+      9,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          4, 10, 2, 12, 6, 4,  1,  8, 11, 0, 4,  10, 8, 1,  2,  7, 2,
+          1, 0,  3, 13, 7, 12, 4,  9, 3,  0, 11, 4,  9, 5,  13, 3, 7,
+          8, 10, 6, 4,  5, 9,  11, 4, 12, 7, 4,  6,  4, 13, 5,  4, 7,
+      }),
+      false));
+  Transform3<S> X_WG1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WG1.matrix() << 
+    -2.0479437360480804916e-09, -0.76923712747984118732, -0.63896341186844385351, 13.670417904867957049,
+    -2.4654844510601008403e-09, 0.63896341186844385351, -0.76923712747984118732, 13.169816779836704512,
+    1, 0, -3.2051032938795742666e-09, 0,
+    0, 0, 0, 1;
+  // clang-format on
+  fcl::CollisionObject<S> convex1(convex_geo1, X_WG1);
+
+  CollisionGeometryPtr_t convex_geo2(new fcl::Convex<S>(
+      std::make_shared<std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(14.835100999999999871, 13.060409999999999187, -0.5),
+              Vector3<S>(13.785037000000000873, 12.890523999999999205, -0.5),
+              Vector3<S>(14.767995000000000871, 13.150247999999999493, -0.5),
+              Vector3<S>(14.835100999999999871, 13.060409999999999187, 0.5),
+              Vector3<S>(14.767995000000000871, 13.150247999999999493, 0.5),
+              Vector3<S>(13.785037000000000873, 12.890523999999999205, 0.5),
+          }),
+      5,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          3, 3, 4, 5, 4, 2, 1, 5, 4, 3, 2, 0, 1, 4, 3, 0, 2, 4, 4, 5, 1, 0, 3,
+      }),
+      false));
+  const Transform3<S> X_WS2 = Transform3<S>::Identity();
+  fcl::CollisionObject<S> convex2(convex_geo2, X_WS2);
+  fcl::DistanceRequest<S> request;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+  request.distance_tolerance = 1e-6;
+  request.enable_signed_distance = true;
+  fcl::DistanceResult<S> result;
+  ASSERT_NO_THROW(fcl::distance(&convex1, &convex2, request, result));
+  EXPECT_NEAR(abs(result.min_distance),
+              (result.nearest_points[0] - result.nearest_points[1]).norm(),
+              request.distance_tolerance);
+}
+
+template <typename S>
+void test_distance_convex_to_convex4() {
+  // This is a real world failure reported in
+  // https://github.com/RobotLocomotion/drake/issues/21673#issuecomment-2689248075
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
+  CollisionGeometryPtr_t convex_geo1(new fcl::Convex<S>(
+      std::make_shared<const std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(0.5, -0.92388000000000003453, 0.38268299999999999539),
+              Vector3<S>(-0.5, 0.92388000000000003453, -0.38268299999999999539),
+              Vector3<S>(0.5, 0.92388000000000003453, -0.38268299999999999539),
+              Vector3<S>(-0.5, 0.92388000000000003453, 0.38268299999999999539),
+              Vector3<S>(-0.5, -0.92388000000000003453,
+                         -0.38268299999999999539),
+              Vector3<S>(0.5, 0.92388000000000003453, 0.38268299999999999539),
+              Vector3<S>(-0.5, -0.92388000000000003453, 0.38268299999999999539),
+              Vector3<S>(0.5, -0.92388000000000003453, -0.38268299999999999539),
+          }),
+      6,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          4, 3, 6, 0, 5, 4, 7, 2, 5, 0, 4, 6, 4, 7, 0,
+          4, 2, 1, 3, 5, 4, 3, 1, 4, 6, 4, 7, 4, 1, 2,
+      }),
+      false));
+  Transform3<S> X_WG1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WG1.matrix() << 
+    -2.6487935924268804787e-09, -0.56303944378188575115, -0.82643002410717436579, 15.712812998638135298,
+    -1.8045995758494454423e-09, 0.82643002410717436579, -0.56303944378188575115, 10.219809745800642276,
+    1, 0, -3.2051032938795742666e-09, 0,
+    0, 0, 0, 1;
+  // clang-format on
+  fcl::CollisionObject<S> convex1(convex_geo1, X_WG1);
+
+  CollisionGeometryPtr_t convex_geo2(new fcl::Convex<S>(
+      std::make_shared<std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(15.417082000000000619, 9.6986209999999992704, -0.5),
+              Vector3<S>(16.236605000000000842, 9.2332309999999999661, -0.5),
+              Vector3<S>(16.224319999999998743, 8.9158489999999996911, -0.5),
+              Vector3<S>(15.417082000000000619, 9.6986209999999992704, 0.5),
+              Vector3<S>(16.224319999999998743, 8.9158489999999996911, 0.5),
+              Vector3<S>(16.236605000000000842, 9.2332309999999999661, 0.5),
+          }),
+      5,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          3, 3, 4, 5, 4, 2, 1, 5, 4, 3, 2, 0, 1, 4, 4, 3, 0, 2, 4, 5, 1, 0, 3,
+      }),
+      false));
+  const Transform3<S> X_WS2 = Transform3<S>::Identity();
+  fcl::CollisionObject<S> convex2(convex_geo2, X_WS2);
+  fcl::DistanceRequest<S> request;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+  request.distance_tolerance = 1e-6;
+  request.enable_signed_distance = true;
+  fcl::DistanceResult<S> result;
+  ASSERT_NO_THROW(fcl::distance(&convex1, &convex2, request, result));
+  EXPECT_NEAR(abs(result.min_distance),
+              (result.nearest_points[0] - result.nearest_points[1]).norm(),
+              request.distance_tolerance);
+}
+
+template <typename S>
+void test_distance_convex_to_convex5() {
+  // This is a real world failure reported in
+  // https://github.com/RobotLocomotion/drake/issues/21673#issuecomment-2689297095
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
+  CollisionGeometryPtr_t convex_geo1(new fcl::Convex<S>(
+      std::make_shared<const std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(0.5, 0.5, -0.86602500000000004476),
+              Vector3<S>(0.5, -0.5, -0.86602500000000004476),
+              Vector3<S>(0.5, 1, 0),
+              Vector3<S>(-0.5, -0.5, 0.86602500000000004476),
+              Vector3<S>(-0.5, 0.5, 0.86602500000000004476),
+              Vector3<S>(-0.5, -1, 0),
+              Vector3<S>(0.5, -0.5, 0.86602500000000004476),
+              Vector3<S>(-0.5, 0.5, -0.86602500000000004476),
+              Vector3<S>(-0.5, -0.5, -0.86602500000000004476),
+              Vector3<S>(-0.5, 1, 0),
+              Vector3<S>(0.5, -1, 0),
+              Vector3<S>(0.5, 0.5, 0.86602500000000004476),
+          }),
+      5,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          4, 10, 5, 8, 1, 6, 2, 11, 6,  10, 1, 0,  4, 0,  7,
+          9, 2,  4, 1, 8, 7, 0, 4,  2,  9,  4, 11, 6, 8,  5,
+          3, 4,  9, 7, 4, 6, 3, 5,  10, 4,  4, 3,  6, 11,
+      }),
+      false));
+  Transform3<S> X_WG1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WG1.matrix() << 
+    -2.2411796174427631456e-09, 0.7148738189791493669, -0.69925347545662319693, 6.3335747278141161232,
+    2.2912444319183419853e-09, 0.69925347545662319693, 0.7148738189791493669, 8.4631576303276716544,
+    1, 0, -3.2051032938795742666e-09, 0,
+    0, 0, 0, 1;
+  // clang-format on
+  fcl::CollisionObject<S> convex1(convex_geo1, X_WG1);
+
+  CollisionGeometryPtr_t convex_geo2(new fcl::Convex<S>(
+      std::make_shared<std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(5.2423630000000001061, 9.1228110000000004476, -0.5),
+              Vector3<S>(6.3596640000000004278, 8.2852599999999991809, -0.5),
+              Vector3<S>(5.6703770000000002227, 7.5985389999999997102, -0.5),
+              Vector3<S>(5.2423630000000001061, 9.1228110000000004476, 0.5),
+              Vector3<S>(5.6703770000000002227, 7.5985389999999997102, 0.5),
+              Vector3<S>(6.3596640000000004278, 8.2852599999999991809, 0.5),
+          }),
+      5,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          3, 3, 4, 5, 4, 4, 2, 1, 5, 3, 2, 0, 1, 4, 3, 0, 2, 4, 4, 1, 0, 3, 5,
+      }),
+      false));
+  const Transform3<S> X_WS2 = Transform3<S>::Identity();
+  fcl::CollisionObject<S> convex2(convex_geo2, X_WS2);
+  fcl::DistanceRequest<S> request;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+  request.distance_tolerance = 1e-6;
+  request.enable_signed_distance = true;
+  fcl::DistanceResult<S> result;
+  ASSERT_NO_THROW(fcl::distance(&convex1, &convex2, request, result));
+  EXPECT_NEAR(abs(result.min_distance),
+              (result.nearest_points[0] - result.nearest_points[1]).norm(),
+              request.distance_tolerance);
+}
+
+template <typename S>
+void test_distance_convex_to_convex6() {
+  // This is a real world failure reported in
+  // https://github.com/RobotLocomotion/drake/issues/21673#issuecomment-2689297095
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
+  CollisionGeometryPtr_t convex_geo1(new fcl::Convex<S>(
+      std::make_shared<const std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(0.5, 0.30901699999999998614, -0.95105700000000004124),
+              Vector3<S>(0.5, 1, 0),
+              Vector3<S>(-0.5, -0.80901699999999998614, 0.58778500000000000192),
+              Vector3<S>(-0.5, 0.30901699999999998614, 0.95105700000000004124),
+              Vector3<S>(-0.5, -0.80901699999999998614,
+                         -0.58778500000000000192),
+              Vector3<S>(0.5, -0.80901699999999998614, 0.58778500000000000192),
+              Vector3<S>(-0.5, 0.30901699999999998614, -0.95105700000000004124),
+              Vector3<S>(-0.5, 1, 0),
+              Vector3<S>(0.5, -0.80901699999999998614, -0.58778500000000000192),
+              Vector3<S>(0.5, 0.30901699999999998614, 0.95105700000000004124),
+          }),
+      7,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          4, 0, 6, 7, 1, 5, 9, 5, 8, 0, 1, 4, 0, 8, 4, 6, 4, 1, 7,
+          3, 9, 5, 6, 4, 2, 3, 7, 4, 8, 5, 2, 4, 4, 3, 2, 5, 9,
+      }),
+      false));
+  Transform3<S> X_WG1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WG1.matrix() << 
+    -3.1934130613594990691e-09, -0.085331461972016672823, -0.99635261910516315087, 11.261494468063983021,
+    -2.7349614983807029573e-10, 0.99635261910516315087, -0.085331461972016672823, 5.7102314848013024928,
+    1, 0, -3.2051032938795742666e-09, 0,
+    0, 0, 0, 1;
+  // clang-format on
+  fcl::CollisionObject<S> convex1(convex_geo1, X_WG1);
+
+  CollisionGeometryPtr_t convex_geo2(new fcl::Convex<S>(
+      std::make_shared<std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(10.924768999999999508, 5.6701019999999999754, -0.5),
+              Vector3<S>(10.83925699999999992, 4.8329899999999996751, -0.5),
+              Vector3<S>(11.452507000000000659, 5.5209809999999999164, -0.5),
+              Vector3<S>(10.924768999999999508, 5.6701019999999999754, 0.5),
+              Vector3<S>(11.452507000000000659, 5.5209809999999999164, 0.5),
+              Vector3<S>(10.83925699999999992, 4.8329899999999996751, 0.5),
+          }),
+      5,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          3, 4, 3, 5, 4, 5, 1, 2, 4, 3, 1, 0, 2, 4, 2, 0, 3, 4, 4, 5, 3, 0, 1,
+      }),
+      false));
+  const Transform3<S> X_WS2 = Transform3<S>::Identity();
+  fcl::CollisionObject<S> convex2(convex_geo2, X_WS2);
+  fcl::DistanceRequest<S> request;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+  request.distance_tolerance = 1e-6;
+  request.enable_signed_distance = true;
+  fcl::DistanceResult<S> result;
+  ASSERT_NO_THROW(fcl::distance(&convex1, &convex2, request, result));
+  EXPECT_NEAR(abs(result.min_distance),
+              (result.nearest_points[0] - result.nearest_points[1]).norm(),
+              request.distance_tolerance);
+}
+
+template <typename S>
+void test_distance_convex_to_convex7() {
+  // This is a real world failure reported in
+  // https://github.com/RobotLocomotion/drake/issues/21673#issuecomment-2689678480
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometryd>;
+  CollisionGeometryPtr_t convex_geo1(new fcl::Convex<S>(
+      std::make_shared<const std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(-0.5, -0.5, -0.86602500000000004476),
+              Vector3<S>(-0.5, -0.5, 0.86602500000000004476),
+              Vector3<S>(-0.5, 1, 0),
+              Vector3<S>(0.5, -0.5, -0.86602500000000004476),
+              Vector3<S>(0.5, 1, 0),
+              Vector3<S>(0.5, -0.5, 0.86602500000000004476),
+          }),
+      5,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          3, 5, 3, 4, 4, 2, 1, 5, 4, 3, 2, 0, 1, 4, 3, 0, 2, 4, 4, 1, 0, 3, 5,
+      }),
+      false));
+  Transform3<S> X_WG1 = Transform3<S>::Identity();
+  // clang-format off
+  X_WG1.matrix() << 
+    -3.155367699156126597e-09, -0.17548349096519452739, -0.98448237383849002136, 9.4277544959429171456,
+    -5.6244271491403150214e-10, 0.98448237383849002136, -0.17548349096519452739, 4.3549730982604870633,
+    1, 0, -3.2051032938795742666e-09, 0,
+    0, 0, 0, 1;
+  // clang-format on
+  fcl::CollisionObject<S> convex1(convex_geo1, X_WG1);
+
+  CollisionGeometryPtr_t convex_geo2(new fcl::Convex<S>(
+      std::make_shared<std::vector<Vector3<S>>>(
+          std::initializer_list<Vector3<S>>{
+              Vector3<S>(7.502455000000000318, 3.9926669999999999661, -0.5),
+              Vector3<S>(7.9127499999999999503, 2.7334600000000000009, -0.5),
+              Vector3<S>(8.6743819999999995929, 3.7108469999999997846, -0.5),
+              Vector3<S>(7.502455000000000318, 3.9926669999999999661, 0.5),
+              Vector3<S>(8.6743819999999995929, 3.7108469999999997846, 0.5),
+              Vector3<S>(7.9127499999999999503, 2.7334600000000000009, 0.5),
+          }),
+      5,
+      std::make_shared<std::vector<int>>(std::initializer_list<int>{
+          3, 3, 5, 4, 4, 5, 1, 2, 4, 3, 1, 0, 2, 4, 4, 2, 0, 3, 4, 3, 0, 1, 5,
+      }),
+      false));
+  const Transform3<S> X_WS2 = Transform3<S>::Identity();
+  fcl::CollisionObject<S> convex2(convex_geo2, X_WS2);
+  fcl::DistanceRequest<S> request;
+  request.gjk_solver_type = GJKSolverType::GST_LIBCCD;
+  request.distance_tolerance = 1e-6;
+  request.enable_signed_distance = true;
+  fcl::DistanceResult<S> result;
+  ASSERT_NO_THROW(fcl::distance(&convex1, &convex2, request, result));
+  EXPECT_NEAR(abs(result.min_distance),
+              (result.nearest_points[0] - result.nearest_points[1]).norm(),
+              request.distance_tolerance);
+}
+
 //==============================================================================
 
 GTEST_TEST(FCL_NEGATIVE_DISTANCE, sphere_sphere_ccd) {
@@ -593,19 +1075,72 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
   test_distance_cylinder_box<double>();
 }
 
-GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression) {
-  // A collection of scenarios observed in practice that have created error
-  // conditions in previous commits of the code. Each test is a unique instance.
+
+// A collection of scenarios observed in practice that have created error
+// conditions in previous commits of the code. Each test is a unique instance.
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression1) {
   test_distance_box_box_regression1<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression2) {
   test_distance_box_box_regression2<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression3) {
   test_distance_box_box_regression3<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression4) {
   test_distance_box_box_regression4<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression5) {
   test_distance_box_box_regression5<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression6) {
   test_distance_box_box_regression6<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression7) {
+  test_distance_box_box_regression7<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression8) {
   test_distance_box_box_regression_tilted_kissing_contact<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression9) {
   test_distance_sphere_box_regression1<double>();
 }
 
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression10) {
+  test_distance_convex_to_convex1<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression11) {
+  test_distance_convex_to_convex2<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression12) {
+  test_distance_convex_to_convex3<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression13) {
+  test_distance_convex_to_convex4<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression14) {
+  test_distance_convex_to_convex5<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression15) {
+  test_distance_convex_to_convex6<double>();
+}
+
+GTEST_TEST(FCL_SIGNED_DISTANCE, RealWorldRegression16) {
+  test_distance_convex_to_convex7<double>();
+}
 //==============================================================================
 int main(int argc, char* argv[])
 {
