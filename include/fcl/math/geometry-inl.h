@@ -480,7 +480,6 @@ void eigen_old(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout)
   int n = 3;
   int j, iq, ip, i;
   S tresh, theta, tau, t, sm, s, h, g, c;
-  int nrot;
   S b[3];
   S z[3];
   S v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
@@ -491,8 +490,6 @@ void eigen_old(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout)
     b[ip] = d[ip] = R(ip, ip);
     z[ip] = 0;
   }
-
-  nrot = 0;
 
   for(i = 0; i < 50; ++i)
   {
@@ -544,7 +541,6 @@ void eigen_old(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout)
           for(j = ip + 1; j < iq; ++j) { g = R(ip, j); h = R(j, iq); R(ip, j) = g - s * (h + g * tau); R(j, iq) = h + s * (g - h * tau); }
           for(j = iq + 1; j < n; ++j) { g = R(ip, j); h = R(iq, j); R(ip, j) = g - s * (h + g * tau); R(iq, j) = h + s * (g - h * tau); }
           for(j = 0; j < n; ++j) { g = v[j][ip]; h = v[j][iq]; v[j][ip] = g - s * (h + g * tau); v[j][iq] = h + s * (g - h * tau); }
-          nrot++;
         }
       }
     }
