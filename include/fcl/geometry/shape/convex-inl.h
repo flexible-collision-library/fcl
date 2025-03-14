@@ -44,7 +44,7 @@
 #include <set>
 #include <sstream>
 #include <utility>
-
+#include <cassert>
 #include "fcl/geometry/shape/convex.h"
 #include "fcl/geometry/shape/representation.h"
 
