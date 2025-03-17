@@ -44,9 +44,12 @@
 #endif
 
 #include "fcl/math/bv/utility.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 #include "fcl/geometry/octree/octree.h"
 #include "fcl/geometry/shape/utility.h"
 #include "fcl/geometry/shape/box.h"
+#include "fcl/narrowphase/collision_request.h"
+#include "fcl/narrowphase/distance_request.h"
 
 namespace fcl
 {
