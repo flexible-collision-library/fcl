@@ -37,14 +37,124 @@ else()
   set(CONFIGURE_DEPENDS_OPTION CONFIGURE_DEPENDS)
 endif()
 
-file(GLOB_RECURSE FCL_SOURCE_CODE ${CONFIGURE_DEPENDS_OPTION}
-  "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+set(FCL_SOURCE_CODE
+  broadphase/broadphase_SSaP.cpp
+  broadphase/broadphase_SaP.cpp
+  broadphase/broadphase_bruteforce.cpp
+  broadphase/broadphase_collision_manager.cpp
+  broadphase/broadphase_continuous_collision_manager.cpp
+  broadphase/broadphase_dynamic_AABB_tree.cpp
+  broadphase/broadphase_dynamic_AABB_tree_array.cpp
+  broadphase/broadphase_interval_tree.cpp
+  broadphase/broadphase_spatialhash.cpp
+  broadphase/detail/interval_tree.cpp
+  broadphase/detail/interval_tree_node.cpp
+  broadphase/detail/morton.cpp
+  broadphase/detail/simple_interval.cpp
+  broadphase/detail/spatial_hash.cpp
+  common/detail/profiler.cpp
+  common/exception.cpp
+  common/time.cpp
+  geometry/bvh/BVH_utility.cpp
+  geometry/bvh/BV_node_base.cpp
+  geometry/bvh/detail/BVH_front.cpp
+  geometry/collision_geometry.cpp
+  geometry/octree/octree.cpp
+  geometry/shape/box.cpp
+  geometry/shape/capsule.cpp
+  geometry/shape/cone.cpp
+  geometry/shape/convex.cpp
+  geometry/shape/cylinder.cpp
+  geometry/shape/ellipsoid.cpp
+  geometry/shape/halfspace.cpp
+  geometry/shape/plane.cpp
+  geometry/shape/shape_base.cpp
+  geometry/shape/sphere.cpp
+  geometry/shape/triangle_p.cpp
+  geometry/shape/utility.cpp
+  math/bv/AABB.cpp
+  math/bv/OBB.cpp
+  math/bv/OBBRSS.cpp
+  math/bv/RSS.cpp
+  math/bv/kDOP.cpp
+  math/bv/kIOS.cpp
+  math/bv/utility.cpp
+  math/constants.cpp
+  math/detail/polysolver.cpp
+  math/detail/project.cpp
+  math/detail/seed.cpp
+  math/geometry.cpp
+  math/motion/interp_motion.cpp
+  math/motion/motion_base.cpp
+  math/motion/screw_motion.cpp
+  math/motion/spline_motion.cpp
+  math/motion/taylor_model/interval.cpp
+  math/motion/taylor_model/interval_matrix.cpp
+  math/motion/taylor_model/interval_vector.cpp
+  math/motion/taylor_model/taylor_matrix.cpp
+  math/motion/taylor_model/taylor_model.cpp
+  math/motion/taylor_model/taylor_vector.cpp
+  math/motion/taylor_model/time_interval.cpp
+  math/motion/translation_motion.cpp
+  math/motion/triangle_motion_bound_visitor.cpp
+  math/rng.cpp
+  math/sampler/sampler_base.cpp
+  math/sampler/sampler_se2.cpp
+  math/sampler/sampler_se2_disk.cpp
+  math/sampler/sampler_se3_euler.cpp
+  math/sampler/sampler_se3_euler_ball.cpp
+  math/sampler/sampler_se3_quat.cpp
+  math/sampler/sampler_se3_quat_ball.cpp
+  math/triangle.cpp
+  math/variance3.cpp
+  narrowphase/collision.cpp
+  narrowphase/collision_object.cpp
+  narrowphase/collision_request.cpp
+  narrowphase/collision_result.cpp
+  narrowphase/contact.cpp
+  narrowphase/contact_point.cpp
+  narrowphase/continuous_collision.cpp
+  narrowphase/continuous_collision_object.cpp
+  narrowphase/continuous_collision_request.cpp
+  narrowphase/continuous_collision_result.cpp
+  narrowphase/cost_source.cpp
+  narrowphase/detail/convexity_based_algorithm/epa.cpp
+  narrowphase/detail/convexity_based_algorithm/gjk.cpp
+  narrowphase/detail/convexity_based_algorithm/gjk_libccd.cpp
+  narrowphase/detail/convexity_based_algorithm/minkowski_diff.cpp
+  narrowphase/detail/failed_at_this_configuration.cpp
+  narrowphase/detail/gjk_solver_indep.cpp
+  narrowphase/detail/gjk_solver_libccd.cpp
+  narrowphase/detail/primitive_shape_algorithm/box_box.cpp
+  narrowphase/detail/primitive_shape_algorithm/capsule_capsule.cpp
+  narrowphase/detail/primitive_shape_algorithm/halfspace.cpp
+  narrowphase/detail/primitive_shape_algorithm/intersect.cpp
+  narrowphase/detail/primitive_shape_algorithm/plane.cpp
+  narrowphase/detail/primitive_shape_algorithm/sphere_box.cpp
+  narrowphase/detail/primitive_shape_algorithm/sphere_capsule.cpp
+  narrowphase/detail/primitive_shape_algorithm/sphere_cylinder.cpp
+  narrowphase/detail/primitive_shape_algorithm/sphere_sphere.cpp
+  narrowphase/detail/primitive_shape_algorithm/sphere_triangle.cpp
+  narrowphase/detail/primitive_shape_algorithm/triangle_distance.cpp
+  narrowphase/detail/traversal/collision/collision_traversal_node_base.cpp
+  narrowphase/detail/traversal/collision/mesh_collision_traversal_node.cpp
+  narrowphase/detail/traversal/collision/mesh_continuous_collision_traversal_node.cpp
+  narrowphase/detail/traversal/collision_node.cpp
+  narrowphase/detail/traversal/distance/conservative_advancement_stack_data.cpp
+  narrowphase/detail/traversal/distance/distance_traversal_node_base.cpp
+  narrowphase/detail/traversal/distance/mesh_conservative_advancement_traversal_node.cpp
+  narrowphase/detail/traversal/distance/mesh_distance_traversal_node.cpp
+  narrowphase/detail/traversal/traversal_node_base.cpp
+  narrowphase/detail/traversal/traversal_recurse.cpp
+  narrowphase/distance.cpp
+  narrowphase/distance_request.cpp
+  narrowphase/distance_result.cpp
 )
 
 if(FCL_STATIC_LIBRARY)
-  add_library(${PROJECT_NAME} STATIC ${FCL_HEADERS} ${FCL_SOURCE_CODE})
+  add_library(${PROJECT_NAME} STATIC ${FCL_SOURCE_CODE})
 else()
-  add_library(${PROJECT_NAME} SHARED ${FCL_HEADERS} ${FCL_SOURCE_CODE})
+  add_library(${PROJECT_NAME} SHARED ${FCL_SOURCE_CODE})
 endif()
 
 # Be sure to pass to the consumer the set of SIMD used in the compilation
