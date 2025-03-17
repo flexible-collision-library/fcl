@@ -31,7 +31,7 @@ jobs:
       matrix:
         compiler: [gcc, clang]
         build: [Release, Debug]
-        os: ['ubuntu-latest']
+        os: ['ubuntu-20.04']
     uses: ./.github/workflows/generic_ci.yml
     with:
       install-name: 'install_linux.sh'
