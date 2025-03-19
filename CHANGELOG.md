@@ -1,5 +1,13 @@
 ## FCL 0
 
+### FCL 0.y.z (YYYY-MM-DD)
+
+* Math
+
+  * Replace M_PI instance with constants::pi():
+     [#553](https://github.com/flexible-collision-library/fcl/pull/553)
+
+
 ### FCL 0.7.0 (2021-09-09)
 
 * Breaking changes
