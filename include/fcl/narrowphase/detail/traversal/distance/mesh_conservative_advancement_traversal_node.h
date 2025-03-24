@@ -49,13 +49,14 @@ namespace detail
 {
 
 /// @brief continuous collision node using conservative advancement. when using this default version, must refit the BVH in current configuration (R_t, T_t) into default configuration
-template <typename BV>
+template <typename BV_>
 class FCL_EXPORT MeshConservativeAdvancementTraversalNode
-    : public MeshDistanceTraversalNode<BV>
+    : public MeshDistanceTraversalNode<BV_>
 {
 public:
 
-  using S = typename BV::S;
+  typedef BV_ BV;
+  typedef typename BV::S S;
 
   MeshConservativeAdvancementTraversalNode(S w_ = 1);
 
@@ -153,9 +154,9 @@ template <typename S>
 FCL_EXPORT
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<S>& node,
-    const BVHModel<RSS<S>>& model1,
+    BVHModel<RSS<S>>& model1,
     const Transform3<S>& tf1,
-    const BVHModel<RSS<S>>& model2,
+    BVHModel<RSS<S>>& model2,
     const Transform3<S>& tf2,
     S w = 1);
 
@@ -202,9 +203,9 @@ template <typename S>
 FCL_EXPORT
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<S>& node,
-    const BVHModel<OBBRSS<S>>& model1,
+    BVHModel<OBBRSS<S>>& model1,
     const Transform3<S>& tf1,
-    const BVHModel<OBBRSS<S>>& model2,
+    BVHModel<OBBRSS<S>>& model2,
     const Transform3<S>& tf2,
     S w = 1);
 
