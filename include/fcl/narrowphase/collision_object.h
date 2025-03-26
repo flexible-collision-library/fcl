@@ -60,7 +60,7 @@ public:
                   const Matrix3<S>& R,
                   const Vector3<S>& T);
 
-  ~CollisionObject();
+  virtual ~CollisionObject();
 
   /// @brief get the type of the object
   OBJECT_TYPE getObjectType() const;
@@ -72,7 +72,7 @@ public:
   const AABB<S>& getAABB() const;
 
   /// @brief compute the AABB in world space
-  void computeAABB();
+  virtual void computeAABB();
 
   /// @brief get user data in object
   void* getUserData() const;
