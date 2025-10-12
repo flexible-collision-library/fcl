@@ -50,6 +50,9 @@ endif()
 # Be sure to pass to the consumer the set of SIMD used in the compilation
 target_compile_options(${PROJECT_NAME} PUBLIC ${SSE_FLAGS})
 
+# At least C++11 is required
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
   VERSION ${FCL_VERSION}
   SOVERSION ${FCL_ABI_VERSION})
