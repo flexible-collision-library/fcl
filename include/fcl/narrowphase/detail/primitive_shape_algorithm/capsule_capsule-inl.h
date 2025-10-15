@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule.h"
 
+#include <cassert>
+
 namespace fcl
 {
 

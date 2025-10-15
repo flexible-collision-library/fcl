@@ -43,6 +43,8 @@
 #include "fcl/math/bv/RSS.h"
 #include "fcl/math/motion/triangle_motion_bound_visitor.h"
 
+#include <cassert>
+
 namespace fcl
 {
 

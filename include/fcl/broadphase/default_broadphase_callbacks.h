@@ -47,6 +47,8 @@
 #include "fcl/narrowphase/distance_request.h"
 #include "fcl/narrowphase/distance_result.h"
 
+#include <cassert>
+
 namespace fcl {
 
 /// @brief Collision data for use with the DefaultCollisionFunction. It stores
