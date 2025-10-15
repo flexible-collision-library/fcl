@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/plane.h"
 
+#include <cassert>
+
 namespace fcl
 {
 
