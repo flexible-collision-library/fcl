@@ -47,6 +47,7 @@
 
 #include "fcl/common/unused.h"
 #include "fcl/common/warning.h"
+#include "fcl/math/constants.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 #include "fcl/narrowphase/detail/failed_at_this_configuration.h"
 
@@ -512,91 +513,129 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   return 0;
 }
 
+static Vector3<ccd_real_t> to_eigen(const ccd_vec3_t& v) {
+  return Vector3<ccd_real_t>(v.v[0], v.v[1], v.v[2]);
+}
+
 static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
 {
-  const ccd_support_t *A, *B, *C, *D;
-  ccd_vec3_t AO, AB, AC, AD, ABC, ACD, ADB;
-  int B_on_ACD, C_on_ADB, D_on_ABC;
-  int AB_O, AC_O, AD_O;
+  // A is the newest point in the simplex.
+  const ccd_support_t &A = *ccdSimplexLast(simplex);
+  // Get the other points (from oldest to newest).
+  const ccd_support_t &B = *ccdSimplexPoint(simplex, 2);
+  const ccd_support_t &C = *ccdSimplexPoint(simplex, 1);
+  const ccd_support_t &D = *ccdSimplexPoint(simplex, 0);
 
-  // get last added as A
-  A = ccdSimplexLast(simplex);
-  // get the other points
-  B = ccdSimplexPoint(simplex, 2);
-  C = ccdSimplexPoint(simplex, 1);
-  D = ccdSimplexPoint(simplex, 0);
+  // Convert these to more convenient Eigen vectors.
+  using V3 = Vector3<ccd_real_t>;
+  const V3 p_SA = to_eigen(A.v);
+  const V3 p_SB = to_eigen(B.v);
+  const V3 p_SC = to_eigen(C.v);
+  const V3 p_SD = to_eigen(D.v);
 
-  // check if tetrahedron is really tetrahedron (has volume > 0)
-  // if it is not simplex can't be expanded and thus no intersection is
-  // found.
-  ccd_real_t dist_squared = ccdVec3PointTriDist2NoWitness(
-      &A->v, &B->v, &C->v, &D->v);
-  if (isAbsValueLessThanEpsSquared(dist_squared)) {
+  const V3 p_AB_S = p_SB - p_SA;
+  const V3 p_AC_S = p_SC - p_SA;
+  const V3 p_AD_S = p_SD - p_SA;
+  const V3 p_AS_S = -p_SA;
+
+  constexpr auto kEps = constants<ccd_real_t>::eps();
+
+  // For each face, we compute:
+  //   1. the unit normal
+  //   2. Signed distance from origin to the face's plane.
+  //   3. If the origin is "on" the plane of the face, we explicitly check to
+  //      see if it's "on" the face itself.
+  //
+  // For the first face, we do a reality check on the *volume* of the tet. If
+  // it is degenerate, then we return that no intersection is found.
+
+  // Plane ABC.
+  const V3 nhat_ABC = p_AB_S.cross(p_AC_S).normalized();
+  const ccd_real_t So_to_ABC = nhat_ABC.dot(p_AS_S);
+
+  // Volume reality check. We know that the triangle BCD is not degenerate based
+  // on construction (we wouldn't be here otherwise). If this test deems the
+  // tet "well formed", that precludes any of the faces ABC, ACD, or ADB being
+  // degenerate, so we won't have to test later.
+  const ccd_real_t D_to_ABC = nhat_ABC.dot(p_AD_S);
+  if (std::abs(D_to_ABC) < kEps) {
     return -1;
   }
 
-  // check if origin lies on some of tetrahedron's face - if so objects
-  // intersect
-  dist_squared =
-      ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &A->v, &B->v, &C->v);
-  if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
-  dist_squared =
-      ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &A->v, &C->v, &D->v);
-  if (isAbsValueLessThanEpsSquared((dist_squared))) return 1;
-  dist_squared =
-      ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &A->v, &B->v, &D->v);
-  if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
-  dist_squared =
-      ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &B->v, &C->v, &D->v);
-  if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
+  // TODO(SeanCurtis-TRI): Given the normal, can we do the "on triangle" test
+  // cheaper?
+  if (std::abs(So_to_ABC) < kEps) {
+    // Origin is on the *plane* of ABC; find out if it's on the triangle.
+    ccd_real_t dist_squared =
+        ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &A.v, &B.v, &C.v);
+    if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
+  }
 
-  // compute AO, AB, AC, AD segments and ABC, ACD, ADB normal vectors
-  ccdVec3Copy(&AO, &A->v);
-  ccdVec3Scale(&AO, -CCD_ONE);
-  ccdVec3Sub2(&AB, &B->v, &A->v);
-  ccdVec3Sub2(&AC, &C->v, &A->v);
-  ccdVec3Sub2(&AD, &D->v, &A->v);
-  ccdVec3Cross(&ABC, &AB, &AC);
-  ccdVec3Cross(&ACD, &AC, &AD);
-  ccdVec3Cross(&ADB, &AD, &AB);
+  // Plane ACD.
+  const V3 nhat_ACD = p_AC_S.cross(p_AD_S).normalized();
+  const ccd_real_t So_to_ACD = nhat_ACD.dot(p_AS_S);
+  if (std::abs(So_to_ACD) < kEps) {
+    // Origin is on the *plane* of ACD; find out if it's on the triangle.
+    ccd_real_t dist_squared =
+        ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &A.v, &C.v, &D.v);
+    if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
+  }
 
-  // side (positive or negative) of B, C, D relative to planes ACD, ADB
-  // and ABC respectively
-  B_on_ACD = ccdSign(ccdVec3Dot(&ACD, &AB));
-  C_on_ADB = ccdSign(ccdVec3Dot(&ADB, &AC));
-  D_on_ABC = ccdSign(ccdVec3Dot(&ABC, &AD));
+  // Plane ADB.
+  const V3 nhat_ADB = p_AD_S.cross(p_AB_S).normalized();
+  const ccd_real_t So_to_ADB = nhat_ADB.dot(p_AS_S);
+  if (std::abs(So_to_ADB) < kEps) {
+    // Origin is on the *plane* of ADB; find out if it's on the triangle.
+    ccd_real_t dist_squared =
+        ccdVec3PointTriDist2NoWitness(ccd_vec3_origin, &A.v, &D.v, &B.v);
+    if (isAbsValueLessThanEpsSquared(dist_squared)) return 1;
+  }
 
-  // whether origin is on same side of ACD, ADB, ABC as B, C, D
-  // respectively
-  AB_O = ccdSign(ccdVec3Dot(&ACD, &AO)) == B_on_ACD;
-  AC_O = ccdSign(ccdVec3Dot(&ADB, &AO)) == C_on_ADB;
-  AD_O = ccdSign(ccdVec3Dot(&ABC, &AO)) == D_on_ABC;
+  // Note: we don't consider the plane BCD. That was the simplex *before* this
+  // iteration and has been handled already.
 
-  if (AB_O && AC_O && AD_O){
-    // origin is in tetrahedron
+  // Calculate the signed distance for C and B to their respective planes.
+  const ccd_real_t C_to_ADB = nhat_ADB.dot(p_AC_S);
+  const ccd_real_t B_to_ACD = nhat_ACD.dot(p_AB_S);
+
+  // Determine if the origin lies on the same side of each face as the face's
+  // *fourth* vertex. If that is true, the product of heights must be positive
+  // (because they'll have the same sign). If either point lies on the plane
+  // (height is zero), that will *not* be considered as intersecting.
+  //
+  //   - If the origin's height is zero, we've already tested to see if it's on
+  //     the triangle. If we're here, it wasn't.
+  //   - If the point's height is zero, then the simplex is degenerate and
+  //     we've already classified that as non-intersecting. If we're here,
+  //     it wasn't.
+  const bool So_in_ABC = (So_to_ABC * D_to_ABC) > 0;
+  const bool So_in_ADB = (So_to_ADB * C_to_ADB) > 0;
+  const bool So_in_ACD = (So_to_ACD * B_to_ACD) > 0;
+
+  if (So_in_ABC && So_in_ADB && So_in_ACD) {
+    // We already know O_in_BCD is true; origin is in tetrahedron. Report
+    // intersection.
     return 1;
 
-    // rearrange simplex to triangle and call doSimplex3()
-  }else if (!AB_O){
+    // Demote the simplex to triangle based on the oldest invalid vertex.
+  } else if (!So_in_ACD) {
     // B is farthest from the origin among all of the tetrahedron's
     // points, so remove it from the list and go on with the triangle
     // case
 
     // D and C are in place
-    ccdSimplexSet(simplex, 2, A);
-    ccdSimplexSetSize(simplex, 3);
-  }else if (!AC_O){
+    ccdSimplexSet(simplex, 2, &A);
+  } else if (!So_in_ADB) {
     // C is farthest
-    ccdSimplexSet(simplex, 1, D);
-    ccdSimplexSet(simplex, 0, B);
-    ccdSimplexSet(simplex, 2, A);
-    ccdSimplexSetSize(simplex, 3);
-  }else{ // (!AD_O)
-    ccdSimplexSet(simplex, 0, C);
-    ccdSimplexSet(simplex, 1, B);
-    ccdSimplexSet(simplex, 2, A);
-    ccdSimplexSetSize(simplex, 3);
+    ccdSimplexSet(simplex, 1, &D);
+    ccdSimplexSet(simplex, 0, &B);
+    ccdSimplexSet(simplex, 2, &A);
+  } else { // (!So_in_ABC)
+    ccdSimplexSet(simplex, 0, &C);
+    ccdSimplexSet(simplex, 1, &B);
+    ccdSimplexSet(simplex, 2, &A);
   }
+  ccdSimplexSetSize(simplex, 3);
 
   return doSimplex3(simplex, dir);
 }
