@@ -817,7 +817,7 @@ static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
   assert(isPolytopeEmpty(*polytope));
   assert(simplex->last == 2); // a 2-simplex.
   const ccd_support_t *a, *b, *c;
-  ccd_support_t d, d2;
+  ccd_support_t candidate_1, candidate_2;
   ccd_vec3_t ab, ac, dir;
   ccd_pt_vertex_t* v[4];
   ccd_pt_edge_t* e[6];
@@ -831,37 +831,32 @@ static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
   // The 2-simplex is just a triangle containing the origin. We will expand this
   // triangle to a tetrahedron, by adding the support point along the normal
   // direction of the triangle.
+  //
+  // There are two possible support points to consider; one on each side of the
+  // triangle. "Expanding" the polytope depends on its ability to define
+  // outside. In *some* cases (e.g., when the origin lies on a polytope face),
+  // that requires clearly recognizing which side of a polytope face the
+  // polytope vertices lie. That works best when the tetrahedron has a larger
+  // volume (i.e., the fourth vertex is as far away from the triangle's plane
+  // as possible). So, that's the candidate we'll select.
+  //
+  // We don't need to know *true* distance. We just need to know which candidate
+  // is farther. So, we can forego normalizing the cross product, knowing the
+  // true distances of the candidate points are scaled by the same factor.
   ccdVec3Sub2(&ab, &b->v, &a->v);
   ccdVec3Sub2(&ac, &c->v, &a->v);
   ccdVec3Cross(&dir, &ab, &ac);
-  __ccdSupport(obj1, obj2, &dir, ccd, &d);
-  const ccd_real_t dist_squared =
-      ccdVec3PointTriDist2NoWitness(&d.v, &a->v, &b->v, &c->v);
 
-  // and second one take in opposite direction
+  // The scaled distance of the first candidate.
+  __ccdSupport(obj1, obj2, &dir, ccd, &candidate_1);
+  const ccd_real_t scale_distance_1 = ccdVec3Dot(&dir, &candidate_1.v);
+
+  // The scaled distance of the second candidate,
   ccdVec3Scale(&dir, -CCD_ONE);
-  __ccdSupport(obj1, obj2, &dir, ccd, &d2);
-  const ccd_real_t dist_squared_opposite =
-      ccdVec3PointTriDist2NoWitness(&d2.v, &a->v, &b->v, &c->v);
+  __ccdSupport(obj1, obj2, &dir, ccd, &candidate_2);
+  const ccd_real_t scale_distance_2 = ccdVec3Dot(&dir, &candidate_2.v);
 
-  // check if face isn't already on edge of minkowski sum and thus we
-  // have touching contact
-  if (ccdIsZero(dist_squared) || ccdIsZero(dist_squared_opposite)) {
-    v[0] = ccdPtAddVertex(polytope, a);
-    v[1] = ccdPtAddVertex(polytope, b);
-    v[2] = ccdPtAddVertex(polytope, c);
-    e[0] = ccdPtAddEdge(polytope, v[0], v[1]);
-    e[1] = ccdPtAddEdge(polytope, v[1], v[2]);
-    e[2] = ccdPtAddEdge(polytope, v[2], v[0]);
-    *nearest = (ccd_pt_el_t*)ccdPtAddFace(polytope, e[0], e[1], e[2]);
-    if (*nearest == NULL) return -2;
-
-    return -1;
-  }
-  // Form a tetrahedron with abc as one face, pick either d or d2, based
-  // on which one has larger distance to the face abc. We pick the larger
-  // distance because it gives a tetrahedron with larger volume, so potentially
-  // more "expanded" than the one with the smaller volume.
+  // Form a tetrahedron with abc as one face and a fourth point `v`.
   auto FormTetrahedron = [polytope, a, b, c, &v,
                           &e](const ccd_support_t& new_support) -> int {
     v[0] = ccdPtAddVertex(polytope, a);
@@ -892,10 +887,13 @@ static int convert2SimplexToTetrahedron(const void* obj1, const void* obj2,
     return 0;
   };
 
-  if (std::abs(dist_squared) > std::abs(dist_squared_opposite)) {
-    return FormTetrahedron(d);
+  // Note: it is highly unlikely that both of these distances are functionally
+  // zero. That would require a Minkowski sum that is flat w.r.t. a particular
+  // direction. That would require that both shapes be flat in that direction.
+  if (std::abs(scale_distance_1) > std::abs(scale_distance_2)) {
+    return FormTetrahedron(candidate_1);
   } else {
-    return FormTetrahedron(d2);
+    return FormTetrahedron(candidate_2);
   }
 }
 
@@ -1047,13 +1045,12 @@ static bool triangle_area_is_zero(const ccd_vec3_t& a, const ccd_vec3_t& b,
 /**
  * Computes the normal vector of a triangular face on a polytope, and the normal
  * vector points outward from the polytope. Notice we assume that the origin
- * lives within the polytope, and the normal vector may not have unit length.
+ * lives within the polytope.
  * @param[in] polytope The polytope on which the face lives. We assume that the
  * origin also lives inside the polytope.
  * @param[in] face The face for which the normal vector is computed.
- * @retval dir The vector normal to the face, and points outward from the
- * polytope. `dir` is unnormalized, that it does not necessarily have a unit
- * length.
+ * @retval dir The unit vector normal to the face, and points outward from the
+ * polytope.
  * @throws UnexpectedConfigurationException if built in debug mode _and_ the
  * triangle has zero area (either by being too small, or being co-linear).
  */
@@ -1080,13 +1077,12 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
               &(face->edge[0]->vertex[0]->v.v));
   ccdVec3Sub2(&e2, &(face->edge[1]->vertex[1]->v.v),
               &(face->edge[1]->vertex[0]->v.v));
-  ccd_vec3_t dir;
   // TODO(hongkai.dai): we ignore the degeneracy here, namely we assume e1 and
   // e2 are not colinear. We should check if e1 and e2 are colinear, and handle
   // this corner case.
-  ccdVec3Cross(&dir, &e1, &e2);
-  const ccd_real_t dir_norm = std::sqrt(ccdVec3Len2(&dir));
-  ccd_vec3_t unit_dir = dir;
+  ccd_vec3_t unit_dir;
+  ccdVec3Cross(&unit_dir, &e1, &e2);
+  const ccd_real_t dir_norm = std::sqrt(ccdVec3Len2(&unit_dir));
   ccdVec3Scale(&unit_dir, 1.0 / dir_norm);
   // The winding of the triangle is *not* guaranteed. The normal `n = e₁ × e₂`
   // may point inside or outside. We rely on the fact that the origin lies
@@ -1116,18 +1112,34 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
     // Origin is more than `dist_tol` away from the plane, but the negative
     // value implies that the normal vector is pointing in the wrong direction;
     // flip it.
-    ccdVec3Scale(&dir, ccd_real_t(-1));
+    ccdVec3Scale(&unit_dir, ccd_real_t(-1));
   } else if (-dist_tol <= origin_distance_to_plane &&
              origin_distance_to_plane <= dist_tol) {
     // The origin is close to the plane of the face. Pick another vertex to test
     // the normal direction.
-    ccd_real_t max_distance_to_plane = -CCD_REAL_MAX;
-    ccd_real_t min_distance_to_plane = CCD_REAL_MAX;
+
+    // For the final test below, we need max_distance_to_plane to be
+    // non-negative. Mathematically, the measured max_distance_to_plane is
+    // strictly non-negative; we evaluate the distance of *all* polytope
+    // vertices and know the distance to the face vertices is, by construction,
+    // zero.
+    //
+    // Similarly, if everything were perfectly co-planar the *largest* minimum
+    // value we would get would be the face vertices' zero distance.
+    //
+    // Rather than relying on numerical accuracy to yield an exact zero
+    // (generally a bad bet), we can initialize the max/min values to zero,
+    // representing the limits on those values imposed by the face vertices.
+    ccd_real_t max_distance_to_plane = 0;
+    ccd_real_t min_distance_to_plane = 0;
     ccd_pt_vertex_t* v;
     // If the magnitude of the distance_to_plane is larger than dist_tol,
     // then it means one of the vertices is at least `dist_tol` away from the
     // plane coinciding with the face.
     ccdListForEachEntry(&polytope->vertices, v, ccd_pt_vertex_t, list) {
+      // TODO(SeanCurtis-TRI): We might consider testing the vertex v against
+      // the known face vertices and skip it if v is one of those three.
+
       // distance_to_plane is the signed distance from the
       // vertex v->v.v to the face, i.e., distance_to_plane = nᵀ *
       // (v->v.v - face_point). Note that origin_distance_to_plane = nᵀ *
@@ -1136,14 +1148,15 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
           ccdVec3Dot(&unit_dir, &(v->v.v)) - origin_distance_to_plane;
       if (distance_to_plane > dist_tol) {
         // The vertex is at least dist_tol away from the face plane, on the same
-        // direction of `dir`. So we flip dir to point it outward from the
-        // polytope.
-        ccdVec3Scale(&dir, ccd_real_t(-1));
-        return dir;
+        // direction of `unit_dir`. So we flip unit_dir to point it outward from
+        // the polytope.
+        ccdVec3Scale(&unit_dir, ccd_real_t(-1));
+        return unit_dir;
       } else if (distance_to_plane < -dist_tol) {
         // The vertex is at least `dist_tol` away from the face plane, on the
-        // opposite direction of `dir`. So `dir` points outward already.
-        return dir;
+        // opposite direction of `unit_dir`. So `unit_dir` points outward
+        // already.
+        return unit_dir;
       } else {
         max_distance_to_plane =
             std::max(max_distance_to_plane, distance_to_plane);
@@ -1151,15 +1164,17 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
             std::min(min_distance_to_plane, distance_to_plane);
       }
     }
+
     // If max_distance_to_plane > |min_distance_to_plane|, it means that the
-    // vertices that are on the positive side of the plane, has a larger maximal
-    // distance than the vertices on the negative side of the plane. Thus we
-    // regard that `dir` points into the polytope. Hence we flip `dir`.
+    // vertices that are on the positive side of the plane, have a larger
+    // maximal distance than the vertices on the negative side of the plane.
+    // Thus we regard that `unit_dir` points into the polytope. Hence we flip
+    // `unit_dir`.
     if (max_distance_to_plane > std::abs(min_distance_to_plane)) {
-      ccdVec3Scale(&dir, ccd_real_t(-1));
+      ccdVec3Scale(&unit_dir, ccd_real_t(-1));
     }
   }
-  return dir;
+  return unit_dir;
 }
 
 // Return true if the point `pt` is on the outward side of the half-plane, on
@@ -1169,11 +1184,11 @@ static ccd_vec3_t faceNormalPointingOutward(const ccd_pt_t* polytope,
 // @param pt A point.
 static bool isOutsidePolytopeFace(const ccd_pt_t* polytope,
                                 const ccd_pt_face_t* f, const ccd_vec3_t* pt) {
-  ccd_vec3_t n = faceNormalPointingOutward(polytope, f);
+  ccd_vec3_t n_hat = faceNormalPointingOutward(polytope, f);
   // r_VP is the vector from a vertex V on the face `f`, to the point P `pt`.
   ccd_vec3_t r_VP;
   ccdVec3Sub2(&r_VP, pt, &(f->edge[0]->vertex[0]->v.v));
-  return ccdVec3Dot(&n, &r_VP) > 0;
+  return ccdVec3Dot(&n_hat, &r_VP) > 0;
 }
 
 #ifndef NDEBUG
@@ -1572,7 +1587,7 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
   point on a face, and the support direction is the normal of that face,
   pointing outward from the polytope.
   */
-  ccd_vec3_t dir;
+  ccd_vec3_t unit_dir;
   if (ccdIsZero(nearest_feature->dist)) {
     // nearest point is the origin.
     switch (nearest_feature->type) {
@@ -1590,7 +1605,7 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
         // arbitrarily choose faces[0] normal.
         const ccd_pt_edge_t* edge =
             reinterpret_cast<const ccd_pt_edge_t*>(nearest_feature);
-        dir = faceNormalPointingOutward(polytope, edge->faces[0]);
+        unit_dir = faceNormalPointingOutward(polytope, edge->faces[0]);
         break;
       }
       case CCD_PT_FACE: {
@@ -1598,15 +1613,15 @@ static ccd_vec3_t supportEPADirection(const ccd_pt_t* polytope,
         // that face as the sample direction.
         const ccd_pt_face_t* face =
             reinterpret_cast<const ccd_pt_face_t*>(nearest_feature);
-        dir = faceNormalPointingOutward(polytope, face);
+        unit_dir = faceNormalPointingOutward(polytope, face);
         break;
       }
     }
   } else {
-    ccdVec3Copy(&dir, &(nearest_feature->witness));
+    ccdVec3Copy(&unit_dir, &(nearest_feature->witness));
+    ccdVec3Normalize(&unit_dir);
   }
-  ccdVec3Normalize(&dir);
-  return dir;
+  return unit_dir;
 }
 
 /** Finds next support point (and stores it in out argument).
@@ -1773,9 +1788,9 @@ static void validateNearestFeatureOfPolytopeBeingEdge(ccd_pt_t* polytope) {
       kEps * std::max(static_cast<ccd_real_t>(1.0), v0_dist);
 
   for (int i = 0; i < 2; ++i) {
+    // faceNormalPointingOutward() already normalizes the normal.
     face_normals[i] =
         faceNormalPointingOutward(polytope, nearest_edge->faces[i]);
-    ccdVec3Normalize(&face_normals[i]);
     // If the origin o is on the "inner" side of the face, then
     // n̂ ⋅ (o - vₑ) ≤ 0 or, with simplification, -n̂ ⋅ vₑ ≤ 0 (since n̂ ⋅ o = 0).
     origin_to_face_distance[i] =
