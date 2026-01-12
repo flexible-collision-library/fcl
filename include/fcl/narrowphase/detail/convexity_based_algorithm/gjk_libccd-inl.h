@@ -47,6 +47,7 @@
 
 #include "fcl/common/unused.h"
 #include "fcl/common/warning.h"
+#include "fcl/math/constants.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 #include "fcl/narrowphase/detail/failed_at_this_configuration.h"
 
@@ -422,6 +423,21 @@ static bool isAbsValueLessThanEpsSquared(ccd_real_t val) {
                            std::numeric_limits<ccd_real_t>::epsilon();
 }
 
+// libccd defines ccdSign(), returning -1, 0, or 1 *largely* based on the sign
+// of the input value. However, it determines the zero value based on a
+// tolerance value (DBL_EPSILON/FLT_EPSILON) based on build configuration.
+// Depending on the conditioning of `val` this may be an inappropriate
+// threshold. This function allows us to specify our own tolerance (conditioned
+// to the same scale as val). Be wary of using ccdSign() directly if the
+// quantity being tested has been scaled.
+static int ccdSignTolerance(ccd_real_t val, ccd_real_t tolerance) {
+  using std::abs;
+  if (abs(val) <= tolerance) {
+    return 0;
+  }
+  return (val > 0) ? 1 : -1;
+}
+
 // TODO(SeanCurtis-TRI): Define the return value:
 //   1: (like doSimplex2) --> origin is "in" the simplex.
 //   0:
@@ -512,8 +528,8 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   return 0;
 }
 
-static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
-{
+static int doSimplex4(ccd_simplex_t* simplex, ccd_vec3_t* dir,
+                      ccd_real_t dist_tolerance) {
   const ccd_support_t *A, *B, *C, *D;
   ccd_vec3_t AO, AB, AC, AD, ABC, ACD, ADB;
   int B_on_ACD, C_on_ADB, D_on_ABC;
@@ -560,17 +576,31 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   ccdVec3Cross(&ACD, &AC, &AD);
   ccdVec3Cross(&ADB, &AD, &AB);
 
+  // When computing the signs of quantities below, we need to accommodate the
+  // scaling of this problem.
+  //  1. Dotting the two vectors together produces a *squared* quantity. So, we
+  //     should compare against a squared tolerance.
+  //  2. This problem has an inherent scale. With each iteration the simplex
+  //     measure is expected to get closer to the origin and therefore smaller.
+  //     Specifically, we have a distance tolerance in the query that limits the
+  //     scale.
+  // So, the tolerance we'll use here will be epsilon, scaled by the distance
+  // tolerance of the query, squared.
+
+  const ccd_real_t tolerance = constants<ccd_real_t>::eps() * dist_tolerance;
+  const ccd_real_t sq_tolerance = tolerance * tolerance;
+
   // side (positive or negative) of B, C, D relative to planes ACD, ADB
   // and ABC respectively
-  B_on_ACD = ccdSign(ccdVec3Dot(&ACD, &AB));
-  C_on_ADB = ccdSign(ccdVec3Dot(&ADB, &AC));
-  D_on_ABC = ccdSign(ccdVec3Dot(&ABC, &AD));
+  B_on_ACD = ccdSignTolerance(ccdVec3Dot(&ACD, &AB), sq_tolerance);
+  C_on_ADB = ccdSignTolerance(ccdVec3Dot(&ADB, &AC), sq_tolerance);
+  D_on_ABC = ccdSignTolerance(ccdVec3Dot(&ABC, &AD), sq_tolerance);
 
   // whether origin is on same side of ACD, ADB, ABC as B, C, D
   // respectively
-  AB_O = ccdSign(ccdVec3Dot(&ACD, &AO)) == B_on_ACD;
-  AC_O = ccdSign(ccdVec3Dot(&ADB, &AO)) == C_on_ADB;
-  AD_O = ccdSign(ccdVec3Dot(&ABC, &AO)) == D_on_ABC;
+  AB_O = ccdSignTolerance(ccdVec3Dot(&ACD, &AO), sq_tolerance) == B_on_ACD;
+  AC_O = ccdSignTolerance(ccdVec3Dot(&ADB, &AO), sq_tolerance) == C_on_ADB;
+  AD_O = ccdSignTolerance(ccdVec3Dot(&ABC, &AO), sq_tolerance) == D_on_ABC;
 
   if (AB_O && AC_O && AD_O){
     // origin is in tetrahedron
@@ -601,8 +631,8 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   return doSimplex3(simplex, dir);
 }
 
-static int doSimplex(ccd_simplex_t *simplex, ccd_vec3_t *dir)
-{
+static int doSimplex(ccd_simplex_t* simplex, ccd_vec3_t* dir,
+                     ccd_real_t dist_tolerance) {
   if (ccdSimplexSize(simplex) == 2){
     // simplex contains segment only one segment
     return doSimplex2(simplex, dir);
@@ -612,7 +642,7 @@ static int doSimplex(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   }else{ // ccdSimplexSize(simplex) == 4
     // tetrahedron - this is the only shape which can encapsule origin
     // so doSimplex4() also contains test on it
-    return doSimplex4(simplex, dir);
+    return doSimplex4(simplex, dir, dist_tolerance);
   }
 }
 
@@ -1662,7 +1692,7 @@ static int __ccdGJK(const void *obj1, const void *obj2,
 
     // if doSimplex returns 1 if objects intersect, -1 if objects don't
     // intersect and 0 if algorithm should continue
-    do_simplex_res = doSimplex(simplex, &dir);
+    do_simplex_res = doSimplex(simplex, &dir, ccd->dist_tolerance);
     if (do_simplex_res == 1){
       return 0; // intersection found
     }else if (do_simplex_res == -1){
