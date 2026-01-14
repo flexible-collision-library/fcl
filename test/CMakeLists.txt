@@ -10,15 +10,19 @@ include_directories (BEFORE
 
 link_directories(${PROJECT_BINARY_DIR}/test)
 
-# Build gtest
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/release-1.12.0.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+find_package(GTest CONFIG QUIET)
+
+if(NOT GTest_FOUND)
+  message(STATUS "googletest not found via find_package — fetching from remote")
+  include(FetchContent)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/release-1.12.0.zip
+  )
+  # For Windows: Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)
+endif()
 
 add_library(test_fcl_utility test_fcl_utility.cpp)
 target_link_libraries(test_fcl_utility fcl)
