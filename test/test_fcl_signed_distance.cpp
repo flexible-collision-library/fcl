@@ -1075,6 +1075,32 @@ GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_ccd) {
   test_distance_cylinder_box<double>();
 }
 
+GTEST_TEST(FCL_SIGNED_DISTANCE, cylinder_box_2) {
+  // This is a *specific* case that has cropped up in the wild that reaches the
+  // "misclassified origin" error (validateNearestFeatureOfPolytopeBeingEdge()).
+  // https://github.com/RobotLocomotion/drake/issues/21234
+  double cylinder_radius = 0.041000000000000001721;
+  double cylinder_length = 0.17000000000000001221;
+
+  Transform3<double> X_WC = Transform3<double>::Identity();
+  // clang-format off
+  X_WC.matrix() << 0.62286449762754547699, 0.71651535568044355529, -0.31407891153229777759, 0.20238033346825459735,
+                  -0.20605566270224237591, -0.23703718387133412837, -0.94939688083050233214, 0.027845683594011010065,
+                  -0.75470582445316081177, 0.65606334948423605802, 4.0172294049188053423e-17, 0.3114233939246693339,
+                   0, 0, 0, 1;
+  // clang-format on
+  Vector3<double> box_size(0.2999999999999999889, 0.5999999999999999778, 0.016000000000000000333);
+  Transform3<double> X_WB = Transform3<double>::Identity();
+  // clang-format off
+  X_WB.matrix() << 1, 0, 0, 0.4000000000000000222,
+                   0, 1, 0, 0,
+                   0, 0, 1, 0.2688500000000000334,
+                   0, 0, 0, 1;
+  // clang-format on
+  test_distance_cylinder_box_helper(cylinder_radius, cylinder_length, X_WC,
+                                    box_size, X_WB);
+}
+
 
 // A collection of scenarios observed in practice that have created error
 // conditions in previous commits of the code. Each test is a unique instance.
