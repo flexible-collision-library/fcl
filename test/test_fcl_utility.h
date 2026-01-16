@@ -62,7 +62,12 @@
 #include "fcl/narrowphase/continuous_collision_result.h"
 
 #ifdef _WIN32
+#ifndef NOMINMAX
 #define NOMINMAX  // required to avoid compilation errors with Visual Studio 2010
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #else
 #include <sys/time.h>
