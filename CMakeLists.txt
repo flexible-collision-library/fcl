@@ -342,7 +342,7 @@ add_subdirectory(include/fcl)
 
 set(PKG_DESC "Flexible Collision Library")
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 configure_file(fcl.pc.in fcl.pc @ONLY)
 
