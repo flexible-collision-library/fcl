@@ -43,6 +43,8 @@
 
 #include "fcl/math/motion/taylor_model/taylor_model.h"
 
+#include <cassert>
+
 namespace fcl
 {
 

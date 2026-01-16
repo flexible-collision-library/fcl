@@ -42,6 +42,8 @@
 
 #include "fcl/narrowphase/collision.h"
 
+#include <cassert>
+
 namespace fcl
 {
 
