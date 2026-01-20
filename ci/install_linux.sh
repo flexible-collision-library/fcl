@@ -9,7 +9,7 @@ DEFAULT_BUILD = "Release"
 BUILD_ARG="${1:-$DEFAULT_BUILD}"
 git clone https://github.com/OctoMap/octomap
 cd octomap
-git checkout tags/v1.9.4
+git checkout tags/v1.10.0
 mkdir build
 cd build
 cmake .. -DBUILD_OCTOVIS_SUBPROJECT=off -DCMAKE_BUILD_TYPE=$BUILD_ARG
