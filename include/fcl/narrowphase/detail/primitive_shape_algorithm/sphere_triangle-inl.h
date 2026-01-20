@@ -156,7 +156,8 @@ bool sphereTriangleIntersect(const Sphere<S>& s, const Transform3<S>& tf,
   bool is_inside_contact_plane = (distance_from_plane < radius_with_threshold);
 
   bool has_contact = false;
-  Vector3<S> contact_point;
+  Vector3<S> contact_point =
+      Vector3<S>::Constant(std::numeric_limits<S>::quiet_NaN());
   if(is_inside_contact_plane)
   {
     if(projectInTriangle(P1, P2, P3, normal, center))

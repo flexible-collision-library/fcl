@@ -443,10 +443,10 @@ void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t qu
 
   std::vector<CollisionObject<S>*> query;
 
-  BroadPhaseCollisionManager<S>* manager = new NaiveCollisionManager<S>();
+  NaiveCollisionManager<S> manager;
   for(std::size_t i = 0; i < env.size(); ++i)
-    manager->registerObject(env[i]);
-  manager->setup();
+    manager.registerObject(env[i]);
+  manager.setup();
 
   while(1)
   {
@@ -459,7 +459,7 @@ void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t qu
     for(std::size_t i = 0; i < candidates.size(); ++i)
     {
       DefaultCollisionData<S> query_data;
-      manager->collide(candidates[i], &query_data, DefaultCollisionFunction);
+      manager.collide(candidates[i], &query_data, DefaultCollisionFunction);
       if(query_data.result.numContacts() == 0)
         query.push_back(candidates[i]);
       else
@@ -469,8 +469,6 @@ void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t qu
 
     if(query.size() == query_size) break;
   }
-
-  delete manager;
 
   std::vector<BroadPhaseCollisionManager<S>*> managers;
 
