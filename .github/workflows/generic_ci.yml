@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install Prerequisites
-        run: ${{ format('{0}/ci/{1} {2}', github.workspace, inputs.install-name, inputs.build) }}
+        run: ${{ format('{0}/ci/{1}', github.workspace, inputs.install-name) }}
 
       - name: Create Build Directory
         run: mkdir ${{github.workspace}}/build
