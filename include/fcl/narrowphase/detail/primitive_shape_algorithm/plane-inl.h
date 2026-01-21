@@ -645,7 +645,8 @@ bool convexPlaneIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
 {
   Plane<S> new_s2 = transform(s2, tf2);
 
-  Vector3<S> v_min, v_max;
+  Vector3<S> v_min = Vector3<S>::Constant(std::numeric_limits<S>::infinity());
+  Vector3<S> v_max = -v_min;
   S d_min = std::numeric_limits<S>::max(), d_max = -std::numeric_limits<S>::max();
 
   for (const auto& vertex : s1.getVertices())

@@ -504,8 +504,8 @@ bool convexHalfspaceIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
 {
   Halfspace<S> new_s2 = transform(s2, tf2);
 
-  Vector3<S> v;
   S depth = std::numeric_limits<S>::max();
+  Vector3<S> v = Vector3<S>::Constant(std::numeric_limits<S>::infinity());
 
   // Note: There are two issues with this for loop:
   //  1. We are transforming *every* vertex in the convex. That's a waste.
@@ -550,7 +550,8 @@ bool convexHalfspaceIntersect(const Convex<S>& convex_C,
                               std::vector<ContactPoint<S>>* contacts) {
   Halfspace<S> half_space_C = transform(half_space_H, X_FC.inverse() * X_FH);
 
-  Vector3<S> p_CV_deepest;
+  Vector3<S> p_CV_deepest =
+      Vector3<S>::Constant(std::numeric_limits<S>::infinity());
   S min_signed_distance = std::numeric_limits<S>::max();
 
   // TODO: Once we have an efficient "support vector" implementation for Convex

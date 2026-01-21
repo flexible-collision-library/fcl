@@ -262,7 +262,8 @@ int boxBox2(
   // edge-edge. It is unclear why edge-edge contact receives this 5% penalty.
   // Someone should document this.
   const S fudge_factor = S(1.05);
-  Vector3<S> normalC;
+  // Dummy initialization; either it gets initialized below, or we bail out.
+  Vector3<S> normalC = Vector3<S>::Zero();
   S s, s2, l;
   int invert_normal, code;
 

@@ -784,7 +784,7 @@ void QueryWithVaryingWorldFrames(
   auto evaluate_all = [&R_CS, query_eval](
       const std::vector<TestConfiguration<S>>& configs,
       const Transform3<S>& X_FC) {
-    for (const auto config : configs) {
+    for (const auto& config : configs) {
       query_eval(config, X_FC, R_CS, Eps<S>::value());
     }
   };

@@ -106,8 +106,10 @@ void test_Vec_nf_test()
   std::cout << c.transpose() << std::endl;
 
   VectorN<S, 4> upper, lower;
-  for(int i = 0; i < 4; ++i)
+  for(int i = 0; i < 4; ++i) {
     upper[i] = 1;
+    lower[i] = -1;
+  }
 
   VectorN<S, 4> aa = VectorN<S, 4>(1, 2, 1, 2);
   std::cout << aa.transpose() << std::endl;
