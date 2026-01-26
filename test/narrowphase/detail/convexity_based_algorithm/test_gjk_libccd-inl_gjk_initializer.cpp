@@ -109,7 +109,7 @@ GTEST_TEST(GjkLibccdSupportFunction, ConvexSupport) {
   // clang-format on
   const int kNumFaces = 6;
   const bool kThrowIfInvalid = true;
-  const Convex<double> convex_C(move(vertices), kNumFaces, move(faces),
+  const Convex<double> convex_C(std::move(vertices), kNumFaces, std::move(faces),
                                 kThrowIfInvalid);
 
   /* Collection of arbitrary poses of the convex mesh: identity, translation,
