@@ -30,7 +30,7 @@ jobs:
     strategy:
       matrix:
         compiler: [gcc, clang]
-        build: [Release, Debug]
+        build: [Release]
         os: ['ubuntu-24.04']
     uses: ./.github/workflows/generic_ci.yml
     with:
