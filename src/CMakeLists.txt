@@ -106,6 +106,8 @@ if(FCL_HAVE_OCTOMAP)
   # available, otherwise fall back to OCTOMAP_INCLUDE_DIRS and OCTOMAP_LIBRARIES
   if(TARGET octomap)
     target_link_libraries(${PROJECT_NAME} PUBLIC octomap)
+  elseif(TARGET octomap-static)
+    target_link_libraries(${PROJECT_NAME} PUBLIC octomap-static)
   elseif(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARIES)
     target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC "${OCTOMAP_INCLUDE_DIRS}")
     target_link_libraries(${PROJECT_NAME} PUBLIC "${OCTOMAP_LIBRARIES}")
