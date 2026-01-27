@@ -38,6 +38,7 @@ jobs:
       os: ${{ matrix.os }}
       compiler: ${{ matrix.compiler }}
       build: ${{ matrix.build }}
+      compiler_config:
 
   mac:
     strategy:
@@ -51,6 +52,7 @@ jobs:
       os: ${{ matrix.os }}
       compiler: ${{ matrix.compiler }}
       build: ${{ matrix.build }}
+      compiler_config: -std=c++11
 
 # TODO:
 #  - Revisit coveralls.
