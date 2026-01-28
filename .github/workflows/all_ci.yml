@@ -44,7 +44,7 @@ jobs:
       matrix:
         compiler: [clang]
         build: [Release, Debug]
-        os: ['macos-15']
+        os: ['macos-14']
     uses: ./.github/workflows/generic_ci.yml
     with:
       install-name: 'install_osx.sh'
