@@ -47,6 +47,8 @@ else()
   add_library(${PROJECT_NAME} SHARED ${FCL_HEADERS} ${FCL_SOURCE_CODE})
 endif()
 
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 # Be sure to pass to the consumer the set of SIMD used in the compilation
 target_compile_options(${PROJECT_NAME} PUBLIC ${SSE_FLAGS})
 
@@ -118,6 +120,7 @@ target_include_directories(${PROJECT_NAME} INTERFACE
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 export(TARGETS ${PROJECT_NAME}
+  NAMESPACE ${PROJECT_NAME}::
   FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake"
 )
 
@@ -139,6 +142,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 install(EXPORT ${PROJECT_NAME}-targets
+  NAMESPACE ${PROJECT_NAME}::
   DESTINATION ${FCL_INSTALL_CONFIGDIR}
   COMPONENT Development
 )
