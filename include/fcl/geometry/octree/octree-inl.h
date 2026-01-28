@@ -44,6 +44,8 @@
 
 #include "fcl/geometry/shape/utility.h"
 
+#include <cassert>
+
 #if FCL_HAVE_OCTOMAP
 
 namespace fcl

@@ -39,6 +39,8 @@
 
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_cylinder.h"
 
+#include <cassert>
+
 namespace fcl {
 namespace detail {
 

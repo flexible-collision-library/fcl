@@ -39,6 +39,7 @@
 #ifndef FCL_SHAPE_CONVEX_INL_H
 #define FCL_SHAPE_CONVEX_INL_H
 
+#include <cassert>
 #include <iomanip>
 #include <map>
 #include <set>

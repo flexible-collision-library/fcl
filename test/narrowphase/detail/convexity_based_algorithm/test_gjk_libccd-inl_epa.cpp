@@ -42,6 +42,7 @@
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd-inl.h"
 
 #include <array>
+#include <cassert>
 #include <memory>
 
 #include <gtest/gtest.h>
