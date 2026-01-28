@@ -13,7 +13,7 @@ mkdir build
 cd build
 # Note: octomap has some return-type warnings that make AppleClang unhappy.
 cmake \
-  -DCMAKE_COMPILE_WARNING_AS_ERROR=OFF \
+  -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra -Wpedantic -Wno-return-type" \
   -DBUILD_DYNAMICETD3D_SUBPROJECT=off \
   -DBUILD_OCTOVIS_SUBPROJECT=off \
   -DCMAKE_BUILD_TYPE=Release \
