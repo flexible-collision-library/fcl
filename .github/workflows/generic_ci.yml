@@ -15,10 +15,6 @@ on:
       compiler:
         required: true
         type: string
-      compiler_config:
-        required: false
-        type: string
-        default: ''
 
 jobs:
   common-build-and-test:
@@ -42,8 +38,6 @@ jobs:
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ inputs.build }} -DFCL_TREAT_WARNINGS_AS_ERRORS=ON -DFCL_COVERALLS=OFF
 
       - name: Build
-        env:
-          CXXFLAGS: ${{ inputs.compiler_config }}
         run: cmake --build build -j2
 
       - name: Run Tests
