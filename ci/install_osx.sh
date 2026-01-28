@@ -11,7 +11,9 @@ cd octomap
 git checkout tags/v1.10.0
 mkdir build
 cd build
+# Note: octomap has some return-type warnings that make AppleClang unhappy.
 cmake \
+  -DCMAKE_COMPILE_WARNING_AS_ERROR=OFF \
   -DBUILD_DYNAMICETD3D_SUBPROJECT=off \
   -DBUILD_OCTOVIS_SUBPROJECT=off \
   -DCMAKE_BUILD_TYPE=Release \
