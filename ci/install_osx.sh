@@ -3,6 +3,8 @@ brew update > /dev/null
 brew install git
 brew install cmake
 #brew install eigen
+brew tap --force homebrew/core
+brew tap-new homebrew/local
 brew extract --version=3.4.0 eigen homebrew/local
 brew install homebrew/local/eigen@3.4.0
 brew pin eigen@3.4.0
