@@ -38,7 +38,6 @@ jobs:
       os: ${{ matrix.os }}
       compiler: ${{ matrix.compiler }}
       build: ${{ matrix.build }}
-      compiler_config: ''
 
   mac:
     strategy:

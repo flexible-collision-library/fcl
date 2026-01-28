@@ -16,8 +16,9 @@ on:
         required: true
         type: string
       compiler_config:
-        required: true
+        required: false
         type: string
+        default: ''
 
 jobs:
   common-build-and-test:
