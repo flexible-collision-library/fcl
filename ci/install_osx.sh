@@ -6,9 +6,12 @@ brew install eigen
 brew install libccd
 
 # Octomap
-git clone https://github.com/OctoMap/octomap
+# git clone https://github.com/OctoMap/octomap
+# When [] is merged, go back to OctoMap/octomap and the appropriate tag.
+git clone https://github.com/SeanCurtis-TRI/octomap
 cd octomap
-git checkout tags/v1.10.0
+# git checkout tags/v1.10.0
+git checkout PR_correct_warnings
 mkdir build
 cd build
 # Note: octomap has some return-type warnings that make AppleClang unhappy.
