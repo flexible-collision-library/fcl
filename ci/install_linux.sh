@@ -5,9 +5,13 @@ sudo apt-get -qq --yes --force-yes install libeigen3-dev
 sudo apt-get -qq --yes --force-yes install libccd-dev
 
 # Octomap
-git clone https://github.com/OctoMap/octomap
+# Note: Octomap has a number of build defects on macOS. We're trying to push a
+# fix through to the main repo, but while we wait, we'll reference a forked
+# repo with the fixes. We are pulling the same commit here so that linux and
+# mac builds are consistent.
+git clone https://github.com/SeanCurtis-TRI/octomap
 cd octomap
-git checkout tags/v1.10.0
+git checkout PR_correct_warnings
 mkdir build
 cd build
 cmake \
