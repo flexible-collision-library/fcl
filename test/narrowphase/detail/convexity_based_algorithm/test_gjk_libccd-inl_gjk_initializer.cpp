@@ -51,7 +51,6 @@ namespace detail {
 namespace {
 
 using std::make_shared;
-using std::move;
 using std::pair;
 using std::vector;
 
@@ -109,8 +108,8 @@ GTEST_TEST(GjkLibccdSupportFunction, ConvexSupport) {
   // clang-format on
   const int kNumFaces = 6;
   const bool kThrowIfInvalid = true;
-  const Convex<double> convex_C(move(vertices), kNumFaces, move(faces),
-                                kThrowIfInvalid);
+  const Convex<double> convex_C(std::move(vertices), kNumFaces,
+                                std::move(faces), kThrowIfInvalid);
 
   /* Collection of arbitrary poses of the convex mesh: identity, translation,
    and rotation. */
