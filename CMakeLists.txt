@@ -283,7 +283,7 @@ if(FCL_WITH_OCTOMAP)
     endif()
 
     set(FCL_HAVE_OCTOMAP 1)
-    message(STATUS "FCL uses OctoMap")
+    message(STATUS "FCL uses OctoMap ${OCTOMAP_VERSION}")
     set(PKG_EXTERNAL_DEPS "${PKG_EXTERNAL_DEPS} octomap")
   else()
     message(STATUS "FCL does not use OctoMap")

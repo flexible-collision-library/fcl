@@ -11,6 +11,7 @@ git checkout tags/v1.10.0
 mkdir build
 cd build
 cmake \
+  -DBUILD_DYNAMICETD3D_SUBPROJECT=off \
   -DBUILD_OCTOVIS_SUBPROJECT=off \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_POLICY_VERSION_MINIMUM=3.10 \
