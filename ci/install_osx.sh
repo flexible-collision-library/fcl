@@ -2,7 +2,10 @@ brew update > /dev/null
 
 brew install git
 brew install cmake
-brew install eigen
+#brew install eigen
+brew extract --version=3.4.0 eigen homebrew/local
+brew install homebrew/local/eigen@3.4.0
+brew pin eigen@3.4.0
 brew install libccd
 
 # Octomap
