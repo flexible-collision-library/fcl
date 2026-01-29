@@ -38,6 +38,7 @@
 #ifndef FCL_TRAVERSAL_SHAPEBVHCOLLISIONTRAVERSALNODE_H
 #define FCL_TRAVERSAL_SHAPEBVHCOLLISIONTRAVERSALNODE_H
 
+#include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/traversal_node_base.h"
 #include "fcl/geometry/bvh/BVH_model.h"
 
