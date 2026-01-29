@@ -1,5 +1,10 @@
 ## FCL 0
 
+* Breaking changes
+
+  * Macosx is no longer part of CI. [659](https://github.com/flexible-collision-library/fcl/pull/659)
+      * See Issue [661](https://github.com/flexible-collision-library/fcl/issues/661) on how to restore it.
+
 ### FCL 0.7.0 (2021-09-09)
 
 * Breaking changes
