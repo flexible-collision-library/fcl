@@ -3947,27 +3947,27 @@ void test_shapeDistance_conecylinder()
   S dist;
 
   res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
-  EXPECT_TRUE(dist < 0);
+  EXPECT_LT(dist, 0);
   EXPECT_FALSE(res);
 
   res = solver1<S>().shapeDistance(s1, transform, s2, transform, &dist);
-  EXPECT_TRUE(dist < 0);
+  EXPECT_LT(dist, 0);
   EXPECT_FALSE(res);
 
   res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
-  EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
+  EXPECT_NEAR(dist - 0.1, 0, 0.01);
   EXPECT_TRUE(res);
 
   res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
-  EXPECT_TRUE(fabs(dist - 0.1) < 0.02);
+  EXPECT_NEAR(dist - 0.1, 0, 0.02);
   EXPECT_TRUE(res);
 
   res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
-  EXPECT_TRUE(fabs(dist - 30) < 0.01);
+  EXPECT_NEAR(dist - 30, 0, 0.01);
   EXPECT_TRUE(res);
 
   res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
-  EXPECT_TRUE(fabs(dist - 30) < 0.1);
+  EXPECT_NEAR(dist - 30, 0, 0.01);
   EXPECT_TRUE(res);
 }
 
