@@ -1,22 +1,17 @@
+# Note: this file is vestigial until issue 661 is resolved and macos CI builds
+# are restored.
+
 brew update > /dev/null
 
 brew install git
 brew install cmake
-#brew install eigen
-brew tap --force homebrew/core
-brew tap-new homebrew/local
-brew extract --version=3.4.0 eigen homebrew/local
-brew install homebrew/local/eigen@3.4.0
-brew pin eigen@3.4.0
+brew install eigen
 brew install libccd
 
 # Octomap
-# Note: Octomap has a number of build defects on macOS. We're trying to push a
-# fix through to the main repo, but while we wait, we'll reference a forked
-# repo with the fixes.
-git clone https://github.com/SeanCurtis-TRI/octomap
+git clone https://github.com/OctoMap/octomap
 cd octomap
-git checkout PR_correct_warnings
+git checkout tags/v1.10.0
 mkdir build
 cd build
 cmake \
