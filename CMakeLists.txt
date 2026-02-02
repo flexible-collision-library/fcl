@@ -344,7 +344,7 @@ set(PKG_DESC "Flexible Collision Library")
 
 if(WIN32)
 # It's not clear what is necessary to make C++17 and eigen play together nicely
-# on windows. TODO: FIgure this out.
+# on windows. TODO: Figure this out.
 set(CMAKE_CXX_STANDARD 14)
 else()
 set(CMAKE_CXX_STANDARD 17)
