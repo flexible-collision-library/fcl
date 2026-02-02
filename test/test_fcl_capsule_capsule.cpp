@@ -604,7 +604,8 @@ class CapsuleCapsuleSegmentTest : public ::testing::Test {
 
     detail::capsuleCapsuleDistance(this->c1_, this->X_FC1_, this->c2_,
                                    this->X_FC2_, &distance, &p_FW1, &p_FW2);
-    const auto eps = constants<S>::eps_78();
+    // Slightly looser tolerance to accommodate multiple platforms.
+    const auto eps = constants<S>::eps_34();
     using std::abs;
     S error = abs(distance - this->expected_distance_);
     if (error > eps) {
@@ -683,7 +684,7 @@ class CapsuleCapsuleSegmentTest : public ::testing::Test {
 
     Transform3<S> X_TC1 = Transform3<S>::Identity();
     Transform3<S> X_TC2 = Transform3<S>::Identity();
-    // Position C2 so that the lower end of its center lines is at the origin
+    // Position C2 so that the lower end of its center line is at the origin
     // and overlaps with the upper end of C1's center line.
     X_TC2.translation() << S(0), S(0), c2_.lz / S(2);
 

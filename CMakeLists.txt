@@ -283,7 +283,7 @@ if(FCL_WITH_OCTOMAP)
     endif()
 
     set(FCL_HAVE_OCTOMAP 1)
-    message(STATUS "FCL uses OctoMap")
+    message(STATUS "FCL uses OctoMap ${OCTOMAP_VERSION}")
     set(PKG_EXTERNAL_DEPS "${PKG_EXTERNAL_DEPS} octomap")
   else()
     message(STATUS "FCL does not use OctoMap")
@@ -342,7 +342,13 @@ add_subdirectory(include/fcl)
 
 set(PKG_DESC "Flexible Collision Library")
 
+if(WIN32)
+# It's not clear what is necessary to make C++17 and eigen play together nicely
+# on windows. TODO: Figure this out.
 set(CMAKE_CXX_STANDARD 14)
+else()
+set(CMAKE_CXX_STANDARD 17)
+endif()
 
 configure_file(fcl.pc.in fcl.pc @ONLY)
 

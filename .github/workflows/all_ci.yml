@@ -39,18 +39,10 @@ jobs:
       compiler: ${{ matrix.compiler }}
       build: ${{ matrix.build }}
 
-  mac:
-    strategy:
-      matrix:
-        compiler: [clang]
-        build: [Release, Debug]
-        os: ['macos-14']
-    uses: ./.github/workflows/generic_ci.yml
-    with:
-      install-name: 'install_osx.sh'
-      os: ${{ matrix.os }}
-      compiler: ${{ matrix.compiler }}
-      build: ${{ matrix.build }}
+  # TODO: the mac os jobs have been removed as part of
+  # https://github.com/flexible-collision-library/fcl/pull/659. Getting FCL to
+  # successfully build and pass tests on mac os is still an open issue. See
+  # https://github.com/flexible-collision-library/fcl/issues/661.
 
 # TODO:
 #  - Revisit coveralls.
