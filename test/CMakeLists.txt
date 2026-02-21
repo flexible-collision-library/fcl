@@ -55,6 +55,7 @@ set(tests
     test_fcl_sphere_capsule.cpp
     test_fcl_sphere_cylinder.cpp
     test_fcl_sphere_sphere.cpp
+    test_fcl_convexhull_convexhull.cpp
 )
 
 if (FCL_HAVE_OCTOMAP)
