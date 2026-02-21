@@ -57,9 +57,9 @@ class FCL_EXPORT MeshConservativeAdvancementTraversalNodeRSS<double>;
 extern template
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<double>& node,
-    const BVHModel<RSS<double>>& model1,
+    BVHModel<RSS<double>>& model1,
     const Transform3<double>& tf1,
-    const BVHModel<RSS<double>>& model2,
+    BVHModel<RSS<double>>& model2,
     const Transform3<double>& tf2,
     double w);
 
@@ -71,9 +71,9 @@ class FCL_EXPORT MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 extern template
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<double>& node,
-    const BVHModel<OBBRSS<double>>& model1,
+    BVHModel<OBBRSS<double>>& model1,
     const Transform3<double>& tf1,
-    const BVHModel<OBBRSS<double>>& model2,
+    BVHModel<OBBRSS<double>>& model2,
     const Transform3<double>& tf2,
     double w);
 
@@ -776,9 +776,9 @@ bool setupMeshConservativeAdvancementOrientedDistanceNode(
 template <typename S>
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<S>& node,
-    const BVHModel<RSS<S>>& model1,
+    BVHModel<RSS<S>>& model1,
     const Transform3<S>& tf1,
-    const BVHModel<RSS<S>>& model2,
+    BVHModel<RSS<S>>& model2,
     const Transform3<S>& tf2,
     S w)
 {
@@ -790,9 +790,9 @@ bool initialize(
 template <typename S>
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<S>& node,
-    const BVHModel<OBBRSS<S>>& model1,
+    BVHModel<OBBRSS<S>>& model1,
     const Transform3<S>& tf1,
-    const BVHModel<OBBRSS<S>>& model2,
+    BVHModel<OBBRSS<S>>& model2,
     const Transform3<S>& tf2,
     S w)
 {
