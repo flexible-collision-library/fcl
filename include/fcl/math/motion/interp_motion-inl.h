@@ -67,7 +67,8 @@ InterpMotion<S>::InterpMotion(
     const Matrix3<S>& R2, const Vector3<S>& T2)
   : MotionBase<S>(),
     tf1(Transform3<S>::Identity()),
-    tf2(Transform3<S>::Identity())
+    tf2(Transform3<S>::Identity()),
+    reference_p(Vector3<S>::Zero())
 {
   tf1.linear() = R1;
   tf1.translation() = T1;
@@ -85,7 +86,8 @@ InterpMotion<S>::InterpMotion(
 template <typename S>
 InterpMotion<S>::InterpMotion(
     const Transform3<S>& tf1_, const Transform3<S>& tf2_)
-  : MotionBase<S>(), tf1(tf1_), tf2(tf2_), tf(tf1)
+  : MotionBase<S>(), tf1(tf1_), tf2(tf2_), tf(tf1),
+    reference_p(Vector3<S>::Zero())
 {
   // Compute the velocities for the motion
   computeVelocity();
