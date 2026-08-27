@@ -120,14 +120,36 @@ void CollisionObject<S>::computeAABB()
   if(t.linear().isIdentity())
   {
     aabb = translate(cgeom->aabb_local, t.translation());
+    return;
   }
-  else
+
+  const Vector3<S> center = t * cgeom->aabb_center;
+
+  // Bound the rotated local AABB. Rotating a box with half-widths h by R and
+  // taking the axis-aligned bound of the result gives half-widths |R| h. This
+  // is the center/extent form of Arvo's method for bounding a transformed box
+  // (Graphics Gems, 1990); see Ericson, Real-Time Collision Detection,
+  // section 4.2.6.
+  const Vector3<S> h_local =
+      (cgeom->aabb_local.max_ - cgeom->aabb_local.min_) * S(0.5);
+  const Vector3<S> delta = t.linear().cwiseAbs() * h_local;
+  // Only delta can go non-finite: h_local subtracts two extents that may both
+  // sit at the scalar type's limit, which overflows. center transforms a single
+  // stored value, and the bound below transforms that same value, so testing it
+  // would not change which bound a geometry gets.
+  if(delta.allFinite())
   {
-    Vector3<S> center = t * cgeom->aabb_center;
-    Vector3<S> delta = Vector3<S>::Constant(cgeom->aabb_radius);
     aabb.min_ = center - delta;
     aabb.max_ = center + delta;
+    return;
   }
+
+  // Half spaces and planes report an unbounded local AABB as extents at the
+  // limits of the scalar type, which overflow the half-width above.
+  // Use a sphere-based bound instead.
+  const Vector3<S> sphere_delta = Vector3<S>::Constant(cgeom->aabb_radius);
+  aabb.min_ = center - sphere_delta;
+  aabb.max_ = center + sphere_delta;
 }
 
 //==============================================================================
