@@ -334,129 +334,149 @@ void SaPCollisionManager<S>::update_(SaPAABB* updated_aabb)
 
   for(int coord = 0; coord < 3; ++coord)
   {
-    int direction; // -1 reverse, 0 nochange, 1 forward
     EndPoint* temp;
 
+    // Each endpoint finds its own place. A transform that changes the
+    // interval's width moves "lo" and "hi" in opposite directions, so a single
+    // direction taken from "lo" would splice "hi" against itself and break the
+    // list. When the width does not change the two directions agree, which is
+    // the only case this function used to see.
+    int lo_direction; // -1 reverse, 0 nochange, 1 forward
     if(current->lo->getVal(coord) > new_min[coord])
-      direction = -1;
+      lo_direction = -1;
     else if(current->lo->getVal(coord) < new_min[coord])
-      direction = 1;
-    else direction = 0;
+      lo_direction = 1;
+    else lo_direction = 0;
 
-    if(direction == -1)
+    int hi_direction; // -1 reverse, 0 nochange, 1 forward
+    if(current->hi->getVal(coord) > new_max[coord])
+      hi_direction = -1;
+    else if(current->hi->getVal(coord) < new_max[coord])
+      hi_direction = 1;
+    else hi_direction = 0;
+
+    // The endpoint travelling right moves first, so "lo" stays behind "hi" in
+    // the list at every intermediate step.
+    if(hi_direction == 1)
     {
-      //first update the "lo" endpoint of the interval
-      if(current->lo->prev[coord] != nullptr)
-      {
-        temp = current->lo;
-        while((temp != nullptr) && (temp->getVal(coord) > new_min[coord]))
+        //here, we first update the "hi" endpoint.
+        if(current->hi->next[coord] != nullptr)
         {
-          if(temp->minmax == 1)
-            if(temp->aabb->cached.overlap(dummy.cached))
-              addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
-          temp = temp->prev[coord];
+          temp = current->hi;
+          while((temp->next[coord] != nullptr) && (temp->getVal(coord) < new_max[coord]))
+          {
+            if(temp->minmax == 0)
+              if(temp->aabb->cached.overlap(dummy.cached))
+                addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+            temp = temp->next[coord];
+          }
+
+          if(temp->getVal(coord) < new_max[coord])
+          {
+            current->hi->prev[coord]->next[coord] = current->hi->next[coord];
+            current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
+            current->hi->prev[coord] = temp;
+            current->hi->next[coord] = nullptr;
+            temp->next[coord] = current->hi;
+          }
+          else
+          {
+            current->hi->prev[coord]->next[coord] = current->hi->next[coord];
+            current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
+            current->hi->prev[coord] = temp->prev[coord];
+            current->hi->next[coord] = temp;
+            temp->prev[coord]->next[coord] = current->hi;
+            temp->prev[coord] = current->hi;
+          }
         }
 
-        if(temp == nullptr)
-        {
-          current->lo->prev[coord]->next[coord] = current->lo->next[coord];
-          current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
-          current->lo->prev[coord] = nullptr;
-          current->lo->next[coord] = elist[coord];
-          elist[coord]->prev[coord] = current->lo;
-          elist[coord] = current->lo;
-        }
-        else
-        {
-          current->lo->prev[coord]->next[coord] = current->lo->next[coord];
-          current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
-          current->lo->prev[coord] = temp;
-          current->lo->next[coord] = temp->next[coord];
-          temp->next[coord]->prev[coord] = current->lo;
-          temp->next[coord] = current->lo;
-        }
-      }
-
-      current->lo->getVal(coord) = new_min[coord];
-
-      // update hi end point
-      temp = current->hi;
-      while(temp->getVal(coord) > new_max[coord])
-      {
-        if((temp->minmax == 0) && (temp->aabb->cached.overlap(current->cached)))
-          removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
-        temp = temp->prev[coord];
-      }
-
-      current->hi->prev[coord]->next[coord] = current->hi->next[coord];
-      if(current->hi->next[coord] != nullptr)
-        current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
-      current->hi->prev[coord] = temp;
-      current->hi->next[coord] = temp->next[coord];
-      if(temp->next[coord] != nullptr)
-        temp->next[coord]->prev[coord] = current->hi;
-      temp->next[coord] = current->hi;
-
-      current->hi->getVal(coord) = new_max[coord];
+        current->hi->getVal(coord) = new_max[coord];
     }
-    else if(direction == 1)
+
+    if(lo_direction == -1)
     {
-      //here, we first update the "hi" endpoint.
-      if(current->hi->next[coord] != nullptr)
-      {
-        temp = current->hi;
-        while((temp->next[coord] != nullptr) && (temp->getVal(coord) < new_max[coord]))
+        //first update the "lo" endpoint of the interval
+        if(current->lo->prev[coord] != nullptr)
         {
-          if(temp->minmax == 0)
-            if(temp->aabb->cached.overlap(dummy.cached))
-              addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+          temp = current->lo;
+          while((temp != nullptr) && (temp->getVal(coord) > new_min[coord]))
+          {
+            if(temp->minmax == 1)
+              if(temp->aabb->cached.overlap(dummy.cached))
+                addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+            temp = temp->prev[coord];
+          }
+
+          if(temp == nullptr)
+          {
+            current->lo->prev[coord]->next[coord] = current->lo->next[coord];
+            current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
+            current->lo->prev[coord] = nullptr;
+            current->lo->next[coord] = elist[coord];
+            elist[coord]->prev[coord] = current->lo;
+            elist[coord] = current->lo;
+          }
+          else
+          {
+            current->lo->prev[coord]->next[coord] = current->lo->next[coord];
+            current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
+            current->lo->prev[coord] = temp;
+            current->lo->next[coord] = temp->next[coord];
+            temp->next[coord]->prev[coord] = current->lo;
+            temp->next[coord] = current->lo;
+          }
+        }
+
+        current->lo->getVal(coord) = new_min[coord];
+    }
+    else if(lo_direction == 1)
+    {
+        //then, update the "lo" endpoint of the interval.
+        temp = current->lo;
+
+        while(temp->getVal(coord) < new_min[coord])
+        {
+          if((temp->minmax == 1) && (temp->aabb->cached.overlap(current->cached)))
+            removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
           temp = temp->next[coord];
         }
 
-        if(temp->getVal(coord) < new_max[coord])
-        {
-          current->hi->prev[coord]->next[coord] = current->hi->next[coord];
-          current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
-          current->hi->prev[coord] = temp;
-          current->hi->next[coord] = nullptr;
-          temp->next[coord] = current->hi;
-        }
+        if(current->lo->prev[coord] != nullptr)
+          current->lo->prev[coord]->next[coord] = current->lo->next[coord];
         else
+          elist[coord] = current->lo->next[coord];
+        current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
+        current->lo->prev[coord] = temp->prev[coord];
+        current->lo->next[coord] = temp;
+        if(temp->prev[coord] != nullptr)
+          temp->prev[coord]->next[coord] = current->lo;
+        else
+          elist[coord] = current->lo;
+        temp->prev[coord] = current->lo;
+        current->lo->getVal(coord) = new_min[coord];
+    }
+
+    if(hi_direction == -1)
+    {
+        // update hi end point
+        temp = current->hi;
+        while(temp->getVal(coord) > new_max[coord])
         {
-          current->hi->prev[coord]->next[coord] = current->hi->next[coord];
-          current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
-          current->hi->prev[coord] = temp->prev[coord];
-          current->hi->next[coord] = temp;
-          temp->prev[coord]->next[coord] = current->hi;
-          temp->prev[coord] = current->hi;
+          if((temp->minmax == 0) && (temp->aabb->cached.overlap(current->cached)))
+            removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+          temp = temp->prev[coord];
         }
-      }
 
-      current->hi->getVal(coord) = new_max[coord];
+        current->hi->prev[coord]->next[coord] = current->hi->next[coord];
+        if(current->hi->next[coord] != nullptr)
+          current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
+        current->hi->prev[coord] = temp;
+        current->hi->next[coord] = temp->next[coord];
+        if(temp->next[coord] != nullptr)
+          temp->next[coord]->prev[coord] = current->hi;
+        temp->next[coord] = current->hi;
 
-      //then, update the "lo" endpoint of the interval.
-      temp = current->lo;
-
-      while(temp->getVal(coord) < new_min[coord])
-      {
-        if((temp->minmax == 1) && (temp->aabb->cached.overlap(current->cached)))
-          removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
-        temp = temp->next[coord];
-      }
-
-      if(current->lo->prev[coord] != nullptr)
-        current->lo->prev[coord]->next[coord] = current->lo->next[coord];
-      else
-        elist[coord] = current->lo->next[coord];
-      current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
-      current->lo->prev[coord] = temp->prev[coord];
-      current->lo->next[coord] = temp;
-      if(temp->prev[coord] != nullptr)
-        temp->prev[coord]->next[coord] = current->lo;
-      else
-        elist[coord] = current->lo;
-      temp->prev[coord] = current->lo;
-      current->lo->getVal(coord) = new_min[coord];
+        current->hi->getVal(coord) = new_max[coord];
     }
   }
 }
