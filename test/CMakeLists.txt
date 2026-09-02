@@ -70,7 +70,8 @@ macro(add_fcl_test test_file_name)
   get_filename_component(test_name ${ARGV} NAME_WE)
   add_executable(${test_name} ${ARGV})
   target_link_libraries(${test_name} fcl test_fcl_utility GTest::gtest_main)
-  gtest_discover_tests(${test_name})
+  gtest_discover_tests(${test_name} DISCOVERY_TIMEOUT 20)
+  # Note: gtest_discovery defaults to five seconds which occasionally times out.
 endmacro(add_fcl_test)
 
 # configure location of resources
