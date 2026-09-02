@@ -337,7 +337,7 @@ void SaPCollisionManager<S>::updateEndPoint(
       adding_overlap ? object_aabb : endpoint->aabb->cached;
   // Pick the appropriate action based on endpoint motion: add or remove
   // overlapping pairs.
-  const OverlapPairAction overlap_pair_action =
+  const auto overlap_pair_action =
       adding_overlap ? &SaPCollisionManager<S>::addToOverlapPairs
                      : &SaPCollisionManager<S>::removeFromOverlapPairs;
 
@@ -842,49 +842,49 @@ size_t SaPCollisionManager<S>::size() const
 
 //==============================================================================
 template <typename S>
-void SaPCollisionManager<S>::EndPoint::removeFromList(size_t i,
+void SaPCollisionManager<S>::EndPoint::removeFromList(size_t coord,
                                                       EndPoint*& head)
 {
-  if(prev[i] != nullptr)
-    prev[i]->next[i] = next[i];
+  if(prev[coord] != nullptr)
+    prev[coord]->next[coord] = next[coord];
   else
-    head = next[i];
+    head = next[coord];
 
-  if(next[i] != nullptr)
-    next[i]->prev[i] = prev[i];
+  if(next[coord] != nullptr)
+    next[coord]->prev[coord] = prev[coord];
 
-  prev[i] = nullptr;
-  next[i] = nullptr;
+  prev[coord] = nullptr;
+  next[coord] = nullptr;
 }
 
 //==============================================================================
 template <typename S>
 void SaPCollisionManager<S>::EndPoint::insertBefore(EndPoint* other,
-                                                    size_t i,
+                                                    size_t coord,
                                                     EndPoint*& head)
 {
-  prev[i] = other->prev[i];
-  next[i] = other;
+  prev[coord] = other->prev[coord];
+  next[coord] = other;
 
-  if(prev[i] != nullptr)
-    prev[i]->next[i] = this;
+  if(prev[coord] != nullptr)
+    prev[coord]->next[coord] = this;
   else
     head = this;
 
-  other->prev[i] = this;
+  other->prev[coord] = this;
 }
 
 //==============================================================================
 template <typename S>
-void SaPCollisionManager<S>::EndPoint::insertAfter(EndPoint* other, size_t i)
+void SaPCollisionManager<S>::EndPoint::insertAfter(EndPoint* other, size_t coord)
 {
-  prev[i] = other;
-  next[i] = other->next[i];
+  prev[coord] = other;
+  next[coord] = other->next[coord];
 
-  if(next[i] != nullptr)
-    next[i]->prev[i] = this;
+  if(next[coord] != nullptr)
+    next[coord]->prev[coord] = this;
 
-  other->next[i] = this;
+  other->next[coord] = this;
 }
 
 //==============================================================================

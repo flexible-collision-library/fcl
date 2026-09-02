@@ -124,10 +124,6 @@ protected:
   /// @brief Functor to help remove collision pairs no longer valid (i.e., should be culled away)
   class FCL_EXPORT isNotValidPair;
 
-  // Callback for updateEndPoint() -- should be one of addToOverlapPairs() or
-  // removeFromOverlapPairs().
-  using OverlapPairAction = void (SaPCollisionManager::*)(const SaPPair&);
-
   // Updates an endpoint to match its collision object's current AABB. This
   // method will:
   //
@@ -209,16 +205,16 @@ struct SaPCollisionManager<S>::EndPoint
   EndPoint* next[3];
 
   /// @brief Remove this end point from an axis's linked list.
-  /// @param i         The axis index along which this end point is moving.
+  /// @param coord     The axis index along which this end point is moving.
   /// @param head[out] The *current* head of the axi's linked list (will mutate
   ///                  if `this` is the current head).
-  void removeFromList(size_t i, EndPoint*& head);
+  void removeFromList(size_t coord, EndPoint*& head);
 
   /// @brief Insert this detached end point immediately before @p other.
-  void insertBefore(EndPoint* other, size_t i, EndPoint*& head);
+  void insertBefore(EndPoint* other, size_t coord, EndPoint*& head);
 
   /// @brief Insert this detached end point immediately after @p other.
-  void insertAfter(EndPoint* other, size_t i);
+  void insertAfter(EndPoint* other, size_t coord);
 
   /// @brief get the value of the end point
   const Vector3<S>& getVal() const;
