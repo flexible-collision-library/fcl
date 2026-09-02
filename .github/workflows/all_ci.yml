@@ -28,6 +28,8 @@ jobs:
   # naming is required.
   ubuntu:
     strategy:
+      # Too many flakes prevent us from getting *any* CI feedback.
+      fail-fast: false
       matrix:
         compiler: [gcc, clang]
         build: [Release, Debug]

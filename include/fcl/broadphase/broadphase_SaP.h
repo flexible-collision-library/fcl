@@ -124,7 +124,22 @@ protected:
   /// @brief Functor to help remove collision pairs no longer valid (i.e., should be culled away)
   class FCL_EXPORT isNotValidPair;
 
-  void update_(SaPAABB* updated_aabb);
+  // Updates an endpoint to match its collision object's current AABB. This
+  // method will:
+  //
+  //   1. Update the endpoint's value (to new_value).
+  //   2. Update the endpoint's position in the sorted list of endpoints.
+  //   3. Update the overlap pairs as necessary (possibly adding, possibly
+  //      removing).
+  // @param[out] endpoint  The EndPoint to update.
+  // @param direction      The direction of movement: -1, 0, or 1.
+  // @param coord          The axis along which the endpoint is moving.
+  // @param new_value      The endpoint's new value.
+  // @param object_aabb    The collision object's updated AABB.
+  void updateEndPoint(EndPoint* endpoint, int direction, size_t coord,
+                      const S& new_value, const AABB<S>& object_aabb);
+
+  void update_(SaPAABB* updated_sap_aabb);
 
   void updateVelist();
 
@@ -189,6 +204,18 @@ struct SaPCollisionManager<S>::EndPoint
   /// @brief the next end point in the end point list
   EndPoint* next[3];
 
+  /// @brief Remove this end point from an axis's linked list.
+  /// @param coord     The axis index along which this end point is moving.
+  /// @param head[out] The *current* head of the axi's linked list (will mutate
+  ///                  if `this` is the current head).
+  void removeFromList(size_t coord, EndPoint*& head);
+
+  /// @brief Insert this detached end point immediately before @p other.
+  void insertBefore(EndPoint* other, size_t coord, EndPoint*& head);
+
+  /// @brief Insert this detached end point immediately after @p other.
+  void insertAfter(EndPoint* other, size_t coord);
+
   /// @brief get the value of the end point
   const Vector3<S>& getVal() const;
 
@@ -198,6 +225,12 @@ struct SaPCollisionManager<S>::EndPoint
   S getVal(size_t i) const;
 
   S& getVal(size_t i);
+
+  // Compares new_value with getValue(i).
+  // Returns -1 if new_value < getValue(i).
+  // Returns 0 if new_value == getValue(i).
+  // Returns 1 if new_value > getValue(i).
+  int compareValue(size_t i, const S& new_value) const;
 
 };
 
