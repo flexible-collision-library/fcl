@@ -87,24 +87,30 @@ PairSet FindOverlappingPairs(
 }
 
 // SaP tracks each object as an interval per axis and splices the interval's
-// endpoints into sorted lists as objects move. CollisionObject uses a tight
-// local AABB at the identity orientation and a conservative, radius-sized AABB
-// at any non-identity orientation. Moving between those two representations
-// exercises all four endpoint directions on every axis.
+// endpoints into sorted lists as objects move. Rotating an object can change
+// the AABB SaP uses to define its intervals. Below, we consider the intervals
+// for a box in identity rotation and an adversarial rotation that will cause
+// the AABB to expand different amounts in each axis.
 GTEST_TEST(BroadPhaseSaP, UpdateWithChangingExtents) {
-  // The unequal dimensions make the identity AABB strictly smaller than the
-  // conservative rotated AABB on every axis. Also, the box has the obnoxious
-  // AABB computation for non-identity orientations (see below).
-  auto shape = std::make_shared<Box<double>>(20.0, 1.0, 1.0);
+  // A 60-degree rotation about (1, 1, 1) grows this box's AABB half-extents
+  // from (2, 3/2, 1) to (5/2, 8/3, 7/3). The distinct growth on each axis
+  // makes it possible for this test to detect accidental coupling of axes.
+  auto shape = std::make_shared<Box<double>>(4.0, 3.0, 2.0);
 
   std::vector<std::unique_ptr<CollisionObject<double>>> objects;
   std::vector<CollisionObject<double>*> raw;
-  // Note: 7 is an arbitrary number of overlapping boxes. With a separation of
-  // 3 meters and a length of 20 meters (along the x-axis), we guarantee that
-  // the first and last boxes will not be overlapping.
-  for (int i = 0; i < 7; ++i) {
+  // Each non-origin box is initially separated from the origin box along one
+  // distinct axis. Rotation grows the corresponding extent enough to create
+  // an overlap. Thus, each axis independently affects an observable pair.
+  const Vector3<double> translations[] = {
+      {0.0, 0.0, 0.0},
+      {4.5, 0.0, 0.0},
+      {0.0, 4.0, 0.0},
+      {0.0, 0.0, 3.0},
+  };
+  for (const Vector3<double>& translation : translations) {
     Transform3<double> X_WB = Transform3<double>::Identity();
-    X_WB.translation() = Vector3<double>(3.0 * i, 0.5 * i, 0.0);
+    X_WB.translation() = translation;
     objects.push_back(
         std::make_unique<CollisionObject<double>>(shape, X_WB));
     raw.push_back(objects.back().get());
@@ -117,29 +123,40 @@ GTEST_TEST(BroadPhaseSaP, UpdateWithChangingExtents) {
   sap.setup();
   reference.setup();
   const PairSet reference_set = FindOverlappingPairs(&reference, raw);
-  EXPECT_GT(reference_set.size(), 0);
+  EXPECT_TRUE(reference_set.empty());
   EXPECT_EQ(FindOverlappingPairs(&sap, raw), reference_set);
 
-  // Test the cases where internal endpoints *expand*. Any non-identity
-  // orientation selects the conservative AABB (the bounding box of the bounding
-  // sphere of the geometry-local bounding box of the box); we'll use a
-  // 45-degree rotation to make it as bad as possible (even if the upstream
-  // representation of Box AABB eventually changes). From the original
-  // identity orientation, all boxes should get bigger.
+  // Test the cases where internal endpoints *expand*. From the original
+  // identity orientation, all boxes should get bigger on every axis.
   for (std::size_t i = 0; i < raw.size(); ++i) {
     const AABB<double> identity_aabb = raw[i]->getAABB();
-    raw[i]->setRotation(AngleAxis<double>(M_PI / 4, Vector3<double>::UnitZ())
-                            .toRotationMatrix());
+    const Vector3<double> identity_size =
+        identity_aabb.max_ - identity_aabb.min_;
+    raw[i]->setRotation(
+        AngleAxis<double>(M_PI / 3,
+                          Vector3<double>(1.0, 1.0, 1.0).normalized())
+            .toRotationMatrix());
     raw[i]->computeAABB();
+    const Vector3<double> rotated_size =
+        raw[i]->getAABB().max_ - raw[i]->getAABB().min_;
+    // Show expansion of the AABB.
     for (int axis = 0; axis < 3; ++axis) {
       EXPECT_LT(raw[i]->getAABB().min_[axis], identity_aabb.min_[axis]);
       EXPECT_GT(raw[i]->getAABB().max_[axis], identity_aabb.max_[axis]);
     }
+    // Show that the interval sizes are still unique along each axis.
+    EXPECT_LT(rotated_size[0] - identity_size[0],
+              rotated_size[1] - identity_size[1]);
+    EXPECT_LT(rotated_size[1] - identity_size[1],
+              rotated_size[2] - identity_size[2]);
   }
   sap.update();
   reference.update();
-  PairSet expanded_set = FindOverlappingPairs(&reference, raw);
-  EXPECT_GT(expanded_set.size(), reference_set.size());
+  const PairSet expanded_set = FindOverlappingPairs(&reference, raw);
+  const PairSet expected_expanded_set = {
+      {0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3},
+  };
+  EXPECT_EQ(expanded_set, expected_expanded_set);
   EXPECT_EQ(FindOverlappingPairs(&sap, raw), expanded_set) << "expand";
 
   // Test the case where the endpoints *contract*. Returning to identity
