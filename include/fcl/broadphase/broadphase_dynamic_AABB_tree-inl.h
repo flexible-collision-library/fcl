@@ -904,6 +904,9 @@ void DynamicAABBTreeCollisionManager<S>::collide(CollisionObject<S>* obj, void* 
       if(!octree_as_geometry_collide)
       {
         const OcTree<S>* octree = static_cast<const OcTree<S>*>(obj->collisionGeometry().get());
+
+        if (!dtree.getRoot()->bv.overlap(octree->getOccupiedMetricBV())) return;
+
         detail::dynamic_AABB_tree::collisionRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback);
       }
       else
