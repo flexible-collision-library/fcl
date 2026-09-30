@@ -238,8 +238,6 @@ void test_Sphere_Capsule_Distance_test_separated()
   Transform3<S> capsule_transform(Translation3<S>(Vector3<S>(0., 0., 175)));
 
   S distance = 0.;
-  Vector3<S> p1;
-  Vector3<S> p2;
   bool is_separated = solver.shapeDistance(sphere1, sphere1_transform, capsule, capsule_transform, &distance);
 
   EXPECT_TRUE (is_separated);
