@@ -41,6 +41,7 @@
 #include "fcl/narrowphase/detail/traversal/distance/shape_mesh_distance_traversal_node.h"
 
 #include "fcl/common/unused.h"
+#include "fcl/narrowphase/detail/traversal/distance/mesh_shape_distance_traversal_node.h"
 
 namespace fcl
 {

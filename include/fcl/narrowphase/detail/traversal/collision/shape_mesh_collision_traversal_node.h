@@ -39,6 +39,7 @@
 #define FCL_TRAVERSAL_SHAPEMESHCOLLISIONTRAVERSALNODE_H
 
 #include "fcl/geometry/shape/utility.h"
+#include "fcl/narrowphase/collision_request.h"
 #include "fcl/narrowphase/detail/traversal/collision/shape_bvh_collision_traversal_node.h"
 
 namespace fcl
