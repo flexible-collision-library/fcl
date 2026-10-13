@@ -44,6 +44,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include "fcl/common/unused.h"
 #include "fcl/common/warning.h"
@@ -1549,7 +1550,21 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   // edges to a new edge, with one end being the new vertex, and the other end
   // being that vertex on the silhouette edges.
   std::unordered_map<ccd_pt_vertex_t*, ccd_pt_edge_t*> map_vertex_to_new_edge;
-  for (const auto& border_edge : border_edges) {
+  // The new edges and faces are appended to the polytope's lists in the order
+  // the border edges are visited, and later queries (e.g., the nearest face,
+  // whose near-ties libccd breaks by list order) depend on that order. Iterating
+  // border_edges directly would visit them in pointer-hash order, which depends
+  // on where the heap placed them, making the result vary from run to run. So
+  // visit them in the polytope's own edge-list order, which is deterministic.
+  std::vector<ccd_pt_edge_t*> ordered_border_edges;
+  ordered_border_edges.reserve(border_edges.size());
+  {
+    ccd_pt_edge_t* edge;
+    ccdListForEachEntry(&polytope->edges, edge, ccd_pt_edge_t, list) {
+      if (border_edges.count(edge) > 0) ordered_border_edges.push_back(edge);
+    }
+  }
+  for (ccd_pt_edge_t* border_edge : ordered_border_edges) {
     ccd_pt_edge_t* e[2];  // The two new edges added by connecting new_vertex
                           // to the two vertices on border_edge.
     for (int i = 0; i < 2; ++i) {
