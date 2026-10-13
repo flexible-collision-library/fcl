@@ -1319,7 +1319,7 @@ static void ComputeVisiblePatchRecursive(
     std::unordered_set<ccd_pt_face_t*>* visible_faces,
     std::unordered_set<ccd_pt_face_t*>* hidden_faces,
     std::unordered_set<ccd_pt_edge_t*>* internal_edges,
-    std::vector<ccd_pt_edge_t*>* border_edge_order) {
+    std::vector<ccd_pt_edge_t*>* border_edge_order = nullptr) {
   ccd_pt_edge_t* edge = f.edge[edge_index];
 
   ccd_pt_face_t* g = edge->faces[0] == &f ? edge->faces[1] : edge->faces[0];
