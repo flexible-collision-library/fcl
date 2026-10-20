@@ -1261,15 +1261,16 @@ static bool ComputeVisiblePatchRecursiveSanityCheck(
  @param edge              The edge to classify.
  @param border_edges      The set of edges already classified as border.
  @param internal_edges    The set of edges already classified as internal.
- @param border_edge_order If not null, `edge` is appended to it the first time
-                          it is classified as border.
+ @param border_edge_order The border edges in the order they were classified;
+                          `edge` is appended to it the first time it is
+                          classified as border.
  @throws ThrowFailedAtThisConfiguration if the edge is being re-classified.
  */
 static void ClassifyBorderEdge(ccd_pt_edge_t* edge,
                         std::unordered_set<ccd_pt_edge_t*>* border_edges,
                         std::unordered_set<ccd_pt_edge_t*>* internal_edges,
                         std::vector<ccd_pt_edge_t*>* border_edge_order) {
-  if (border_edges->insert(edge).second && border_edge_order != nullptr) {
+  if (border_edges->insert(edge).second) {
     border_edge_order->push_back(edge);
   }
   if (internal_edges->count(edge) > 0) {
@@ -1319,7 +1320,7 @@ static void ComputeVisiblePatchRecursive(
     std::unordered_set<ccd_pt_face_t*>* visible_faces,
     std::unordered_set<ccd_pt_face_t*>* hidden_faces,
     std::unordered_set<ccd_pt_edge_t*>* internal_edges,
-    std::vector<ccd_pt_edge_t*>* border_edge_order = nullptr) {
+    std::vector<ccd_pt_edge_t*>* border_edge_order) {
   ccd_pt_edge_t* edge = f.edge[edge_index];
 
   ccd_pt_face_t* g = edge->faces[0] == &f ? edge->faces[1] : edge->faces[0];
@@ -1404,8 +1405,8 @@ static void ComputeVisiblePatchRecursive(
  * @param[out] border_edges    The collection of patch border edges.
  * @param[out] visible_faces   The collection of patch faces.
  * @param[out] internal_edges  The collection of internal edges.
- * @param[out] border_edge_order  If not null, the border edges in the
- *                                (deterministic) order they were found.
+ * @param[out] border_edge_order  The border edges in the (deterministic) order
+ *                                they were found.
  * @throws UnexpectedConfigurationException in debug builds if the resulting
  * patch is not consistent.
  *
@@ -1424,13 +1425,15 @@ static void ComputeVisiblePatch(
     std::unordered_set<ccd_pt_edge_t*>* border_edges,
     std::unordered_set<ccd_pt_face_t*>* visible_faces,
     std::unordered_set<ccd_pt_edge_t*>* internal_edges,
-    std::vector<ccd_pt_edge_t*>* border_edge_order = nullptr) {
+    std::vector<ccd_pt_edge_t*>* border_edge_order) {
   assert(border_edges);
   assert(visible_faces);
   assert(internal_edges);
+  assert(border_edge_order);
   assert(border_edges->empty());
   assert(visible_faces->empty());
   assert(internal_edges->empty());
+  assert(border_edge_order->empty());
   assert(isOutsidePolytopeFace(&polytope, &f, &query_point));
   std::unordered_set<ccd_pt_face_t*> hidden_faces;
   visible_faces->insert(&f);
