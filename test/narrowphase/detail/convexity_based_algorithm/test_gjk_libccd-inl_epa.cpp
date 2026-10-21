@@ -43,6 +43,8 @@
 
 #include <array>
 #include <memory>
+#include <unordered_set>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -560,6 +562,7 @@ void CheckComputeVisiblePatchCommon(
     const std::unordered_set<ccd_pt_edge_t*>& border_edges,
     const std::unordered_set<ccd_pt_face_t*>& visible_faces,
     const std::unordered_set<ccd_pt_edge_t*>& internal_edges,
+    const std::vector<ccd_pt_edge_t*>& border_edge_order,
     const std::unordered_set<int>& border_edge_indices_expected,
     const std::unordered_set<int>& visible_face_indices_expected,
     const std::unordered_set<int> internal_edges_indices_expected) {
@@ -568,6 +571,11 @@ void CheckComputeVisiblePatchCommon(
   for (const int edge_index : border_edge_indices_expected) {
     EXPECT_TRUE(IsElementInSet(border_edges, &polytope.e(edge_index)));
   }
+  // Check border_edge_order holds each border edge exactly once.
+  EXPECT_EQ(border_edge_order.size(), border_edges.size());
+  EXPECT_EQ(std::unordered_set<ccd_pt_edge_t*>(border_edge_order.begin(),
+                                               border_edge_order.end()),
+            border_edges);
   // Check visible_faces
   EXPECT_EQ(visible_faces.size(), visible_face_indices_expected.size());
   for (const int face_index : visible_face_indices_expected) {
@@ -594,13 +602,15 @@ void CheckComputeVisiblePatchRecursive(
   std::unordered_set<ccd_pt_face_t*> hidden_faces;
   visible_faces.insert(&face);
   std::unordered_set<ccd_pt_edge_t*> internal_edges;
+  std::vector<ccd_pt_edge_t*> border_edge_order;
   for (const int edge_index : edge_indices) {
     libccd_extension::ComputeVisiblePatchRecursive(
         polytope.polytope(), face, edge_index, new_vertex, &border_edges,
-        &visible_faces, &hidden_faces, &internal_edges);
+        &visible_faces, &hidden_faces, &internal_edges, &border_edge_order);
   }
   CheckComputeVisiblePatchCommon(polytope, border_edges, visible_faces,
-                                 internal_edges, border_edge_indices_expected,
+                                 internal_edges, border_edge_order,
+                                 border_edge_indices_expected,
                                  visible_face_indices_expected,
                                  internal_edges_indices_expected);
 
@@ -618,12 +628,14 @@ void CheckComputeVisiblePatch(
   std::unordered_set<ccd_pt_edge_t*> border_edges;
   std::unordered_set<ccd_pt_face_t*> visible_faces;
   std::unordered_set<ccd_pt_edge_t*> internal_edges;
+  std::vector<ccd_pt_edge_t*> border_edge_order;
   libccd_extension::ComputeVisiblePatch(polytope.polytope(), face, new_vertex,
                                         &border_edges, &visible_faces,
-                                        &internal_edges);
+                                        &internal_edges, &border_edge_order);
 
   CheckComputeVisiblePatchCommon(polytope, border_edges, visible_faces,
-                                 internal_edges, border_edge_indices_expected,
+                                 internal_edges, border_edge_order,
+                                 border_edge_indices_expected,
                                  visible_face_indices_expected,
                                  internal_edges_indices_expected);
 }
@@ -723,13 +735,18 @@ void CheckComputeVisiblePatchColinearNewVertex(EquilateralTetrahedron& tet,
   std::unordered_set<ccd_pt_edge_t*> border_edges;
   std::unordered_set<ccd_pt_face_t*> visible_faces;
   std::unordered_set<ccd_pt_edge_t*> internal_edges;
+  std::vector<ccd_pt_edge_t*> border_edge_order;
   libccd_extension::ComputeVisiblePatch(tet.polytope(), tet.f(3), query_point,
                                         &border_edges, &visible_faces,
-                                        &internal_edges);
+                                        &internal_edges, &border_edge_order);
 
   EXPECT_EQ(border_edges.size(), 3u);
   EXPECT_EQ(border_edges, std::unordered_set<ccd_pt_edge_t*>(
                               {&(tet.e(1)), &(tet.e(4)), &(tet.e(5))}));
+  EXPECT_EQ(border_edge_order.size(), 3u);
+  EXPECT_EQ(std::unordered_set<ccd_pt_edge_t*>(border_edge_order.begin(),
+                                               border_edge_order.end()),
+            border_edges);
   EXPECT_EQ(visible_faces.size(), 3u);
   EXPECT_EQ(visible_faces, std::unordered_set<ccd_pt_face_t*>(
                                {&(tet.f(0)), &(tet.f(1)), &(tet.f(3))}));

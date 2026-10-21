@@ -44,6 +44,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include "fcl/common/unused.h"
 #include "fcl/common/warning.h"
@@ -1260,12 +1261,18 @@ static bool ComputeVisiblePatchRecursiveSanityCheck(
  @param edge              The edge to classify.
  @param border_edges      The set of edges already classified as border.
  @param internal_edges    The set of edges already classified as internal.
+ @param border_edge_order The border edges in the order they were classified;
+                          `edge` is appended to it the first time it is
+                          classified as border.
  @throws ThrowFailedAtThisConfiguration if the edge is being re-classified.
  */
 static void ClassifyBorderEdge(ccd_pt_edge_t* edge,
                         std::unordered_set<ccd_pt_edge_t*>* border_edges,
-                        std::unordered_set<ccd_pt_edge_t*>* internal_edges) {
-  border_edges->insert(edge);
+                        std::unordered_set<ccd_pt_edge_t*>* internal_edges,
+                        std::vector<ccd_pt_edge_t*>* border_edge_order) {
+  if (border_edges->insert(edge).second) {
+    border_edge_order->push_back(edge);
+  }
   if (internal_edges->count(edge) > 0) {
     FCL_THROW_FAILED_AT_THIS_CONFIGURATION(
         "An edge is being classified as border that has already been "
@@ -1297,7 +1304,9 @@ static void ClassifyInternalEdge(ccd_pt_edge_t* edge,
  * ComputeVisiblePatch().
  * The parameters are documented as in ComputeVisiblePatch() but has the
  * additional parameter: hidden_faces. Every visited face will be categorized
- * explicitly as either visible or hidden.
+ * explicitly as either visible or hidden. The traversal follows the faces'
+ * edge arrays, not the sets, so the order in which border edges are found
+ * (and appended to `border_edge_order`) is deterministic.
  * By design, whatever classification is _first_ given to a face (visible or
  * hidden) it can't change. This doesn't purport that the first classification
  * is more correct than any subsequent code that might otherwise classify it
@@ -1310,7 +1319,8 @@ static void ComputeVisiblePatchRecursive(
     std::unordered_set<ccd_pt_edge_t*>* border_edges,
     std::unordered_set<ccd_pt_face_t*>* visible_faces,
     std::unordered_set<ccd_pt_face_t*>* hidden_faces,
-    std::unordered_set<ccd_pt_edge_t*>* internal_edges) {
+    std::unordered_set<ccd_pt_edge_t*>* internal_edges,
+    std::vector<ccd_pt_edge_t*>* border_edge_order) {
   ccd_pt_edge_t* edge = f.edge[edge_index];
 
   ccd_pt_face_t* g = edge->faces[0] == &f ? edge->faces[1] : edge->faces[0];
@@ -1332,7 +1342,7 @@ static void ComputeVisiblePatchRecursive(
   if (is_hidden) {
     // Face *has* already been classified as hidden; we just need to classify
     // the edge.
-    ClassifyBorderEdge(edge, border_edges, internal_edges);
+    ClassifyBorderEdge(edge, border_edges, internal_edges, border_edge_order);
     return;
   }
 
@@ -1362,13 +1372,13 @@ static void ComputeVisiblePatchRecursive(
         // One of the neighbouring face is `f`, so do not need to visit again.
         ComputeVisiblePatchRecursive(polytope, *g, i, query_point, border_edges,
                                      visible_faces, hidden_faces,
-                                     internal_edges);
+                                     internal_edges, border_edge_order);
       }
     }
   } else {
     // No logic could classify the face as visible, so mark it hidden and
     // mark the edge as a border edge.
-    ClassifyBorderEdge(edge, border_edges, internal_edges);
+    ClassifyBorderEdge(edge, border_edges, internal_edges, border_edge_order);
     hidden_faces->insert(g);
   }
 }
@@ -1395,6 +1405,8 @@ static void ComputeVisiblePatchRecursive(
  * @param[out] border_edges    The collection of patch border edges.
  * @param[out] visible_faces   The collection of patch faces.
  * @param[out] internal_edges  The collection of internal edges.
+ * @param[out] border_edge_order  The border edges in the (deterministic) order
+ *                                they were found.
  * @throws UnexpectedConfigurationException in debug builds if the resulting
  * patch is not consistent.
  *
@@ -1412,20 +1424,23 @@ static void ComputeVisiblePatch(
     const ccd_vec3_t& query_point,
     std::unordered_set<ccd_pt_edge_t*>* border_edges,
     std::unordered_set<ccd_pt_face_t*>* visible_faces,
-    std::unordered_set<ccd_pt_edge_t*>* internal_edges) {
+    std::unordered_set<ccd_pt_edge_t*>* internal_edges,
+    std::vector<ccd_pt_edge_t*>* border_edge_order) {
   assert(border_edges);
   assert(visible_faces);
   assert(internal_edges);
+  assert(border_edge_order);
   assert(border_edges->empty());
   assert(visible_faces->empty());
   assert(internal_edges->empty());
+  assert(border_edge_order->empty());
   assert(isOutsidePolytopeFace(&polytope, &f, &query_point));
   std::unordered_set<ccd_pt_face_t*> hidden_faces;
   visible_faces->insert(&f);
   for (int edge_index = 0; edge_index < 3; ++edge_index) {
     ComputeVisiblePatchRecursive(polytope, f, edge_index, query_point,
                                  border_edges, visible_faces, &hidden_faces,
-                                 internal_edges);
+                                 internal_edges, border_edge_order);
   }
 #ifndef NDEBUG
   // TODO(SeanCurtis-TRI): Extend the sanity check to include hidden_faces.
@@ -1512,8 +1527,9 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   std::unordered_set<ccd_pt_face_t*> visible_faces;
   std::unordered_set<ccd_pt_edge_t*> internal_edges;
   std::unordered_set<ccd_pt_edge_t*> border_edges;
+  std::vector<ccd_pt_edge_t*> border_edge_order;
   ComputeVisiblePatch(*polytope, *start_face, newv->v, &border_edges,
-                      &visible_faces, &internal_edges);
+                      &visible_faces, &internal_edges, &border_edge_order);
 
   // Now remove all the obsolete faces.
   // TODO(hongkai.dai@tri.global): currently we need to loop through each face
@@ -1549,7 +1565,14 @@ static int expandPolytope(ccd_pt_t *polytope, ccd_pt_el_t *el,
   // edges to a new edge, with one end being the new vertex, and the other end
   // being that vertex on the silhouette edges.
   std::unordered_map<ccd_pt_vertex_t*, ccd_pt_edge_t*> map_vertex_to_new_edge;
-  for (const auto& border_edge : border_edges) {
+  // The new edges and faces are appended to the polytope's lists in the order
+  // the border edges are visited, and later queries (e.g., the nearest face,
+  // whose near-ties libccd breaks by list order) depend on that order. Iterating
+  // border_edges directly would visit them in pointer-hash order, which depends
+  // on where the heap placed them, making the result vary from run to run. So
+  // visit them in the order ComputeVisiblePatch() found them, which is
+  // deterministic.
+  for (ccd_pt_edge_t* border_edge : border_edge_order) {
     ccd_pt_edge_t* e[2];  // The two new edges added by connecting new_vertex
                           // to the two vertices on border_edge.
     for (int i = 0; i < 2; ++i) {
