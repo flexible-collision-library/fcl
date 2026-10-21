@@ -37,6 +37,7 @@
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd-inl.h"
 
 #include <algorithm>
+#include <tuple>
 
 #include <gtest/gtest.h>
 
@@ -106,7 +107,8 @@ class DoSimplex2Test : public ::testing::Test {
   // defined point A is in Region 1.
   void ConfigureDeathTest(double u, double v) {
     const Vector3Ccd p_OA = phat_OB_ * u + norm_OB_ * v;
-    SetValidSimplex(eigen_to_ccd(p_OA), eigen_to_ccd(p_OB_), false);
+    std::ignore =
+        SetValidSimplex(eigen_to_ccd(p_OA), eigen_to_ccd(p_OB_), false);
   }
 
   // The simplex the tests will operate on.
