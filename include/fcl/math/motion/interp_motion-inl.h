@@ -56,8 +56,10 @@ InterpMotion<S>::InterpMotion()
   angular_vel = 0;
 
   // Default reference point is local zero point
+  reference_p = Vector3<S>::Zero();
 
   // Default linear velocity is zero
+  linear_vel = Vector3<S>::Zero();
 }
 
 //==============================================================================
