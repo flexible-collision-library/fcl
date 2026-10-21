@@ -39,6 +39,7 @@
 #define FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
 
 #include <array>
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <string>
