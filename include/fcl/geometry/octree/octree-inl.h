@@ -90,6 +90,15 @@ void OcTree<S>::computeLocalAABB()
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
+template <typename S>
+AABB<S> OcTree<S>::getOccupiedMetricBV() const
+{
+  S x_min, y_min, z_min, x_max, y_max, z_max;
+  tree->getMetricMin(x_min, y_min, z_min);
+  tree->getMetricMax(x_max, y_max, z_max);
+  return AABB<S>(Vector3<S>(x_min, y_min, z_min), Vector3<S>(x_max, y_max, z_max));
+}
+
 //==============================================================================
 template <typename S>
 AABB<S> OcTree<S>::getRootBV() const
