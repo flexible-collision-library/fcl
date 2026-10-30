@@ -75,7 +75,12 @@ Vector6<S> SamplerSE3Euler<S>::sample() const
   this->rng.quaternion(s);
 
   Quaternion<S> quat(s[0], s[1], s[2], s[3]);
+
+  #if EIGEN_VERSION_AT_LEAST(5,0,0)
+  Vector3<S> angles = quat.toRotationMatrix().canonicalEulerAngles(0, 1, 2);
+  #else
   Vector3<S> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
+  #endif
 
   q[3] = angles[0];
   q[4] = angles[1];
