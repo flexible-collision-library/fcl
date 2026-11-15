@@ -40,6 +40,8 @@
 
 #include "fcl/math/rng.h"
 
+#include <cassert>
+
 namespace fcl
 {
 

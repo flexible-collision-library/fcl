@@ -10,7 +10,7 @@
 #  EIGEN3_INCLUDE_DIR - the eigen include directory
 #  EIGEN3_VERSION - eigen version
 #
-# This module reads hints about search locations from 
+# This module reads hints about search locations from
 # the following enviroment variables:
 #
 # EIGEN3_ROOT
@@ -36,7 +36,11 @@ if(NOT Eigen3_FIND_VERSION)
 endif(NOT Eigen3_FIND_VERSION)
 
 macro(_eigen3_check_version)
-  file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" _eigen3_version_header)
+  if(EXISTS "${EIGEN3_INCLUDE_DIR}/Eigen/Version")
+    file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/Version" _eigen3_version_header)
+  else()
+    file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" _eigen3_version_header)
+  endif()
 
   string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" _eigen3_world_version_match "${_eigen3_version_header}")
   set(EIGEN3_WORLD_VERSION "${CMAKE_MATCH_1}")
@@ -69,7 +73,7 @@ else (EIGEN3_INCLUDE_DIR)
 
   find_path(EIGEN3_INCLUDE_DIR NAMES signature_of_eigen3_matrix_library
       HINTS
-      ENV EIGEN3_ROOT 
+      ENV EIGEN3_ROOT
       ENV EIGEN3_ROOT_DIR
       PATHS
       ${CMAKE_INSTALL_PREFIX}/include
