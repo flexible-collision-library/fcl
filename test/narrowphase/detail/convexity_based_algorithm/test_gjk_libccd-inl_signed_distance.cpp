@@ -142,7 +142,7 @@ void TestSphereToSphereGJKSignedDistance(S radius1, S radius2,
 
 template <typename S>
 struct SphereSpecification {
-  SphereSpecification<S>(S radius_, const Vector3<S>& center_)
+  SphereSpecification(S radius_, const Vector3<S>& center_)
       : radius{radius_}, center{center_} {}
   S radius;
   Vector3<S> center;
