@@ -1,9 +1,81 @@
 ## FCL 0
 
+### FCL 0.8.0 (2026-11-15)
+
 * Breaking changes
 
   * Macosx is no longer part of CI. [659](https://github.com/flexible-collision-library/fcl/pull/659)
-      * See Issue [661](https://github.com/flexible-collision-library/fcl/issues/661) on how to restore it.
+    * See Issue [661](https://github.com/flexible-collision-library/fcl/issues/661) on how to restore it.
+  * Build with C++17 by default, except on Windows (C++14):
+    [#659](https://github.com/flexible-collision-library/fcl/pull/659)
+  * gtest is no longer vendored; it is fetched by CMake (upgraded from 1.7 to 1.12):
+    [#598](https://github.com/flexible-collision-library/fcl/pull/598)
+
+* Core/Common
+
+  * Specify the C++11 requirement with target_compile_features:
+    [#645](https://github.com/flexible-collision-library/fcl/pull/645)
+  * Add missing cassert includes:
+    [#620](https://github.com/flexible-collision-library/fcl/pull/620)
+    [#649](https://github.com/flexible-collision-library/fcl/pull/649)
+  * Silence uninitialized-variable and other modern compiler warnings:
+    [#657](https://github.com/flexible-collision-library/fcl/pull/657)
+    [#660](https://github.com/flexible-collision-library/fcl/pull/660)
+  * Detect the Eigen version correctly with Eigen 5 in FindEigen3.cmake
+
+* Math
+
+  * Fix compile error in motion classes when S is not double:
+    [#592](https://github.com/flexible-collision-library/fcl/pull/592)
+  * Initialize InterpMotion reference_p and linear_vel to zero:
+    [#510](https://github.com/flexible-collision-library/fcl/pull/510)
+    [#662](https://github.com/flexible-collision-library/fcl/pull/662)
+  * Fix Eigen eulerAngles deprecation warning in SE(3) Euler samplers:
+    [#669](https://github.com/flexible-collision-library/fcl/pull/669)
+
+* Geometry
+
+  * Shapes get a representation() method for reproducible failure reports:
+    [#594](https://github.com/flexible-collision-library/fcl/pull/594)
+  * Fix signed/unsigned conversion in BVHModel tree construction:
+    [#622](https://github.com/flexible-collision-library/fcl/pull/622)
+  * Bound rotated geometry by the rotated local AABB (tighter AABBs):
+    [#664](https://github.com/flexible-collision-library/fcl/pull/664)
+
+* Broadphase
+
+  * Fix SaP manager corruption when an AABB changes width:
+    [#665](https://github.com/flexible-collision-library/fcl/pull/665)
+
+* Narrowphase
+
+  * EPA-GJK failure message can reproduce Convex shapes:
+    [#594](https://github.com/flexible-collision-library/fcl/pull/594)
+  * Make EPA more robust with a wrapped ccdVec3PointTriDist2:
+    [#634](https://github.com/flexible-collision-library/fcl/pull/634)
+  * Correct doSimplex4() tolerances:
+    [#652](https://github.com/flexible-collision-library/fcl/pull/652)
+  * Fix EPA outward face normal for near-planar polytopes:
+    [#658](https://github.com/flexible-collision-library/fcl/pull/658)
+  * Make EPA polytope expansion deterministic:
+    [#670](https://github.com/flexible-collision-library/fcl/pull/670)
+
+* Build/Test/Misc
+
+  * Move CI from Travis to GitHub Actions:
+    [#596](https://github.com/flexible-collision-library/fcl/pull/596)
+    [#597](https://github.com/flexible-collision-library/fcl/pull/597)
+    [#600](https://github.com/flexible-collision-library/fcl/pull/600)
+    [#647](https://github.com/flexible-collision-library/fcl/pull/647)
+    [#666](https://github.com/flexible-collision-library/fcl/pull/666)
+  * Update CI to Ubuntu 24.04 and OctoMap 1.10.0:
+    [#659](https://github.com/flexible-collision-library/fcl/pull/659)
+  * Only create uninstall target if it does not exist:
+    [#612](https://github.com/flexible-collision-library/fcl/pull/612)
+  * Use a local gtest if found:
+    [#654](https://github.com/flexible-collision-library/fcl/pull/654)
+  * Fix test warnings with newer gtest and compilers:
+    [#669](https://github.com/flexible-collision-library/fcl/pull/669)
 
 ### FCL 0.7.0 (2021-09-09)
 
