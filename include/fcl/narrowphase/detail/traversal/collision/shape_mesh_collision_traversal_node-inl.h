@@ -41,6 +41,7 @@
 #include "fcl/narrowphase/detail/traversal/collision/shape_mesh_collision_traversal_node.h"
 
 #include "fcl/common/unused.h"
+#include "fcl/narrowphase/detail/traversal/collision/mesh_shape_collision_traversal_node.h"
 
 namespace fcl
 {
