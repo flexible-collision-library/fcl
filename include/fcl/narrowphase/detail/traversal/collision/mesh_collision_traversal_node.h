@@ -145,16 +145,6 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-//  FCL_DEPRECATED
-//  bool BVTesting(int b1, int b2, const Matrix3<S>& Rc, const Vector3<S>& Tc) const;
-
-  bool BVTesting(int b1, int b2, const Transform3<S>& tf) const;
-
-//  FCL_DEPRECATED
-//  void leafTesting(int b1, int b2, const Matrix3<S>& Rc, const Vector3<S>& Tc) const;
-
-  void leafTesting(int b1, int b2, const Transform3<S>& tf) const;
-
   Matrix3<S> R;
   Vector3<S> T;
 
