@@ -304,7 +304,7 @@ else()
   set(FIND_DEPENDENCY_EIGEN3)
 endif()
 
-if(TARGET octomap)
+if(TARGET octomap::octomap OR TARGET octomap)
   set(FIND_DEPENDENCY_OCTOMAP "find_dependency(octomap)")
 else()
   set(FIND_DEPENDENCY_OCTOMAP)
